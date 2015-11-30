@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/lib/asterisk/agi_bin
+END
+getnvram.sh
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/lib/asterisk/agi_bin/getnvram.sh
+END
+web_audio.txt
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/lib/asterisk/agi_bin/web_audio.txt
+END
+get_config_file.sh
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/lib/asterisk/agi_bin/get_config_file.sh
+END
+islocalprefix.sh
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/lib/asterisk/agi_bin/islocalprefix.sh
+END
+web_audio.sh
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/lib/asterisk/agi_bin/web_audio.sh
+END
+send_wa_dir.sh
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/lib/asterisk/agi_bin/send_wa_dir.sh
+END
+getnvramvars.sh
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/lib/asterisk/agi_bin/getnvramvars.sh
+END
+getlocalprefixes.sh
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/lib/asterisk/agi_bin/getlocalprefixes.sh
+END

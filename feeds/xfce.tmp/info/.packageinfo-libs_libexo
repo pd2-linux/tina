@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xfce/libs/libexo/Makefile
+Package: libexo
+Submenu: framework
+Version: 0.3.101-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +gtk2 +libxfce4util
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: libexo
+Maintainer: 
+Source: exo-0.3.101.tar.bz2
+Type: ipkg
+Description: libexo
+
+@@
+
+

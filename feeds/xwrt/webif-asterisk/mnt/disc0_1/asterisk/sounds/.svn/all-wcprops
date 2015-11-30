@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/mnt/disc0_1/asterisk/sounds
+END
+webcall-rcvd.ulaw
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/mnt/disc0_1/asterisk/sounds/webcall-rcvd.ulaw
+END
+webcall-menu.ulaw
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/mnt/disc0_1/asterisk/sounds/webcall-menu.ulaw
+END
+wait-moment.ulaw
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/mnt/disc0_1/asterisk/sounds/wait-moment.ulaw
+END

@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xorg/xorg/data/xbitmaps/Makefile
+Package: xbitmaps
+Submenu: data
+Version: 1.1.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-data
+Category: Xorg
+Title: xbitmaps
+Maintainer: 
+Source: xbitmaps-1.1.0.tar.bz2
+Type: ipkg
+Description: xbitmaps
+http://xorg.freedesktop.org/
+
+@@
+
+

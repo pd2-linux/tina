@@ -1,0 +1,20 @@
+Source-Makefile: feeds/xorg/lib/wnck/Makefile
+Package: libwnck
+Submenu: libraries
+Version: 2.26.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +gtk2 +glib2 +libXext +BUILD_NLS:libintl-full
+Menu-Depends: 
+Provides: 
+Build-Depends: intltool/host libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-libraries
+Category: Xorg
+Title: Window Navigator Construction Kit
+Maintainer: 
+Source: libwnck-2.26.1.tar.bz2
+Type: ipkg
+Description: Window Navigator Construction Kit
+http://ftp.gnome.org/
+
+@@
+
+

@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xorg/xorg/proto/scrnsaverproto/Makefile
+Package: scrnsaverproto
+Submenu: proto
+Version: 1.2.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: scrnsaverproto
+Maintainer: 
+Source: scrnsaverproto-1.2.0.tar.bz2
+Type: ipkg
+Description: scrnsaverproto
+http://xorg.freedesktop.org/
+
+@@
+
+

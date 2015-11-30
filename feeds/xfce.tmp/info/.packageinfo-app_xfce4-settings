@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xfce/app/xfce4-settings/Makefile
+Package: xfce4-settings
+Submenu: app
+Version: 4.6.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxfce4util +libxfcegui4 +libexo +xfconf +libglade +libdbus-glib +libXi +libXrandr +xrdb
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: xfce4-settings
+Maintainer: 
+Source: xfce4-settings-4.6.1.tar.bz2
+Type: ipkg
+Description: xfce4-settings
+
+@@
+
+

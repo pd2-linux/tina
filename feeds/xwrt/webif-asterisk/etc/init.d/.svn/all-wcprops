@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/init.d
+END
+httpd
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/init.d/httpd
+END
+custom-user-startup
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/init.d/custom-user-startup
+END

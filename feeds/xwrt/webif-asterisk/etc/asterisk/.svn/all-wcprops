@@ -1,0 +1,263 @@
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk
+END
+extconfig.conf
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/extconfig.conf
+END
+iaxprov.conf
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/iaxprov.conf
+END
+sip.conf
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/sip.conf
+END
+extensions.conf
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/extensions.conf
+END
+codecs.conf
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/codecs.conf
+END
+voicemail_additional.conf
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/voicemail_additional.conf
+END
+osp.conf
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/osp.conf
+END
+gtalk.conf
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/gtalk.conf
+END
+cdr_custom.conf
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/cdr_custom.conf
+END
+enum.conf
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/enum.conf
+END
+modules.conf
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/modules.conf
+END
+features.conf
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/features.conf
+END
+muted.conf
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/muted.conf
+END
+alarmreceiver.conf
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/alarmreceiver.conf
+END
+sip_notify.conf
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/sip_notify.conf
+END
+asterisk.conf
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/asterisk.conf
+END
+res_snmp.conf
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/res_snmp.conf
+END
+dnsmgr.conf
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/dnsmgr.conf
+END
+smdi.conf
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/smdi.conf
+END
+say.conf
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/say.conf
+END
+users.conf
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/users.conf
+END
+amd.conf
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/amd.conf
+END
+queues_custom.conf
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/queues_custom.conf
+END
+cdr_manager.conf
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/cdr_manager.conf
+END
+indications.conf
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/indications.conf
+END
+rtp.conf
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/rtp.conf
+END
+queues.conf
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/queues.conf
+END
+voicemail.conf
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/voicemail.conf
+END
+cdr.conf
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/cdr.conf
+END
+manager.conf
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/manager.conf
+END
+misdn.conf
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/misdn.conf
+END
+extensions.ael
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/extensions.ael
+END
+iax_custom.conf
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/iax_custom.conf
+END
+privacy.conf
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/privacy.conf
+END
+logger.conf
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/logger.conf
+END
+h323.conf
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/h323.conf
+END
+http.conf
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/http.conf
+END
+iax.conf
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/iax.conf
+END
+agents.conf
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/agents.conf
+END
+musiconhold.conf
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/musiconhold.conf
+END
+followme.conf
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/followme.conf
+END
+jabber.conf
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/jabber.conf
+END
+sip_custom.conf
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/etc/asterisk/sip_custom.conf
+END

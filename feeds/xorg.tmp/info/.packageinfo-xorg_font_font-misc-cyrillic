@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xorg/xorg/font/font-misc-cyrillic/Makefile
+Package: font-misc-cyrillic
+Submenu: font
+Version: 1.0.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver +font-util @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: font-misc-cyrillic
+Maintainer: 
+Source: font-misc-cyrillic-1.0.0.tar.bz2
+Type: ipkg
+Description: font-misc-cyrillic
+http://xorg.freedesktop.org/
+
+@@
+
+

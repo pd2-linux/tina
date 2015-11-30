@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/4820/trunk/package/webif/files/etc/config
+END
+cron
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/3404/trunk/package/webif/files/etc/config/cron
+END
+webif
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/4692/trunk/package/webif/files/etc/config/webif
+END

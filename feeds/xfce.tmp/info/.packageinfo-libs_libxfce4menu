@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xfce/libs/libxfce4menu/Makefile
+Package: libxfce4menu
+Submenu: framework
+Version: 4.6.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +gtk2 +libxfce4util +glib2
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: libxfce4menu
+Maintainer: 
+Source: libxfce4menu-4.6.1.tar.bz2
+Type: ipkg
+Description: libxfce4menu
+
+@@
+
+

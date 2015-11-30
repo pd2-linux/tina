@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xorg/xorg/data/xkbdata/Makefile
+Package: xkbdata
+Submenu: data
+Version: 1.0.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xkbcomp
+Menu-Depends: 
+Provides: 
+Section: xorg-data
+Category: Xorg
+Title: xkbdata
+Maintainer: 
+Source: xkbdata-1.0.1.tar.bz2
+Type: ipkg
+Description: xkbdata
+http://xorg.freedesktop.org/
+
+@@
+
+

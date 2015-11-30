@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xorg/xserver/xglamo/Makefile
+Package: xglamo
+Submenu: server
+Version: 20081205-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +tslib +recordproto +glproto +libdrm +xf86driproto +xineramaproto +calibrateproto +compositeproto +libpthread +randrproto +renderproto +fixesproto +damageproto +xcmiscproto +xextproto +xproto +scrnsaverproto +bigreqsproto +resourceproto +fontsproto +inputproto +kbproto +videoproto +resourceproto +xtrans +libxkbfile +libXfont +libXau +libfontenc +pixman +libopenssl @DISPLAY_SUPPORT @arm||armeb @TARGET_s3c24xx
+Menu-Depends: 
+Provides: 
+Section: xorg-server
+Category: Xorg
+Title: xglamo
+Maintainer: 
+Source: xglamo-20081205.tar.bz2
+Type: ipkg
+Description: 	 kdrive server with acceleration support for the graphics chip <glamo> by smedia
+http://git.openmoko.org/?p=xglamo.git
+
+@@
+
+

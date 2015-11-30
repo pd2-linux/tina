@@ -1,0 +1,350 @@
+Source-Makefile: feeds/efl/python-e_dbus/Makefile
+Package: python-e_dbus
+Submenu: Python
+Version: r40853-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python-mini +ecore +edbus +dbus-python
+Menu-Depends: 
+Provides: 
+Build-Depends: cython python
+Section: lang
+Category: Languages
+Title: python-e_dbus
+Maintainer: 
+Source: python-e_dbus-r40853.tar.gz
+Type: ipkg
+Description:   e_dbus python bindings
+
+@@
+
+
+Source-Makefile: feeds/efl/elementary/Makefile
+Package: elementary
+Submenu: libraries
+Version: r40853-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +eina +eet +evas +ecore +edje +libpthread
+Menu-Depends: 
+Provides: 
+Build-Depends: edje/host libtool libintl libiconv
+Section: xorg-lib
+Category: Xorg
+Title: Elementary
+Maintainer: 
+Source: elementary-r40853.tar.gz
+Type: ipkg
+Description: Elementary
+http://wiki.enlightenment.org/index.php/Elementary
+
+@@
+
+
+Source-Makefile: feeds/efl/eet/Makefile
+Package: eet
+Submenu: libraries
+Version: r40853-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libjpeg +zlib +eina
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv libtool libintl libiconv
+Build-Depends/host: libjpeg/host eina/host
+Build-Types: host
+Section: xorg-lib
+Category: Xorg
+Title: EET is a tiny library designed to write an arbitary set of chunks of data to a file
+Maintainer: 
+Source: eet-r40853.tar.gz
+Type: ipkg
+Description:   EET is a tiny library designed to write an arbitary set of chunks of data to a file and optionally compress each chunk (very much like a zip file) and allow fast random-access reading of the file later on. EET files are perfect for storing data that is written once (or rarely) and read many times, especially when the program does not want to have to read all the data in at once.
+http://wiki.enlightenment.org/index.php/Eet
+
+@@
+
+
+Source-Makefile: feeds/efl/eina/Makefile
+Package: eina
+Submenu: libraries
+Version: r40853-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libpthread
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv libtool libintl libiconv
+Build-Types: host
+Section: xorg-lib
+Category: Xorg
+Title: Eina
+Maintainer: 
+Source: eina-r40853.tar.gz
+Type: ipkg
+Description: Eina
+http://wiki.enlightenment.org/index.php/Eina
+
+@@
+
+
+Source-Makefile: feeds/efl/python-elementary/Makefile
+Package: python-elementary
+Submenu: Python
+Version: r40853-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python-mini +elementary +evas +eina +python-evas
+Menu-Depends: 
+Provides: 
+Build-Depends: cython python !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: lang
+Category: Languages
+Title: python-elementary
+Maintainer: 
+Source: python-elementary-r40853.tar.gz
+Type: ipkg
+Description:   elementary python bindings
+
+@@
+
+
+Source-Makefile: feeds/efl/python-etk/Makefile
+Package: python-etk
+Submenu: Python
+Version: r40853-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python-mini +etk +python-evas +python-ecore +python-edje
+Menu-Depends: 
+Provides: 
+Build-Depends: cython python !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: lang
+Category: Languages
+Title: python-etk
+Maintainer: 
+Source: python-etk-r40853.tar.gz
+Type: ipkg
+Description:   etk python bindings
+
+@@
+
+
+Source-Makefile: feeds/efl/enlightenment/Makefile
+Package: enlightenment
+Submenu: window manager
+Version: r40853-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libintl +eet +evas +ecore +edje +efreet +dbus +edbus +dejavu-fonts-ttf +freedesktop-compliant
+Menu-Depends: 
+Provides: 
+Build-Depends: edje/host eet/host libtool libintl libiconv
+Section: xorg-wm
+Category: Xorg
+Title: Enlightenment e17 window manager
+Maintainer: 
+Source: enlightenment-r40853.tar.gz
+Type: ipkg
+Description:    Enlightenment is a window manager. Enlightenment is a desktop shell. Enlightenment is the building blocks to create beautiful applications. Enlightenment, or simply e, is a group of people trying to make a new generation of software.
+http://enlightenment.org
+
+@@
+Config:
+  menu "Configuration"
+  depends on PACKAGE_enlightenment
+  source "feeds/efl/enlightenment/Config.in"
+  endmenu
+@@
+
+
+Source-Makefile: feeds/efl/ecore/Makefile
+Package: ecore
+Submenu: libraries
+Version: r40853-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +fribidi +eina +evas +libXtst +libXrandr +libX11 +libXcursor +libXdpms @!LINUX_2_4 +BUILD_NLS:libiconv-full +BUILD_NLS:libintl-full
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Build-Depends/host: eina/host evas/host fribidi/host
+Build-Types: host
+Section: xorg-lib
+Category: Xorg
+Title: Ecore is the core event abstraction layer and X abstraction layer
+Maintainer: 
+Source: ecore-r40853.tar.gz
+Type: ipkg
+Description:   Ecore is the core event abstraction layer and X abstraction layer that makes doing selections, Xdnd, general X stuff, and event loops, timeouts and idle handlers fast, optimized, and convenient. It's a separate library so anyone can make use of the work put into Ecore to make this job easy for applications.
+http://wiki.enlightenment.org/index.php/Ecore
+
+@@
+
+
+Source-Makefile: feeds/efl/embryo/Makefile
+Package: embryo
+Submenu: libraries
+Version: r40853-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv libtool libintl libiconv
+Build-Types: host
+Section: xorg-lib
+Category: Xorg
+Title: Embryo implements a C like scripting language used in various parts of the Enlightenment project (edje)
+Maintainer: 
+Source: embryo-r40853.tar.gz
+Type: ipkg
+Description:   Embryo implements a C like scripting language used in various parts of the Enlightenment project, namely Edje. Embryo's scripting language is based on CompuPhase's Small language that was introduced in Dr Dobb's Journal in 1999. Embryo allows scripting capabilities in places that otherwise wouldn't support basic programming structures such as in Edje EDCs.
+http://wiki.enlightenment.org/index.php/Embryo
+
+@@
+
+
+Source-Makefile: feeds/efl/python-edje/Makefile
+Package: python-edje
+Submenu: Python
+Version: r40853-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python-mini +edje +eina +python-ecore +python-evas
+Menu-Depends: 
+Provides: 
+Build-Depends: cython python
+Section: lang
+Category: Languages
+Title: python-edje
+Maintainer: 
+Source: python-edje-r40853.tar.gz
+Type: ipkg
+Description:   edje python bindings
+
+@@
+
+
+Source-Makefile: feeds/efl/python-evas/Makefile
+Package: python-evas
+Submenu: Python
+Version: r40853-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python-mini +evas
+Menu-Depends: 
+Provides: 
+Build-Depends: cython python
+Section: lang
+Category: Languages
+Title: python-evas
+Maintainer: 
+Source: python-evas-r40853.tar.gz
+Type: ipkg
+Description:   evas python bindings
+
+@@
+
+
+Source-Makefile: feeds/efl/evas/Makefile
+Package: evas
+Submenu: libraries
+Version: r40853-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +fribidi +libXext +libfreetype +libX11 +fontconfig +eet +libjpeg +libpng +libXrender
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv libtool libintl libiconv
+Build-Depends/host: fribidi/host jpeg/host libpng/host libfreetype/host eet/host
+Build-Types: host
+Section: xorg-lib
+Category: Xorg
+Title: Evas is a hardware-accelerated canvas API for X-Windows
+Maintainer: 
+Source: evas-r40853.tar.gz
+Type: ipkg
+Description:   Evas is a hardware-accelerated canvas API for X-Windows that can draw anti-aliased text, smooth super and sub-sampled images, alpha-blend, as well as drop down to using normal X11 primitives such as pixmaps, lines and rectangles for speed if your CPU or graphics hardware are too slow.
+http://wiki.enlightenment.org/index.php/Evas
+
+@@
+
+
+Source-Makefile: feeds/efl/edbus/Makefile
+Package: edbus
+Submenu: libraries
+Version: r40853-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libdbus +ecore
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-lib
+Category: Xorg
+Title: Edbus
+Maintainer: 
+Source: e_dbus-r40853.tar.gz
+Type: ipkg
+Description: Edbus
+http://wiki.enlightenment.org/index.php
+
+@@
+
+
+Source-Makefile: feeds/efl/etk/Makefile
+Package: etk
+Submenu: libraries
+Version: r40853-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +evas +ecore +edje +libintl
+Menu-Depends: 
+Provides: 
+Build-Depends: edje/host libtool libintl libiconv
+Section: xorg-lib
+Category: Xorg
+Title: Etk is a toolkit based on the EFL
+Maintainer: 
+Source: etk-r40853.tar.gz
+Type: ipkg
+Description:   Etk is a toolkit based on the EFL
+http://wiki.enlightenment.org/index.php/Etk
+
+@@
+
+
+Source-Makefile: feeds/efl/edje/Makefile
+Package: edje
+Submenu: libraries
+Version: r40853-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +evas +ecore +eet +embryo
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv libtool libintl libiconv
+Build-Depends/host: evas/host ecore/host eet/host embryo/host
+Build-Types: host
+Section: xorg-lib
+Category: Xorg
+Title: Edje is a graphical design and layout library
+Maintainer: 
+Source: edje-r40853.tar.gz
+Type: ipkg
+Description:   Edje is a graphical design and layout library based on Evas that provides an abstraction layer between the application code and the interface, while allowing extremely flexible dynamic layouts and animations.
+http://wiki.enlightenment.org/index.php/Edje
+
+@@
+
+
+Source-Makefile: feeds/efl/efreet/Makefile
+Package: efreet
+Submenu: libraries
+Version: r40853-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +ecore
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-lib
+Category: Xorg
+Title: Enlightenment freedesktop.org library
+Maintainer: 
+Source: efreet-r40853.tar.gz
+Type: ipkg
+Description:   Efreet is an implementation of several specifications from freedesktop.org intended for use in Enlightenment DR17 (e17) and other applications using the Enlightenment Foundation Libraries (EFL).
+http://wiki.enlightenment.org/index.php/Efreet
+
+@@
+
+
+Source-Makefile: feeds/efl/python-ecore/Makefile
+Package: python-ecore
+Submenu: Python
+Version: r40853-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python-mini +ecore +evas +eina +python-evas
+Menu-Depends: 
+Provides: 
+Build-Depends: cython python !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: lang
+Category: Languages
+Title: python-ecore
+Maintainer: 
+Source: python-ecore-r40853.tar.gz
+Type: ipkg
+Description:   ecore python bindings
+
+@@
+
+

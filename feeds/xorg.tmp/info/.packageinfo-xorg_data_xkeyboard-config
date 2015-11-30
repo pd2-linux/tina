@@ -1,0 +1,20 @@
+Source-Makefile: feeds/xorg/xorg/data/xkeyboard-config/Makefile
+Package: xkeyboard-config
+Submenu: data
+Prereq-Check: 1
+Version: 1.7-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xkbcomp
+Menu-Depends: 
+Provides: 
+Section: xorg-data
+Category: Xorg
+Title: xkeyboard-config
+Maintainer: 
+Source: xkeyboard-config-1.7.tar.bz2
+Type: ipkg
+Description: xkeyboard-config
+http://freedesktop.org/wiki/Software/XKeyboardConfig
+
+@@
+
+

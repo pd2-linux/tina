@@ -1,0 +1,5 @@
+$(eval $(call PackageDir,fso-gsm0710muxd,fso-gsm0710muxd))
+$(eval $(call PackageDir,paroli,paroli))
+$(eval $(call PackageDir,fso-gpsd,fso-gpsd))
+$(eval $(call PackageDir,fso-frameworkd,fso-frameworkd))
+$(eval $(call PackageDir,freerunner-alsa-scenarios,freerunner-alsa-scenarios))

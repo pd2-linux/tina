@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xorg/app/xmessage/Makefile
+Package: xmessage
+Submenu: app
+Version: 1.0.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libXaw
+Menu-Depends: 
+Provides: 
+Section: xorg-app
+Category: Xorg
+Title: xmessage
+Maintainer: 
+Source: xmessage-1.0.2.tar.bz2
+Type: ipkg
+Description: xmessage
+http://xorg.freedesktop.org/
+
+@@
+
+

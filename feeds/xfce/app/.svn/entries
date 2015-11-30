@@ -1,0 +1,76 @@
+10
+
+dir
+46983
+svn://svn.openwrt.org/openwrt/feeds/xfce/app
+svn://svn.openwrt.org/openwrt
+
+
+
+2011-11-20T14:31:32.340992Z
+29279
+nico
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+3c298f89-4303-0410-b956-a3cf2f4a3e73
+
+xfce4-session
+dir
+
+xfprint
+dir
+
+xfce4-mixer
+dir
+
+xarchiver
+dir
+
+orage
+dir
+
+xfce-terminal
+dir
+
+xfce-mousepad
+dir
+
+thunar
+dir
+
+xfburn
+dir
+
+xfce4-panel
+dir
+
+xfce4-settings
+dir
+
+xfdesktop
+dir
+
+xfmedia
+dir
+
+xfce4-appfinder
+dir
+
+xfce-utils
+dir
+
+xfconf
+dir
+

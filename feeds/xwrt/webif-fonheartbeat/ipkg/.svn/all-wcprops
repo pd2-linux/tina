@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/4804/trunk/package/webif-fonheartbeat/ipkg
+END
+webif-fonheartbeat.postinst
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/!svn/ver/4804/trunk/package/webif-fonheartbeat/ipkg/webif-fonheartbeat.postinst
+END
+webif-fonheartbeat.postrm
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/!svn/ver/4804/trunk/package/webif-fonheartbeat/ipkg/webif-fonheartbeat.postrm
+END

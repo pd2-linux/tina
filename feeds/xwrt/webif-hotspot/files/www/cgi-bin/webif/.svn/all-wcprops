@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/4440/trunk/package/webif-hotspot/files/www/cgi-bin/webif
+END
+hotspot-networking.sh
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/!svn/ver/4440/trunk/package/webif-hotspot/files/www/cgi-bin/webif/hotspot-networking.sh
+END
+hotspot-core.sh
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/!svn/ver/4440/trunk/package/webif-hotspot/files/www/cgi-bin/webif/hotspot-core.sh
+END
+hotspot-captive.sh
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/!svn/ver/4440/trunk/package/webif-hotspot/files/www/cgi-bin/webif/hotspot-captive.sh
+END

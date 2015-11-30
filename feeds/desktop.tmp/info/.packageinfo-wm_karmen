@@ -1,0 +1,22 @@
+Source-Makefile: feeds/desktop/wm/karmen/Makefile
+Package: karmen
+Submenu: window manager
+Version: 0.15-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libSM +libICE +freedesktop-compliant
+Menu-Depends: 
+Provides: 
+Section: xorg-wm
+Category: Xorg
+Title: karmen window manager
+Maintainer: 
+Source: karmen-0.15.tar.gz
+Type: ipkg
+Description:   Karmen is a window manager for x, written by Johan Veenhuizen. 
+  It is designed to just work. There is no configuration file and no 
+  library dependencies other than Xlib/libSM/libICE. The input focus model is 
+  click-to-focus. Karmen aims at icccm and ewmh compliance.
+http://karmen.sourceforge.net/
+
+@@
+
+

@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/4964/trunk/package/webif-iw-lua/files/usr/lib/lua/lua-xwrt/xwrt
+END
+cgi.lua
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/!svn/ver/4927/trunk/package/webif-iw-lua/files/usr/lib/lua/lua-xwrt/xwrt/cgi.lua
+END
+init.lua
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/!svn/ver/4923/trunk/package/webif-iw-lua/files/usr/lib/lua/lua-xwrt/xwrt/init.lua
+END
+apply.lua
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/!svn/ver/4873/trunk/package/webif-iw-lua/files/usr/lib/lua/lua-xwrt/xwrt/apply.lua
+END
+std_page.lua
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/!svn/ver/4916/trunk/package/webif-iw-lua/files/usr/lib/lua/lua-xwrt/xwrt/std_page.lua
+END
+changes_uci.lua
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/!svn/ver/4908/trunk/package/webif-iw-lua/files/usr/lib/lua/lua-xwrt/xwrt/changes_uci.lua
+END
+validate.lua
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/!svn/ver/4964/trunk/package/webif-iw-lua/files/usr/lib/lua/lua-xwrt/xwrt/validate.lua
+END
+translator.lua
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/!svn/ver/4873/trunk/package/webif-iw-lua/files/usr/lib/lua/lua-xwrt/xwrt/translator.lua
+END
+cgi_env.lua
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/!svn/ver/4921/trunk/package/webif-iw-lua/files/usr/lib/lua/lua-xwrt/xwrt/cgi_env.lua
+END
+hmenu.lua
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/!svn/ver/4920/trunk/package/webif-iw-lua/files/usr/lib/lua/lua-xwrt/xwrt/hmenu.lua
+END
+page.lua
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/!svn/ver/4927/trunk/package/webif-iw-lua/files/usr/lib/lua/lua-xwrt/xwrt/page.lua
+END
+util.lua
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/!svn/ver/4964/trunk/package/webif-iw-lua/files/usr/lib/lua/lua-xwrt/xwrt/util.lua
+END

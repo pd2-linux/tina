@@ -1,0 +1,17 @@
+Source-Makefile: feeds/phone/freerunner-alsa-scenarios/Makefile
+Package: freerunner-alsa-scenarios
+Version: 20090124-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: phone
+Category: Phone
+Title: alsa audio scenarios for the openmoko neo freerunner
+Maintainer: 
+Source: freerunner-alsa-scenarios-20090124.tar.bz2
+Type: ipkg
+Description: alsa audio scenarios for the openmoko neo freerunner
+
+@@
+
+

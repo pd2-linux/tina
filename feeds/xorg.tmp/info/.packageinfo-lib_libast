@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xorg/lib/libast/Makefile
+Package: libast
+Submenu: libraries
+Version: 0.7-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libpcre +FEATURE_drawing-backend_libX11:libX11 +FEATURE_drawing-backend_libX11:libXt
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libast
+Maintainer: 
+Source: libast-0.7.tar.gz
+Type: ipkg
+Description: libast
+
+@@
+
+

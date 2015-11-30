@@ -1,0 +1,38 @@
+Source-Makefile: feeds/xorg/xorg/xserver/xorg-server/Makefile
+Package: xserver-common
+Submenu: server
+Version: 1.7.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread @!avr32
+Menu-Depends: 
+Provides: 
+Build-Depends: randrproto renderproto fixesproto damageproto xcmiscproto xextproto xproto scrnsaverproto bigreqsproto resourceproto fontsproto inputproto kbproto videoproto resourceproto compositeproto xf86dgaproto xtrans xf86driproto dri2proto libtool libintl libiconv
+Section: xorg-server
+Category: Xorg
+Title: meta-package
+Maintainer: 
+Source: xorg-server-1.7.1.tar.bz2
+Type: ipkg
+Description: meta-package
+http://xorg.freedesktop.org/
+
+@@
+
+Package: xserver-xorg
+Submenu: server
+Version: 1.7.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver-common +libpthread +xkbcomp +libxkbfile +libXfont +libXau +libXv +libfontenc +pixman +libopenssl +libpciaccess +libdrm +libgl-mesa @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: xserver
+Build-Depends: randrproto renderproto fixesproto damageproto xcmiscproto xextproto xproto scrnsaverproto bigreqsproto resourceproto fontsproto inputproto kbproto videoproto resourceproto compositeproto xf86dgaproto xtrans xf86driproto dri2proto libtool libintl libiconv
+Section: xorg-server
+Category: Xorg
+Title: Xorg xserver
+Maintainer: 
+Source: xorg-server-1.7.1.tar.bz2
+Type: ipkg
+Description: Xorg xserver
+http://xorg.freedesktop.org/
+
+@@
+
+

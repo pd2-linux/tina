@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xorg/xorg/app/xkbcomp/Makefile
+Package: xkbcomp
+Submenu: app
+Version: 1.1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libxkbfile
+Menu-Depends: 
+Provides: 
+Section: xorg-app
+Category: Xorg
+Title: xkbcomp
+Maintainer: 
+Source: xkbcomp-1.1.1.tar.bz2
+Type: ipkg
+Description: xkbcomp
+http://xorg.freedesktop.org/
+
+@@
+
+

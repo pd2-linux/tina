@@ -1,0 +1,20 @@
+Source-Makefile: feeds/xorg/xorg/driver/xf86-input-keyboard/Makefile
+Package: xf86-input-keyboard
+Submenu: driver
+Version: 1.4.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver-xorg
+Menu-Depends: 
+Provides: 
+Build-Depends: randrproto inputproto kbproto xproto libtool libintl libiconv
+Section: xorg-driver
+Category: Xorg
+Title: xf86-input-keyboard
+Maintainer: 
+Source: xf86-input-keyboard-1.4.0.tar.bz2
+Type: ipkg
+Description: xf86-input-keyboard
+http://xorg.freedesktop.org/
+
+@@
+
+

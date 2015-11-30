@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/4804/trunk/package/webif-mesh/ipkg
+END
+webif-mesh.postinst
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/4804/trunk/package/webif-mesh/ipkg/webif-mesh.postinst
+END
+webif-mesh.postrm
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/4804/trunk/package/webif-mesh/ipkg/webif-mesh.postrm
+END

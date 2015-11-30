@@ -1,0 +1,19 @@
+Source-Makefile: feeds/lxde/data/lxde-common/Makefile
+Package: lxde-common
+Submenu: app
+Version: 0.5.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +smproxy +openbox +lxsession-lite +hicolor-icon-theme
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: lxde-common
+Maintainer: 
+Source: lxde-common-0.5.0.tar.gz
+Type: ipkg
+Description: lxde-common
+
+@@
+
+

@@ -1,0 +1,38 @@
+Source-Makefile: feeds/xorg/xorg/xserver/xorg-kdrive/Makefile
+Package: xserver-kdrive-xfbdev
+Submenu: server
+Version: 1.7.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread @!avr32 +xserver-common +libpthread +libxkbfile +libXfont +libXau +libXv +libfontenc +pixman +libopenssl +libdrm +xkbcomp +xkbdata @DISPLAY_SUPPORT +X_TSLIB:tslib
+Menu-Depends: 
+Provides: xserver
+Build-Depends: randrproto renderproto fixesproto damageproto xcmiscproto xextproto xproto bigreqsproto resourceproto fontsproto inputproto kbproto videoproto resourceproto xf86dgaproto xtrans xf86driproto calibrateproto compositeproto xineramaproto libtool libintl libiconv
+Section: xorg-server
+Category: Xorg
+Title: Kdrive framebuffer xserver
+Maintainer: 
+Source: xorg-server-1.7.1.tar.bz2
+Type: ipkg
+Description: Kdrive framebuffer xserver
+http://xorg.freedesktop.org/
+
+@@
+
+Package: xserver-kdrive-xephyr
+Submenu: server
+Version: 1.7.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread @!avr32 +xserver-common +libpthread +libxkbfile +libXfont +libXau +libXv +libfontenc +pixman +libopenssl +libdrm +xkbcomp +xkbdata @DISPLAY_SUPPORT +X_TSLIB:tslib @BROKEN
+Menu-Depends: 
+Provides: xserver
+Build-Depends: randrproto renderproto fixesproto damageproto xcmiscproto xextproto xproto bigreqsproto resourceproto fontsproto inputproto kbproto videoproto resourceproto xf86dgaproto xtrans xf86driproto calibrateproto compositeproto xineramaproto libtool libintl libiconv
+Section: xorg-server
+Category: Xorg
+Title: Kdrive ephyr xserver
+Maintainer: 
+Source: xorg-server-1.7.1.tar.bz2
+Type: ipkg
+Description: Kdrive ephyr xserver
+http://xorg.freedesktop.org/
+
+@@
+
+

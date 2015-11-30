@@ -1,0 +1,378 @@
+Source-Makefile: feeds/xorg/lib/libxcb/Makefile
+Package: libxcb
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libXau +libXdmcp
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb provides an interface to the X Window System protocol, which
+replaces the current Xlib interface.
+http://xcb.freedesktop.org/
+
+@@
+
+Package: libxcb-xlib
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-xlib
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-xlib
+
+@@
+
+Package: libxcb-composite
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-composite
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-composite
+
+@@
+
+Package: libxcb-damage
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-damage
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-damage
+
+@@
+
+Package: libxcb-dpms
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-dpms
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-dpms
+
+@@
+
+Package: libxcb-glx
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-glx
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-glx
+
+@@
+
+Package: libxcb-randr
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-randr
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-randr
+
+@@
+
+Package: libxcb-record
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-record
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-record
+
+@@
+
+Package: libxcb-render
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-render
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-render
+
+@@
+
+Package: libxcb-res
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-res
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-res
+
+@@
+
+Package: libxcb-screensaver
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-screensaver
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-screensaver
+
+@@
+
+Package: libxcb-shape
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-shape
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-shape
+
+@@
+
+Package: libxcb-shm
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-shm
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-shm
+
+@@
+
+Package: libxcb-sync
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-sync
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-sync
+
+@@
+
+Package: libxcb-xevie
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-xevie
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-xevie
+
+@@
+
+Package: libxcb-xf86dri
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-xf86dri
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-xf86dri
+
+@@
+
+Package: libxcb-xfixes
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-xfixes
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-xfixes
+
+@@
+
+Package: libxcb-xinerama
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-xinerama
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-xinerama
+
+@@
+
+Package: libxcb-xprint
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-xprint
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-xprint
+
+@@
+
+Package: libxcb-xtest
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-xtest
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-xtest
+
+@@
+
+Package: libxcb-xvmc
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-xvmc
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-xvmc
+
+@@
+
+Package: libxcb-xv
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-xv
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-xv
+
+@@
+
+

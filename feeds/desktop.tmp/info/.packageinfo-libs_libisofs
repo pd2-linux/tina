@@ -1,0 +1,22 @@
+Source-Makefile: feeds/desktop/libs/libisofs/Makefile
+Package: libisofs
+Version: 0.6.8-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libburn +libpthread +BUILD_NLS:libiconv-full
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: libs
+Category: Libraries
+Title: libisofs
+Maintainer: 
+Source: libisofs-0.6.8.tar.gz
+Type: ipkg
+Description: libisofs is a library to create an ISO-9660 filesystem, and supports extensions
+like RockRidge or Joliet. It is also a full featured ISO-9660 editor, allowing
+you to modify an ISO image or multisession disc, including file addition and
+removal, change of file names and attributes, etc
+http://www.libburnia-project.org
+
+@@
+
+

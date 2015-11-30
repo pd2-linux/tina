@@ -1,0 +1,11 @@
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/www/cgi-bin/webcall
+END
+webcall_black_list.sh
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/www/cgi-bin/webcall/webcall_black_list.sh
+END

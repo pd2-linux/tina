@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xorg/xorg/app/xauth/Makefile
+Package: xauth
+Submenu: app
+Version: 1.0.4-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXau +libXext +libXmuu
+Menu-Depends: 
+Provides: 
+Section: xorg-app
+Category: Xorg
+Title: xauth
+Maintainer: 
+Source: xauth-1.0.4.tar.bz2
+Type: ipkg
+Description: xauth
+http://xorg.freedesktop.org/
+
+@@
+
+

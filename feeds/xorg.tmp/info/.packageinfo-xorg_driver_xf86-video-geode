@@ -1,0 +1,20 @@
+Source-Makefile: feeds/xorg/xorg/driver/xf86-video-geode/Makefile
+Package: xf86-video-geode
+Submenu: driver
+Version: 2.11.6-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver-xorg +libpciaccess @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: randrproto renderproto videoproto xextproto xf86dgaproto xproto fontsproto
+Section: xorg-driver
+Category: Xorg
+Title: xf86-video-geode
+Maintainer: 
+Source: xf86-video-geode-2.11.6.tar.bz2
+Type: ipkg
+Description: xf86-video-geode
+http://xorg.freedesktop.org/
+
+@@
+
+

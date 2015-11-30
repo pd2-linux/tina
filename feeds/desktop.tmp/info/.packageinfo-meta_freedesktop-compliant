@@ -1,0 +1,18 @@
+Source-Makefile: feeds/desktop/meta/freedesktop-compliant/Makefile
+Package: freedesktop-compliant
+Submenu: meta
+Version: 1.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-meta
+Category: Xorg
+Title: freedesktop-compliant
+Maintainer: 
+Source: 
+Type: ipkg
+Description: 	This package contains a set of configuraton files based on freedesktop.org specifications which should by freedesktop.org compliant software
+
+@@
+
+

@@ -1,0 +1,38 @@
+Source-Makefile: feeds/xorg/lang/python-gnome-desktop2/Makefile
+Package: python-rsvg
+Submenu: Python
+Version: 2.22.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python-mini python-gtk +librsvg +pycairo
+Menu-Depends: 
+Provides: 
+Build-Depends: gtk2 libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: lang
+Category: Languages
+Title: librsvg python bindings
+Maintainer: 
+Source: gnome-python-desktop-2.22.0.tar.bz2
+Type: ipkg
+Description: librsvg python bindings
+http://ftp.gnome.org/
+
+@@
+
+Package: python-wnck
+Submenu: Python
+Version: 2.22.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python-mini python-gtk +PACKAGE_python-wnck:libwnck
+Menu-Depends: 
+Provides: 
+Build-Depends: gtk2 libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: lang
+Category: Languages
+Title: libwnck python bindings
+Maintainer: 
+Source: gnome-python-desktop-2.22.0.tar.bz2
+Type: ipkg
+Description: libwnck python bindings
+http://ftp.gnome.org/
+
+@@
+
+

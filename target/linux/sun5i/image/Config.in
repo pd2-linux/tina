@@ -1,0 +1,5 @@
+config SUNXI_BOOT_PARTSIZE
+	int "Boot filesystem partition size (in MB)"
+	depends on TARGET_sun5i
+	default 16
+

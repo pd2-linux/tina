@@ -1,0 +1,39 @@
+Source-Makefile: feeds/xorg/lib/hippo-canvas/Makefile
+Package: hippo-canvas
+Submenu: libraries
+Version: 0.3.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread @FEATURE_drawing-backend_libX11 +librsvg +gtk2 +cairo +libcroco +pango
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-libraries
+Category: Xorg
+Title: Hippo Canvas
+Maintainer: 
+Source: hippo-canvas-0.3.0.tar.bz2
+Type: ipkg
+Description: The Hippo Canvas is a Cairo/GObject/GTK+ based canvas, written in C with
+support for flexible layout, CSS styling, and initial work on animations.
+http://developer.mugshot.org/wiki/Hippo_Canvas
+
+@@
+
+Package: python-hippo-canvas
+Submenu: Python
+Version: 0.3.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread @FEATURE_drawing-backend_libX11 +python-mini +PACKAGE_python-hippo-canvas:python-gtk +PACKAGE_python-hippo-canvas:pycairo +hippo-canvas
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: lang-python
+Category: Languages
+Title: Python bindings for hippo canvas
+Maintainer: 
+Source: hippo-canvas-0.3.0.tar.bz2
+Type: ipkg
+Description: Python bindings for hippo canvas
+http://developer.mugshot.org/wiki/Hippo_Canvas
+
+@@
+
+

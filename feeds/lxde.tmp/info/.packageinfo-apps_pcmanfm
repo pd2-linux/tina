@@ -1,0 +1,19 @@
+Source-Makefile: feeds/lxde/apps/pcmanfm/Makefile
+Package: pcmanfm
+Submenu: app
+Version: 0.5-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +gtk2 +libstartup-notification +libgamin
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-app
+Category: Xorg
+Title: pcmanfm
+Maintainer: 
+Source: pcmanfm-0.5.tar.gz
+Type: ipkg
+Description: pcmanfm
+
+@@
+
+

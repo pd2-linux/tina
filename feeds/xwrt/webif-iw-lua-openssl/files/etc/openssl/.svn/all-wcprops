@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/4873/trunk/package/webif-iw-lua-openssl/files/etc/openssl
+END
+cert-revoke
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/!svn/ver/4873/trunk/package/webif-iw-lua-openssl/files/etc/openssl/cert-revoke
+END
+dh-build
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/!svn/ver/4873/trunk/package/webif-iw-lua-openssl/files/etc/openssl/dh-build
+END
+openssl.cnf
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/!svn/ver/4873/trunk/package/webif-iw-lua-openssl/files/etc/openssl/openssl.cnf
+END
+cert-build
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/!svn/ver/4873/trunk/package/webif-iw-lua-openssl/files/etc/openssl/cert-build
+END
+read_uci
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/!svn/ver/4873/trunk/package/webif-iw-lua-openssl/files/etc/openssl/read_uci
+END
+ca-build
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/!svn/ver/4873/trunk/package/webif-iw-lua-openssl/files/etc/openssl/ca-build
+END

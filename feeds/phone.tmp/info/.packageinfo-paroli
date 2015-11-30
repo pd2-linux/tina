@@ -1,0 +1,20 @@
+Source-Makefile: feeds/phone/paroli/Makefile
+Package: paroli
+Prereq-Check: 1
+Version: 20090704-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python +fso-frameworkd +python-evas +python-ecore +python-edje +python-e_dbus +python-etk +python-elementary +python-expat +dbus-launch-x +dbus-utils
+Menu-Depends: 
+Provides: 
+Build-Depends: python
+Section: phone
+Category: Phone
+Title: integrated phone application
+Maintainer: 
+Source: paroli-20090704.tar.bz2
+Type: ipkg
+Description:   Paroli is a phone suite written in Python which uses the FSO (freesmartphone.org) DBus API
+http://paroli-project.org
+
+@@
+
+

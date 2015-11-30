@@ -1,0 +1,19 @@
+Source-Makefile: feeds/efl/python-e_dbus/Makefile
+Package: python-e_dbus
+Submenu: Python
+Version: r40853-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python-mini +ecore +edbus +dbus-python
+Menu-Depends: 
+Provides: 
+Build-Depends: cython python
+Section: lang
+Category: Languages
+Title: python-e_dbus
+Maintainer: 
+Source: python-e_dbus-r40853.tar.gz
+Type: ipkg
+Description:   e_dbus python bindings
+
+@@
+
+

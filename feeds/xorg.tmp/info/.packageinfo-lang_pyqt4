@@ -1,0 +1,20 @@
+Source-Makefile: feeds/xorg/lang/pyqt4/Makefile
+Package: pyqt4
+Submenu: Python
+Version: 4.8.3-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +qt4 +qt4-gui +dbus-python +python +python-sip @FEATURE_drawing-backend_libX11
+Menu-Depends: 
+Provides: 
+Build-Depends: python-sip/host
+Section: language-python
+Category: Languages
+Title: Python QT4
+Maintainer: Michael Buesch <mb@bu3sch.de>
+Source: PyQt-x11-gpl-4.8.3.tar.gz
+Type: ipkg
+Description: Python QT4
+http://www.riverbankcomputing.co.uk/software/pyqt/download
+Michael Buesch <mb@bu3sch.de>
+@@
+
+

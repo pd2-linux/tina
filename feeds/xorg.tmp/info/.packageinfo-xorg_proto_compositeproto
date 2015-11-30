@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xorg/xorg/proto/compositeproto/Makefile
+Package: compositeproto
+Submenu: proto
+Version: 0.4.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: compositeproto
+Maintainer: 
+Source: compositeproto-0.4.1.tar.bz2
+Type: ipkg
+Description: compositeproto
+http://xorg.freedesktop.org/
+
+@@
+
+

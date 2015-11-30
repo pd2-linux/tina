@@ -1,0 +1,11 @@
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/3652/trunk/package/webif-hotspot/files/usr/lib/webif
+END
+apply-hotspot.sh
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/!svn/ver/3652/trunk/package/webif-hotspot/files/usr/lib/webif/apply-hotspot.sh
+END

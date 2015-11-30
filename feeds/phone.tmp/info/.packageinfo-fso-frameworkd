@@ -1,0 +1,19 @@
+Source-Makefile: feeds/phone/fso-frameworkd/Makefile
+Package: fso-frameworkd
+Version: 20090609-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python +dbus-python +python-gobject +pyserial +pyyaml +gst-python +alsa-utils +freerunner-alsa-scenarios
+Menu-Depends: 
+Provides: 
+Build-Depends: cython python
+Section: phone
+Category: Phone
+Title: framework for the freesmartphone.org DBus API reference implementation
+Maintainer: 
+Source: fso-frameworkd-20090609.tar.bz2
+Type: ipkg
+Description:   freesmartphone.org is a collaboration platform for open source and open discussion software projects working on interoperability and shared technology for Linux-based SmartPhones
+http://www.freesmartphone.org
+
+@@
+
+

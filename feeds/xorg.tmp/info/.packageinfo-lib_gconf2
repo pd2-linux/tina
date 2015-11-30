@@ -1,0 +1,36 @@
+Source-Makefile: feeds/xorg/lib/gconf2/Makefile
+Package: libgconf2
+Version: 2.24.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +orbit2 +glib2 +dbus +libdbus-glib +libxml2
+Menu-Depends: 
+Provides: 
+Build-Depends: orbit2/host intltool/host
+Section: libs
+Category: Libraries
+Title: GConf2 library
+Maintainer: 
+Source: GConf-2.24.0.tar.bz2
+Type: ipkg
+Description: GConf is a configuration database system for storing application preferences.
+http://www.gnome.org/projects/gconf/
+
+@@
+
+Package: gconf2
+Version: 2.24.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libgconf2
+Menu-Depends: 
+Provides: 
+Build-Depends: orbit2/host intltool/host
+Section: utils
+Category: Utilities
+Title: GConf2 command line utils
+Maintainer: 
+Source: GConf-2.24.0.tar.bz2
+Type: ipkg
+Description: GConf is a configuration database system for storing application preferences.
+http://www.gnome.org/projects/gconf/
+
+@@
+
+

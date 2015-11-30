@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xorg/xorg/proto/xf86vidmodeproto/Makefile
+Package: xf86vidmodeproto
+Submenu: proto
+Version: 2.3-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: xf86vidmodeproto
+Maintainer: 
+Source: xf86vidmodeproto-2.3.tar.bz2
+Type: ipkg
+Description: xf86vidmodeproto
+http://xorg.freedesktop.org/
+
+@@
+
+

@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xorg/xorg/proto/xf86bigfontproto/Makefile
+Package: xf86bigfontproto
+Submenu: proto
+Version: 1.2.0-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: xf86bigfontproto
+Maintainer: 
+Source: xf86bigfontproto-1.2.0.tar.bz2
+Type: ipkg
+Description: xf86bigfontproto
+http://xorg.freedesktop.org/
+
+@@
+
+

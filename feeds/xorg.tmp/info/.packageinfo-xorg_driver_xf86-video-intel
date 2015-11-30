@@ -1,0 +1,20 @@
+Source-Makefile: feeds/xorg/xorg/driver/xf86-video-intel/Makefile
+Package: xf86-video-intel
+Submenu: driver
+Version: 2.9.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver-xorg @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: xf86driproto glproto
+Section: xorg-driver
+Category: Xorg
+Title: xf86-video-intel
+Maintainer: 
+Source: xf86-video-intel-2.9.1.tar.bz2
+Type: ipkg
+Description: xf86-video-intel
+http://xorg.freedesktop.org/
+
+@@
+
+

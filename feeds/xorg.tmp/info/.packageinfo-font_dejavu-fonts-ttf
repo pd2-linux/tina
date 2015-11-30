@@ -1,0 +1,355 @@
+Source-Makefile: feeds/xorg/font/dejavu-fonts-ttf/Makefile
+Package: dejavu-fonts-ttf
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: dejavu-fonts-ttf
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: dejavu-fonts-ttf
+http://dejavu.sourceforge.net/
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSans-BoldOblique
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSans-BoldOblique
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSans-BoldOblique
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSans-Bold
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSans-Bold
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSans-Bold
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSansCondensed-BoldOblique
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSansCondensed-BoldOblique
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSansCondensed-BoldOblique
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSansCondensed-Bold
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSansCondensed-Bold
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSansCondensed-Bold
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSansCondensed-Oblique
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSansCondensed-Oblique
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSansCondensed-Oblique
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSansCondensed
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSansCondensed
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSansCondensed
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSans-ExtraLight
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSans-ExtraLight
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSans-ExtraLight
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSansMono-BoldOblique
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSansMono-BoldOblique
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSansMono-BoldOblique
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSansMono-Bold
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSansMono-Bold
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSansMono-Bold
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSansMono-Oblique
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSansMono-Oblique
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSansMono-Oblique
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSansMono
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSansMono
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSansMono
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSans-Oblique
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSans-Oblique
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSans-Oblique
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSans
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSans
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSans
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSerif-BoldItalic
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSerif-BoldItalic
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSerif-BoldItalic
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSerif-Bold
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSerif-Bold
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSerif-Bold
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSerifCondensed-BoldItalic
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSerifCondensed-BoldItalic
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSerifCondensed-BoldItalic
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSerifCondensed-Bold
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSerifCondensed-Bold
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSerifCondensed-Bold
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSerifCondensed-Italic
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSerifCondensed-Italic
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSerifCondensed-Italic
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSerifCondensed
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSerifCondensed
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSerifCondensed
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSerif-Italic
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSerif-Italic
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSerif-Italic
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSerif
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSerif
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSerif
+
+@@
+
+

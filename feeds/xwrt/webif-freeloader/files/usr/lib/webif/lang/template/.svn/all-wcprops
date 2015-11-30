@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/!svn/ver/3534/trunk/package/webif-freeloader/files/usr/lib/webif/lang/template
+END
+freeloader-upload.txt
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/!svn/ver/3534/trunk/package/webif-freeloader/files/usr/lib/webif/lang/template/freeloader-upload.txt
+END
+freeloader-log.txt
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/!svn/ver/3534/trunk/package/webif-freeloader/files/usr/lib/webif/lang/template/freeloader-log.txt
+END
+freeloader-status.txt
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/!svn/ver/3534/trunk/package/webif-freeloader/files/usr/lib/webif/lang/template/freeloader-status.txt
+END

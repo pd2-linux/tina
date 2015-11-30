@@ -1,0 +1,344 @@
+Source-Makefile: feeds/xorg/lib/mesa/Makefile
+Package: libgl-mesa
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXext +libXfixes +libXdamage +libXxf86vm +libdrm +libexpat
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: Mesa OpenGL library
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: Mesa OpenGL library
+http://mesa3d.org
+
+@@
+
+Package: libglu-mesa
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libgl-mesa
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: Mesa OpenGL utility library
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: Mesa OpenGL utility library
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-i810
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri i810
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri i810
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-i915
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri i915
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri i915
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-i965
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri i965
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri i965
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-mach64
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri mach64
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri mach64
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-mga
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri mga
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri mga
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-r128
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri r128
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri r128
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-r200
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri r200
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri r200
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-r300
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri r300
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri r300
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-radeon
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri radeon
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri radeon
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-s3v
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri s3v
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri s3v
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-savage
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri savage
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri savage
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-sis
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri sis
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri sis
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-tdfx
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri tdfx
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri tdfx
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-trident
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri trident
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri trident
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-unichrome
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri unichrome
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri unichrome
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-ffb
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri ffb
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri ffb
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-swrast
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri swrast
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri swrast
+http://mesa3d.org
+
+@@
+
+

@@ -1,0 +1,36 @@
+Source-Makefile: feeds/desktop/libs/libgamin/Makefile
+Package: libgamin
+Version: 0.1.10-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +glib2
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: libs
+Category: Libraries
+Title: libgamin
+Maintainer: 
+Source: gamin-0.1.10.tar.bz2
+Type: ipkg
+Description: libgamin
+http://www.gnome.org/~veillard/gamin/
+
+@@
+
+Package: gamin-server
+Version: 0.1.10-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +glib2 +libgamin
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: utils
+Category: Utilities
+Title: gamin-server
+Maintainer: 
+Source: gamin-0.1.10.tar.bz2
+Type: ipkg
+Description: gamin-server
+http://www.gnome.org/~veillard/gamin/
+
+@@
+
+

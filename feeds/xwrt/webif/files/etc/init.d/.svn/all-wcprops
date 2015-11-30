@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/4971/trunk/package/webif/files/etc/init.d
+END
+webiffirewalllog
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/4293/trunk/package/webif/files/etc/init.d/webiffirewalllog
+END
+dmesgbackup
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/4820/trunk/package/webif/files/etc/init.d/dmesgbackup
+END
+custom-user-startup
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/4293/trunk/package/webif/files/etc/init.d/custom-user-startup
+END
+crontab
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/4804/trunk/package/webif/files/etc/init.d/crontab
+END
+timezone
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/4293/trunk/package/webif/files/etc/init.d/timezone
+END
+webif
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/4971/trunk/package/webif/files/etc/init.d/webif
+END

@@ -1,0 +1,360 @@
+Source-Makefile: feeds/desktop/tools/icon-naming-utils/Makefile
+Package: icon-naming-utils
+Prereq-Check: 1
+Version: 0.8.7-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: utils
+Category: Utilities
+Title: Tool for generating icon themes
+Maintainer: 
+Source: icon-naming-utils-0.8.7.tar.bz2
+Type: ipkg
+Description: Tool for generating icon themes
+http://tango.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/desktop/libs/libgamin/Makefile
+Package: libgamin
+Version: 0.1.10-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +glib2
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: libs
+Category: Libraries
+Title: libgamin
+Maintainer: 
+Source: gamin-0.1.10.tar.bz2
+Type: ipkg
+Description: libgamin
+http://www.gnome.org/~veillard/gamin/
+
+@@
+
+Package: gamin-server
+Version: 0.1.10-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +glib2 +libgamin
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: utils
+Category: Utilities
+Title: gamin-server
+Maintainer: 
+Source: gamin-0.1.10.tar.bz2
+Type: ipkg
+Description: gamin-server
+http://www.gnome.org/~veillard/gamin/
+
+@@
+
+
+Source-Makefile: feeds/desktop/libs/libburn/Makefile
+Package: libburn
+Version: 0.6.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libpthread
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: libs
+Category: Libraries
+Title: libburn
+Maintainer: 
+Source: libburn-0.6.0.pl01.tar.gz
+Type: ipkg
+Description: libburn is the library by which preformatted data get onto optical media.
+It uses either /dev/sgN (e.g. on kernel 2.4 with ide-scsi) or /dev/srM or
+/dev/hdX (e.g. on kernel 2.6). libburn is the foundation of our cdrecord
+emulation. Its code is independent of cdrecord. Its DVD capabilities are
+learned from studying the code of dvd+rw-tools and MMC-5 specs. No code but
+only the pure SCSI knowledge has been taken from dvd+rw-tools, though.
+http://www.libburnia-project.org
+
+@@
+
+
+Source-Makefile: feeds/desktop/libs/libisofs/Makefile
+Package: libisofs
+Version: 0.6.8-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libburn +libpthread +BUILD_NLS:libiconv-full
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: libs
+Category: Libraries
+Title: libisofs
+Maintainer: 
+Source: libisofs-0.6.8.tar.gz
+Type: ipkg
+Description: libisofs is a library to create an ISO-9660 filesystem, and supports extensions
+like RockRidge or Joliet. It is also a full featured ISO-9660 editor, allowing
+you to modify an ISO image or multisession disc, including file addition and
+removal, change of file names and attributes, etc
+http://www.libburnia-project.org
+
+@@
+
+
+Source-Makefile: feeds/desktop/libs/gtkhtml/Makefile
+Package: gtkhtml
+Submenu: app
+Version: 3.29.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +gtk2 +libgconf2 +gnome-icon-theme
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: gtkhtml
+Maintainer: 
+Source: gtkhtml-3.29.1.tar.gz
+Type: ipkg
+Description: gtkhtml
+http://www.gnome.org/projects/gtkhtml/
+
+@@
+
+
+Source-Makefile: feeds/desktop/libs/libstartup-notification/Makefile
+Package: libstartup-notification
+Submenu: libraries
+Version: 0.9-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libSM +libICE +libXt
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-libs
+Category: Xorg
+Title: libstartup-notification
+Maintainer: 
+Source: startup-notification-0.9.tar.bz2
+Type: ipkg
+Description: libstartup-notification
+http://freedesktop.org/wiki/Software/startup-notification
+
+@@
+
+
+Source-Makefile: feeds/desktop/libs/libglade/Makefile
+Package: libglade
+Submenu: libraries
+Version: 2.6.3-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxml2 +gtk2
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-libs
+Category: Xorg
+Title: libglade
+Maintainer: 
+Source: libglade-2.6.3.tar.bz2
+Type: ipkg
+Description: libglade
+http://www.jamesh.id.au/software/libglade/
+
+@@
+
+
+Source-Makefile: feeds/desktop/meta/freedesktop-compliant/Makefile
+Package: freedesktop-compliant
+Submenu: meta
+Version: 1.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-meta
+Category: Xorg
+Title: freedesktop-compliant
+Maintainer: 
+Source: 
+Type: ipkg
+Description: 	This package contains a set of configuraton files based on freedesktop.org specifications which should by freedesktop.org compliant software
+
+@@
+
+
+Source-Makefile: feeds/desktop/apps/recordmydesktop/Makefile
+Package: recordmydesktop
+Submenu: app
+Version: 0.3.8.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libSM +libICE +libXext +libXfixes +libXdamage +libvorbis +libtheora +libogg +libpthread +zlib +BUILD_NLS:libiconv-full +BUILD_NLS:libintl-full
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-apps
+Category: Xorg
+Title: A X desktop session recorder
+Maintainer: 
+Source: recordmydesktop-0.3.8.1.tar.gz
+Type: ipkg
+Description: A X desktop session recorder
+http://recordmydesktop.sourceforge.net
+
+@@
+
+
+Source-Makefile: feeds/desktop/apps/tangogps/Makefile
+Package: tangogps
+Submenu: app
+Version: 0.9.6-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libgconf2 +gtk2 +libcurl +libexif +libsqlite3 @BROKEN
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-apps
+Category: Xorg
+Title: Mapping application
+Maintainer: 
+Source: tangogps-0.9.6.tar.gz
+Type: ipkg
+Description: Mapping application
+http://tangogps.org
+
+@@
+
+
+Source-Makefile: feeds/desktop/apps/tint2/Makefile
+Package: tint2
+Submenu: app
+Version: svn626-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +cairo +pango +glib2 +libX11 +libXrandr +libXrender +libXcomposite +libXdamage +imlib2 +python-mini +python-gtk
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: Tint2 - simple panel/taskbar
+Maintainer: Michael Buesch <mb@bu3sch.de>
+Source: tint2-svn626.tar.gz
+Type: ipkg
+Description:   tint2 is a simple panel/taskbar unintrusive and light (memory / cpu / aestetic).
+http://code.google.com/p/tint2/
+Michael Buesch <mb@bu3sch.de>
+@@
+
+
+Source-Makefile: feeds/desktop/apps/gpxview/Makefile
+Package: gpxview
+Submenu: app
+Version: 0.9.1-1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +gpsd +libxml2 +libcurl +libsoup +gtkhtml +gtk2 +glib2 +libsqlite3 +BUILD_NLS:libiconv-full +BUILD_NLS:libintl-full @BROKEN
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: GPXView Geocaching app
+Maintainer: Michael Buesch <mb@bu3sch.de>
+Source: gpxview_0.9.1-1.tar.gz
+Type: ipkg
+Description:   GPXView is a viewer for Geocaching.com GPX files and a simple GPS navigation software.
+http://www.harbaum.org/till/maemo/index.shtml
+Michael Buesch <mb@bu3sch.de>
+@@
+
+
+Source-Makefile: feeds/desktop/data/gnome-icon-theme/Makefile
+Package: gnome-icon-theme
+Submenu: data
+Version: 2.28.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +hicolor-icon-theme
+Menu-Depends: 
+Provides: 
+Build-Depends: icon-naming-utils intltool/host
+Section: xorg-data
+Category: Xorg
+Title: gnome-icon-theme
+Maintainer: 
+Source: gnome-icon-theme-2.28.0.tar.bz2
+Type: ipkg
+Description: gnome-icon-theme
+
+@@
+
+
+Source-Makefile: feeds/desktop/data/tango-icon-theme/Makefile
+Package: tango-icon-theme
+Submenu: data
+Version: 0.8.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +hicolor-icon-theme
+Menu-Depends: 
+Provides: 
+Build-Depends: icon-naming-utils
+Section: xorg-data
+Category: Xorg
+Title: Tango icon theme
+Maintainer: 
+Source: tango-icon-theme-0.8.1.tar.gz
+Type: ipkg
+Description: Tango icon theme
+http://tango.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/desktop/data/hicolor-icon-theme/Makefile
+Package: hicolor-icon-theme
+Submenu: data
+Version: 0.10-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-data
+Category: Xorg
+Title: freedesktop.org icon theme default layout
+Maintainer: 
+Source: hicolor-icon-theme-0.10.tar.gz
+Type: ipkg
+Description: freedesktop.org icon theme default layout
+http://icon-theme.freedesktop.org/wiki/HicolorTheme
+
+@@
+
+
+Source-Makefile: feeds/desktop/wm/karmen/Makefile
+Package: karmen
+Submenu: window manager
+Version: 0.15-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libSM +libICE +freedesktop-compliant
+Menu-Depends: 
+Provides: 
+Section: xorg-wm
+Category: Xorg
+Title: karmen window manager
+Maintainer: 
+Source: karmen-0.15.tar.gz
+Type: ipkg
+Description:   Karmen is a window manager for x, written by Johan Veenhuizen. 
+  It is designed to just work. There is no configuration file and no 
+  library dependencies other than Xlib/libSM/libICE. The input focus model is 
+  click-to-focus. Karmen aims at icccm and ewmh compliance.
+http://karmen.sourceforge.net/
+
+@@
+
+
+Source-Makefile: feeds/desktop/wm/openbox/Makefile
+Package: openbox
+Submenu: window manager
+Version: 3.5.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +glib2 +libxml2 +fontconfig +libXft +libXrandr +libXt +libXcursor +pango +xextproto +xf86vidmodeproto +freedesktop-compliant +imlib2 +libXcursor +dejavu-fonts-ttf +dejavu-fonts-ttf-DejaVuSans +dejavu-fonts-ttf-DejaVuSans-Bold +dejavu-fonts-ttf-DejaVuSerif +dejavu-fonts-ttf-DejaVuSerif-Bold +dejavu-fonts-ttf-DejaVuSerif-Italic
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-wm
+Category: Xorg
+Title: The Openbox Window Manager
+Maintainer: 
+Source: openbox-3.5.0.tar.gz
+Type: ipkg
+Description:   Openbox is a highly configurable, next generation window manager 
+  with extensive standards support.
+http://icculus.org/openbox/
+
+@@
+
+

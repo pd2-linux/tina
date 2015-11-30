@@ -1,0 +1,36 @@
+Source-Makefile: feeds/xorg/app/eterm/Makefile
+Package: esetroot
+Submenu: terminals
+Version: 0.9.4-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread eterm
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-extra
+Category: Xorg
+Title: esetroot
+Maintainer: 
+Source: Eterm-0.9.4.tar.gz
+Type: ipkg
+Description: esetroot
+
+@@
+
+Package: eterm
+Submenu: terminals
+Version: 0.9.4-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXcursor +imlib2 +libast +BUILD_NLS:libiconv-full
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-extra
+Category: Xorg
+Title: eterm
+Maintainer: 
+Source: Eterm-0.9.4.tar.gz
+Type: ipkg
+Description: eterm
+
+@@
+
+

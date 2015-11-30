@@ -1,0 +1,4661 @@
+Source-Makefile: feeds/xorg/lib/tslib/Makefile
+Package: tslib
+Submenu: libraries
+Version: 1.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread @!LINUX_2_4
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: Tslib is an abstraction layer for touchscreen panel events.
+Maintainer: 
+Source: tslib-1.0.tar.bz2
+Type: ipkg
+Description: 	Tslib is an abstraction layer for touchscreen panel events,
+	as well as a filter stack for the manipulation of those events.
+	It was created by Russell King, of arm.linux.org.uk.
+	Examples of implemented filters include jitter smoothing and the calibration transform.
+http://tslib.berlios.de/
+
+@@
+
+
+Source-Makefile: feeds/xorg/lib/vte/Makefile
+Package: vte
+Submenu: libraries
+Version: 0.17.4-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +gtk2 +libncurses +libX11
+Menu-Depends: 
+Provides: 
+Build-Depends: intltool/host libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-libraries
+Category: Xorg
+Title: Virtual Terminal Widget
+Maintainer: 
+Source: vte-0.17.4.tar.bz2
+Type: ipkg
+Description:   VTE is a library (libvte) implementing a terminal emulator widget for GTK+,
+  and a minimal sample application (vte) using that.  Vte is mainly used in
+  gnome-terminal, but can also be used to embed a console/terminal in games,
+  editors, IDEs, etc.
+http://developer.gnome.org/arch/gnome/widgets/vte.html
+
+@@
+
+Package: python-vte
+Submenu: Python
+Version: 0.17.4-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python-mini +PACKAGE_python-vte:python-gtk +vte
+Menu-Depends: 
+Provides: 
+Build-Depends: intltool/host libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: lang-python
+Category: Languages
+Title: Python bindings for vte
+Maintainer: 
+Source: vte-0.17.4.tar.bz2
+Type: ipkg
+Description: Python bindings for vte
+http://developer.gnome.org/arch/gnome/widgets/vte.html
+
+@@
+
+
+Source-Makefile: feeds/xorg/lib/xine-lib/Makefile
+Package: xine-lib
+Submenu: libraries
+Version: 1.1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXext +alsa-lib +zlib +libfreetype
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: xine libraries
+Maintainer: 
+Source: xine-lib-1.1.1.tar.gz
+Type: ipkg
+Description: xine libraries
+http://www.xine-project.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/lib/libmatchbox/Makefile
+Package: libmatchbox
+Submenu: libraries
+Version: 1.9-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXft +libpng +libjpeg +libXext +pango +check
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-libraries
+Category: Xorg
+Title: libmatchbox
+Maintainer: 
+Source: libmatchbox-1.9.tar.bz2
+Type: ipkg
+Description: libmatchbox
+http://matchbox-project.org
+
+@@
+
+
+Source-Makefile: feeds/xorg/lib/pangomm/Makefile
+Package: pangomm
+Submenu: libraries
+Version: 2.26.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +glibmm +cairomm +pango
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-libraries
+Category: Xorg
+Title: Text layout and rendering library
+Maintainer: 
+Source: pangomm-2.26.0.tar.bz2
+Type: ipkg
+Description: c++-bindings for pango
+http://www.pango.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/lib/cairomm/Makefile
+Package: cairomm
+Submenu: libraries
+Version: 1.8.4-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libsigcxx +cairo
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: Multi-platform 2D graphics library
+Maintainer: 
+Source: cairomm-1.8.4.tar.gz
+Type: ipkg
+Description: c++-bindings for cairo
+http://cairographics.org/cairomm/
+
+@@
+
+
+Source-Makefile: feeds/xorg/lib/gtk1/Makefile
+Package: gtk1
+Submenu: framework
+Version: 1.2.10-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +glib1 +libX11 +libXt
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-framework
+Category: Xorg
+Title: GTK+ 1.2.10 package
+Maintainer: 
+Source: gtk+-1.2.10.tar.gz
+Type: ipkg
+Description: GTK+ 1.2.10 package
+http://www.gtk.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/lib/wnck/Makefile
+Package: libwnck
+Submenu: libraries
+Version: 2.26.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +gtk2 +glib2 +libXext +BUILD_NLS:libintl-full
+Menu-Depends: 
+Provides: 
+Build-Depends: intltool/host libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-libraries
+Category: Xorg
+Title: Window Navigator Construction Kit
+Maintainer: 
+Source: libwnck-2.26.1.tar.bz2
+Type: ipkg
+Description: Window Navigator Construction Kit
+http://ftp.gnome.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/lib/cairo/Makefile
+Package: cairo
+Submenu: libraries
+Version: 1.8.8-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +fontconfig +libpng +libexpat +pixman +FEATURE_drawing-backend_DirectFB:directfb +FEATURE_drawing-backend_libX11:libX11
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: Multi-platform 2D graphics library
+Maintainer: 
+Source: cairo-1.8.8.tar.gz
+Type: ipkg
+Description: Cairo is a 2D graphics library. The cairo API provides operations similar
+to the drawing operators of PostScript and PDF. Operations in cairo
+include stroking and filling cubic Bézier splines, transforming and
+compositing translucent images, and antialiased text rendering. All
+drawing operations can be transformed by any affine transformation
+(scale, rotation, shear, etc.).
+http://cairographics.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/lib/gconf2/Makefile
+Package: libgconf2
+Version: 2.24.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +orbit2 +glib2 +dbus +libdbus-glib +libxml2
+Menu-Depends: 
+Provides: 
+Build-Depends: orbit2/host intltool/host
+Section: libs
+Category: Libraries
+Title: GConf2 library
+Maintainer: 
+Source: GConf-2.24.0.tar.bz2
+Type: ipkg
+Description: GConf is a configuration database system for storing application preferences.
+http://www.gnome.org/projects/gconf/
+
+@@
+
+Package: gconf2
+Version: 2.24.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libgconf2
+Menu-Depends: 
+Provides: 
+Build-Depends: orbit2/host intltool/host
+Section: utils
+Category: Utilities
+Title: GConf2 command line utils
+Maintainer: 
+Source: GConf-2.24.0.tar.bz2
+Type: ipkg
+Description: GConf is a configuration database system for storing application preferences.
+http://www.gnome.org/projects/gconf/
+
+@@
+
+
+Source-Makefile: feeds/xorg/lib/hippo-canvas/Makefile
+Package: hippo-canvas
+Submenu: libraries
+Version: 0.3.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread @FEATURE_drawing-backend_libX11 +librsvg +gtk2 +cairo +libcroco +pango
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-libraries
+Category: Xorg
+Title: Hippo Canvas
+Maintainer: 
+Source: hippo-canvas-0.3.0.tar.bz2
+Type: ipkg
+Description: The Hippo Canvas is a Cairo/GObject/GTK+ based canvas, written in C with
+support for flexible layout, CSS styling, and initial work on animations.
+http://developer.mugshot.org/wiki/Hippo_Canvas
+
+@@
+
+Package: python-hippo-canvas
+Submenu: Python
+Version: 0.3.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread @FEATURE_drawing-backend_libX11 +python-mini +PACKAGE_python-hippo-canvas:python-gtk +PACKAGE_python-hippo-canvas:pycairo +hippo-canvas
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: lang-python
+Category: Languages
+Title: Python bindings for hippo canvas
+Maintainer: 
+Source: hippo-canvas-0.3.0.tar.bz2
+Type: ipkg
+Description: Python bindings for hippo canvas
+http://developer.mugshot.org/wiki/Hippo_Canvas
+
+@@
+
+
+Source-Makefile: feeds/xorg/lib/gtkmm/Makefile
+Package: gtkmm
+Submenu: framework
+Version: 2.16.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +gtk2 +cairomm +pangomm +glibmm
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: GTK+-2.0
+Maintainer: 
+Source: gtkmm-2.16.0.tar.bz2
+Type: ipkg
+Description: GTK+-2.0
+http://www.gtkmm.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/lib/mesa/Makefile
+Package: libgl-mesa
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXext +libXfixes +libXdamage +libXxf86vm +libdrm +libexpat
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: Mesa OpenGL library
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: Mesa OpenGL library
+http://mesa3d.org
+
+@@
+
+Package: libglu-mesa
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libgl-mesa
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: Mesa OpenGL utility library
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: Mesa OpenGL utility library
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-i810
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri i810
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri i810
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-i915
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri i915
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri i915
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-i965
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri i965
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri i965
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-mach64
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri mach64
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri mach64
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-mga
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri mga
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri mga
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-r128
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri r128
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri r128
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-r200
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri r200
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri r200
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-r300
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri r300
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri r300
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-radeon
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri radeon
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri radeon
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-s3v
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri s3v
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri s3v
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-savage
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri savage
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri savage
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-sis
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri sis
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri sis
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-tdfx
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri tdfx
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri tdfx
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-trident
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri trident
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri trident
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-unichrome
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri unichrome
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri unichrome
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-ffb
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri ffb
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri ffb
+http://mesa3d.org
+
+@@
+
+Package: libgl-mesa-dri-swrast
+Submenu: libraries
+Version: 7.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread libgl-mesa @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: 
+Build-Depends: glproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: mesa dri swrast
+Maintainer: 
+Source: MesaLib-7.2.tar.bz2
+Type: ipkg
+Description: mesa dri swrast
+http://mesa3d.org
+
+@@
+
+
+Source-Makefile: feeds/xorg/lib/libfakekey/Makefile
+Package: libfakekey
+Submenu: libraries
+Version: svn2111-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXtst
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-lib
+Category: Xorg
+Title: libfakekey
+Maintainer: Michael Buesch <mb@bu3sch.de>
+Source: libfakekey-svn2111.tar.bz2
+Type: ipkg
+Description:   X11 keyboard faking library
+http://matchbox-project.org/?p=1
+Michael Buesch <mb@bu3sch.de>
+@@
+
+
+Source-Makefile: feeds/xorg/lib/gtk2/Makefile
+Package: gtk2
+Submenu: framework
+Version: 2.17.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread @DISPLAY_SUPPORT +cairo +pango +libpng +libjpeg +atk +libtiff +glib2 +FEATURE_drawing-backend_DirectFB:directfb +FEATURE_drawing-backend_libX11:libX11 +FEATURE_drawing-backend_libX11:libXext +FEATURE_drawing-backend_libX11:libXrender +FEATURE_drawing-backend_libX11:libXfixes +FEATURE_drawing-backend_libX11:libXrandr +FEATURE_drawing-backend_libX11:libXcursor +FEATURE_drawing-backend_libX11:libXdamage +FEATURE_drawing-backend_libX11:libXcomposite +FEATURE_drawing-backend_libX11:libXi
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: GTK+-2.0
+Maintainer: 
+Source: gtk+-2.17.0.tar.bz2
+Type: ipkg
+Description: GTK+-2.0
+http://www.gtk.org/
+
+@@
+
+Package: gtk2-cups
+Submenu: framework
+Version: 2.17.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread gtk2 +cups
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: CUPS print backend for GTK+-2.0
+Maintainer: 
+Source: gtk+-2.17.0.tar.bz2
+Type: ipkg
+Description: CUPS print backend for GTK+-2.0
+
+@@
+
+
+Source-Makefile: feeds/xorg/lib/pixman/Makefile
+Package: pixman
+Submenu: libraries
+Version: 0.16.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: pixman
+Maintainer: 
+Source: pixman-0.16.2.tar.gz
+Type: ipkg
+Description: pixman
+http://cairographics.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/lib/libxcb/Makefile
+Package: libxcb
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libXau +libXdmcp
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb provides an interface to the X Window System protocol, which
+replaces the current Xlib interface.
+http://xcb.freedesktop.org/
+
+@@
+
+Package: libxcb-xlib
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-xlib
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-xlib
+
+@@
+
+Package: libxcb-composite
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-composite
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-composite
+
+@@
+
+Package: libxcb-damage
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-damage
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-damage
+
+@@
+
+Package: libxcb-dpms
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-dpms
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-dpms
+
+@@
+
+Package: libxcb-glx
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-glx
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-glx
+
+@@
+
+Package: libxcb-randr
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-randr
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-randr
+
+@@
+
+Package: libxcb-record
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-record
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-record
+
+@@
+
+Package: libxcb-render
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-render
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-render
+
+@@
+
+Package: libxcb-res
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-res
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-res
+
+@@
+
+Package: libxcb-screensaver
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-screensaver
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-screensaver
+
+@@
+
+Package: libxcb-shape
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-shape
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-shape
+
+@@
+
+Package: libxcb-shm
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-shm
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-shm
+
+@@
+
+Package: libxcb-sync
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-sync
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-sync
+
+@@
+
+Package: libxcb-xevie
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-xevie
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-xevie
+
+@@
+
+Package: libxcb-xf86dri
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-xf86dri
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-xf86dri
+
+@@
+
+Package: libxcb-xfixes
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-xfixes
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-xfixes
+
+@@
+
+Package: libxcb-xinerama
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-xinerama
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-xinerama
+
+@@
+
+Package: libxcb-xprint
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-xprint
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-xprint
+
+@@
+
+Package: libxcb-xtest
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-xtest
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-xtest
+
+@@
+
+Package: libxcb-xvmc
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-xvmc
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-xvmc
+
+@@
+
+Package: libxcb-xv
+Submenu: libraries
+Version: 1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxcb
+Menu-Depends: 
+Provides: 
+Build-Depends: xcbproto libpthread-stubs libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxcb-xv
+Maintainer: 
+Source: libxcb-1.1.tar.bz2
+Type: ipkg
+Description: libxcb-xv
+
+@@
+
+
+Source-Makefile: feeds/xorg/lib/libast/Makefile
+Package: libast
+Submenu: libraries
+Version: 0.7-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libpcre +FEATURE_drawing-backend_libX11:libX11 +FEATURE_drawing-backend_libX11:libXt
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libast
+Maintainer: 
+Source: libast-0.7.tar.gz
+Type: ipkg
+Description: libast
+
+@@
+
+
+Source-Makefile: feeds/xorg/lib/xcbproto/Makefile
+Package: xcbproto
+Submenu: libraries
+Version: 1.3-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-libraries
+Category: Xorg
+Title: xcbproto
+Maintainer: 
+Source: xcb-proto-1.3.tar.bz2
+Type: ipkg
+Build-Only: 1
+Description: xcbproto
+http://xcb.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/lib/librsvg/Makefile
+Package: librsvg
+Submenu: libraries
+Version: 2.22.3-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +cairo +libxml2 +glib2 +libcroco +pango +gtk2
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-libraries
+Category: Xorg
+Title: SVG rendering library
+Maintainer: 
+Source: librsvg-2.22.3.tar.bz2
+Type: ipkg
+Description: librsvg is a high performance SVG rendering library associated with the Gnome Project.
+http://librsvg.sourceforge.net/
+
+@@
+
+Package: librsvg-pixbuf-loader
+Submenu: libraries
+Version: 2.22.3-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread librsvg
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-libraries
+Category: Xorg
+Title: SVG rendering library
+Maintainer: 
+Source: librsvg-2.22.3.tar.bz2
+Type: ipkg
+Description: SVG rendering library
+http://librsvg.sourceforge.net/
+
+@@
+
+
+Source-Makefile: feeds/xorg/lib/pango/Makefile
+Package: pango
+Submenu: libraries
+Version: 1.28.4-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +cairo +glib2 +fontconfig +libfreetype +FEATURE_drawing-backend_libX11:libX11 +FEATURE_drawing-backend_libX11:libXft
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-libraries
+Category: Xorg
+Title: Text layout and rendering library
+Maintainer: 
+Source: pango-1.28.4.tar.bz2
+Type: ipkg
+Description: Pango is a library for layout and rendering of text, with an emphasis
+on internationalization. Pango can be used anywhere that text layout
+is needed; however, most of the work on Pango so far has been done using
+the GTK+ widget toolkit as a test platform. Pango forms the core of text
+and font handling for GTK+-2.x.
+http://www.pango.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/lib/libdrm/Makefile
+Package: libdrm
+Submenu: libraries
+Version: 2.3.1-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libdrm
+Maintainer: 
+Source: libdrm-2.3.1.tar.bz2
+Type: ipkg
+Description: libdrm
+http://dri.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/lib/imlib2/Makefile
+Package: imlib2
+Submenu: libraries
+Version: 1.4.4-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +giflib +libtiff +libjpeg +gtk1 +libfreetype +libXext
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: Image library
+Maintainer: 
+Source: imlib2-1.4.4.tar.gz
+Type: ipkg
+Description: Image library
+http://docs.enlightenment.org/api/imlib2/html/
+
+@@
+
+
+Source-Makefile: feeds/xorg/lib/atk/Makefile
+Package: atk
+Submenu: libraries
+Version: 1.22.0-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +glib2
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-libraries
+Category: Xorg
+Title: Accesibility library for gtk+ apps
+Maintainer: 
+Source: atk-1.22.0.tar.bz2
+Type: ipkg
+Description: Accesibility library for gtk+ apps
+
+@@
+
+
+Source-Makefile: feeds/xorg/lib/fltk2/Makefile
+Package: fltk2
+Submenu: framework
+Version: r6671-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libXi +libstdcpp +libfreetype +libXft +libpthread
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-framework
+Category: Xorg
+Title: Fltk2
+Maintainer: 
+Source: fltk2-r6671.tar.gz
+Type: ipkg
+Description:     FLTK (pronounced <fulltick>) is a cross-platform C++ GUI toolkit for UNIX/Linux (X11), Microsoft Windows, and MacOS X. FLTK provides modern GUI functionality without the bloat and supports 3D graphics via OpenGL and its built-in GLUT emulation.
+http://fltk.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/lib/qt4/Makefile
+Package: qt4
+Submenu: framework
+Default: m if PACKAGE_qt4-gui && ALL
+Version: 4.8.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +zlib +librt +libstdcpp @!LINUX_2_4
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: qt4
+Maintainer: Mirko Vogt <mirko@openwrt.org>
+Source: qt-everywhere-opensource-src-4.8.1.tar.gz
+Type: ipkg
+Description: qt4
+http://qt.nokia.com/
+Mirko Vogt <mirko@openwrt.org>
+@@
+Config:
+	source "feeds/xorg/lib/qt4/Config.in"
+@@
+
+Package: qt4-gui
+Submenu: framework
+Version: 4.8.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread qt4 +PACKAGE_qt4-gui:libpng +PACKAGE_qt4-gui:libtiff +PACKAGE_qt4-gui:libjpeg +PACKAGE_qt4-gui:libfreetype +qt4-network +FEATURE_drawing-backend_libX11:libX11 +FEATURE_drawing-backend_libX11:libXext @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: qt4 (gui)
+Maintainer: Mirko Vogt <mirko@openwrt.org>
+Source: qt-everywhere-opensource-src-4.8.1.tar.gz
+Type: ipkg
+Description: qt4 (gui)
+http://qt.nokia.com/
+Mirko Vogt <mirko@openwrt.org>
+@@
+
+Package: qt4-demos
+Submenu: framework
+Default: m if PACKAGE_qt4-gui && ALL
+Version: 4.8.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread qt4 +qt4-gui
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: qt4 (demos)
+Maintainer: Mirko Vogt <mirko@openwrt.org>
+Source: qt-everywhere-opensource-src-4.8.1.tar.gz
+Type: ipkg
+Description: qt4 (demos)
+http://qt.nokia.com/
+Mirko Vogt <mirko@openwrt.org>
+@@
+
+Package: qt4-examples
+Submenu: framework
+Default: m if PACKAGE_qt4-gui && ALL
+Version: 4.8.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread qt4 +qt4-gui +qt4-svg
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: qt4 (examples)
+Maintainer: Mirko Vogt <mirko@openwrt.org>
+Source: qt-everywhere-opensource-src-4.8.1.tar.gz
+Type: ipkg
+Description: qt4 (examples)
+http://qt.nokia.com/
+Mirko Vogt <mirko@openwrt.org>
+@@
+
+Package: qt4-network
+Submenu: framework
+Default: m if PACKAGE_qt4-gui && ALL
+Version: 4.8.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread qt4
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: qt4 (network)
+Maintainer: Mirko Vogt <mirko@openwrt.org>
+Source: qt-everywhere-opensource-src-4.8.1.tar.gz
+Type: ipkg
+Description: qt4 (network)
+http://qt.nokia.com/
+Mirko Vogt <mirko@openwrt.org>
+@@
+
+Package: qt4-sqlite
+Submenu: framework
+Default: m if PACKAGE_qt4-gui && ALL
+Version: 4.8.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread qt4 +PACKAGE_qt4-sqlite:libsqlite3
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: qt4 (sqlite)
+Maintainer: Mirko Vogt <mirko@openwrt.org>
+Source: qt-everywhere-opensource-src-4.8.1.tar.gz
+Type: ipkg
+Description: qt4 (sqlite)
+http://qt.nokia.com/
+Mirko Vogt <mirko@openwrt.org>
+@@
+
+Package: qt4-mysql
+Submenu: framework
+Default: m if PACKAGE_qt4-gui && ALL
+Version: 4.8.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread qt4 +PACKAGE_qt4-mysql:libmysqlclient
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: qt4 (mysql)
+Maintainer: Mirko Vogt <mirko@openwrt.org>
+Source: qt-everywhere-opensource-src-4.8.1.tar.gz
+Type: ipkg
+Description: qt4 (mysql)
+http://qt.nokia.com/
+Mirko Vogt <mirko@openwrt.org>
+@@
+
+Package: qt4-pgsql
+Submenu: framework
+Default: m if PACKAGE_qt4-gui && ALL
+Version: 4.8.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread qt4 +PACKAGE_qt4-pgsql:libpq
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: qt4 (pgsql)
+Maintainer: Mirko Vogt <mirko@openwrt.org>
+Source: qt-everywhere-opensource-src-4.8.1.tar.gz
+Type: ipkg
+Description: qt4 (pgsql)
+http://qt.nokia.com/
+Mirko Vogt <mirko@openwrt.org>
+@@
+
+Package: qt4-openssl
+Submenu: framework
+Default: m if PACKAGE_qt4-gui && ALL
+Version: 4.8.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread qt4 +PACKAGE_qt4-openssl:libopenssl
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: qt4 (openssl)
+Maintainer: Mirko Vogt <mirko@openwrt.org>
+Source: qt-everywhere-opensource-src-4.8.1.tar.gz
+Type: ipkg
+Description: qt4 (openssl)
+http://qt.nokia.com/
+Mirko Vogt <mirko@openwrt.org>
+@@
+
+Package: qt4-phonon
+Submenu: framework
+Default: m if PACKAGE_qt4-gui && ALL
+Version: 4.8.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread qt4 +qt4-gui +qt4-xml +qt4-dbus +qt4-network
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: qt4 (phonon)
+Maintainer: Mirko Vogt <mirko@openwrt.org>
+Source: qt-everywhere-opensource-src-4.8.1.tar.gz
+Type: ipkg
+Description: qt4 (phonon)
+http://qt.nokia.com/
+Mirko Vogt <mirko@openwrt.org>
+@@
+
+Package: qt4-svg
+Submenu: framework
+Default: m if PACKAGE_qt4-gui && ALL
+Version: 4.8.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread qt4 +qt4-gui +qt4-network
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: qt4 (svg)
+Maintainer: Mirko Vogt <mirko@openwrt.org>
+Source: qt-everywhere-opensource-src-4.8.1.tar.gz
+Type: ipkg
+Description: qt4 (svg)
+http://qt.nokia.com/
+Mirko Vogt <mirko@openwrt.org>
+@@
+
+Package: qt4-webkit
+Submenu: framework
+Default: m if PACKAGE_qt4-gui && ALL
+Version: 4.8.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread qt4 +PACKAGE_qt4-webkit:libsqlite3 +qt4-phonon +qt4-dbus +qt4-xml +qt4-gui +qt4-network
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: qt4 (webkit)
+Maintainer: Mirko Vogt <mirko@openwrt.org>
+Source: qt-everywhere-opensource-src-4.8.1.tar.gz
+Type: ipkg
+Description: qt4 (webkit)
+http://qt.nokia.com/
+Mirko Vogt <mirko@openwrt.org>
+@@
+
+Package: qt4-script
+Submenu: framework
+Default: m if PACKAGE_qt4-gui && ALL
+Version: 4.8.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread qt4
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: qt4 (script)
+Maintainer: Mirko Vogt <mirko@openwrt.org>
+Source: qt-everywhere-opensource-src-4.8.1.tar.gz
+Type: ipkg
+Description: qt4 (script)
+http://qt.nokia.com/
+Mirko Vogt <mirko@openwrt.org>
+@@
+
+Package: qt4-scripttools
+Submenu: framework
+Default: m if PACKAGE_qt4-gui && ALL
+Version: 4.8.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread qt4 +qt4-script +qt4-gui +qt4-network
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: qt4 (scripttools)
+Maintainer: Mirko Vogt <mirko@openwrt.org>
+Source: qt-everywhere-opensource-src-4.8.1.tar.gz
+Type: ipkg
+Description: qt4 (scripttools)
+http://qt.nokia.com/
+Mirko Vogt <mirko@openwrt.org>
+@@
+
+Package: qt4-dbus
+Submenu: framework
+Default: m if PACKAGE_qt4-gui && ALL
+Version: 4.8.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread qt4 +PACKAGE_qt4-dbus:libdbus +qt4-xml
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: qt4 (dbus)
+Maintainer: Mirko Vogt <mirko@openwrt.org>
+Source: qt-everywhere-opensource-src-4.8.1.tar.gz
+Type: ipkg
+Description: qt4 (dbus)
+http://qt.nokia.com/
+Mirko Vogt <mirko@openwrt.org>
+@@
+
+Package: qt4-qt3support
+Submenu: framework
+Default: m if PACKAGE_qt4-gui && ALL
+Version: 4.8.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread qt4 +qt4-gui +qt4-xml
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: qt4 (qt3support)
+Maintainer: Mirko Vogt <mirko@openwrt.org>
+Source: qt-everywhere-opensource-src-4.8.1.tar.gz
+Type: ipkg
+Description: qt4 (qt3support)
+http://qt.nokia.com/
+Mirko Vogt <mirko@openwrt.org>
+@@
+
+Package: qt4-declarative
+Submenu: framework
+Default: m if PACKAGE_qt4-gui && ALL
+Version: 4.8.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread qt4 +qt4-script +qt4-xml +qt4-gui +qt4-network
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: qt4 (declarative)
+Maintainer: Mirko Vogt <mirko@openwrt.org>
+Source: qt-everywhere-opensource-src-4.8.1.tar.gz
+Type: ipkg
+Description: qt4 (declarative)
+http://qt.nokia.com/
+Mirko Vogt <mirko@openwrt.org>
+@@
+
+Package: qt4-xml
+Submenu: framework
+Default: m if PACKAGE_qt4-gui && ALL
+Version: 4.8.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread qt4
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: qt4 (xml)
+Maintainer: Mirko Vogt <mirko@openwrt.org>
+Source: qt-everywhere-opensource-src-4.8.1.tar.gz
+Type: ipkg
+Description: qt4 (xml)
+http://qt.nokia.com/
+Mirko Vogt <mirko@openwrt.org>
+@@
+
+Package: qt4-xmlpatterns
+Submenu: framework
+Default: m if PACKAGE_qt4-gui && ALL
+Version: 4.8.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread qt4
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: qt4 (xmlpatterns)
+Maintainer: Mirko Vogt <mirko@openwrt.org>
+Source: qt-everywhere-opensource-src-4.8.1.tar.gz
+Type: ipkg
+Description: qt4 (xmlpatterns)
+http://qt.nokia.com/
+Mirko Vogt <mirko@openwrt.org>
+@@
+
+Package: qt4-drivers-mouse-tpmousedriver
+Submenu: framework
+Default: m if PACKAGE_qt4-gui && ALL
+Version: 4.8.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread qt4 @QT4_WS_QWS
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: qt4 mousedrivers tpmousedriver
+Maintainer: Mirko Vogt <mirko@openwrt.org>
+Source: qt-everywhere-opensource-src-4.8.1.tar.gz
+Type: ipkg
+Description: qt4 mousedrivers tpmousedriver
+http://qt.nokia.com/
+Mirko Vogt <mirko@openwrt.org>
+@@
+
+Package: qt4-drivers-mouse-pcmousedriver
+Submenu: framework
+Default: m if PACKAGE_qt4-gui && ALL
+Version: 4.8.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread qt4 @QT4_WS_QWS
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: qt4 mousedrivers pcmousedriver
+Maintainer: Mirko Vogt <mirko@openwrt.org>
+Source: qt-everywhere-opensource-src-4.8.1.tar.gz
+Type: ipkg
+Description: qt4 mousedrivers pcmousedriver
+http://qt.nokia.com/
+Mirko Vogt <mirko@openwrt.org>
+@@
+
+Package: qt4-drivers-mouse-tslibmousedriver
+Submenu: framework
+Default: m if PACKAGE_qt4-gui && ALL
+Version: 4.8.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread qt4 @QT4_WS_QWS +PACKAGE_qt4-tslibmousedriver:tslib
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: qt4 mousedrivers tslibmousedriver
+Maintainer: Mirko Vogt <mirko@openwrt.org>
+Source: qt-everywhere-opensource-src-4.8.1.tar.gz
+Type: ipkg
+Description: qt4 mousedrivers tslibmousedriver
+http://qt.nokia.com/
+Mirko Vogt <mirko@openwrt.org>
+@@
+
+Package: qt4-drivers-gfx-directfb
+Submenu: framework
+Default: m if PACKAGE_qt4-gui && ALL
+Version: 4.8.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread qt4 @QT4_WS_QWS @FEATURE_drawing-backend_DirectFB +qt4-drivers-gfx-directfb:directfb
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: qt4 gfxdrivers directfb
+Maintainer: Mirko Vogt <mirko@openwrt.org>
+Source: qt-everywhere-opensource-src-4.8.1.tar.gz
+Type: ipkg
+Description: qt4 gfxdrivers directfb
+http://qt.nokia.com/
+Mirko Vogt <mirko@openwrt.org>
+@@
+
+Package: qt4-drivers-gfx-linuxfb
+Submenu: framework
+Default: m if PACKAGE_qt4-gui && ALL
+Version: 4.8.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread qt4 @QT4_WS_QWS
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: qt4 gfxdrivers linuxfb
+Maintainer: Mirko Vogt <mirko@openwrt.org>
+Source: qt-everywhere-opensource-src-4.8.1.tar.gz
+Type: ipkg
+Description: qt4 gfxdrivers linuxfb
+http://qt.nokia.com/
+Mirko Vogt <mirko@openwrt.org>
+@@
+
+Package: qt4-drivers-gfx-vnc
+Submenu: framework
+Default: m if PACKAGE_qt4-gui && ALL
+Version: 4.8.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread qt4 @QT4_WS_QWS
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: qt4 gfxdrivers VNC
+Maintainer: Mirko Vogt <mirko@openwrt.org>
+Source: qt-everywhere-opensource-src-4.8.1.tar.gz
+Type: ipkg
+Description: qt4 gfxdrivers VNC
+http://qt.nokia.com/
+Mirko Vogt <mirko@openwrt.org>
+@@
+
+
+Source-Makefile: feeds/xorg/lang/pycairo/Makefile
+Package: pycairo
+Submenu: Python
+Version: 1.8.0-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python-mini +cairo
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: lang
+Category: Languages
+Title: Cairo bindings to python
+Maintainer: 
+Source: pycairo-1.8.0.tar.gz
+Type: ipkg
+Description:   Cairo bindings for python
+http://www.cairographics.org/pycairo/
+
+@@
+
+
+Source-Makefile: feeds/xorg/lang/pygtk/Makefile
+Package: python-gtk
+Submenu: Python
+Version: 2.12.1-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python-mini +python-gobject +gtk2 +pycairo +libxml2 +libglade
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: lang
+Category: Languages
+Title: GTK bindings for python
+Maintainer: 
+Source: pygtk-2.12.1.tar.bz2
+Type: ipkg
+Description:   API to GTK and glade library from python.
+http://www.pygtk.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/lang/python-gnome-desktop2/Makefile
+Package: python-rsvg
+Submenu: Python
+Version: 2.22.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python-mini python-gtk +librsvg +pycairo
+Menu-Depends: 
+Provides: 
+Build-Depends: gtk2 libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: lang
+Category: Languages
+Title: librsvg python bindings
+Maintainer: 
+Source: gnome-python-desktop-2.22.0.tar.bz2
+Type: ipkg
+Description: librsvg python bindings
+http://ftp.gnome.org/
+
+@@
+
+Package: python-wnck
+Submenu: Python
+Version: 2.22.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python-mini python-gtk +PACKAGE_python-wnck:libwnck
+Menu-Depends: 
+Provides: 
+Build-Depends: gtk2 libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: lang
+Category: Languages
+Title: libwnck python bindings
+Maintainer: 
+Source: gnome-python-desktop-2.22.0.tar.bz2
+Type: ipkg
+Description: libwnck python bindings
+http://ftp.gnome.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/lang/pyqt4/Makefile
+Package: pyqt4
+Submenu: Python
+Version: 4.8.3-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +qt4 +qt4-gui +dbus-python +python +python-sip @FEATURE_drawing-backend_libX11
+Menu-Depends: 
+Provides: 
+Build-Depends: python-sip/host
+Section: language-python
+Category: Languages
+Title: Python QT4
+Maintainer: Michael Buesch <mb@bu3sch.de>
+Source: PyQt-x11-gpl-4.8.3.tar.gz
+Type: ipkg
+Description: Python QT4
+http://www.riverbankcomputing.co.uk/software/pyqt/download
+Michael Buesch <mb@bu3sch.de>
+@@
+
+
+Source-Makefile: feeds/xorg/xserver/xglamo/Makefile
+Package: xglamo
+Submenu: server
+Version: 20081205-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +tslib +recordproto +glproto +libdrm +xf86driproto +xineramaproto +calibrateproto +compositeproto +libpthread +randrproto +renderproto +fixesproto +damageproto +xcmiscproto +xextproto +xproto +scrnsaverproto +bigreqsproto +resourceproto +fontsproto +inputproto +kbproto +videoproto +resourceproto +xtrans +libxkbfile +libXfont +libXau +libfontenc +pixman +libopenssl @DISPLAY_SUPPORT @arm||armeb @TARGET_s3c24xx
+Menu-Depends: 
+Provides: 
+Section: xorg-server
+Category: Xorg
+Title: xglamo
+Maintainer: 
+Source: xglamo-20081205.tar.bz2
+Type: ipkg
+Description: 	 kdrive server with acceleration support for the graphics chip <glamo> by smedia
+http://git.openmoko.org/?p=xglamo.git
+
+@@
+
+
+Source-Makefile: feeds/xorg/driver/xf86-video-glamo/Makefile
+Package: xf86-video-glamo
+Submenu: driver
+Version: 20091029-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread @DISPLAY_SUPPORT @arm||armeb @TARGET_s3c24xx +xserver-xorg
+Menu-Depends: 
+Provides: 
+Build-Depends: xproto fontsproto randrproto renderproto videoproto
+Section: xorg-driver
+Category: Xorg
+Title: xf86-video-glamo
+Maintainer: 
+Source: xf86-video-glamo-20091029.tar.bz2
+Type: ipkg
+Description:  xorg video driver for the smedia glamo 3362 chip.
+http://git.openmoko.org/?p=xf86-video-glamo.git
+
+@@
+
+
+Source-Makefile: feeds/xorg/driver/xf86-input-tslib/Makefile
+Package: xf86-input-tslib
+Submenu: driver
+Version: 0.0.6-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver-xorg +tslib
+Menu-Depends: 
+Provides: 
+Build-Depends: randrproto inputproto xproto libtool libintl libiconv
+Section: xorg-driver
+Category: Xorg
+Title: xf86-input-tslib
+Maintainer: 
+Source: xf86-input-tslib-0.0.6.tar.bz2
+Type: ipkg
+Description: xf86-input-tslib
+http://www.pengutronix.de/software/xf86-input-tslib/
+
+@@
+
+
+Source-Makefile: feeds/xorg/font/dejavu-fonts-ttf/Makefile
+Package: dejavu-fonts-ttf
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: dejavu-fonts-ttf
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: dejavu-fonts-ttf
+http://dejavu.sourceforge.net/
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSans-BoldOblique
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSans-BoldOblique
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSans-BoldOblique
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSans-Bold
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSans-Bold
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSans-Bold
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSansCondensed-BoldOblique
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSansCondensed-BoldOblique
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSansCondensed-BoldOblique
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSansCondensed-Bold
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSansCondensed-Bold
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSansCondensed-Bold
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSansCondensed-Oblique
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSansCondensed-Oblique
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSansCondensed-Oblique
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSansCondensed
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSansCondensed
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSansCondensed
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSans-ExtraLight
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSans-ExtraLight
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSans-ExtraLight
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSansMono-BoldOblique
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSansMono-BoldOblique
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSansMono-BoldOblique
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSansMono-Bold
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSansMono-Bold
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSansMono-Bold
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSansMono-Oblique
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSansMono-Oblique
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSansMono-Oblique
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSansMono
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSansMono
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSansMono
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSans-Oblique
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSans-Oblique
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSans-Oblique
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSans
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSans
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSans
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSerif-BoldItalic
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSerif-BoldItalic
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSerif-BoldItalic
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSerif-Bold
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSerif-Bold
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSerif-Bold
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSerifCondensed-BoldItalic
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSerifCondensed-BoldItalic
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSerifCondensed-BoldItalic
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSerifCondensed-Bold
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSerifCondensed-Bold
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSerifCondensed-Bold
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSerifCondensed-Italic
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSerifCondensed-Italic
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSerifCondensed-Italic
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSerifCondensed
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSerifCondensed
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSerifCondensed
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSerif-Italic
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSerif-Italic
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSerif-Italic
+
+@@
+
+Package: dejavu-fonts-ttf-DejaVuSerif
+Submenu: font
+Version: 2.23-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread dejavu-fonts-ttf
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: DejaVuSerif
+Maintainer: 
+Source: dejavu-fonts-ttf-2.23.tar.bz2
+Type: ipkg
+Description: DejaVuSerif
+
+@@
+
+
+Source-Makefile: feeds/xorg/font/liberation-fonts-ttf/Makefile
+Package: liberation-fonts-ttf
+Submenu: font
+Version: 1.04-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: liberation-fonts-ttf
+Maintainer: 
+Source: liberation-fonts-1.04.tar.gz
+Type: ipkg
+Description: liberation-fonts-ttf
+https://fedorahosted.org/liberation-fonts/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/lib/libXcomposite/Makefile
+Package: libXcomposite
+Submenu: libraries
+Version: 0.4.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXfixes +libXext
+Menu-Depends: 
+Provides: 
+Build-Depends: compositeproto fixesproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libXcomposite
+Maintainer: 
+Source: libXcomposite-0.4.1.tar.bz2
+Type: ipkg
+Description: libXcomposite
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/lib/libXt/Makefile
+Package: libXt
+Submenu: libraries
+Version: 1.0.7-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libSM +libX11 +libICE
+Menu-Depends: 
+Provides: 
+Build-Depends: xproto kbproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libXt
+Maintainer: 
+Source: libXt-1.0.7.tar.bz2
+Type: ipkg
+Description: libXt
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/lib/libSM/Makefile
+Package: libSM
+Submenu: libraries
+Version: 1.1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libICE +libuuid
+Menu-Depends: 
+Provides: 
+Build-Depends: xproto xtrans libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libSM
+Maintainer: 
+Source: libSM-1.1.1.tar.bz2
+Type: ipkg
+Description: libSM
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/lib/libXcursor/Makefile
+Package: libXcursor
+Submenu: libraries
+Version: 1.1.10-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libXrender +libXfixes +libX11
+Menu-Depends: 
+Provides: 
+Build-Depends: fixesproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libXcursor
+Maintainer: 
+Source: libXcursor-1.1.10.tar.bz2
+Type: ipkg
+Description: libXcursor
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/lib/libXfixes/Makefile
+Package: libXfixes
+Submenu: libraries
+Version: 4.0.4-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11
+Menu-Depends: 
+Provides: 
+Build-Depends: xproto fixesproto xextproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libXfixes
+Maintainer: 
+Source: libXfixes-4.0.4.tar.bz2
+Type: ipkg
+Description: libXfixes
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/lib/libXext/Makefile
+Package: libXext
+Submenu: libraries
+Version: 1.1.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXau
+Menu-Depends: 
+Provides: 
+Build-Depends: xproto xextproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libXext
+Maintainer: 
+Source: libXext-1.1.1.tar.bz2
+Type: ipkg
+Description: libXext
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/lib/libpciaccess/Makefile
+Package: libpciaccess
+Submenu: libraries
+Version: 0.10.9-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +pciutils
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libpciaccess
+Maintainer: 
+Source: libpciaccess-0.10.9.tar.bz2
+Type: ipkg
+Description: libpciaccess
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/lib/libXrandr/Makefile
+Package: libXrandr
+Submenu: libraries
+Version: 1.3.0-4
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libXext +libXrender +libX11
+Menu-Depends: 
+Provides: 
+Build-Depends: randrproto renderproto xextproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libXrandr
+Maintainer: 
+Source: libXrandr-1.3.0.tar.bz2
+Type: ipkg
+Description: libXrandr
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/lib/libXrender/Makefile
+Package: libXrender
+Submenu: libraries
+Version: 0.9.5-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11
+Menu-Depends: 
+Provides: 
+Build-Depends: renderproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libXrender
+Maintainer: 
+Source: libXrender-0.9.5.tar.bz2
+Type: ipkg
+Description: libXrender
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/lib/libXtst/Makefile
+Package: libXtst
+Submenu: libraries
+Version: 1.1.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXext +libXi
+Menu-Depends: 
+Provides: 
+Build-Depends: recordproto xextproto inputproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libXtst
+Maintainer: 
+Source: libXtst-1.1.0.tar.bz2
+Type: ipkg
+Description: libXtst
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/lib/libXmu/Makefile
+Package: libXmu
+Submenu: libraries
+Version: 1.0.5-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libXt +libXext
+Menu-Depends: 
+Provides: 
+Build-Depends: libXt libXext xextproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libXmu
+Maintainer: 
+Source: libXmu-1.0.5.tar.bz2
+Type: ipkg
+Description: libXmu
+http://xorg.freedesktop.org/
+
+@@
+
+Package: libXmuu
+Submenu: libraries
+Version: 1.0.5-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11
+Menu-Depends: 
+Provides: 
+Build-Depends: libXt libXext xextproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libXmuu
+Maintainer: 
+Source: libXmu-1.0.5.tar.bz2
+Type: ipkg
+Description: libXmuu
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/lib/xtrans/Makefile
+Package: xtrans
+Submenu: libraries
+Version: 1.2.5-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-libraries
+Category: Xorg
+Title: xtrans
+Maintainer: 
+Source: xtrans-1.2.5.tar.bz2
+Type: ipkg
+Description: xtrans
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/lib/libXxf86vm/Makefile
+Package: libXxf86vm
+Submenu: libraries
+Version: 1.1.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXext
+Menu-Depends: 
+Provides: 
+Build-Depends: xproto xextproto xf86vidmodeproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libXxf86vm
+Maintainer: 
+Source: libXxf86vm-1.1.0.tar.bz2
+Type: ipkg
+Description: libXxf86vm
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/lib/libXvMC/Makefile
+Package: libXvMC
+Submenu: libraries
+Version: 1.0.5-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libXext +libXv +libX11
+Menu-Depends: 
+Provides: 
+Build-Depends: videoproto xextproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libXvMC
+Maintainer: 
+Source: libXvMC-1.0.5.tar.bz2
+Type: ipkg
+Description: libXvMC
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/lib/libXpm/Makefile
+Package: libXpm
+Submenu: libraries
+Version: 3.5.8-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXt +libXext +libSM
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libXpm
+Maintainer: 
+Source: libXpm-3.5.8.tar.bz2
+Type: ipkg
+Description: libXpm
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/lib/libXi/Makefile
+Package: libXi
+Submenu: libraries
+Version: 1.3-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXext
+Menu-Depends: 
+Provides: 
+Build-Depends: xproto xextproto inputproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libXi
+Maintainer: 
+Source: libXi-1.3.tar.bz2
+Type: ipkg
+Description: libXi
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/lib/libXv/Makefile
+Package: libXv
+Submenu: libraries
+Version: 1.0.5
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXext
+Menu-Depends: 
+Provides: 
+Build-Depends: videoproto xextproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libXv
+Maintainer: 
+Source: libXv-1.0.5.tar.bz2
+Type: ipkg
+Description: libXv
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/lib/libICE/Makefile
+Package: libICE
+Submenu: libraries
+Version: 1.0.6-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Build-Depends: xproto xtrans libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libICE
+Maintainer: 
+Source: libICE-1.0.6.tar.bz2
+Type: ipkg
+Description: libICE
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/lib/libXaw/Makefile
+Package: libXaw
+Submenu: libraries
+Version: 1.0.7-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXext +libXt +libXmu +libXpm +libXau
+Menu-Depends: 
+Provides: 
+Build-Depends: xproto xextproto printproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libXaw
+Maintainer: 
+Source: libXaw-1.0.7.tar.bz2
+Type: ipkg
+Description: libXaw
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/lib/libXau/Makefile
+Package: libXau
+Submenu: libraries
+Version: 1.0.5-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Build-Depends: xproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libXau
+Maintainer: 
+Source: libXau-1.0.5.tar.bz2
+Type: ipkg
+Description: libXau
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/lib/libXdmcp/Makefile
+Package: libXdmcp
+Submenu: libraries
+Version: 1.0.3-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Build-Depends: xproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libXdmcp
+Maintainer: 
+Source: libXdmcp-1.0.3.tar.bz2
+Type: ipkg
+Description: libXdmcp
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/lib/libXdamage/Makefile
+Package: libXdamage
+Submenu: libraries
+Version: 1.1.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXfixes
+Menu-Depends: 
+Provides: 
+Build-Depends: xproto xextproto fixesproto damageproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libXdamage
+Maintainer: 
+Source: libXdamage-1.1.2.tar.bz2
+Type: ipkg
+Description: libXdamage
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/lib/libXfont/Makefile
+Package: libXfont
+Submenu: libraries
+Version: 1.4.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +zlib +libfontenc +libfreetype
+Menu-Depends: 
+Provides: 
+Build-Depends: xproto fontcacheproto fontsproto xtrans libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libXfont
+Maintainer: 
+Source: libXfont-1.4.1.tar.bz2
+Type: ipkg
+Description: libXfont
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/lib/libfontenc/Makefile
+Package: libfontenc
+Submenu: libraries
+Version: 1.0.5-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +zlib
+Menu-Depends: 
+Provides: 
+Build-Depends: xproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libfontenc
+Maintainer: 
+Source: libfontenc-1.0.5.tar.bz2
+Type: ipkg
+Description: libfontenc
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/lib/libX11/Makefile
+Feature: drawing-backend_libX11
+Target-Name: drawing-backend
+Target-Title: Drawing Backend
+Feature-Name: libX11
+Feature-Description:
+
+@@
+
+Package: libX11
+Submenu: libraries
+Version: 1.3.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libXdmcp +libXau @FEATURE_drawing-backend_libX11 @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: 
+Build-Depends: xproto xextproto xf86bigfontproto kbproto inputproto xtrans xcmiscproto bigreqsproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libX11
+Maintainer: 
+Source: libX11-1.3.2.tar.bz2
+Type: ipkg
+Description: libX11
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/lib/libxkbfile/Makefile
+Package: libxkbfile
+Submenu: libraries
+Version: 1.0.6-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11
+Menu-Depends: 
+Provides: 
+Build-Depends: kbproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libxkbfile
+Maintainer: 
+Source: libxkbfile-1.0.6.tar.bz2
+Type: ipkg
+Description: libxkbfile
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/lib/libXft/Makefile
+Package: libXft
+Submenu: libraries
+Version: 2.1.14-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +fontconfig +libfreetype +libXrender
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libXft
+Maintainer: 
+Source: libXft-2.1.14.tar.bz2
+Type: ipkg
+Description: libXft
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/xserver/xorg-server/Makefile
+Package: xserver-common
+Submenu: server
+Version: 1.7.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread @!avr32
+Menu-Depends: 
+Provides: 
+Build-Depends: randrproto renderproto fixesproto damageproto xcmiscproto xextproto xproto scrnsaverproto bigreqsproto resourceproto fontsproto inputproto kbproto videoproto resourceproto compositeproto xf86dgaproto xtrans xf86driproto dri2proto libtool libintl libiconv
+Section: xorg-server
+Category: Xorg
+Title: meta-package
+Maintainer: 
+Source: xorg-server-1.7.1.tar.bz2
+Type: ipkg
+Description: meta-package
+http://xorg.freedesktop.org/
+
+@@
+
+Package: xserver-xorg
+Submenu: server
+Version: 1.7.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver-common +libpthread +xkbcomp +libxkbfile +libXfont +libXau +libXv +libfontenc +pixman +libopenssl +libpciaccess +libdrm +libgl-mesa @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: xserver
+Build-Depends: randrproto renderproto fixesproto damageproto xcmiscproto xextproto xproto scrnsaverproto bigreqsproto resourceproto fontsproto inputproto kbproto videoproto resourceproto compositeproto xf86dgaproto xtrans xf86driproto dri2proto libtool libintl libiconv
+Section: xorg-server
+Category: Xorg
+Title: Xorg xserver
+Maintainer: 
+Source: xorg-server-1.7.1.tar.bz2
+Type: ipkg
+Description: Xorg xserver
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/xserver/xorg-kdrive/Makefile
+Package: xserver-kdrive-xfbdev
+Submenu: server
+Version: 1.7.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread @!avr32 +xserver-common +libpthread +libxkbfile +libXfont +libXau +libXv +libfontenc +pixman +libopenssl +libdrm +xkbcomp +xkbdata @DISPLAY_SUPPORT +X_TSLIB:tslib
+Menu-Depends: 
+Provides: xserver
+Build-Depends: randrproto renderproto fixesproto damageproto xcmiscproto xextproto xproto bigreqsproto resourceproto fontsproto inputproto kbproto videoproto resourceproto xf86dgaproto xtrans xf86driproto calibrateproto compositeproto xineramaproto libtool libintl libiconv
+Section: xorg-server
+Category: Xorg
+Title: Kdrive framebuffer xserver
+Maintainer: 
+Source: xorg-server-1.7.1.tar.bz2
+Type: ipkg
+Description: Kdrive framebuffer xserver
+http://xorg.freedesktop.org/
+
+@@
+
+Package: xserver-kdrive-xephyr
+Submenu: server
+Version: 1.7.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread @!avr32 +xserver-common +libpthread +libxkbfile +libXfont +libXau +libXv +libfontenc +pixman +libopenssl +libdrm +xkbcomp +xkbdata @DISPLAY_SUPPORT +X_TSLIB:tslib @BROKEN
+Menu-Depends: 
+Provides: xserver
+Build-Depends: randrproto renderproto fixesproto damageproto xcmiscproto xextproto xproto bigreqsproto resourceproto fontsproto inputproto kbproto videoproto resourceproto xf86dgaproto xtrans xf86driproto calibrateproto compositeproto xineramaproto libtool libintl libiconv
+Section: xorg-server
+Category: Xorg
+Title: Kdrive ephyr xserver
+Maintainer: 
+Source: xorg-server-1.7.1.tar.bz2
+Type: ipkg
+Description: Kdrive ephyr xserver
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/driver/xf86-input-mouse/Makefile
+Package: xf86-input-mouse
+Submenu: driver
+Version: 1.5.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver-xorg
+Menu-Depends: 
+Provides: 
+Build-Depends: randrproto inputproto xproto libtool libintl libiconv
+Section: xorg-driver
+Category: Xorg
+Title: xf86-input-mouse
+Maintainer: 
+Source: xf86-input-mouse-1.5.0.tar.bz2
+Type: ipkg
+Description: xf86-input-mouse
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/driver/xf86-video-geode/Makefile
+Package: xf86-video-geode
+Submenu: driver
+Version: 2.11.6-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver-xorg +libpciaccess @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: randrproto renderproto videoproto xextproto xf86dgaproto xproto fontsproto
+Section: xorg-driver
+Category: Xorg
+Title: xf86-video-geode
+Maintainer: 
+Source: xf86-video-geode-2.11.6.tar.bz2
+Type: ipkg
+Description: xf86-video-geode
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/driver/xf86-video-nv/Makefile
+Package: xf86-video-nv
+Submenu: driver
+Version: 2.1.15-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver-xorg @TARGET_x86
+Menu-Depends: 
+Provides: 
+Section: xorg-driver
+Category: Xorg
+Title: xf86-video-nv
+Maintainer: 
+Source: xf86-video-nv-2.1.15.tar.bz2
+Type: ipkg
+Description: xf86-video-nv
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/driver/xf86-input-evdev/Makefile
+Package: xf86-input-evdev
+Submenu: driver
+Version: 2.3.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver-xorg
+Menu-Depends: 
+Provides: 
+Build-Depends: randrproto inputproto xproto libtool libintl libiconv
+Section: xorg-driver
+Category: Xorg
+Title: xf86-input-evdev
+Maintainer: 
+Source: xf86-input-evdev-2.3.0.tar.bz2
+Type: ipkg
+Description: xf86-input-evdev
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/driver/xf86-video-vesa/Makefile
+Package: xf86-video-vesa
+Submenu: driver
+Version: 2.2.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver-xorg +libpciaccess @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: xproto fontsproto randrproto renderproto xextproto
+Section: xorg-driver
+Category: Xorg
+Title: xf86-video-vesa
+Maintainer: 
+Source: xf86-video-vesa-2.2.1.tar.bz2
+Type: ipkg
+Description: xf86-video-vesa
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/driver/xf86-video-omap/Makefile
+Package: xf86-video-omapfb
+Submenu: driver
+Version: 20100810-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver-xorg
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-driver
+Category: Xorg
+Title: xf86-video-omapfb
+Maintainer: 
+Source: xf86-video-omapfb-20100810.tar.bz2
+Type: ipkg
+Description: xf86-video-omapfb
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/driver/xf86-input-keyboard/Makefile
+Package: xf86-input-keyboard
+Submenu: driver
+Version: 1.4.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver-xorg
+Menu-Depends: 
+Provides: 
+Build-Depends: randrproto inputproto kbproto xproto libtool libintl libiconv
+Section: xorg-driver
+Category: Xorg
+Title: xf86-input-keyboard
+Maintainer: 
+Source: xf86-input-keyboard-1.4.0.tar.bz2
+Type: ipkg
+Description: xf86-input-keyboard
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/driver/xf86-video-intel/Makefile
+Package: xf86-video-intel
+Submenu: driver
+Version: 2.9.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver-xorg @TARGET_x86
+Menu-Depends: 
+Provides: 
+Build-Depends: xf86driproto glproto
+Section: xorg-driver
+Category: Xorg
+Title: xf86-video-intel
+Maintainer: 
+Source: xf86-video-intel-2.9.1.tar.bz2
+Type: ipkg
+Description: xf86-video-intel
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/driver/xf86-video-fbdev/Makefile
+Package: xf86-video-fbdev
+Submenu: driver
+Version: 0.4.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver-xorg +libpciaccess
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-driver
+Category: Xorg
+Title: xf86-video-fbdev
+Maintainer: 
+Source: xf86-video-fbdev-0.4.1.tar.bz2
+Type: ipkg
+Description: xf86-video-fbdev
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/driver/xf86-video-ati/Makefile
+Package: xf86-video-ati
+Submenu: driver
+Version: 6.12.4-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver-xorg @TARGET_x86 @BROKEN
+Menu-Depends: 
+Provides: 
+Section: xorg-driver
+Category: Xorg
+Title: xf86-video-ati
+Maintainer: 
+Source: xf86-video-ati-6.12.4.tar.bz2
+Type: ipkg
+Description: xf86-video-ati
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/font/font-xfree86-type1/Makefile
+Package: font-xfree86-type1
+Submenu: font
+Version: 1.0.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver +font-util @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: font-xfree86-type1
+Maintainer: 
+Source: font-xfree86-type1-1.0.0.tar.bz2
+Type: ipkg
+Description: font-xfree86-type1
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/font/font-misc-misc/Makefile
+Package: font-misc-misc
+Submenu: font
+Prereq-Check: 1
+Version: 1.0.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread font-base
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: font-misc-misc
+Maintainer: 
+Source: font-misc-misc-1.0.0.tar.bz2
+Type: ipkg
+Description: font-misc-misc
+http://xorg.freedesktop.org/
+
+@@
+
+Package: font-base
+Submenu: font
+Prereq-Check: 1
+Version: 1.0.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver +font-util @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: font-base
+Maintainer: 
+Source: font-misc-misc-1.0.0.tar.bz2
+Type: ipkg
+Description: font-base
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/font/font-dec-misc/Makefile
+Package: font-dec-misc
+Submenu: font
+Version: 1.0.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver +font-util @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: font-dec-misc
+Maintainer: 
+Source: font-dec-misc-1.0.0.tar.bz2
+Type: ipkg
+Description: font-dec-misc
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/font/font-jis-misc/Makefile
+Package: font-jis-misc
+Submenu: font
+Version: 1.0.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver +font-util @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: font-jis-misc
+Maintainer: 
+Source: font-jis-misc-1.0.0.tar.bz2
+Type: ipkg
+Description: font-jis-misc
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/font/font-bh-75dpi/Makefile
+Package: font-bh-75dpi
+Submenu: font
+Version: 1.0.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver +font-util @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: font-bh-75dpi
+Maintainer: 
+Source: font-bh-75dpi-1.0.0.tar.bz2
+Type: ipkg
+Description: font-bh-75dpi
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/font/font-micro-misc/Makefile
+Package: font-micro-misc
+Submenu: font
+Version: 1.0.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver +font-util @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: font-micro-misc
+Maintainer: 
+Source: font-micro-misc-1.0.0.tar.bz2
+Type: ipkg
+Description: font-micro-misc
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/font/font-alias/Makefile
+Package: font-alias
+Submenu: font
+Version: 1.0.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver +font-util @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: font-alias
+Maintainer: 
+Source: font-alias-1.0.1.tar.bz2
+Type: ipkg
+Description: font-alias
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/font/encodings/Makefile
+Package: encodings
+Submenu: font
+Version: 1.0.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver +font-util @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: encodings
+Maintainer: 
+Source: encodings-1.0.2.tar.bz2
+Type: ipkg
+Description: encodings
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/font/font-cursor-misc/Makefile
+Package: font-cursor-misc
+Submenu: font
+Version: 1.0.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver +font-util @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: font-cursor-misc
+Maintainer: 
+Source: font-cursor-misc-1.0.0.tar.bz2
+Type: ipkg
+Description: font-cursor-misc
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/font/font-isas-misc/Makefile
+Package: font-isas-misc
+Submenu: font
+Version: 1.0.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver +font-util @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: font-isas-misc
+Maintainer: 
+Source: font-isas-misc-1.0.0.tar.bz2
+Type: ipkg
+Description: font-isas-misc
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/font/font-ibm-type1/Makefile
+Package: font-ibm-type1
+Submenu: font
+Version: 1.0.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver +font-util @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: font-ibm-type1
+Maintainer: 
+Source: font-ibm-type1-1.0.0.tar.bz2
+Type: ipkg
+Description: font-ibm-type1
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/font/font-misc-cyrillic/Makefile
+Package: font-misc-cyrillic
+Submenu: font
+Version: 1.0.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver +font-util @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: font-misc-cyrillic
+Maintainer: 
+Source: font-misc-cyrillic-1.0.0.tar.bz2
+Type: ipkg
+Description: font-misc-cyrillic
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/font/font-daewoo-misc/Makefile
+Package: font-daewoo-misc
+Submenu: font
+Version: 1.0.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver +font-util @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: font-daewoo-misc
+Maintainer: 
+Source: font-daewoo-misc-1.0.0.tar.bz2
+Type: ipkg
+Description: font-daewoo-misc
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/xextproto/Makefile
+Package: xextproto
+Submenu: proto
+Version: 7.1.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: xextproto
+Maintainer: 
+Source: xextproto-7.1.1.tar.bz2
+Type: ipkg
+Description: xextproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/xineramaproto/Makefile
+Package: xineramaproto
+Submenu: proto
+Version: 1.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: xineramaproto
+Maintainer: 
+Source: xineramaproto-1.2.tar.bz2
+Type: ipkg
+Description: xineramaproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/dri2proto/Makefile
+Package: dri2proto
+Submenu: proto
+Version: 2.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: dri2proto
+Maintainer: 
+Source: dri2proto-2.1.tar.bz2
+Type: ipkg
+Description: dri2proto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/calibrateproto/Makefile
+Package: calibrateproto
+Submenu: proto
+Version: git-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: calibrateproto
+Maintainer: 
+Source: 
+Type: ipkg
+Description: calibrateproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/fontsproto/Makefile
+Package: fontsproto
+Submenu: proto
+Version: 2.1.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: fontsproto
+Maintainer: 
+Source: fontsproto-2.1.0.tar.bz2
+Type: ipkg
+Description: fontsproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/compositeproto/Makefile
+Package: compositeproto
+Submenu: proto
+Version: 0.4.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: compositeproto
+Maintainer: 
+Source: compositeproto-0.4.1.tar.bz2
+Type: ipkg
+Description: compositeproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/fixesproto/Makefile
+Package: fixesproto
+Submenu: proto
+Version: 4.1.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: fixesproto
+Maintainer: 
+Source: fixesproto-4.1.1.tar.bz2
+Type: ipkg
+Description: fixesproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/xf86driproto/Makefile
+Package: xf86driproto
+Submenu: proto
+Version: 2.1.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: xf86driproto
+Maintainer: 
+Source: xf86driproto-2.1.0.tar.bz2
+Type: ipkg
+Description: xf86driproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/videoproto/Makefile
+Package: videoproto
+Submenu: proto
+Version: 2.3.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: videoproto
+Maintainer: 
+Source: videoproto-2.3.0.tar.bz2
+Type: ipkg
+Description: videoproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/inputproto/Makefile
+Package: inputproto
+Submenu: proto
+Version: 2.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: inputproto
+Maintainer: 
+Source: inputproto-2.0.tar.bz2
+Type: ipkg
+Description: inputproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/fontcacheproto/Makefile
+Package: fontcacheproto
+Submenu: proto
+Version: 0.1.3-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: fontcacheproto
+Maintainer: 
+Source: fontcacheproto-0.1.3.tar.bz2
+Type: ipkg
+Description: fontcacheproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/windowswmproto/Makefile
+Package: windowswmproto
+Submenu: proto
+Version: 1.0.4-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: windowswmproto
+Maintainer: 
+Source: windowswmproto-1.0.4.tar.bz2
+Type: ipkg
+Description: windowswmproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/dmxproto/Makefile
+Package: dmxproto
+Submenu: proto
+Version: 2.3-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: dmxproto
+Maintainer: 
+Source: dmxproto-2.3.tar.bz2
+Type: ipkg
+Description: dmxproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/xf86bigfontproto/Makefile
+Package: xf86bigfontproto
+Submenu: proto
+Version: 1.2.0-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: xf86bigfontproto
+Maintainer: 
+Source: xf86bigfontproto-1.2.0.tar.bz2
+Type: ipkg
+Description: xf86bigfontproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/kbproto/Makefile
+Package: kbproto
+Submenu: proto
+Version: 1.0.4-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: kbproto
+Maintainer: 
+Source: kbproto-1.0.4.tar.bz2
+Type: ipkg
+Description: kbproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/xf86dgaproto/Makefile
+Package: xf86dgaproto
+Submenu: proto
+Version: 2.1-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: xf86dgaproto
+Maintainer: 
+Source: xf86dgaproto-2.1.tar.bz2
+Type: ipkg
+Description: xf86dgaproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/randrproto/Makefile
+Package: randrproto
+Submenu: proto
+Version: 1.3.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: randrproto
+Maintainer: 
+Source: randrproto-1.3.1.tar.bz2
+Type: ipkg
+Description: randrproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/applewmproto/Makefile
+Package: applewmproto
+Submenu: proto
+Version: 1.4.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: applewmproto
+Maintainer: 
+Source: applewmproto-1.4.1.tar.bz2
+Type: ipkg
+Description: applewmproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/recordproto/Makefile
+Package: recordproto
+Submenu: proto
+Version: 1.14-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: recordproto
+Maintainer: 
+Source: recordproto-1.14.tar.bz2
+Type: ipkg
+Description: recordproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/resourceproto/Makefile
+Package: resourceproto
+Submenu: proto
+Version: 1.1.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: resourceproto
+Maintainer: 
+Source: resourceproto-1.1.0.tar.bz2
+Type: ipkg
+Description: resourceproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/damageproto/Makefile
+Package: damageproto
+Submenu: proto
+Version: 1.2.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: damageproto
+Maintainer: 
+Source: damageproto-1.2.0.tar.bz2
+Type: ipkg
+Description: damageproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/xcmiscproto/Makefile
+Package: xcmiscproto
+Submenu: proto
+Version: 1.2.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: xcmiscproto
+Maintainer: 
+Source: xcmiscproto-1.2.0.tar.bz2
+Type: ipkg
+Description: xcmiscproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/bigreqsproto/Makefile
+Package: bigreqsproto
+Submenu: proto
+Version: 1.1.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: bigreqsproto
+Maintainer: 
+Source: bigreqsproto-1.1.0.tar.bz2
+Type: ipkg
+Description: bigreqsproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/scrnsaverproto/Makefile
+Package: scrnsaverproto
+Submenu: proto
+Version: 1.2.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: scrnsaverproto
+Maintainer: 
+Source: scrnsaverproto-1.2.0.tar.bz2
+Type: ipkg
+Description: scrnsaverproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/xf86vidmodeproto/Makefile
+Package: xf86vidmodeproto
+Submenu: proto
+Version: 2.3-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: xf86vidmodeproto
+Maintainer: 
+Source: xf86vidmodeproto-2.3.tar.bz2
+Type: ipkg
+Description: xf86vidmodeproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/printproto/Makefile
+Package: printproto
+Submenu: proto
+Version: 1.0.4-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: printproto
+Maintainer: 
+Source: printproto-1.0.4.tar.bz2
+Type: ipkg
+Description: printproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/glproto/Makefile
+Package: glproto
+Submenu: proto
+Version: 1.4.10-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: glproto
+Maintainer: 
+Source: glproto-1.4.10.tar.bz2
+Type: ipkg
+Description: glproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/xproto/Makefile
+Package: xproto
+Submenu: proto
+Version: 7.0.16-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: xproto
+Maintainer: 
+Source: xproto-7.0.16.tar.bz2
+Type: ipkg
+Description: xproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/proto/renderproto/Makefile
+Package: renderproto
+Submenu: proto
+Version: 0.11-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: renderproto
+Maintainer: 
+Source: renderproto-0.11.tar.bz2
+Type: ipkg
+Description: renderproto
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/data/xkeyboard-config/Makefile
+Package: xkeyboard-config
+Submenu: data
+Prereq-Check: 1
+Version: 1.7-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xkbcomp
+Menu-Depends: 
+Provides: 
+Section: xorg-data
+Category: Xorg
+Title: xkeyboard-config
+Maintainer: 
+Source: xkeyboard-config-1.7.tar.bz2
+Type: ipkg
+Description: xkeyboard-config
+http://freedesktop.org/wiki/Software/XKeyboardConfig
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/data/xbitmaps/Makefile
+Package: xbitmaps
+Submenu: data
+Version: 1.1.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-data
+Category: Xorg
+Title: xbitmaps
+Maintainer: 
+Source: xbitmaps-1.1.0.tar.bz2
+Type: ipkg
+Description: xbitmaps
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/data/xkbdata/Makefile
+Package: xkbdata
+Submenu: data
+Version: 1.0.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xkbcomp
+Menu-Depends: 
+Provides: 
+Section: xorg-data
+Category: Xorg
+Title: xkbdata
+Maintainer: 
+Source: xkbdata-1.0.1.tar.bz2
+Type: ipkg
+Description: xkbdata
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/app/xwd/Makefile
+Package: xwd
+Submenu: app
+Version: 1.0.3-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11
+Menu-Depends: 
+Provides: 
+Section: xorg-app
+Category: Xorg
+Title: xwd
+Maintainer: 
+Source: xwd-1.0.3.tar.bz2
+Type: ipkg
+Description: xwd
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/app/xkbcomp/Makefile
+Package: xkbcomp
+Submenu: app
+Version: 1.1.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libxkbfile
+Menu-Depends: 
+Provides: 
+Section: xorg-app
+Category: Xorg
+Title: xkbcomp
+Maintainer: 
+Source: xkbcomp-1.1.1.tar.bz2
+Type: ipkg
+Description: xkbcomp
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/app/xsetroot/Makefile
+Package: xsetroot
+Submenu: app
+Version: 1.0.3-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xbitmaps +libXmuu +libX11
+Menu-Depends: 
+Provides: 
+Section: xorg-app
+Category: Xorg
+Title: xsetroot
+Maintainer: 
+Source: xsetroot-1.0.3.tar.bz2
+Type: ipkg
+Description: xsetroot
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/app/fontconfig/Makefile
+Package: fontconfig
+Submenu: font-utils
+Version: 2.6.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libexpat +libfreetype
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-util
+Category: Xorg
+Title: fontconfig
+Maintainer: 
+Source: fontconfig-2.6.0.tar.gz
+Type: ipkg
+Description: fontconfig
+http://fontconfig.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/app/xprop/Makefile
+Package: xprop
+Submenu: app
+Version: 1.2.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11
+Menu-Depends: 
+Provides: 
+Build-Depends: xproto
+Section: xorg-app
+Category: Xorg
+Title: xprop
+Maintainer: 
+Source: xprop-1.2.0.tar.bz2
+Type: ipkg
+Description: xprop
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/app/smproxy/Makefile
+Package: smproxy
+Submenu: app
+Version: 1.0.3-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libXt +libXmu
+Menu-Depends: 
+Provides: 
+Section: xorg-app
+Category: Xorg
+Title: smproxy
+Maintainer: 
+Source: smproxy-1.0.3.tar.bz2
+Type: ipkg
+Description: smproxy
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/app/xrdb/Makefile
+Package: xrdb
+Submenu: app
+Version: 1.0.5-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXmuu
+Menu-Depends: 
+Provides: 
+Section: xorg-app
+Category: Xorg
+Title: xrdb
+Maintainer: 
+Source: xrdb-1.0.5.tar.bz2
+Type: ipkg
+Description: xrdb
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/app/xrandr/Makefile
+Package: xrandr
+Submenu: app
+Version: 1.3.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXrandr +libXrender +libX11
+Menu-Depends: 
+Provides: 
+Section: xorg-app
+Category: Xorg
+Title: xrandr
+Maintainer: 
+Source: xrandr-1.3.2.tar.bz2
+Type: ipkg
+Description: xrandr
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/app/iceauth/Makefile
+Package: iceauth
+Submenu: app
+Version: 1.0.3-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libICE
+Menu-Depends: 
+Provides: 
+Build-Depends: xproto
+Section: xorg-app
+Category: Xorg
+Title: iceauth
+Maintainer: 
+Source: iceauth-1.0.3.tar.bz2
+Type: ipkg
+Description: iceauth
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/app/xset/Makefile
+Package: xset
+Submenu: app
+Version: 1.1.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libXmuu +libX11 +libXext
+Menu-Depends: 
+Provides: 
+Section: xorg-app
+Category: Xorg
+Title: xset
+Maintainer: 
+Source: xset-1.1.0.tar.bz2
+Type: ipkg
+Description: xset
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/app/font-util/Makefile
+Package: font-util
+Submenu: app
+Version: 1.0.1-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: misc tool to generate x fonts
+Maintainer: 
+Source: font-util-1.0.1.tar.bz2
+Type: ipkg
+Description: misc tool to generate x fonts
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/app/x11perf/Makefile
+Package: x11perf
+Submenu: app
+Version: 1.5.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXmuu +libXrender +libXft +libXext
+Menu-Depends: 
+Provides: 
+Section: xorg-app
+Category: Xorg
+Title: x11perf
+Maintainer: 
+Source: x11perf-1.5.1.tar.bz2
+Type: ipkg
+Description: x11perf
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/xorg/app/xauth/Makefile
+Package: xauth
+Submenu: app
+Version: 1.0.4-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXau +libXext +libXmuu
+Menu-Depends: 
+Provides: 
+Section: xorg-app
+Category: Xorg
+Title: xauth
+Maintainer: 
+Source: xauth-1.0.4.tar.bz2
+Type: ipkg
+Description: xauth
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/wm/matchbox-window-manager/Makefile
+Package: matchbox-window-manager
+Submenu: window manager
+Version: 1.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +zlib +libfreetype +fontconfig +libmatchbox
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-wm
+Category: Xorg
+Title: matchbox window manager
+Maintainer: 
+Source: matchbox-window-manager-1.2.tar.bz2
+Type: ipkg
+Description: matchbox window manager
+http://matchbox-project.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/wm/fluxbox/Makefile
+Package: fbrun
+Submenu: window manager
+Version: 1.0.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread fluxbox
+Menu-Depends: 
+Provides: 
+Section: xorg-wm
+Category: Xorg
+Title: fluxbox tool to run applications
+Maintainer: 
+Source: fluxbox-1.0.0.tar.bz2
+Type: ipkg
+Description: fluxbox tool to run applications
+http://fluxbox.org/
+
+@@
+
+Package: fluxbox
+Menu: 1
+Submenu: window manager
+Version: 1.0.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +uclibcxx +libXt +libXpm
+Menu-Depends: 
+Provides: 
+Section: xorg-wm
+Category: Xorg
+Title: fluxbox window manager
+Maintainer: 
+Source: fluxbox-1.0.0.tar.bz2
+Type: ipkg
+Description: fluxbox window manager
+http://fluxbox.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/utils/dbus-x/Makefile
+Package: dbus-launch-x
+Version: 1.2.12-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libexpat +dbus +libX11
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: utils
+Category: Utilities
+Title: dbus launch utility with x support
+Maintainer: 
+Source: dbus-1.2.12.tar.gz
+Type: ipkg
+Description: dbus launch utility with x support
+http://dbus.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/app/xinit/Makefile
+Package: xinit
+Submenu: app
+Version: 1.0.5-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11
+Menu-Depends: 
+Provides: 
+Section: xorg-app
+Category: Xorg
+Title: xinit
+Maintainer: 
+Source: xinit-1.0.5.tar.bz2
+Type: ipkg
+Description: xinit
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/app/rxvt/Makefile
+Package: rxvt
+Submenu: app
+Version: 2.7.10-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXext +libXau +libXtst +imlib2
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-app
+Category: Xorg
+Title: rxvt
+Maintainer: 
+Source: rxvt-2.7.10.tar.gz
+Type: ipkg
+Description: rxvt
+http://rxvt.sourceforge.net
+
+@@
+
+
+Source-Makefile: feeds/xorg/app/xeyes/Makefile
+Package: xeyes
+Submenu: app
+Version: 1.0.1-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXt +libXext +libXmu
+Menu-Depends: 
+Provides: 
+Section: xorg-app
+Category: Xorg
+Title: xeyes
+Maintainer: 
+Source: xeyes-1.0.1.tar.bz2
+Type: ipkg
+Description: xeyes
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/app/gtkperf/Makefile
+Package: gtkperf
+Submenu: app
+Version: 0.40-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +gtk2
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: gtkperf
+Maintainer: 
+Source: gtkperf_0.40.tar.gz
+Type: ipkg
+Description: gtkperf
+http://gtkperf.sourceforge.net
+
+@@
+
+
+Source-Makefile: feeds/xorg/app/pwrtray/Makefile
+Package: pwrtray-backend
+Version: 2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +FEATURE_drawing-backend_libX11:libX11
+Menu-Depends: 
+Provides: 
+Section: utils
+Category: Utilities
+Title: System power control daemon
+Maintainer: Michael Buesch <mb@bu3sch.de>
+Source: pwrtray-2.tar.gz
+Type: ipkg
+Description:   Tiny system power control daemon.
+http://bu3sch.de/gitweb?p=pwrtray.git;a=summary
+Michael Buesch <mb@bu3sch.de>
+@@
+
+Package: pwrtray
+Submenu: app
+Version: 2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +pwrtray-backend +qt4 +qt4-gui
+Menu-Depends: 
+Provides: 
+Section: xorg-app
+Category: Xorg
+Title: Frontend to pwrtray-backend daemon
+Maintainer: Michael Buesch <mb@bu3sch.de>
+Source: pwrtray-2.tar.gz
+Type: ipkg
+Description:   Small system-tray frontend to the power control daemon.
+http://bu3sch.de/gitweb?p=pwrtray.git;a=summary
+Michael Buesch <mb@bu3sch.de>
+@@
+
+
+Source-Makefile: feeds/xorg/app/dillo/Makefile
+Package: dillo
+Submenu: app
+Version: rcc974615ae39-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libXft +libstdcpp +libpthread +zlib +fltk2 +libjpeg +libpng +BUILD_NLS:libiconv-full
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: Dillo2
+Maintainer: 
+Source: dillo-rcc974615ae39.tar.gz
+Type: ipkg
+Description:   Dillo is a web browser project completely written in C.
+  Dillo aims to be a multi-platform browser alternative that
+  is small, stable, developer-friendly, usable, fast, and
+  extensible.
+
+  Note: This is the fltk2 based dillo.
+http://fltk.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/app/xterm/Makefile
+Package: xterm
+Submenu: terminals
+Version: 242-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libncurses +libXaw
+Menu-Depends: 
+Provides: 
+Section: xorg-extra
+Category: Xorg
+Title: xterm
+Maintainer: 
+Source: xterm-242.tar.gz
+Type: ipkg
+Description: xterm
+
+@@
+
+
+Source-Makefile: feeds/xorg/app/xcalc/Makefile
+Package: xcalc
+Submenu: app
+Version: 1.0.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libXaw
+Menu-Depends: 
+Provides: 
+Section: xorg-app
+Category: Xorg
+Title: xcalc
+Maintainer: 
+Source: xcalc-1.0.2.tar.bz2
+Type: ipkg
+Description: xcalc
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/app/eterm/Makefile
+Package: esetroot
+Submenu: terminals
+Version: 0.9.4-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread eterm
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-extra
+Category: Xorg
+Title: esetroot
+Maintainer: 
+Source: Eterm-0.9.4.tar.gz
+Type: ipkg
+Description: esetroot
+
+@@
+
+Package: eterm
+Submenu: terminals
+Version: 0.9.4-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXcursor +imlib2 +libast +BUILD_NLS:libiconv-full
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-extra
+Category: Xorg
+Title: eterm
+Maintainer: 
+Source: Eterm-0.9.4.tar.gz
+Type: ipkg
+Description: eterm
+
+@@
+
+
+Source-Makefile: feeds/xorg/app/matchbox-keyboard/Makefile
+Package: matchbox-keyboard
+Submenu: app
+Version: svn2111-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libfakekey +cairo +gtk2 +libexpat
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-app
+Category: Xorg
+Title: matchbox-keyboard
+Maintainer: Michael Buesch <mb@bu3sch.de>
+Source: matchbox-keyboard-svn2111.tar.bz2
+Type: ipkg
+Description:   Virtual keyboard
+http://matchbox-project.org/?p=1
+Michael Buesch <mb@bu3sch.de>
+@@
+
+
+Source-Makefile: feeds/xorg/app/xine-ui/Makefile
+Package: xine-ui
+Submenu: app
+Version: 0.99.4-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xine-lib +libpng +curl +libXv +libXt +libICE +libXxf86vm +libpng +libfreetype +BUILD_NLS:libiconv-full
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: xine user interface
+Maintainer: 
+Source: xine-ui-0.99.4.tar.gz
+Type: ipkg
+Description: xine user interface
+http://www.xine-project.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/app/xdm/Makefile
+Package: xdm
+Submenu: app
+Version: 1.1.8-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXmu +libXau +libXaw
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-app
+Category: Xorg
+Title: xdm
+Maintainer: 
+Source: xdm-1.1.8.tar.bz2
+Type: ipkg
+Description: xdm
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/app/xclipboard/Makefile
+Package: xclipboard
+Submenu: app
+Version: 1.0.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libXaw
+Menu-Depends: 
+Provides: 
+Section: xorg-app
+Category: Xorg
+Title: xclipboard
+Maintainer: 
+Source: xclipboard-1.0.1.tar.bz2
+Type: ipkg
+Description: xclipboard
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/app/xmessage/Makefile
+Package: xmessage
+Submenu: app
+Version: 1.0.2-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libXaw
+Menu-Depends: 
+Provides: 
+Section: xorg-app
+Category: Xorg
+Title: xmessage
+Maintainer: 
+Source: xmessage-1.0.2.tar.bz2
+Type: ipkg
+Description: xmessage
+http://xorg.freedesktop.org/
+
+@@
+
+
+Source-Makefile: feeds/xorg/app/qwo/Makefile
+Package: qwo
+Submenu: app
+Version: 0.3-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXext +libXau +libXtst +imlib2
+Menu-Depends: 
+Provides: 
+Section: xorg-app
+Category: Xorg
+Title: qwo
+Maintainer: 
+Source: qwo-0.3.tar.gz
+Type: ipkg
+Description: qwo
+http://www.nongnu.org/qwo/
+
+@@
+
+
