@@ -2,6 +2,11 @@
 # author:tracewong
 # date: 2015-08-31
 
+function print_red(){
+	echo -e '\033[0;31;1m'
+	echo $1
+	echo -e '\033[0m'
+}
 function gettop
 {
     local TOPFILE=scripts/mksetup.sh
@@ -142,6 +147,11 @@ function minstall()
 	echo "make package"
 }
 
+function mm() {
+	local T=$(gettop)
+	$T/scripts/mm.sh $T $*
+}
+
 function mclean()
 {
 	make $1clean $2
@@ -200,7 +210,10 @@ function make_ota_image(){
 	local T=$(gettop)
 	printf "build ota package\n"
 	[ -e $T/package/utils/otabuilder/Makefile ] && 
-		make package/utils/otabuilder/install
+		make -j
+		make package/utils/otabuilder/clean -j
+		make package/utils/otabuilder/install -j
+		print_red bin/sunxi/ota_md5.tar.gz
 	printf "build ota package end\n"
 }
 
