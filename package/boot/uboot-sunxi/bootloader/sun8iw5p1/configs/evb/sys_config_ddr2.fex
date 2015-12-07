@@ -19,7 +19,7 @@ machine = "evb-20"
 [platform]
 eraseflag   = 0
 next_work = 2
-debug_mode =0x15
+debug_mode =0x17
 
 ;----------------------------------------------------------------------------------
 ;[target]  system bootup configuration
@@ -168,30 +168,30 @@ standby_mode		= 1
 ;*****************************************************************************
 [dram_para]
 
-dram_clk        = 600
-dram_type       = 3
-dram_zq         = 0x3bbb
-dram_odt_en     = 1
-dram_para1      = 0x10F20200
-dram_para2      = 0x00
-dram_mr0        = 0x1840
-dram_mr1        = 0x40
-dram_mr2        = 0x8
-dram_mr3        = 0
-dram_tpr0       = 0x0048A192
-dram_tpr1       = 0x01B1B18d
-dram_tpr2       = 0x00076052
-dram_tpr3       = 0x0
-dram_tpr4       = 0x0
-dram_tpr5       = 0x0
-dram_tpr6       = 0x0
-dram_tpr7       = 0x0
-dram_tpr8       = 0x0
-dram_tpr9       = 0x0
-dram_tpr10      = 0x0
-dram_tpr11      = 0x0
-dram_tpr12      = 168
-dram_tpr13      = 0x10900
+dram_clk = 408
+dram_type = 2
+dram_zq = 0x19b9
+dram_odt_en = 1
+dram_para1 = 0x10F20200
+dram_para2 = 0
+dram_mr0 = 0x1840
+dram_mr1 = 0x40
+dram_mr2 = 0x8
+dram_mr3 = 0
+dram_tpr0 = 0x0048A192
+dram_tpr1 = 0x01B1B18d
+dram_tpr2 = 0x00076052
+dram_tpr3 = 0x0
+dram_tpr4 = 0x0
+dram_tpr5 = 0x0
+dram_tpr6 = 0x0
+dram_tpr7 = 0x0
+dram_tpr8 = 0x0
+dram_tpr9 = 0x0
+dram_tpr10 = 0x0
+dram_tpr11 = 0x00050005
+dram_tpr12 = 150
+dram_tpr13 = 0x1900
 
 ;---------------------------------------------------------------------------------------------------------
 ; if 1 == standby_mode, then support super standby;
@@ -320,7 +320,7 @@ spi_miso       = port:PA03<2><default><default><default>
 ;spi_dev_num: number of spi devices
 ;----------------------------------------------------------------------------------
 [spi_devices]
-spi_dev_num = 0
+spi_dev_num = 1
 
 ;----------------------------------------------------------------------------------
 ;[spi_board0] spi device configuration
@@ -801,7 +801,7 @@ sdc_regulator     = "none"
 ;----------------------------------------------------------------------------------
 [usbc0]
 usb_used            = 1
-usb_port_type       = 0
+usb_port_type       = 2
 usb_detect_type     = 1
 usb_id_gpio         = port:PD10<0><1><default><default>
 usb_det_vbus_gpio   = "axp_ctrl"
