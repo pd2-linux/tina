@@ -11,12 +11,22 @@
 #include "log.h"
 #include "awplayer.h"
 
+static char* status_str[] = {
+    "STATUS_STOPPED",
+    "STATUS_PREPARING",
+    "STATUS_PREPARED",
+    "STATUS_PLAYING",
+    "STATUS_PAUSED",
+    "STATUS_SEEKING",
+    "STATUS_COMPELTE"
+};
 static const int STATUS_STOPPED   = 0;
 static const int STATUS_PREPARING = 1;
 static const int STATUS_PREPARED  = 2;
 static const int STATUS_PLAYING   = 3;
 static const int STATUS_PAUSED    = 4;
 static const int STATUS_SEEKING   = 5;
+static const int STATUS_COMPELTE   = 6;
 
 typedef struct DemoPlayerContext
 {
@@ -48,6 +58,9 @@ typedef struct Command
 #define COMMAND_SHOW_DURATION   0x107   //* show media duration, in unit of second.
 #define COMMAND_SHOW_POSITION   0x108   //* show current play position, in unit of second.
 #define COMMAND_SWITCH_AUDIO    0x109   //* switch autio track.
+#define COMMAND_RESET           0x110   //* reset the player
+#define COMMAND_VOLUME_1        0x111   //*volume +
+#define COMMAND_VOLUME_2        0x112   //*volume -
 
 static const Command commands[] = 
 {
@@ -64,8 +77,20 @@ static const Command commands[] =
     {"show position",   COMMAND_SHOW_POSITION,      "show current play position, position is in unit of second."},
     {"switch audio",    COMMAND_SWITCH_AUDIO,       
         "switch audio to a specific track, for example, switch audio: 2, track is start counting from 0."},
+    {"reset",           COMMAND_RESET,              "reset the player."},
+    {"+",               COMMAND_VOLUME_1,           "volume +."},
+    {"-",               COMMAND_VOLUME_2,           "volume -."},
     {NULL, 0, NULL}
 };
+
+static int volume = 30;
+
+static void mixer_set(char* name, int value)
+{
+    char cmd[100];
+    sprintf(cmd,"amixer cset name='%s' %d",name,value);
+    system(cmd); 
+}
 
 static void showHelp(void)
 {
@@ -130,6 +155,13 @@ static int readCommand(char* strCommandLine, int nMaxLineSize)
     		            *p = 0;
     		            break;
     		        }
+                    /*
+                    if(*p == '-' || *p == '+')
+                    {
+                        *(p+1) = 0;
+                        break;
+                    }
+                    */
     		        p++;
     		    }
     		}
@@ -268,6 +300,14 @@ static int parseCommandLine(char* strCommandLine, int* pParam)
     return nCommandId;
 }
 
+void update_status(DemoPlayerContext* context,int cur, int pre){
+    printf("status update, pre-pre: %s -> pre: %s -> cur: %s\n", \
+                status_str[context->mPreStatus], \
+                status_str[context->mStatus], \
+                status_str[cur]);
+    context->mPreStatus = pre;
+    context->mStatus    = cur;
+}
 
 //* a callback for awplayer.
 void CallbackForAwPlayer(void* pUserData, int msg, int param0, void* param1)
@@ -288,8 +328,10 @@ void CallbackForAwPlayer(void* pUserData, int msg, int param0, void* param1)
         case NOTIFY_ERROR:
         {
             pthread_mutex_lock(&pDemoPlayer->mMutex);
-            pDemoPlayer->mStatus = STATUS_STOPPED;
-            pDemoPlayer->mPreStatus = STATUS_STOPPED;
+            //pDemoPlayer->mStatus = STATUS_STOPPED;
+            //pDemoPlayer->mPreStatus = STATUS_STOPPED;
+            update_status(pDemoPlayer,STATUS_STOPPED,STATUS_STOPPED);
+
             printf("error: open media source fail.\n");
             pthread_mutex_unlock(&pDemoPlayer->mMutex);
             break;
@@ -298,8 +340,9 @@ void CallbackForAwPlayer(void* pUserData, int msg, int param0, void* param1)
         case NOTIFY_PREPARED:
         {
             pthread_mutex_lock(&pDemoPlayer->mMutex);
-            pDemoPlayer->mPreStatus = pDemoPlayer->mStatus;
-            pDemoPlayer->mStatus = STATUS_PREPARED;
+            //pDemoPlayer->mPreStatus = pDemoPlayer->mStatus;
+            //pDemoPlayer->mStatus = STATUS_PREPARED;
+            update_status(pDemoPlayer,STATUS_PREPARED,pDemoPlayer->mStatus);
             printf("info: prepare ok.\n");
             pthread_mutex_unlock(&pDemoPlayer->mMutex);
             break;
@@ -322,6 +365,12 @@ void CallbackForAwPlayer(void* pUserData, int msg, int param0, void* param1)
         {
             //* stop the player.
             //* TODO
+            pthread_mutex_lock(&pDemoPlayer->mMutex);
+            //pDemoPlayer->mPreStatus = pDemoPlayer->mStatus;
+            //pDemoPlayer->mStatus = STATUS_PREPARED;
+            update_status(pDemoPlayer,STATUS_COMPELTE,pDemoPlayer->mStatus);
+            pthread_mutex_unlock(&pDemoPlayer->mMutex);
+            printf("playback complete\n");
             break;
         }
             
@@ -334,8 +383,15 @@ void CallbackForAwPlayer(void* pUserData, int msg, int param0, void* param1)
         case NOTIFY_SEEK_COMPLETE:
         {
             pthread_mutex_lock(&pDemoPlayer->mMutex);
+            printf("status: %s -> %s\n",status_str[pDemoPlayer->mStatus],status_str[pDemoPlayer->mPreStatus]);
             pDemoPlayer->mStatus = pDemoPlayer->mPreStatus;
+            if(pDemoPlayer->mStatus == STATUS_PLAYING){
+                write(STDIN_FILENO,"play",strlen("play"));
+            }
             printf("info: seek ok.\n");
+
+            mixer_set("Speaker Function",1);
+            mixer_set("earpiece volume control",volume);
             pthread_mutex_unlock(&pDemoPlayer->mMutex);
             break;
         }
@@ -349,7 +405,6 @@ void CallbackForAwPlayer(void* pUserData, int msg, int param0, void* param1)
     
     return;
 }
-
 
 //* the main method.
 int main(int argc, char** argv)
@@ -443,6 +498,7 @@ int main(int argc, char** argv)
                     }
                     
                     //* start preparing.
+                    #if 0
                     pthread_mutex_lock(&demoPlayer.mMutex);    //* lock to sync with the prepare finish notify.
                     if(demoPlayer.mAwPlayer->prepareAsync() != 0)
                     {
@@ -451,24 +507,53 @@ int main(int argc, char** argv)
                         pthread_mutex_unlock(&demoPlayer.mMutex);
                         break;
                     }
-                    demoPlayer.mPreStatus = STATUS_STOPPED;
-                    demoPlayer.mStatus    = STATUS_PREPARING;
+                    //demoPlayer.mPreStatus = STATUS_STOPPED;
+                    //demoPlayer.mStatus    = STATUS_PREPARING;
+                    update_status(&demoPlayer,STATUS_PREPARING);
                     printf("preparing...\n");
                     pthread_mutex_unlock(&demoPlayer.mMutex);
-                    
+                    #endif
+                    if(demoPlayer.mAwPlayer->prepare() != 0)//block
+                    {
+                        printf("error:\n");
+                        printf("    AwPlayer::prepare() return fail.\n");
+                        break;
+                    }
+                    update_status(&demoPlayer,STATUS_PREPARED,demoPlayer.mStatus);
                     break;
                 }
                 
                 case COMMAND_PLAY:   //* start playback.
                 {
+                    mixer_set("Speaker Function",1);
+                    mixer_set("earpiece volume control",volume);
+
                     if(demoPlayer.mStatus != STATUS_PREPARED &&
-                       demoPlayer.mStatus != STATUS_SEEKING)
+                       demoPlayer.mStatus != STATUS_SEEKING &&
+                       demoPlayer.mStatus != STATUS_PAUSED &&
+                       demoPlayer.mStatus != STATUS_STOPPED &&
+                       demoPlayer.mStatus != STATUS_COMPELTE)
                     {
                         printf("invalid command:\n");
                         printf("    play eris neither in prepared status nor in seeking.\n");
                         break;
                     }
                     
+                    if(demoPlayer.mStatus == STATUS_STOPPED)
+                    {
+                        if(demoPlayer.mPreStatus == STATUS_STOPPED)
+                        {
+                            printf("error:\n");
+                            printf("    play eris stop, the prestatus also is stop\n");
+                            break;
+                        }
+                        else
+                        {
+                            //play(pause,complete) -> stop -> play
+                            demoPlayer.mAwPlayer->prepare();
+                            update_status(&demoPlayer,STATUS_PREPARED,demoPlayer.mStatus);
+                        }
+                    }
                     //* start the playback
                     if(demoPlayer.mStatus != STATUS_SEEKING)
                     {
@@ -478,14 +563,16 @@ int main(int argc, char** argv)
                             printf("    AwPlayer::start() return fail.\n");
                             break;
                         }
-                        demoPlayer.mPreStatus = demoPlayer.mStatus;
-                        demoPlayer.mStatus    = STATUS_PLAYING;
+                        //demoPlayer.mPreStatus = demoPlayer.mStatus;
+                        //demoPlayer.mStatus    = STATUS_PLAYING;
+                        update_status(&demoPlayer,STATUS_PLAYING,demoPlayer.mStatus);
                         printf("playing.\n");
                     }
                     else
                     {
                         //* the player will keep the started status and start to play after seek finish.
                         demoPlayer.mAwPlayer->start();
+                        printf("prestatus: %s -> %s\n",status_str[demoPlayer.mPreStatus],status_str[STATUS_PLAYING]);
                         demoPlayer.mPreStatus = STATUS_PLAYING; //* current status is seeking, will set 
                                                                 //* to mPreStatus when seek finish callback.
                     }
@@ -511,14 +598,16 @@ int main(int argc, char** argv)
                             printf("    AwPlayer::pause() return fail.\n");
                             break;
                         }
-                        demoPlayer.mPreStatus = demoPlayer.mStatus;
-                        demoPlayer.mStatus    = STATUS_PAUSED;
+                        //demoPlayer.mPreStatus = demoPlayer.mStatus;
+                        //demoPlayer.mStatus    = STATUS_PAUSED;
+                        update_status(&demoPlayer,STATUS_PAUSED,demoPlayer.mStatus);
                         printf("paused.\n");
                     }
                     else
                     {
                         //* the player will keep the pauded status and pause the playback after seek finish.
                         demoPlayer.mAwPlayer->pause();
+                        printf("prestatus: %s -> %s\n",status_str[demoPlayer.mPreStatus],status_str[STATUS_PAUSED]);
                         demoPlayer.mPreStatus = STATUS_PAUSED;  //* current status is seeking, will set 
                                                                 //* to mPreStatus when seek finish callback.
                     }
@@ -527,14 +616,15 @@ int main(int argc, char** argv)
                 
                 case COMMAND_STOP:   //* stop the playback.
                 {
-                    if(demoPlayer.mAwPlayer->reset() != 0)
+                    if(demoPlayer.mAwPlayer->stop() != 0)
                     {
                         printf("error:\n");
-                        printf("    AwPlayer::reset() return fail.\n");
+                        printf("    AwPlayer::stop() return fail.\n");
                         break;
                     }
-                    demoPlayer.mPreStatus = demoPlayer.mStatus;
-                    demoPlayer.mStatus    = STATUS_STOPPED;
+                    //demoPlayer.mPreStatus = demoPlayer.mStatus;
+                    //demoPlayer.mStatus    = STATUS_STOPPED;
+                    update_status(&demoPlayer,STATUS_STOPPED,demoPlayer.mStatus);
                     printf("stopped.\n");
                     break;
                 }
@@ -548,18 +638,20 @@ int main(int argc, char** argv)
                     if(demoPlayer.mStatus != STATUS_PLAYING &&
                        demoPlayer.mStatus != STATUS_SEEKING &&
                        demoPlayer.mStatus != STATUS_PAUSED  &&
-                       demoPlayer.mStatus != STATUS_PREPARED)
+                       demoPlayer.mStatus != STATUS_PREPARED &&
+                       demoPlayer.mStatus != STATUS_COMPELTE)
                     {
                         printf("invalid command:\n");
-                        printf("    player is not in playing/seeking/paused/prepared status.\n");
+                        printf("    player is not in playing/seeking/paused/prepared/complete status.\n");
                         break;
                     }
                     
                     if(demoPlayer.mAwPlayer->getDuration(&nDuration) == 0)
                     {
-                        if(nSeekTimeMs > nDuration)
+                        if(nSeekTimeMs > nDuration){
                             printf("seek time out of range, media duration = %u seconds.\n", nDuration/1000);
-                        break;
+                            break;
+                        }
                     }
                     
                     if(demoPlayer.mSeekable == 0)
@@ -571,9 +663,14 @@ int main(int argc, char** argv)
                     //* the player will keep the pauded status and pause the playback after seek finish.
                     pthread_mutex_lock(&demoPlayer.mMutex);    //* sync with the seek finish callback.
                     demoPlayer.mAwPlayer->seekTo(nSeekTimeMs);
-                    if(demoPlayer.mStatus != STATUS_SEEKING)
-                        demoPlayer.mPreStatus = demoPlayer.mStatus;
-                    demoPlayer.mStatus = STATUS_SEEKING;
+                    if(demoPlayer.mStatus != STATUS_SEEKING){
+                        //printf("prestatus: %s -> %s\n",status_str[demoPlayer.mPreStatus],status_str[demoPlayer.mStatus]);
+                        //demoPlayer.mPreStatus = demoPlayer.mStatus;
+                        update_status(&demoPlayer,demoPlayer.mStatus,demoPlayer.mStatus);
+                    }
+                    //printf("status: %s -> %s\n",status_str[demoPlayer.mStatus],status_str[STATUS_SEEKING]);
+                    //demoPlayer.mStatus = STATUS_SEEKING;
+                    update_status(&demoPlayer,STATUS_SEEKING,demoPlayer.mPreStatus);
                     pthread_mutex_unlock(&demoPlayer.mMutex);
                     break;
                 }
@@ -612,7 +709,32 @@ int main(int argc, char** argv)
                     //* TODO
                     break;
                 }
-                
+                case COMMAND_RESET: //reset
+                {
+                    if(demoPlayer.mAwPlayer->reset() != 0)
+                    {
+                        printf("error:\n");
+                        printf("    AwPlayer::reset() return fail.\n");
+                        break;
+                    }
+                    //demoPlayer.mPreStatus = demoPlayer.mStatus;
+                    //demoPlayer.mStatus    = STATUS_STOPPED;
+                    update_status(&demoPlayer,STATUS_STOPPED,demoPlayer.mStatus);
+                    printf("stopped.\n");
+                    break;
+                }
+                case COMMAND_VOLUME_1:
+                {
+                    //mixer_set("Speaker Function",1);
+                    mixer_set("earpiece volume control",++volume);
+                    break;
+                }
+                case COMMAND_VOLUME_2:
+                {
+                    //mixer_set("Speaker Function",1);
+                    mixer_set("earpiece volume control",--volume);
+                    break;
+                }
                 default:
                 {
                     if(strlen(strCommandLine) > 0)

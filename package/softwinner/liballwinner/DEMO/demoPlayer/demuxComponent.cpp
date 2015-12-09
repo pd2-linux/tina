@@ -766,6 +766,7 @@ process_message:
             if(ret == 0)
             {
                 CdxMediaInfoT parserMediaInfo;
+                memset(&parserMediaInfo, 0x00, sizeof(CdxMediaInfoT));
                 CdxParserGetMediaInfo(demux->pParser, &parserMediaInfo);
                 setMediaInfo(&demux->mediaInfo, &parserMediaInfo);
                 demux->mediaInfo.eContainerType = (enum ECONTAINER)demux->pParser->type;
@@ -1472,6 +1473,7 @@ cache_process_message:
         {
             logv("cache thread process message DEMUX_COMMAND_QUIT.");
             
+            StreamCacheFlushAll(demux->pCache);
             if(pReplyValue != NULL)
                 *pReplyValue = 0;
             if(pReplySem != NULL)

@@ -2,6 +2,8 @@
 #ifndef LOG_H
 #define LOG_H
 
+#include <syslog.h>
+
 #include "config.h"
 
 #ifndef LOG_TAG
@@ -31,7 +33,7 @@
     #define LOG_LEVEL_DEBUG     "debug  "
     
     #define AWLOG(level, fmt, arg...)  \
-        printf("%s: %s <%s:%u>: "fmt"\n", level, LOG_TAG, __FUNCTION__, __LINE__, ##arg)
+        syslog(LOG_DEBUG, "%s: %s <%s:%u>: "fmt"\n", level, LOG_TAG, __FUNCTION__, __LINE__, ##arg)
 #else
     #error "invalid configuration of os."
 #endif

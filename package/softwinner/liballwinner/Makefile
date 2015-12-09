@@ -31,7 +31,8 @@ define Package/liballwinner-audio
 	   +libopenssl \
 	   +libxml2 \
 	   +libstdcpp \
-	   +libz
+	   +libz \
+	   +alsa-lib
 endef
 
 define Package/liballwinner-audio/Default
@@ -88,7 +89,9 @@ endef
 
 define Package/liballwinner-audio/install
 	$(INSTALL_DIR) $(1)/usr/lib/
+	$(INSTALL_DIR) $(1)/usr/bin/
 	$(INSTALL_BIN) $(AUDIO_LIB) $(1)/usr/lib/ 
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/DEMO/demoPlayer/demoPlayer $(1)/usr/bin/
 endef
 
 define Package/demoplayer/install
