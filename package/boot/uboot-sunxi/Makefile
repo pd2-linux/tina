@@ -27,6 +27,12 @@ define uboot/R16-Evb-Board
   PROFILE:=evb
 endef  
 
+define uboot/R16-Ol0102-Board
+  TITLE:=U-Boot 2011.09 Pre-Built for R16
+  CONFIG:=sun8iw5p1
+  PROFILE:=ol0102
+endef
+
 define uboot/R16-Bell-One-Board
   TITLE:=U-Boot 2011.09 Pre-Built for R16
   CONFIG:=sun8iw5p1
@@ -58,6 +64,7 @@ define uboot/A80-Evb-Board-Binary
 endef
 
 UBOOTS:=R16-Evb-Board \
+	R16-Ol0102-Board \
 	R16-Bell-One-Board \
 	R16-Evb-Board-8723BS \
 	R58-Perf-Board \

@@ -15,6 +15,7 @@ BOARDS:= \
 	R16-Evb-Board \
 	R16-Evb-Board-8723BS \
 	R16-Bell-One-Board \
+	R16-Ol0102-Board \
 	R58-Perf-Board \
 	R58-Banana-Board
 
@@ -58,6 +59,10 @@ endef
 
 define Image/Build/Profile/R16-Evb-Board
 	$(call Image/Build/FirmWare,$(1),sun8iw5p1, card0, evb)
+endef
+
+define Image/Build/Profile/R16-Ol0102-Board
+	$(call Image/Build/FirmWare,$(1),sun8iw5p1, card0, ol0102)
 endef
 
 define Image/Build/Profile/R16-Evb-Board-8723BS
