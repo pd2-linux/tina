@@ -97,17 +97,24 @@ function prepare_defconf()
 {
 	./scripts/feeds install -a
 	cp config/${WRT_DEFCONF} .config
-	#if [ "x${CHIP} = "xsun5i" ]
-	#	cp config/${KERNEL_DEFCONF} target/linux/sun5i/config-3.4
-	#else
-	#	cp config/${KERNEL_DEFCONF} target/linux/sunxi/config-3.4
-	#fi
+
+	if [ "x${CHIP}" = "xsun5i" ] ; then
+		cp config/${KERNEL_DEFCONF} target/linux/sun5i/config-3.4
+	fi
+
+	if [ "x${CHIP}" = "xsun5iw1p2" ] ; then
+		cp config/${KERNEL_DEFCONF} target/linux/sun5i/config-3.4
+	fi
+
+	if [ "x${CHIP}" = "xsunxi" ] ; then
+		cp config/${KERNEL_DEFCONF} target/linux/sunxi/config-3.4
+	fi
 }
 
 function mkrelease()
 {
 	cp .config config/${WRT_DEFCONF} 
-	#cp target/linux/sunxi/config-3.4 config/${KERNEL_DEFCONF}
+	cp target/linux/sunxi/config-3.4 config/${KERNEL_DEFCONF}
 }
 
 function init_chips()

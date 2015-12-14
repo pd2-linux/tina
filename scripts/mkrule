@@ -1,7 +1,7 @@
 chip_platform_board openwrt_defconfig kernel_defconfig
 sun8iw5p1_tina r16_defconfig r16_config-3.4
 sun8iw5p1_tina_evb r16_defconfig r16_config-3.4
-sun8iw5p1_tina_ol0102 r16_ol0102_defconfig r16_config-3.4
+sun8iw5p1_tina_ol0102 r16_ol0102_defconfig r16_ol0102_config-3.4
 sun8iw5p1_tina_evb-8723bs r16_evb_8723bs_defconfig r16_config-3.4
 sun8iw5p1_tina_bell-one r16_bell_one_defconfig r16_config-3.4
 sun8iw5p1_dragonboard r16_defconfig r16_config-3.4
