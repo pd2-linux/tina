@@ -21,9 +21,9 @@ endef
 
 define Package/brcm_patchram_plus/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_DIR) $(1)/etc/init.d
+	#$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/brcm_patchram_plus $(1)/usr/bin/
-	$(INSTALL_BIN) ./bt.init $(1)/etc/init.d/bt
+	#$(INSTALL_BIN) ./bt.init $(1)/etc/init.d/bt
 endef 
 
 $(eval $(call BuildPackage,brcm_patchram_plus))
