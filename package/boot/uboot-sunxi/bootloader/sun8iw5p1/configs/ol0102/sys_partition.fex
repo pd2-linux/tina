@@ -64,7 +64,7 @@ size = 16384
 
 [partition]
     name         = private
-    size         = 8192
+    size         = 4096
     user_type    = 0x8000
 
 [partition]
