@@ -44,6 +44,7 @@ dcdc1_vol       = 3000
 dcdc2_vol       = 1100
 dcdc3_vol       = 1200
 dcdc4_vol       = 0
+dldo1_vol       = 3300
 dcdc5_vol       = 1500
 aldo2_vol       = 2500
 aldo3_vol       = 3000
@@ -602,7 +603,7 @@ lcdd9               = port:PD27<3><0><default><default>
 ;pwm config
 ;----------------------------------------------------------------------------------
 [pwm0_para]
-pwm_used            = 1
+pwm_used            = 0
 pwm_positive        = port:PH00<2><0><default><default>
 
 [pwm1_para]
@@ -644,7 +645,7 @@ pwm_positive        = port:PH01<2><0><default><default>
 
 [csi0]
 
-vip_used                 = 1
+vip_used                 = 0
 vip_mode                 = 0
 vip_dev_qty              = 1
 vip_define_sensor_list     = 0
@@ -906,14 +907,14 @@ lsm303d                   = 1
 ;--------------------------------------------------------------------------------
 [rf_para]
 module_num          = 10
-module_power1       = "axp22_dldo1"
-module_power1_vol   = 3300000
-module_power2       = "axp22_dldo2"
-module_power2_vol   = 3300000
-module_power3       = "axp22_aldo1"
-module_power3_vol   = 3300000
+module_power1       = 
+module_power1_vol   = 
+module_power2       = 
+module_power2_vol   = 
+module_power3       = 
+module_power3_vol   = 
 power_switch        =
-chip_en             = 
+chip_en             = port:PL03<1><default><default><0>
 lpo_use_apclk       = "losc_out"
 
 ;--------------------------------------------------------------------------------
@@ -975,7 +976,7 @@ gps_clk               = "ac10032k3"
 ;3G configuration
 ;--------------------------------------------------------------------------------
 [3g_para]
-3g_used   	= 1
+3g_used   	= 0
 3g_usbc_num	= 1
 3g_uart_num	= 2
 bb_name		= "em66"
@@ -1064,7 +1065,7 @@ compass_int         =
 ;rx_data_mode 		:0: 16bit linear PCM; 1: 8bit linear PCM; 2: 8bit u-law; 3: 8bit a-law
 ;--------------------------------------------------------------------------------
 [i2s0]
-i2s0_used            = 0
+i2s0_used            = 1
 i2s0_channel         = 2
 i2s0_master			= 4
 i2s0_select  		= 1
@@ -1089,6 +1090,16 @@ i2s0_dout1           =
 i2s0_dout2           =
 i2s0_dout3           =
 i2s0_din             = port:PB07<2><1><default><default>
+
+[apa3165]
+apa3165_used		 = 1
+amp_pa_ctrl        	 = port:PE15<1><default><default><default>
+apa3165_reset        = port:PE14<1><default><default><default>
+apa3165_power0       = port:PL04<1><default><default><default>
+apa3165_power1       = port:PE07<1><default><default><default>
+chip_en              = port:PL03<1><default><default><0>
+aux_signal           = port:PL02<0><default><default><0>
+apa3165_voltage      = "dldo1_vol"
 
 ;--------------------------------------------------------------------------------
 ;i2s1_master:1: SND_SOC_DAIFMT_CBM_CFM(codec clk & FRM master)        use
@@ -1159,8 +1170,11 @@ pa_double_vol			= 0x3e
 headphone_direct_used	= 1
 headset_mic_vol = 3
 main_mic_vol        = 1
+linein_to_spk_used     	= 0
+linein_to_aif2_used     = 1
 audio_pa_ctrl          = port:PD11<1><default><default><0>
-aif2_used              = 0
+audio_linein_ctrl      	= port:PE12<0><default><default><0>
+aif2_used              = 1
 aif3_used              = 0
 headphone_mute_used = 0
 DAC_VOL_CTRL_SPK        = 0xa0a0
