@@ -362,7 +362,7 @@ static void app_avk_handle_start(tBSA_AVK_MSG *p_data, tAPP_AVK_CONNECTION *conn
 
         /* Open ALSA driver */
         status = snd_pcm_open(&(app_avk_cb.alsa_handle), alsa_device,
-            SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK);
+            SND_PCM_STREAM_PLAYBACK, 0);
         if (status < 0)
         {
             APP_ERROR1("snd_pcm_open failed: %s", snd_strerror(status));
@@ -378,7 +378,7 @@ static void app_avk_handle_start(tBSA_AVK_MSG *p_data, tAPP_AVK_CONNECTION *conn
             /* Configure ALSA driver with PCM parameters */
             status = snd_pcm_set_params(app_avk_cb.alsa_handle, format,
                 SND_PCM_ACCESS_RW_INTERLEAVED, connection->num_channel,
-                connection->sample_rate, 1, 500000);/* 0.5sec */
+                connection->sample_rate, 1, 400000);/* 0.4sec */
             if (status < 0)
             {
                 APP_ERROR1("snd_pcm_set_params failed: %s", snd_strerror(status));
