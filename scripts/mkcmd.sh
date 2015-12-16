@@ -100,13 +100,9 @@ function prepare_defconf()
 
 	if [ "x${CHIP}" = "xsun5i" ] ; then
 		cp config/${KERNEL_DEFCONF} target/linux/sun5i/config-3.4
-	fi
-
-	if [ "x${CHIP}" = "xsun5iw1p2" ] ; then
+	elif [ "x${CHIP}" = "xsun5iw1p2" ] ; then
 		cp config/${KERNEL_DEFCONF} target/linux/sun5i/config-3.4
-	fi
-
-	if [ "x${CHIP}" = "xsunxi" ] ; then
+	else
 		cp config/${KERNEL_DEFCONF} target/linux/sunxi/config-3.4
 	fi
 }
