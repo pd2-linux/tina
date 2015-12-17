@@ -39,7 +39,7 @@ define Package/rftest
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=bcm rf test tools
-  DEPENDS:=+libcutils +liblog +libc
+  DEPENDS:=+libcutils +liblog +libc +bluez-utils +brcm_patchram_plus
 endef
 
 
