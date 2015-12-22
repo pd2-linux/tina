@@ -54,6 +54,9 @@ endef
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/lib
+	$(INSTALL_DIR) $(1)/usr/include
+	$(INSTALL_DATA) tina_log.h $(1)/usr/include/
+
 
 ifeq ($(HAVE_SRC),yes)
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/libawbase.so $(1)/usr/lib
