@@ -22,7 +22,7 @@
 int socket_fd = -1;
 /****************************local function*******************************/
 void localsigroutine(int dunno){
-    //logd("sig: %d coming!\n",dunno);
+    //ipc_logd("sig: %d coming!\n",dunno);
     switch(dunno){
         case SIGINT:
         case SIGQUIT:
@@ -37,7 +37,7 @@ void localsigroutine(int dunno){
         {
             //When the client is closed after start scaning and parsing,
             //this signal will come, ignore it!
-            //logd("do nothings for PIPE signal\n");
+            //ipc_logd("do nothings for PIPE signal\n");
         }
     }
 }
@@ -134,7 +134,7 @@ int interface::init(){
 }
 
 void interface::setSocketName(const char* name){
-    //logd("%s %s\n",__FUNCTION__,name);
+    //ipc_logd("%s %s\n",__FUNCTION__,name);
     strcpy(m_socketname,name);
 }
 
@@ -144,10 +144,10 @@ int s_interface::initSocket(){
     int ret;
     int len;
     
-    logd("start to server\n");
+    ipc_logd("start to server\n");
     m_socketfd = socket(PF_UNIX,SOCK_STREAM,0);
     if(m_socketfd < 0){
-        loge("cannot create communication socket\n");
+        ipc_loge("cannot create communication socket\n");
         return -1;
     }
     
@@ -161,7 +161,7 @@ int s_interface::initSocket(){
     //bind socket fd and addr
     ret = bind(m_socketfd,(struct sockaddr*)&srv_addr,size);
     if( ret == -1 ){
-        loge("cannot bind server socket: %s\n",strerror(errno));
+        ipc_loge("cannot bind server socket: %s\n",strerror(errno));
         close(m_socketfd);
         unlink(m_socketname);
         return -1;
@@ -170,7 +170,7 @@ int s_interface::initSocket(){
     //listen socket fd
     ret = listen(m_socketfd,5);
     if(ret == -1){
-        loge("cannot linsten the client connect request: %s\n",strerror(errno));
+        ipc_loge("cannot linsten the client connect request: %s\n",strerror(errno));
         close(m_socketfd);
         unlink(m_socketname);
         return -1;
@@ -179,7 +179,7 @@ int s_interface::initSocket(){
     //epoll
     m_epollfd = epoll_create( 5 );
     if(m_epollfd < 0){
-        loge("cannot create epoll\n");
+        ipc_loge("cannot create epoll\n");
         return -1;
     }
 
@@ -192,7 +192,7 @@ int s_interface::loop(){
     epoll_event events[ MAX_EVENT_NUMBER ];
     int number = epoll_wait( m_epollfd, events, MAX_EVENT_NUMBER, -1 );
     if (( number < 0 ) && ( errno != EINTR )){
-        loge( "epoll failure\n" );
+        ipc_loge( "epoll failure\n" );
         return Thread::THREAD_EXIT;
     }
 
@@ -203,7 +203,7 @@ int s_interface::loop(){
             socklen_t client_addrlength = sizeof( client_address );
             int connfd = accept( m_socketfd, ( struct sockaddr* )&client_address, &client_addrlength );
             if ( connfd < 0 ){
-                loge( "errno is: %d\n", errno );
+                ipc_loge( "errno is: %d\n", errno );
                 return Thread::THREAD_CONTINUE;
             }
             
@@ -220,10 +220,10 @@ int s_interface::loop(){
             r.code = TRANSACT_CODE_CLIENT_CONNECT;
             r.client_handle = connfd;
             onTransact(&r,NULL);
-            //logd("listen fd coming\n");
+            //ipc_logd("listen fd coming\n");
         }
         else if( events[i].events & ( EPOLLRDHUP | EPOLLHUP | EPOLLERR | EPOLLOUT) ){
-            logd("EPOLLRDHUP fd=%d\n",events[i].data.fd);
+            //ipc_logd("EPOLLRDHUP fd=%d\n",events[i].data.fd);
             removefd(m_epollfd,events[i].data.fd);
             request_t r;
             r.code = TRANSACT_CODE_CLIENT_DISCONNECT;
@@ -233,11 +233,11 @@ int s_interface::loop(){
             m_clientfd = -1;
         }
         else if( events[i].events & EPOLLIN ){
-            logd("EPOLLIN fd=%d\n",events[i].data.fd);
+            //ipc_logd("EPOLLIN fd=%d\n",events[i].data.fd);
             char* buf =  (char*)malloc(sizeof(buf_t));
             memset(buf,0,sizeof(buf));
             int size = read(events[i].data.fd,buf,sizeof(buf_t));
-            logd("s read bytes: %d\n",size);
+            //ipc_logd("s read bytes: %d\n",size);
             if(size == sizeof(buf_t)){
                 buf_t* b = (buf_t*)buf;
                 request_t r;
@@ -268,8 +268,8 @@ int s_interface::transact(request_t* request,data_t* data){
  
     int ret = send(request->client_handle, (const void*)&b, sizeof(buf_t), 0);
     if(ret == -1)
-        loge("send fail, fd: %d,(%s)\n",m_clientfd,strerror(errno));
-    logd("s transact bytes: %d\n",ret);
+        ipc_loge("send fail, fd: %d,(%s)\n",m_clientfd,strerror(errno));
+    //ipc_logd("s transact bytes: %d\n",ret);
     return ret;
 }
 /****************************************************************/
@@ -280,7 +280,7 @@ int c_interface::initSocket(){
     m_socketfd=socket(PF_UNIX,SOCK_STREAM,0);
     if(m_socketfd<0)
     {
-        loge("cannot create communication socket");
+        ipc_loge("cannot create communication socket");
         return -1;
     }
     srv_addr.sun_family=AF_UNIX;
@@ -292,7 +292,7 @@ int c_interface::initSocket(){
     ret=connect(m_socketfd,(struct sockaddr*)&srv_addr,size);
     if(ret==-1)
     {
-            loge("cannot connect to the server: %s",strerror(errno));
+            ipc_loge("cannot connect to the server: %s",strerror(errno));
             close(m_socketfd);
             return -1;
     }
@@ -315,13 +315,13 @@ int c_interface::read(int fd, char* buf, int size){
 int c_interface::loop(){
     char* buf = (char*)malloc(sizeof(buf_t));
     int bytes_read = read(m_socketfd, buf, sizeof(buf_t));
-    logd("c bytes_read: %d\n",bytes_read);
+    //ipc_logd("c bytes_read: %d\n",bytes_read);
     if ( bytes_read == -1 ) {
         if( errno == EAGAIN || errno == EWOULDBLOCK ){
             //continue;
         }
         else{
-            loge("recv failed(%s)\n",strerror(errno));
+            ipc_loge("recv failed(%s)\n",strerror(errno));
             request_t r;
             r.code = TRANSACT_CODE_ERR;
             r.client_handle = -1;
@@ -330,7 +330,7 @@ int c_interface::loop(){
         }
     }
     else if ( bytes_read == 0 ){
-        loge("server close\n");
+        ipc_loge("server close\n");
         request_t r;
         r.code = TRANSACT_CODE_SERVER_CLOSE;
         r.client_handle = m_socketfd;        
@@ -356,8 +356,8 @@ int c_interface::transact(request_t* request,data_t* data){
     }
     int ret = send(m_socketfd, (const void*)&b, sizeof(buf_t), 0);
     if(ret == -1)
-        loge("send fail, fd: %d,(%s)\n",m_socketfd,strerror(errno));
+        ipc_loge("send fail, fd: %d,(%s)\n",m_socketfd,strerror(errno));
 
-    logd("c transact bytes: %d\n",ret);
+    //ipc_logd("c transact bytes: %d\n",ret);
     return ret;
 }

@@ -3,16 +3,16 @@
 
 #include "thread.h"
 
-#define TAG "[ipc]"
-#ifndef logd
-//#define logd(fmt, ...) syslog(LOG_DEBUG, TAG fmt, ## __VA_ARGS__)
-#define logd(fmt, ...) printf(TAG" " fmt, ## __VA_ARGS__)
-#endif
+#define TAG "ipc"
+#define CONFIG_LOG_LEVEL OPTION_LOG_LEVEL_DETAIL
+#include <tina_log.h>
 
-#ifndef loge
-//#define loge(fmt, ...) syslog(LOG_ERR, TAG fmt, ## __VA_ARGS__)
-#define loge(fmt, ...) printf(TAG" " fmt, ## __VA_ARGS__)
-#endif
+//those macro only use for class interface and it's subclass, because of the m_socketname member 
+#define ipc_loge(fmt, ...) TLOGE("(%s)"fmt, m_socketname, ## __VA_ARGS__);
+#define ipc_logd(fmt, ...) TLOGD("(%s)"fmt, m_socketname, ## __VA_ARGS__);
+#define ipc_logi(fmt, ...) TLOGI("(%s)"fmt, m_socketname, ## __VA_ARGS__);
+#define ipc_logw(fmt, ...) TLOGW("(%s)"fmt, m_socketname, ## __VA_ARGS__);
+#define ipc_logv(fmt, ...) TLOGV("(%s)"fmt, m_socketname, ## __VA_ARGS__);
 
 enum
 {
