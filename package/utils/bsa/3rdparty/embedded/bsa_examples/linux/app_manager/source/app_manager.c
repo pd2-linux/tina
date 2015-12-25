@@ -61,13 +61,15 @@
  * #endif
  */
 #ifndef APP_SEC_IO_CAPABILITIES
-#define APP_SEC_IO_CAPABILITIES BSA_SEC_IO_CAP_IO
+#define APP_SEC_IO_CAPABILITIES BSA_SEC_IO_CAP_NONE
 #endif
-
 
 /*
  * Global variables
  */
+extern char bta_conf_path[];
+BD_NAME local_device_conf_name;
+BD_ADDR local_device_set_addr;
 tAPP_XML_CONFIG         app_xml_config;
 BD_ADDR                 app_sec_db_addr;    /* BdAddr of peer device requesting SP */
 
@@ -76,6 +78,12 @@ tAPP_MGR_CB app_mgr_cb;
 tBSA_SEC_SET_REMOTE_OOB bsa_sec_set_remote_oob;
 
 tBSA_SEC_PASSKEY_REPLY g_passkey_reply;
+
+/*
+ * Extern functions
+ */
+extern void bta_load_conf(const char *p_path);
+
 /*
  * Local functions
  */
@@ -1302,18 +1310,34 @@ int app_mgr_config(void)
         app_xml_config.enable = TRUE;
         app_xml_config.discoverable = TRUE;
         app_xml_config.connectable = TRUE;
-        strncpy((char *)app_xml_config.name, APP_DEFAULT_BT_NAME, sizeof(app_xml_config.name));
-        app_xml_config.name[sizeof(app_xml_config.name) - 1] = '\0';
-        bdcpy(app_xml_config.bd_addr, local_bd_addr);
-        /* let's use a random number for the last two bytes of the BdAddr */
-        gettimeofday(&tv, NULL);
-        rand_seed = tv.tv_sec * tv.tv_usec * getpid();
-        app_xml_config.bd_addr[4] = rand_r(&rand_seed);
-        app_xml_config.bd_addr[5] = rand_r(&rand_seed);
+
+#ifndef BSATEST
+        /* bt config file exist */
+        if(bta_conf_path[0] != '\0')
+        {
+            bta_load_conf((const char *)bta_conf_path);
+            strncpy((char *)app_xml_config.name, local_device_conf_name, sizeof(app_xml_config.name));
+            app_xml_config.name[sizeof(app_xml_config.name) - 1] = '\0';
+            bdcpy(app_xml_config.bd_addr, local_device_set_addr);	
+        }
+        else
+#endif
+        {
+        	  strncpy((char *)app_xml_config.name, APP_DEFAULT_BT_NAME, sizeof(app_xml_config.name));
+            app_xml_config.name[sizeof(app_xml_config.name) - 1] = '\0';
+            bdcpy(app_xml_config.bd_addr, local_bd_addr);
+            /* let's use a random number for the last two bytes of the BdAddr */
+            gettimeofday(&tv, NULL);
+            rand_seed = tv.tv_sec * tv.tv_usec * getpid();
+            app_xml_config.bd_addr[4] = rand_r(&rand_seed);
+            app_xml_config.bd_addr[5] = rand_r(&rand_seed);
+        }
+        
         memcpy(app_xml_config.class_of_device, local_class_of_device, sizeof(DEV_CLASS));
         strncpy(app_xml_config.root_path, APP_DEFAULT_ROOT_PATH, sizeof(app_xml_config.root_path));
         app_xml_config.root_path[sizeof(app_xml_config.root_path) - 1] = '\0';
         strncpy((char *)app_xml_config.pin_code, APP_DEFAULT_PIN_CODE, APP_DEFAULT_PIN_LEN);
+        
         /* The following code will not work if APP_DEFAULT_PIN_LEN is 16 bytes */
         app_xml_config.pin_code[APP_DEFAULT_PIN_LEN] = '\0';
         app_xml_config.pin_len = APP_DEFAULT_PIN_LEN;

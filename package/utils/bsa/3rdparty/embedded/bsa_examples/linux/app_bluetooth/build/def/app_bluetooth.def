@@ -14,10 +14,13 @@ appsrcdir := $(appdir)/source \
 
 # list of sources for the current application
 appsrcs := \
+		bluetooth_main.cpp \
+		bluetooth_socket.cpp \
+		bluetooth_interface.c \
     app_manager.c \
+    bta_conf.c \
     app_avk.c \
     app_hs.c \
-    app_bluetooth_main.c \
     app_disc.c \
     app_utils.c \
     app_dm.c \
@@ -27,7 +30,7 @@ appsrcs := \
     app_wav.c \
     app_mgt.c \
     nanoxml.c
-
+    
 # add the include and source directories to the whole project
 incdirs := $(incdirs) $(appincdir)
 srcdirs := $(srcdirs) $(appsrcdir)

@@ -94,8 +94,8 @@ static void app_avk_uipc_cback(BT_HDR *p_msg);
 
 static tAvkCallback *s_pCallback = NULL;
 static tAPP_AVK_CONNECTION* pStreamingConn = NULL;
-static UINT8 a_data[4096];
-static int   next = 0;
+//static UINT8 a_data[4096];
+//static int   next = 0;
 /*******************************************************************************
  **
  ** Function         app_avk_get_label

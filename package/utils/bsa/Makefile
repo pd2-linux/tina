@@ -40,8 +40,8 @@ include $(INCLUDE_DIR)/package.mk
 define Package/bsa
   SECTION:=utils
   CATEGORY:=Utilities
-  TITLE:=bsa 01062
-  DEPENDS:=+libpthread +alsa-lib +librt
+  TITLE:=Bluetooth APP(bsa 01062)
+  DEPENDS:=+libpthread +librt +alsa-lib +liballwinner-ipc
 endef
 
 
@@ -50,7 +50,13 @@ define Package/bsa/description
 	If you can't figure out what this program does, you're probably
 	brain-dead and need immediate medical attention.
 endef
- 
+
+
+define Package/bsatest
+$(call Package/bsa)
+  TITLE:=BSA test
+endef
+
 # Specify what needs to be done to prepare for building the package.
 # In our case, we need to copy the source files to the build directory.
 # This is NOT the default.  The default uses the PKG_SOURCE_URL and the
@@ -66,8 +72,31 @@ define Build/Configure
 endef
 
 define Build/Compile
-  #compile app_bluetooth
+	#compile app_bluetooth
 	$(MAKE) -C $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/app_bluetooth/build \
+		ENABLE_ALSA=TRUE \
+		CPU=arm \
+		AR="$(TARGET_AR)" \
+		CC="$(TARGET_CC)" \
+		CXX="$(TARGET_CXX)" \
+		CFLAGS="$(TARGET_CFLAGS)"\
+		LDFLAGS="$(TARGET_LDFLAGS)" \
+		all
+	$(STRIP) $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/app_bluetooth/build/arm/app_bluetooth
+
+  #complie libbtapp
+	$(MAKE) -C $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/app_bluetooth/build \
+		-f Makefile_lib \
+		CPU=arm \
+		CC="$(TARGET_CC)" \
+		CXX="$(TARGET_CXX)" \
+		CFLAGS="$(TARGET_CFLAGS)"\
+		LDFLAGS="$(TARGET_LDFLAGS)" \
+		CONFIG_PREFIX="$(PKG_INSTALL_DIR)" \
+		all	  
+
+  #compile bsa_test
+	$(MAKE) -C $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/bsa_test/build \
 		ENABLE_ALSA=TRUE \
 		CPU=arm \
 		AR="$(TARGET_AR)" \
@@ -75,14 +104,16 @@ define Build/Compile
 		CFLAGS="$(TARGET_CFLAGS)"\
 		LDFLAGS="$(TARGET_LDFLAGS)" \
 		all
-	$(STRIP) $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/app_bluetooth/build/arm/app_bluetooth
+	$(STRIP) $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/bsa_test/build/arm/bsa_test
 	
 	#strip bsa_server
 	$(STRIP) $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/server/build/arm/bsa_server
 	
 	#copy bsa_server and apps
 	$(CP) -r $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/server/build/arm/bsa_server $(PKG_BUILD_DIR)/
+	$(CP) -r $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/bsa_test/build/arm/bsa_test $(PKG_BUILD_DIR)/
 	$(CP) -r $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/app_bluetooth/build/arm/app_bluetooth $(PKG_BUILD_DIR)/
+	
 endef
 
 # We do not need to define Build/Configure or Build/Compile directives
@@ -96,11 +127,27 @@ endef
 # directory if it does not already exist.  Likewise $(INSTALL_BIN) contains the
 # command to copy the binary file from its current location (in our case the build
 # directory) to the install directory.
-define Package/bsa/install
+define Package/bsatest/install
 	$(INSTALL_DIR) $(1)/etc/bluetooth
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bsa_server $(1)/etc/bluetooth/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/app_bluetooth $(1)/etc/bluetooth/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bsa_test $(1)/etc/bluetooth/
 	$(INSTALL_BIN) ./bsatest.sh $(1)/etc/bluetooth/
+endef
+
+define Build/InstallDev
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(INSTALL_DIR) $(1)/usr/include
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libbtapp.so $(1)/usr/lib
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/*.h $(1)/usr/include
+endef
+
+define Package/bsa/install
+	$(INSTALL_DIR) $(1)/etc/bluetooth
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bsa_server $(1)/etc/bluetooth/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/app_bluetooth $(1)/etc/bluetooth/
+	$(INSTALL_BIN) ./bsastart.sh $(1)/etc/bluetooth/
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libbtapp.so $(1)/usr/lib
 endef
 
 
@@ -110,3 +157,4 @@ endef
 # build a package.
 
 $(eval $(call BuildPackage,bsa))
+$(eval $(call BuildPackage,bsatest))
