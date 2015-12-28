@@ -13,6 +13,7 @@ FAT32_BLOCKS=$(shell echo $$(($(CONFIG_SUNXI_BOOT_PARTSIZE)*1024*1024/$(FAT32_BL
 
 BOARDS:= \
 	R8M-Evb-Board \
+	R8-Evb-Board \
 	R8-NextThing-Board \
 	R8-ChangHong-Board \
 	R8-Slbh-Board
@@ -57,6 +58,10 @@ endef
 
 define Image/Build/Profile/R8M-Evb-Board
 	$(call Image/Build/FirmWare,$(1),sun5iw1p2, uart0, evb)
+endef
+
+define Image/Build/Profile/R8-Evb-Board
+	$(call Image/Build/FirmWare,$(1),sun5i, uart0, evb)
 endef
 
 define Image/Build/Profile/R8-NextThing-Board
