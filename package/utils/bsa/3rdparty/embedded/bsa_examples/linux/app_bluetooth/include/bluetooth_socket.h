@@ -23,14 +23,14 @@ enum {
 
 enum BT_EVENT{
 	  BT_AVK_CONNECTED_EVT = 0, 
-	  BT_AVK_DISCONNECTED_EVT = 1, 
-    BT_AVK_START_EVT = 2,       /* stream data transfer started */
-    BT_AVK_STOP_EVT = 3,	       /* stream data transfer stopped */
-    BT_AUDIO_OPEN_REQ_EVT = 4,
-    BT_HS_CONNECTED_EVT = 5,
-    BT_HS_DISCONNECTED_EVT = 6,
-    BT_HS_AUDIO_OPEN_EVT = 7,
-    BT_HS_AUDIO_CLOSE_EVT =8,
+	  BT_AVK_DISCONNECTED_EVT, 
+    BT_AVK_START_EVT,        /* stream data transfer started */
+    BT_AVK_STOP_EVT,	       /* stream data transfer stopped */
+    BT_HS_CONNECTED_EVT = 0xf0,
+    BT_HS_DISCONNECTED_EVT,
+    BT_HS_RING_EVT,
+    BT_HS_OK_EVT,
+    BT_HS_ERROR_EVT
 };
 
 
