@@ -45,7 +45,7 @@ dcdc2_vol       = 1100
 dcdc3_vol       = 1200
 dcdc4_vol       = 0
 dldo1_vol       = 3300
-dcdc5_vol       = 1500
+dcdc5_vol       = 1800
 aldo2_vol       = 2500
 aldo3_vol       = 3000
 
