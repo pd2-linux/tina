@@ -227,7 +227,7 @@ int s_interface::loop(){
             removefd(m_epollfd,events[i].data.fd);
             request_t r;
             r.code = TRANSACT_CODE_CLIENT_DISCONNECT;
-            r.client_handle = m_clientfd;
+            r.client_handle = events[i].data.fd;
             onTransact(&r,NULL);
 
             m_clientfd = -1;
