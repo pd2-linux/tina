@@ -1091,8 +1091,10 @@ i2s0_dout2           =
 i2s0_dout3           =
 i2s0_din             = port:PB07<2><1><default><default>
 
+;aux_signal_time: 600s
 [apa3165]
 apa3165_used		 = 1
+aux_signal_time		 = 600
 amp_pa_ctrl        	 = port:PE15<1><default><default><default>
 apa3165_reset        = port:PE14<1><default><default><default>
 apa3165_power0       = port:PL04<1><default><default><default>
