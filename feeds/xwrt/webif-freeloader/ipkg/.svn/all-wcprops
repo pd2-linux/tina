@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/4637/trunk/package/webif-freeloader/ipkg
+END
+webif-freeloader.postinst
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/!svn/ver/4637/trunk/package/webif-freeloader/ipkg/webif-freeloader.postinst
+END
+webif-freeloader.postrm
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/4293/trunk/package/webif-freeloader/ipkg/webif-freeloader.postrm
+END

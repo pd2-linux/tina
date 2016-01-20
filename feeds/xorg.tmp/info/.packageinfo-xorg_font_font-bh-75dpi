@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xorg/xorg/font/font-bh-75dpi/Makefile
+Package: font-bh-75dpi
+Submenu: font
+Version: 1.0.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver +font-util @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: font-bh-75dpi
+Maintainer: 
+Source: font-bh-75dpi-1.0.0.tar.bz2
+Type: ipkg
+Description: font-bh-75dpi
+http://xorg.freedesktop.org/
+
+@@
+
+

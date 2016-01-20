@@ -1,0 +1,22 @@
+Source-Makefile: feeds/efl/ecore/Makefile
+Package: ecore
+Submenu: libraries
+Version: r40853-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +fribidi +eina +evas +libXtst +libXrandr +libX11 +libXcursor +libXdpms @!LINUX_2_4 +BUILD_NLS:libiconv-full +BUILD_NLS:libintl-full
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Build-Depends/host: eina/host evas/host fribidi/host
+Build-Types: host
+Section: xorg-lib
+Category: Xorg
+Title: Ecore is the core event abstraction layer and X abstraction layer
+Maintainer: 
+Source: ecore-r40853.tar.gz
+Type: ipkg
+Description:   Ecore is the core event abstraction layer and X abstraction layer that makes doing selections, Xdnd, general X stuff, and event loops, timeouts and idle handlers fast, optimized, and convenient. It's a separate library so anyone can make use of the work put into Ecore to make this job easy for applications.
+http://wiki.enlightenment.org/index.php/Ecore
+
+@@
+
+

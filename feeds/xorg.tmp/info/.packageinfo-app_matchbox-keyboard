@@ -1,0 +1,20 @@
+Source-Makefile: feeds/xorg/app/matchbox-keyboard/Makefile
+Package: matchbox-keyboard
+Submenu: app
+Version: svn2111-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libfakekey +cairo +gtk2 +libexpat
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-app
+Category: Xorg
+Title: matchbox-keyboard
+Maintainer: Michael Buesch <mb@bu3sch.de>
+Source: matchbox-keyboard-svn2111.tar.bz2
+Type: ipkg
+Description:   Virtual keyboard
+http://matchbox-project.org/?p=1
+Michael Buesch <mb@bu3sch.de>
+@@
+
+

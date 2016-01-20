@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xorg/xorg/proto/xproto/Makefile
+Package: xproto
+Submenu: proto
+Version: 7.0.16-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: xproto
+Maintainer: 
+Source: xproto-7.0.16.tar.bz2
+Type: ipkg
+Description: xproto
+http://xorg.freedesktop.org/
+
+@@
+
+

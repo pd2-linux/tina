@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xorg/xorg/font/font-alias/Makefile
+Package: font-alias
+Submenu: font
+Version: 1.0.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver +font-util @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: font-alias
+Maintainer: 
+Source: font-alias-1.0.1.tar.bz2
+Type: ipkg
+Description: font-alias
+http://xorg.freedesktop.org/
+
+@@
+
+

@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xorg/xorg/app/xrandr/Makefile
+Package: xrandr
+Submenu: app
+Version: 1.3.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXrandr +libXrender +libX11
+Menu-Depends: 
+Provides: 
+Section: xorg-app
+Category: Xorg
+Title: xrandr
+Maintainer: 
+Source: xrandr-1.3.2.tar.bz2
+Type: ipkg
+Description: xrandr
+http://xorg.freedesktop.org/
+
+@@
+
+

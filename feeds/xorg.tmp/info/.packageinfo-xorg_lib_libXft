@@ -1,0 +1,20 @@
+Source-Makefile: feeds/xorg/xorg/lib/libXft/Makefile
+Package: libXft
+Submenu: libraries
+Version: 2.1.14-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +fontconfig +libfreetype +libXrender
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libXft
+Maintainer: 
+Source: libXft-2.1.14.tar.bz2
+Type: ipkg
+Description: libXft
+http://xorg.freedesktop.org/
+
+@@
+
+

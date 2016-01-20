@@ -1,0 +1,22 @@
+Source-Makefile: feeds/efl/evas/Makefile
+Package: evas
+Submenu: libraries
+Version: r40853-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +fribidi +libXext +libfreetype +libX11 +fontconfig +eet +libjpeg +libpng +libXrender
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv libtool libintl libiconv
+Build-Depends/host: fribidi/host jpeg/host libpng/host libfreetype/host eet/host
+Build-Types: host
+Section: xorg-lib
+Category: Xorg
+Title: Evas is a hardware-accelerated canvas API for X-Windows
+Maintainer: 
+Source: evas-r40853.tar.gz
+Type: ipkg
+Description:   Evas is a hardware-accelerated canvas API for X-Windows that can draw anti-aliased text, smooth super and sub-sampled images, alpha-blend, as well as drop down to using normal X11 primitives such as pixmaps, lines and rectangles for speed if your CPU or graphics hardware are too slow.
+http://wiki.enlightenment.org/index.php/Evas
+
+@@
+
+

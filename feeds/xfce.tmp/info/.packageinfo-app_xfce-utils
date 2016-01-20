@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xfce/app/xfce-utils/Makefile
+Package: xfce-utils
+Submenu: app
+Version: 4.6.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxfce4util +libxfcegui4 +dbus-launch-x
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: xfce-utils
+Maintainer: 
+Source: xfce-utils-4.6.1.tar.bz2
+Type: ipkg
+Description: xfce-utils
+
+@@
+
+

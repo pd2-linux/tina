@@ -1,0 +1,37 @@
+Source-Makefile: feeds/xorg/lib/gtk2/Makefile
+Package: gtk2
+Submenu: framework
+Version: 2.17.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread @DISPLAY_SUPPORT +cairo +pango +libpng +libjpeg +atk +libtiff +glib2 +FEATURE_drawing-backend_DirectFB:directfb +FEATURE_drawing-backend_libX11:libX11 +FEATURE_drawing-backend_libX11:libXext +FEATURE_drawing-backend_libX11:libXrender +FEATURE_drawing-backend_libX11:libXfixes +FEATURE_drawing-backend_libX11:libXrandr +FEATURE_drawing-backend_libX11:libXcursor +FEATURE_drawing-backend_libX11:libXdamage +FEATURE_drawing-backend_libX11:libXcomposite +FEATURE_drawing-backend_libX11:libXi
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: GTK+-2.0
+Maintainer: 
+Source: gtk+-2.17.0.tar.bz2
+Type: ipkg
+Description: GTK+-2.0
+http://www.gtk.org/
+
+@@
+
+Package: gtk2-cups
+Submenu: framework
+Version: 2.17.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread gtk2 +cups
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: CUPS print backend for GTK+-2.0
+Maintainer: 
+Source: gtk+-2.17.0.tar.bz2
+Type: ipkg
+Description: CUPS print backend for GTK+-2.0
+
+@@
+
+

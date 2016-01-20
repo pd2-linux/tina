@@ -1,0 +1,28 @@
+Source-Makefile: feeds/xorg/xorg/lib/libX11/Makefile
+Feature: drawing-backend_libX11
+Target-Name: drawing-backend
+Target-Title: Drawing Backend
+Feature-Name: libX11
+Feature-Description:
+
+@@
+
+Package: libX11
+Submenu: libraries
+Version: 1.3.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libXdmcp +libXau @FEATURE_drawing-backend_libX11 @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: 
+Build-Depends: xproto xextproto xf86bigfontproto kbproto inputproto xtrans xcmiscproto bigreqsproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libX11
+Maintainer: 
+Source: libX11-1.3.2.tar.bz2
+Type: ipkg
+Description: libX11
+http://xorg.freedesktop.org/
+
+@@
+
+

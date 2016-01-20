@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xorg/xorg/app/x11perf/Makefile
+Package: x11perf
+Submenu: app
+Version: 1.5.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXmuu +libXrender +libXft +libXext
+Menu-Depends: 
+Provides: 
+Section: xorg-app
+Category: Xorg
+Title: x11perf
+Maintainer: 
+Source: x11perf-1.5.1.tar.bz2
+Type: ipkg
+Description: x11perf
+http://xorg.freedesktop.org/
+
+@@
+
+

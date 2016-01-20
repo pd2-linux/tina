@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xorg/xorg/font/font-daewoo-misc/Makefile
+Package: font-daewoo-misc
+Submenu: font
+Version: 1.0.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver +font-util @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: font-daewoo-misc
+Maintainer: 
+Source: font-daewoo-misc-1.0.0.tar.bz2
+Type: ipkg
+Description: font-daewoo-misc
+http://xorg.freedesktop.org/
+
+@@
+
+

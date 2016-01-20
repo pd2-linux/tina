@@ -1,0 +1,18 @@
+Source-Makefile: feeds/xfce/data/xfce4-icon-theme/Makefile
+Package: xfce4-icon-theme
+Submenu: data
+Version: 4.4.3-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +hicolor-icon-theme
+Menu-Depends: 
+Provides: 
+Section: xorg-data
+Category: Xorg
+Title: xfce4-icon-theme
+Maintainer: 
+Source: xfce4-icon-theme-4.4.3.tar.bz2
+Type: ipkg
+Description: xfce4-icon-theme
+
+@@
+
+

@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xorg/xorg/proto/inputproto/Makefile
+Package: inputproto
+Submenu: proto
+Version: 2.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: inputproto
+Maintainer: 
+Source: inputproto-2.0.tar.bz2
+Type: ipkg
+Description: inputproto
+http://xorg.freedesktop.org/
+
+@@
+
+

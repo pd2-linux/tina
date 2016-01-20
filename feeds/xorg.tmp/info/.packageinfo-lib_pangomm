@@ -1,0 +1,20 @@
+Source-Makefile: feeds/xorg/lib/pangomm/Makefile
+Package: pangomm
+Submenu: libraries
+Version: 2.26.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +glibmm +cairomm +pango
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-libraries
+Category: Xorg
+Title: Text layout and rendering library
+Maintainer: 
+Source: pangomm-2.26.0.tar.bz2
+Type: ipkg
+Description: c++-bindings for pango
+http://www.pango.org/
+
+@@
+
+

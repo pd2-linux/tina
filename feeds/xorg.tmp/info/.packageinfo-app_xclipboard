@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xorg/app/xclipboard/Makefile
+Package: xclipboard
+Submenu: app
+Version: 1.0.1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libXaw
+Menu-Depends: 
+Provides: 
+Section: xorg-app
+Category: Xorg
+Title: xclipboard
+Maintainer: 
+Source: xclipboard-1.0.1.tar.bz2
+Type: ipkg
+Description: xclipboard
+http://xorg.freedesktop.org/
+
+@@
+
+

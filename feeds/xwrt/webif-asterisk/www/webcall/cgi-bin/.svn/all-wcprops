@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/www/webcall/cgi-bin
+END
+webcall.sh
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/www/webcall/cgi-bin/webcall.sh
+END
+call_template.html
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/www/webcall/cgi-bin/call_template.html
+END
+call_template_fr.html
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/!svn/ver/4828/trunk/package/webif-asterisk/www/webcall/cgi-bin/call_template_fr.html
+END

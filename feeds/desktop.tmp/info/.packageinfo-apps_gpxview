@@ -1,0 +1,20 @@
+Source-Makefile: feeds/desktop/apps/gpxview/Makefile
+Package: gpxview
+Submenu: app
+Version: 0.9.1-1-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +gpsd +libxml2 +libcurl +libsoup +gtkhtml +gtk2 +glib2 +libsqlite3 +BUILD_NLS:libiconv-full +BUILD_NLS:libintl-full @BROKEN
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: GPXView Geocaching app
+Maintainer: Michael Buesch <mb@bu3sch.de>
+Source: gpxview_0.9.1-1.tar.gz
+Type: ipkg
+Description:   GPXView is a viewer for Geocaching.com GPX files and a simple GPS navigation software.
+http://www.harbaum.org/till/maemo/index.shtml
+Michael Buesch <mb@bu3sch.de>
+@@
+
+

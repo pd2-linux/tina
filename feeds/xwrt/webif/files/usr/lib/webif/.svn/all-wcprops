@@ -1,0 +1,131 @@
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/4981/trunk/package/webif/files/usr/lib/webif
+END
+subcategories.awk
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/4822/trunk/package/webif/files/usr/lib/webif/subcategories.awk
+END
+acl.awk
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/4822/trunk/package/webif/files/usr/lib/webif/acl.awk
+END
+functions.sh
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/4834/trunk/package/webif/files/usr/lib/webif/functions.sh
+END
+countrycodes.lst
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/4981/trunk/package/webif/files/usr/lib/webif/countrycodes.lst
+END
+form.awk
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/4711/trunk/package/webif/files/usr/lib/webif/form.awk
+END
+switchinfo.sh
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/4933/trunk/package/webif/files/usr/lib/webif/switchinfo.sh
+END
+webif-mkthemelist.sh
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/4845/trunk/package/webif/files/usr/lib/webif/webif-mkthemelist.sh
+END
+apply.sh
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/4930/trunk/package/webif/files/usr/lib/webif/apply.sh
+END
+dhcp_options.dat
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/4883/trunk/package/webif/files/usr/lib/webif/dhcp_options.dat
+END
+browser.awk
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/4293/trunk/package/webif/files/usr/lib/webif/browser.awk
+END
+comgt.webif
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/3399/trunk/package/webif/files/usr/lib/webif/comgt.webif
+END
+webif.sh
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/4934/trunk/package/webif/files/usr/lib/webif/webif.sh
+END
+categories.awk
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/4822/trunk/package/webif/files/usr/lib/webif/categories.awk
+END
+timezones.csv
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/4293/trunk/package/webif/files/usr/lib/webif/timezones.csv
+END
+editor.awk
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/4717/trunk/package/webif/files/usr/lib/webif/editor.awk
+END
+sanitize.awk
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/3399/trunk/package/webif/files/usr/lib/webif/sanitize.awk
+END
+webif-mklanglist.sh
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/4419/trunk/package/webif/files/usr/lib/webif/webif-mklanglist.sh
+END
+apn.csv
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/3575/trunk/package/webif/files/usr/lib/webif/apn.csv
+END
+common.awk
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/4737/trunk/package/webif/files/usr/lib/webif/common.awk
+END
+notes.awk
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/4748/trunk/package/webif/files/usr/lib/webif/notes.awk
+END
+validate.awk
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/4861/trunk/package/webif/files/usr/lib/webif/validate.awk
+END

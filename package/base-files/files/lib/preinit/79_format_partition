@@ -1,0 +1,65 @@
+#!/bin/sh
+# Copyright (C) 2006 OpenWrt.org
+# Copyright (C) 2010 Vertical Communications
+do_check_ext4(){ # $1 device
+	block info | grep $1
+	if [ $? -ne 0 ]; then
+		echo "formating " $1 "to ext4..."
+		mkfs.ext4 $1
+	else
+		echo $1 "already format by ext4"
+	fi
+}
+do_check_jffs2(){ #1 device
+	block info | grep $1
+	if [ $? -ne 0 ]; then
+		echo "formating " $1 "to jffs2..."
+		mkdir /tmp/jffs2
+		touch /tmp/jffs2/.mount_data
+		dd if=/dev/zero of=/tmp/jffs2/.mount_data bs=1024 count=1
+		mkfs.jffs2 -p 0x4000000 -d /tmp/jffs2 -o /tmp/jffs2.img
+		dd if=/tmp/jffs2.img of=$1
+		rm -rf /tmp/jffs2 /tmp/jffs2.img
+	else
+		echo $1 "already format by jffs2"
+	fi
+}
+do_check_format(){ # $1 device
+	[ -e $1 ] && {
+		#emmc
+		[ -e /dev/mmcblk0 ] && {
+			do_check_ext4 $1
+		}
+		#nand
+		[ -e /dev/nanda ] && {
+			do_check_ext4 $1
+		}
+		#nor
+		[ -e /dev/mtdblock0 ] && {
+			do_check_jffs2 $1
+		}
+	}
+}
+do_format_filesystem() {
+	[ -d /dev/by-name -o -h /dev/by-name/rootfs ] || {
+        	mkdir -p -m 755 /dev/by-name
+        	for line in `cat /proc/cmdline`
+        	do
+                	if [ ${line%%=*} = 'partitions' ] ; then
+                        	partitions=${line##*=}
+                        	part=" "
+                        	while [ "$part" != "$partitions" ]
+                        	do
+                                	part=${partitions%%:*}
+                                	ln -s "/dev/${part#*@}" "/dev/by-name/${part%@*}"
+                                	partitions=${partitions#*:}
+                        	done
+                	fi
+        	done
+	}
+
+	do_check_format /dev/by-name/UDISK
+	do_check_format /dev/by-name/rootfs_data
+}
+
+[ "$INITRAMFS" = "1" ] || boot_hook_add preinit_main do_format_filesystem

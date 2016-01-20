@@ -1,0 +1,89 @@
+10
+
+dir
+46983
+svn://svn.openwrt.org/openwrt/feeds/xorg
+svn://svn.openwrt.org/openwrt
+
+
+
+2012-11-13T21:34:18.887945Z
+34199
+blogic
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+3c298f89-4303-0410-b956-a3cf2f4a3e73
+
+wm
+dir
+
+generate.sh
+file
+
+
+
+
+2015-07-22T08:36:05.217297Z
+4ff2ac53b418d9b0f8ad35e8f912ae4b
+2008-11-16T19:31:42.856910Z
+13238
+mirko
+has-props
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+911
+
+font
+dir
+
+lib
+dir
+
+driver
+dir
+
+xserver
+dir
+
+xorg
+dir
+
+app
+dir
+
+utils
+dir
+
+lang
+dir
+

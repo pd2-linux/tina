@@ -1,0 +1,12 @@
+libs/libmenu-cache
+apps/lxappearance
+apps/lxsession-lite
+apps/lxtask
+apps/pcmanfm
+apps/lxsession-edit
+apps/lxpanel
+apps/lxrandr
+apps/lxterminal
+apps/lxshortcut
+data/lxmenu-data
+data/lxde-common

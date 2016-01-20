@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/4785/trunk/package/webif-vpn/files/www/cgi-bin/webif
+END
+vpn-l2tpns.sh
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/!svn/ver/4444/trunk/package/webif-vpn/files/www/cgi-bin/webif/vpn-l2tpns.sh
+END
+vpn-pptp.sh
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/4444/trunk/package/webif-vpn/files/www/cgi-bin/webif/vpn-pptp.sh
+END
+status-pptp.sh
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/4444/trunk/package/webif-vpn/files/www/cgi-bin/webif/status-pptp.sh
+END
+vpn-openvpn.sh
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/4785/trunk/package/webif-vpn/files/www/cgi-bin/webif/vpn-openvpn.sh
+END
+status-openvpn.sh
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/!svn/ver/4444/trunk/package/webif-vpn/files/www/cgi-bin/webif/status-openvpn.sh
+END

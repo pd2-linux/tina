@@ -1,0 +1,19 @@
+Source-Makefile: feeds/efl/python-evas/Makefile
+Package: python-evas
+Submenu: Python
+Version: r40853-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python-mini +evas
+Menu-Depends: 
+Provides: 
+Build-Depends: cython python
+Section: lang
+Category: Languages
+Title: python-evas
+Maintainer: 
+Source: python-evas-r40853.tar.gz
+Type: ipkg
+Description:   evas python bindings
+
+@@
+
+

@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xorg/xorg/proto/printproto/Makefile
+Package: printproto
+Submenu: proto
+Version: 1.0.4-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: printproto
+Maintainer: 
+Source: printproto-1.0.4.tar.bz2
+Type: ipkg
+Description: printproto
+http://xorg.freedesktop.org/
+
+@@
+
+

@@ -1,0 +1,38 @@
+Source-Makefile: feeds/xorg/xorg/font/font-misc-misc/Makefile
+Package: font-misc-misc
+Submenu: font
+Prereq-Check: 1
+Version: 1.0.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread font-base
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: font-misc-misc
+Maintainer: 
+Source: font-misc-misc-1.0.0.tar.bz2
+Type: ipkg
+Description: font-misc-misc
+http://xorg.freedesktop.org/
+
+@@
+
+Package: font-base
+Submenu: font
+Prereq-Check: 1
+Version: 1.0.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver +font-util @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: font-base
+Maintainer: 
+Source: font-misc-misc-1.0.0.tar.bz2
+Type: ipkg
+Description: font-base
+http://xorg.freedesktop.org/
+
+@@
+
+

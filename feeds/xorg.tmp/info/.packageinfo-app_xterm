@@ -1,0 +1,18 @@
+Source-Makefile: feeds/xorg/app/xterm/Makefile
+Package: xterm
+Submenu: terminals
+Version: 242-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libncurses +libXaw
+Menu-Depends: 
+Provides: 
+Section: xorg-extra
+Category: Xorg
+Title: xterm
+Maintainer: 
+Source: xterm-242.tar.gz
+Type: ipkg
+Description: xterm
+
+@@
+
+

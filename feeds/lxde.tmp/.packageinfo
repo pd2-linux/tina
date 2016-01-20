@@ -1,0 +1,228 @@
+Source-Makefile: feeds/lxde/libs/libmenu-cache/Makefile
+Package: libmenu-cache
+Submenu: app
+Version: 0.3.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +glib2
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: libmenu-cache
+Maintainer: 
+Source: menu-cache-0.3.2.tar.gz
+Type: ipkg
+Description: libmenu-cache
+
+@@
+
+
+Source-Makefile: feeds/lxde/apps/lxappearance/Makefile
+Package: lxappearance
+Submenu: app
+Version: 0.4.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +glib2 +vte +lxde-common +libdbus-glib
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: lxappearance
+Maintainer: 
+Source: lxappearance-0.4.0.tar.gz
+Type: ipkg
+Description: lxappearance
+
+@@
+
+
+Source-Makefile: feeds/lxde/apps/lxsession-lite/Makefile
+Package: lxsession-lite
+Submenu: app
+Version: 0.3.7-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +glib2 +vte
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: lxsession-lite
+Maintainer: 
+Source: lxsession-lite-0.3.7.tar.gz
+Type: ipkg
+Description: lxsession-lite
+
+@@
+
+
+Source-Makefile: feeds/lxde/apps/lxtask/Makefile
+Package: lxtask
+Submenu: app
+Version: 0.1.3-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +gtk2 +lxde-common +BUILD_NLS:libiconv-full +BUILD_NLS:libintl-full
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: lxtask
+Maintainer: 
+Source: lxtask-0.1.3.tar.gz
+Type: ipkg
+Description: lxtask
+
+@@
+
+
+Source-Makefile: feeds/lxde/apps/pcmanfm/Makefile
+Package: pcmanfm
+Submenu: app
+Version: 0.5-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +gtk2 +libstartup-notification +libgamin
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-app
+Category: Xorg
+Title: pcmanfm
+Maintainer: 
+Source: pcmanfm-0.5.tar.gz
+Type: ipkg
+Description: pcmanfm
+
+@@
+
+
+Source-Makefile: feeds/lxde/apps/lxsession-edit/Makefile
+Package: lxsession-edit
+Submenu: app
+Version: 0.1.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +gtk2
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: lxsession-edit
+Maintainer: 
+Source: lxsession-edit-0.1.1.tar.gz
+Type: ipkg
+Description: lxsession-edit
+
+@@
+
+
+Source-Makefile: feeds/lxde/apps/lxpanel/Makefile
+Package: lxpanel
+Submenu: app
+Version: 0.5.6-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +gtk2 +libmenu-cache +libiw +lxde-common
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: lxpanel
+Maintainer: 
+Source: lxpanel-0.5.6.tar.gz
+Type: ipkg
+Description: lxpanel
+
+@@
+
+
+Source-Makefile: feeds/lxde/apps/lxrandr/Makefile
+Package: lxrandr
+Submenu: app
+Version: 0.1.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +gtk2 +xrandr +lxde-common
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: lxrandr
+Maintainer: 
+Source: lxrandr-0.1.1.tar.gz
+Type: ipkg
+Description: lxrandr
+
+@@
+
+
+Source-Makefile: feeds/lxde/apps/lxterminal/Makefile
+Package: lxterminal
+Submenu: app
+Version: 0.1.9-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +glib2 +vte +lxde-common
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: lxterminal
+Maintainer: 
+Source: lxterminal-0.1.9.tar.gz
+Type: ipkg
+Description: lxterminal
+
+@@
+
+
+Source-Makefile: feeds/lxde/apps/lxshortcut/Makefile
+Package: lxshortcut
+Submenu: app
+Version: 0.1.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +glib2 +vte
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: lxshortcut
+Maintainer: 
+Source: lxshortcut-0.1.1.tar.gz
+Type: ipkg
+Description: lxshortcut
+
+@@
+
+
+Source-Makefile: feeds/lxde/data/lxmenu-data/Makefile
+Package: lxmenu-data
+Submenu: app
+Version: 0.1.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: lxmenu-data
+Maintainer: 
+Source: lxmenu-data-0.1.1.tar.gz
+Type: ipkg
+Description: lxmenu-data
+
+@@
+
+
+Source-Makefile: feeds/lxde/data/lxde-common/Makefile
+Package: lxde-common
+Submenu: app
+Version: 0.5.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +smproxy +openbox +lxsession-lite +hicolor-icon-theme
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: lxde-common
+Maintainer: 
+Source: lxde-common-0.5.0.tar.gz
+Type: ipkg
+Description: lxde-common
+
+@@
+
+

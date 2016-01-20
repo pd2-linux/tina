@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/4804/trunk/package/webif-applications/files/www/cgi-bin/webif
+END
+applications-dlmanager.sh
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svn/!svn/ver/4804/trunk/package/webif-applications/files/www/cgi-bin/webif/applications-dlmanager.sh
+END
+applications-ipkg.sh
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/!svn/ver/4804/trunk/package/webif-applications/files/www/cgi-bin/webif/applications-ipkg.sh
+END
+applications-swap.sh
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/!svn/ver/4804/trunk/package/webif-applications/files/www/cgi-bin/webif/applications-swap.sh
+END
+applications-proftpd.sh
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svn/!svn/ver/4804/trunk/package/webif-applications/files/www/cgi-bin/webif/applications-proftpd.sh
+END
+applications-aircrack.sh
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/svn/!svn/ver/4804/trunk/package/webif-applications/files/www/cgi-bin/webif/applications-aircrack.sh
+END
+applications.sh
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/!svn/ver/4804/trunk/package/webif-applications/files/www/cgi-bin/webif/applications.sh
+END
+applications-cifs.sh
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/!svn/ver/4804/trunk/package/webif-applications/files/www/cgi-bin/webif/applications-cifs.sh
+END
+applications-hydra.sh
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/!svn/ver/4804/trunk/package/webif-applications/files/www/cgi-bin/webif/applications-hydra.sh
+END
+applications-shell.sh
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/!svn/ver/4804/trunk/package/webif-applications/files/www/cgi-bin/webif/applications-shell.sh
+END

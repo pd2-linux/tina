@@ -1,0 +1,53 @@
+Source-Makefile: feeds/xfce/app/thunar/Makefile
+Package: libthunar-vfs
+Submenu: libraries
+Version: 1.0.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libexo +libpng +libxfce4util +libgamin +libstartup-notification +xfce4-panel +dbus-launch-x +gamin-server
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-lib
+Category: Xorg
+Title: thunar virtual filesystem library
+Maintainer: 
+Source: Thunar-1.0.1.tar.bz2
+Type: ipkg
+Description: thunar virtual filesystem library
+
+@@
+
+Package: libthunarx
+Submenu: libraries
+Version: 1.0.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +gtk2
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-lib
+Category: Xorg
+Title: libthunarx
+Maintainer: 
+Source: Thunar-1.0.1.tar.bz2
+Type: ipkg
+Description: libthunarx
+
+@@
+
+Package: thunar
+Submenu: app
+Version: 1.0.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libthunarx +libthunar-vfs
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: thunar
+Maintainer: 
+Source: Thunar-1.0.1.tar.bz2
+Type: ipkg
+Description: thunar
+
+@@
+
+

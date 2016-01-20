@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xorg/app/xeyes/Makefile
+Package: xeyes
+Submenu: app
+Version: 1.0.1-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXt +libXext +libXmu
+Menu-Depends: 
+Provides: 
+Section: xorg-app
+Category: Xorg
+Title: xeyes
+Maintainer: 
+Source: xeyes-1.0.1.tar.bz2
+Type: ipkg
+Description: xeyes
+http://xorg.freedesktop.org/
+
+@@
+
+

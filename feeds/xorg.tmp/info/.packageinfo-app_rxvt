@@ -1,0 +1,20 @@
+Source-Makefile: feeds/xorg/app/rxvt/Makefile
+Package: rxvt
+Submenu: app
+Version: 2.7.10-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libX11 +libXext +libXau +libXtst +imlib2
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-app
+Category: Xorg
+Title: rxvt
+Maintainer: 
+Source: rxvt-2.7.10.tar.gz
+Type: ipkg
+Description: rxvt
+http://rxvt.sourceforge.net
+
+@@
+
+

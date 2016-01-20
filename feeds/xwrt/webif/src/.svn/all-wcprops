@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/4806/trunk/package/webif/src
+END
+bstrip.c
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/4805/trunk/package/webif/src/bstrip.c
+END
+webif-page.c
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/4805/trunk/package/webif/src/webif-page.c
+END
+webifmetabin.c
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/4805/trunk/package/webif/src/webifmetabin.c
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/4806/trunk/package/webif/src/Makefile
+END

@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/4873/trunk/package/webif-iw-lua/files/usr/lib/lua/lua-xwrt/addon
+END
+string.lua
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/!svn/ver/4873/trunk/package/webif-iw-lua/files/usr/lib/lua/lua-xwrt/addon/string.lua
+END
+io.lua
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/!svn/ver/4873/trunk/package/webif-iw-lua/files/usr/lib/lua/lua-xwrt/addon/io.lua
+END
+uci.lua
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/!svn/ver/4873/trunk/package/webif-iw-lua/files/usr/lib/lua/lua-xwrt/addon/uci.lua
+END

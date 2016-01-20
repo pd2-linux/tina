@@ -1,0 +1,20 @@
+Source-Makefile: feeds/xorg/lib/gtk1/Makefile
+Package: gtk1
+Submenu: framework
+Version: 1.2.10-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +glib1 +libX11 +libXt
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-framework
+Category: Xorg
+Title: GTK+ 1.2.10 package
+Maintainer: 
+Source: gtk+-1.2.10.tar.gz
+Type: ipkg
+Description: GTK+ 1.2.10 package
+http://www.gtk.org/
+
+@@
+
+

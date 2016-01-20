@@ -1,0 +1,40 @@
+10
+
+dir
+4987
+http://x-wrt.googlecode.com/svn/trunk/package/webif-asterisk/mnt/disc0_1/asterisk
+http://x-wrt.googlecode.com/svn
+
+
+
+2009-11-15T06:46:08.349908Z
+4828
+kemen04
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2dee665f-611b-0410-ab39-d748a57cfec1
+
+cdr-csv
+dir
+
+moh-native
+dir
+
+voicemail
+dir
+
+sounds
+dir
+

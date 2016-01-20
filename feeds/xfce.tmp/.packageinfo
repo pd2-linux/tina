@@ -1,0 +1,522 @@
+Source-Makefile: feeds/xfce/libs/libexo/Makefile
+Package: libexo
+Submenu: framework
+Version: 0.3.101-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +gtk2 +libxfce4util
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: libexo
+Maintainer: 
+Source: exo-0.3.101.tar.bz2
+Type: ipkg
+Description: libexo
+
+@@
+
+
+Source-Makefile: feeds/xfce/libs/libxfce4menu/Makefile
+Package: libxfce4menu
+Submenu: framework
+Version: 4.6.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +gtk2 +libxfce4util +glib2
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: libxfce4menu
+Maintainer: 
+Source: libxfce4menu-4.6.1.tar.bz2
+Type: ipkg
+Description: libxfce4menu
+
+@@
+
+
+Source-Makefile: feeds/xfce/libs/libxfcegui4/Makefile
+Package: libxfcegui4
+Submenu: framework
+Version: 4.6.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxfce4util +gtk2 +libglade +libxfconf +libSM +libX11
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: libxfcegui4
+Maintainer: 
+Source: libxfcegui4-4.6.1.tar.bz2
+Type: ipkg
+Description: libxfcegui4
+
+@@
+
+
+Source-Makefile: feeds/xfce/libs/libxfce4util/Makefile
+Package: libxfce4util
+Submenu: framework
+Version: 4.6.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +glib2
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-framework
+Category: Xorg
+Title: libxfce4util
+Maintainer: 
+Source: libxfce4util-4.6.1.tar.bz2
+Type: ipkg
+Description: libxfce4util
+
+@@
+
+
+Source-Makefile: feeds/xfce/data/xfce4-icon-theme/Makefile
+Package: xfce4-icon-theme
+Submenu: data
+Version: 4.4.3-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +hicolor-icon-theme
+Menu-Depends: 
+Provides: 
+Section: xorg-data
+Category: Xorg
+Title: xfce4-icon-theme
+Maintainer: 
+Source: xfce4-icon-theme-4.4.3.tar.bz2
+Type: ipkg
+Description: xfce4-icon-theme
+
+@@
+
+
+Source-Makefile: feeds/xfce/data/xfwm4-themes/Makefile
+Package: xfwm4-themes
+Submenu: data
+Version: 4.6.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread xfwm4
+Menu-Depends: 
+Provides: 
+Section: xorg-data
+Category: Xorg
+Title: xfwm4-themes
+Maintainer: 
+Source: xfwm4-themes-4.6.0.tar.bz2
+Type: ipkg
+Description: xfwm4-themes
+
+@@
+
+
+Source-Makefile: feeds/xfce/data/gtk-xfce-engine/Makefile
+Package: gtk-xfce-engine
+Submenu: app
+Version: 2.6.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +gtk2
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: gtk-xfce-engine
+Maintainer: 
+Source: gtk-xfce-engine-2.6.0.tar.bz2
+Type: ipkg
+Description: gtk-xfce-engine
+
+@@
+
+
+Source-Makefile: feeds/xfce/wm/xfwm4/Makefile
+Package: xfwm4
+Submenu: app
+Version: 4.6.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxfce4util +libxfcegui4 +libxfconf +libdbus-glib +libwnck +freedesktop-compliant
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: xfwm4
+Maintainer: 
+Source: xfwm4-4.6.1.tar.bz2
+Type: ipkg
+Description: xfwm4
+
+@@
+
+
+Source-Makefile: feeds/xfce/app/xfce4-session/Makefile
+Package: xfce4-session
+Submenu: app
+Version: 4.6.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxfce4util +libxfcegui4 +libwnck +dbus +libdbus +libxfconf +libglade +iceauth +libX11 +libSM +xfconf +thunar +xfce4-panel +xfce4-settings +xfdesktop +xfce-utils +xfwm4
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: xfce4-session
+Maintainer: 
+Source: xfce4-session-4.6.1.tar.bz2
+Type: ipkg
+Description: xfce4-session
+
+@@
+
+
+Source-Makefile: feeds/xfce/app/xfce4-appfinder/Makefile
+Package: xfce4-appfinder
+Submenu: app
+Version: 4.6.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxfcegui4 +libxfce4menu +gtk2 +libxfconf +libthunar-vfs
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: xfce4-appfinder
+Maintainer: 
+Source: xfce4-appfinder-4.6.1.tar.bz2
+Type: ipkg
+Description: xfce4-appfinder
+
+@@
+
+
+Source-Makefile: feeds/xfce/app/xfce-utils/Makefile
+Package: xfce-utils
+Submenu: app
+Version: 4.6.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxfce4util +libxfcegui4 +dbus-launch-x
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: xfce-utils
+Maintainer: 
+Source: xfce-utils-4.6.1.tar.bz2
+Type: ipkg
+Description: xfce-utils
+
+@@
+
+
+Source-Makefile: feeds/xfce/app/xfmedia/Makefile
+Package: xfmedia
+Submenu: app
+Version: 0.9.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxfcegui4 +xine-lib +dbus +taglibc
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: xfmedia
+Maintainer: 
+Source: xfmedia-0.9.2.tar.bz2
+Type: ipkg
+Description: xfmedia
+
+@@
+
+
+Source-Makefile: feeds/xfce/app/xarchiver/Makefile
+Package: xarchiver
+Submenu: app
+Version: 0.5.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +gtk2
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: xarchiver
+Maintainer: 
+Source: xarchiver-0.5.2.tar.bz2
+Type: ipkg
+Description: xarchiver
+
+@@
+
+
+Source-Makefile: feeds/xfce/app/xfburn/Makefile
+Package: xfburn
+Submenu: app
+Version: 0.4.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxfcegui4 +libexo +libburn +libisofs
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: xfburn
+Maintainer: 
+Source: xfburn-0.4.0.tar.bz2
+Type: ipkg
+Description: xfburn
+
+@@
+
+
+Source-Makefile: feeds/xfce/app/xfce-mousepad/Makefile
+Package: xfce-mousepad
+Submenu: app
+Version: 0.2.16-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxfcegui4
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: xfce-mousepad
+Maintainer: 
+Source: mousepad-0.2.16.tar.bz2
+Type: ipkg
+Description: xfce-mousepad
+
+@@
+
+
+Source-Makefile: feeds/xfce/app/thunar/Makefile
+Package: libthunar-vfs
+Submenu: libraries
+Version: 1.0.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libexo +libpng +libxfce4util +libgamin +libstartup-notification +xfce4-panel +dbus-launch-x +gamin-server
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-lib
+Category: Xorg
+Title: thunar virtual filesystem library
+Maintainer: 
+Source: Thunar-1.0.1.tar.bz2
+Type: ipkg
+Description: thunar virtual filesystem library
+
+@@
+
+Package: libthunarx
+Submenu: libraries
+Version: 1.0.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +gtk2
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-lib
+Category: Xorg
+Title: libthunarx
+Maintainer: 
+Source: Thunar-1.0.1.tar.bz2
+Type: ipkg
+Description: libthunarx
+
+@@
+
+Package: thunar
+Submenu: app
+Version: 1.0.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libthunarx +libthunar-vfs
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: thunar
+Maintainer: 
+Source: Thunar-1.0.1.tar.bz2
+Type: ipkg
+Description: thunar
+
+@@
+
+
+Source-Makefile: feeds/xfce/app/xfconf/Makefile
+Package: libxfconf
+Submenu: libraries
+Version: 4.6.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxfce4util +dbus +libdbus-glib +gtk2 +dbus-launch-x
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: libxfconf
+Maintainer: 
+Source: xfconf-4.6.1.tar.bz2
+Type: ipkg
+Description: libxfconf
+
+@@
+
+Package: xfconf
+Submenu: app
+Version: 4.6.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxfconf
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: xfconf
+Maintainer: 
+Source: xfconf-4.6.1.tar.bz2
+Type: ipkg
+Description: xfconf
+
+@@
+
+
+Source-Makefile: feeds/xfce/app/orage/Makefile
+Package: orage
+Submenu: app
+Version: 4.6.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +perl +xfce4-panel
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: orage
+Maintainer: 
+Source: orage-4.6.1.tar.bz2
+Type: ipkg
+Description: orage
+
+@@
+
+
+Source-Makefile: feeds/xfce/app/xfprint/Makefile
+Package: xfprint
+Submenu: app
+Version: 4.6.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxfce4util +libxfcegui4 +xfconf
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: xfprint
+Maintainer: 
+Source: xfprint-4.6.1.tar.bz2
+Type: ipkg
+Description: xfprint
+
+@@
+
+
+Source-Makefile: feeds/xfce/app/xfce4-panel/Makefile
+Package: libxfce4-panel
+Submenu: libraries
+Version: 4.6.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libstartup-notification +libxfce4util +gtk2 +pango +libX11
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-lib
+Category: Xorg
+Title: libxfce4-panel
+Maintainer: 
+Source: xfce4-panel-4.6.1.tar.bz2
+Type: ipkg
+Description: libxfce4-panel
+
+@@
+
+Package: xfce4-panel
+Submenu: app
+Version: 4.6.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxfce4util +libxfcegui4 +libexo +cairo +libwnck +libSM +libX11 +gtk2 +libxfce4-panel
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: xfce4-panel
+Maintainer: 
+Source: xfce4-panel-4.6.1.tar.bz2
+Type: ipkg
+Description: xfce4-panel
+
+@@
+
+
+Source-Makefile: feeds/xfce/app/xfce4-settings/Makefile
+Package: xfce4-settings
+Submenu: app
+Version: 4.6.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxfce4util +libxfcegui4 +libexo +xfconf +libglade +libdbus-glib +libXi +libXrandr +xrdb
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: xfce4-settings
+Maintainer: 
+Source: xfce4-settings-4.6.1.tar.bz2
+Type: ipkg
+Description: xfce4-settings
+
+@@
+
+
+Source-Makefile: feeds/xfce/app/xfdesktop/Makefile
+Package: xfdesktop
+Submenu: app
+Version: 4.6.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxfce4util +libxfcegui4 +libxfce4menu +libxfconf +libwnck +libglade +thunar
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: xfdesktop
+Maintainer: 
+Source: xfdesktop-4.6.1.tar.bz2
+Type: ipkg
+Description: xfdesktop
+
+@@
+
+
+Source-Makefile: feeds/xfce/app/xfce-terminal/Makefile
+Package: xfce-terminal
+Submenu: app
+Version: 0.2.12-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxfcegui4 +vte +libexo
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: xfce-terminal
+Maintainer: 
+Source: Terminal-0.2.12.tar.bz2
+Type: ipkg
+Description: xfce-terminal
+
+@@
+
+
+Source-Makefile: feeds/xfce/app/xfce4-mixer/Makefile
+Package: xfce4-mixer
+Submenu: app
+Version: 4.6.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxfce4util +libxfcegui4 +xfce4-panel +gst-plugins-base +xfce4-panel
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: xfce4-mixer
+Maintainer: 
+Source: xfce4-mixer-4.6.1.tar.bz2
+Type: ipkg
+Description: xfce4-mixer
+
+@@
+
+

@@ -1,0 +1,19 @@
+Source-Makefile: feeds/efl/python-etk/Makefile
+Package: python-etk
+Submenu: Python
+Version: r40853-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python-mini +etk +python-evas +python-ecore +python-edje
+Menu-Depends: 
+Provides: 
+Build-Depends: cython python !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: lang
+Category: Languages
+Title: python-etk
+Maintainer: 
+Source: python-etk-r40853.tar.gz
+Type: ipkg
+Description:   etk python bindings
+
+@@
+
+

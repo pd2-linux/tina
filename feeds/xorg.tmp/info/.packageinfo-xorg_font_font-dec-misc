@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xorg/xorg/font/font-dec-misc/Makefile
+Package: font-dec-misc
+Submenu: font
+Version: 1.0.0-2
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver +font-util @DISPLAY_SUPPORT
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: font-dec-misc
+Maintainer: 
+Source: font-dec-misc-1.0.0.tar.bz2
+Type: ipkg
+Description: font-dec-misc
+http://xorg.freedesktop.org/
+
+@@
+
+

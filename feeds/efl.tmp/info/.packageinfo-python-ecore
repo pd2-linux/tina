@@ -1,0 +1,19 @@
+Source-Makefile: feeds/efl/python-ecore/Makefile
+Package: python-ecore
+Submenu: Python
+Version: r40853-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python-mini +ecore +evas +eina +python-evas
+Menu-Depends: 
+Provides: 
+Build-Depends: cython python !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: lang
+Category: Languages
+Title: python-ecore
+Maintainer: 
+Source: python-ecore-r40853.tar.gz
+Type: ipkg
+Description:   ecore python bindings
+
+@@
+
+

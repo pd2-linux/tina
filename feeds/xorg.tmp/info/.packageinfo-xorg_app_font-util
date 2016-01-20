@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xorg/xorg/app/font-util/Makefile
+Package: font-util
+Submenu: app
+Version: 1.0.1-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +xserver
+Menu-Depends: 
+Provides: 
+Section: xorg-font
+Category: Xorg
+Title: misc tool to generate x fonts
+Maintainer: 
+Source: font-util-1.0.1.tar.bz2
+Type: ipkg
+Description: misc tool to generate x fonts
+http://xorg.freedesktop.org/
+
+@@
+
+

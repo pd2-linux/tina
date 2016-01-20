@@ -1,0 +1,95 @@
+Source-Makefile: feeds/phone/fso-gsm0710muxd/Makefile
+Package: fso-gsm0710muxd
+Prereq-Check: 1
+Version: 20090121-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +glib2 +dbus +libdbus-glib
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: phone
+Category: Phone
+Title: GSM multiplexing daemon
+Maintainer: 
+Source: fso-gsm0710muxd-20090121.tar.bz2
+Type: ipkg
+Description: 	gsm0710muxd is a user space multiplexer for GSM according to the GSM 07.10 specification.
+http://www.freesmartphone.org
+
+@@
+
+
+Source-Makefile: feeds/phone/paroli/Makefile
+Package: paroli
+Prereq-Check: 1
+Version: 20090704-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python +fso-frameworkd +python-evas +python-ecore +python-edje +python-e_dbus +python-etk +python-elementary +python-expat +dbus-launch-x +dbus-utils
+Menu-Depends: 
+Provides: 
+Build-Depends: python
+Section: phone
+Category: Phone
+Title: integrated phone application
+Maintainer: 
+Source: paroli-20090704.tar.bz2
+Type: ipkg
+Description:   Paroli is a phone suite written in Python which uses the FSO (freesmartphone.org) DBus API
+http://paroli-project.org
+
+@@
+
+
+Source-Makefile: feeds/phone/fso-gpsd/Makefile
+Package: fso-gpsd
+Version: 20081211-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread fso-frameworkd
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: phone
+Category: Phone
+Title: FSO gps daemon
+Maintainer: 
+Source: fso-gpsd-20081211.tar.bz2
+Type: ipkg
+Description: FSO gps daemon
+http://freesmartphone.org
+
+@@
+
+
+Source-Makefile: feeds/phone/fso-frameworkd/Makefile
+Package: fso-frameworkd
+Version: 20090609-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +python +dbus-python +python-gobject +pyserial +pyyaml +gst-python +alsa-utils +freerunner-alsa-scenarios
+Menu-Depends: 
+Provides: 
+Build-Depends: cython python
+Section: phone
+Category: Phone
+Title: framework for the freesmartphone.org DBus API reference implementation
+Maintainer: 
+Source: fso-frameworkd-20090609.tar.bz2
+Type: ipkg
+Description:   freesmartphone.org is a collaboration platform for open source and open discussion software projects working on interoperability and shared technology for Linux-based SmartPhones
+http://www.freesmartphone.org
+
+@@
+
+
+Source-Makefile: feeds/phone/freerunner-alsa-scenarios/Makefile
+Package: freerunner-alsa-scenarios
+Version: 20090124-3
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: phone
+Category: Phone
+Title: alsa audio scenarios for the openmoko neo freerunner
+Maintainer: 
+Source: freerunner-alsa-scenarios-20090124.tar.bz2
+Type: ipkg
+Description: alsa audio scenarios for the openmoko neo freerunner
+
+@@
+
+

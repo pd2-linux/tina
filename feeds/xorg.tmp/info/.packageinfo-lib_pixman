@@ -1,0 +1,20 @@
+Source-Makefile: feeds/xorg/lib/pixman/Makefile
+Package: pixman
+Submenu: libraries
+Version: 0.16.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: pixman
+Maintainer: 
+Source: pixman-0.16.2.tar.gz
+Type: ipkg
+Description: pixman
+http://cairographics.org/
+
+@@
+
+

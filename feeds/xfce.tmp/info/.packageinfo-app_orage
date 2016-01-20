@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xfce/app/orage/Makefile
+Package: orage
+Submenu: app
+Version: 4.6.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +perl +xfce4-panel
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: orage
+Maintainer: 
+Source: orage-4.6.1.tar.bz2
+Type: ipkg
+Description: orage
+
+@@
+
+

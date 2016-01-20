@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xfce/wm/xfwm4/Makefile
+Package: xfwm4
+Submenu: app
+Version: 4.6.1-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libxfce4util +libxfcegui4 +libxfconf +libdbus-glib +libwnck +freedesktop-compliant
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: xfwm4
+Maintainer: 
+Source: xfwm4-4.6.1.tar.bz2
+Type: ipkg
+Description: xfwm4
+
+@@
+
+

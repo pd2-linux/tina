@@ -1,0 +1,17 @@
+tools/icon-naming-utils
+libs/libgamin
+libs/libburn
+libs/libisofs
+libs/gtkhtml
+libs/libstartup-notification
+libs/libglade
+meta/freedesktop-compliant
+apps/recordmydesktop
+apps/tangogps
+apps/tint2
+apps/gpxview
+data/gnome-icon-theme
+data/tango-icon-theme
+data/hicolor-icon-theme
+wm/karmen
+wm/openbox

@@ -1,0 +1,377 @@
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/!svn/ver/4986/trunk/package/webif/files/www/cgi-bin/webif
+END
+status-modules.sh
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/!svn/ver/3699/trunk/package/webif/files/www/cgi-bin/webif/status-modules.sh
+END
+log-read.sh
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/4131/trunk/package/webif/files/www/cgi-bin/webif/log-read.sh
+END
+status-crontabs.sh
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/4804/trunk/package/webif/files/www/cgi-bin/webif/status-crontabs.sh
+END
+system-crontabs.sh
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/4736/trunk/package/webif/files/www/cgi-bin/webif/system-crontabs.sh
+END
+status-leases.sh
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/4719/trunk/package/webif/files/www/cgi-bin/webif/status-leases.sh
+END
+graphs-vnstat.sh
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/4728/trunk/package/webif/files/www/cgi-bin/webif/graphs-vnstat.sh
+END
+system-access-control.sh
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/!svn/ver/4888/trunk/package/webif/files/www/cgi-bin/webif/system-access-control.sh
+END
+status-basic.sh
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/4721/trunk/package/webif/files/www/cgi-bin/webif/status-basic.sh
+END
+system-confman.sh
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/!svn/ver/4976/trunk/package/webif/files/www/cgi-bin/webif/system-confman.sh
+END
+status-pppoe.sh
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/4288/trunk/package/webif/files/www/cgi-bin/webif/status-pppoe.sh
+END
+config.sh
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/4416/trunk/package/webif/files/www/cgi-bin/webif/config.sh
+END
+network-dhcp.sh
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/4839/trunk/package/webif/files/www/cgi-bin/webif/network-dhcp.sh
+END
+status-asterisk.sh
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/4771/trunk/package/webif/files/www/cgi-bin/webif/status-asterisk.sh
+END
+network-routes.sh
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/!svn/ver/4732/trunk/package/webif/files/www/cgi-bin/webif/network-routes.sh
+END
+getdata.sh
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/4804/trunk/package/webif/files/www/cgi-bin/webif/getdata.sh
+END
+system-upgrade.sh
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/!svn/ver/4867/trunk/package/webif/files/www/cgi-bin/webif/system-upgrade.sh
+END
+status-wwaninfo.sh
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/4288/trunk/package/webif/files/www/cgi-bin/webif/status-wwaninfo.sh
+END
+log-browse.sh
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/4529/trunk/package/webif/files/www/cgi-bin/webif/log-browse.sh
+END
+graphs-subcategories.sh
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/!svn/ver/4986/trunk/package/webif/files/www/cgi-bin/webif/graphs-subcategories.sh
+END
+info-notes.sh
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/4804/trunk/package/webif/files/www/cgi-bin/webif/info-notes.sh
+END
+network-misc.sh
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/3399/trunk/package/webif/files/www/cgi-bin/webif/network-misc.sh
+END
+system-settings.sh
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/4882/trunk/package/webif/files/www/cgi-bin/webif/system-settings.sh
+END
+status-qos.sh
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/3990/trunk/package/webif/files/www/cgi-bin/webif/status-qos.sh
+END
+system-mount.sh
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/4804/trunk/package/webif/files/www/cgi-bin/webif/system-mount.sh
+END
+status-processes.sh
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/!svn/ver/4720/trunk/package/webif/files/www/cgi-bin/webif/status-processes.sh
+END
+network-wlan.sh
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/4982/trunk/package/webif/files/www/cgi-bin/webif/network-wlan.sh
+END
+network.sh
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/4985/trunk/package/webif/files/www/cgi-bin/webif/network.sh
+END
+network-qos.sh
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/3571/trunk/package/webif/files/www/cgi-bin/webif/network-qos.sh
+END
+reboot.sh
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/4866/trunk/package/webif/files/www/cgi-bin/webif/reboot.sh
+END
+.categories
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/4919/trunk/package/webif/files/www/cgi-bin/webif/.categories
+END
+info.sh
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/4814/trunk/package/webif/files/www/cgi-bin/webif/info.sh
+END
+network-firewall.sh
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/!svn/ver/4983/trunk/package/webif/files/www/cgi-bin/webif/network-firewall.sh
+END
+graph_if_svg.sh
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/4288/trunk/package/webif/files/www/cgi-bin/webif/graph_if_svg.sh
+END
+status-conntrackread.sh
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/!svn/ver/4131/trunk/package/webif/files/www/cgi-bin/webif/status-conntrackread.sh
+END
+system-snmp.sh
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/4731/trunk/package/webif/files/www/cgi-bin/webif/system-snmp.sh
+END
+info-about.sh
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/4717/trunk/package/webif/files/www/cgi-bin/webif/info-about.sh
+END
+status-interfaces.sh
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/!svn/ver/4725/trunk/package/webif/files/www/cgi-bin/webif/status-interfaces.sh
+END
+system-services.sh
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/4736/trunk/package/webif/files/www/cgi-bin/webif/system-services.sh
+END
+network-wakeonlan.sh
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/!svn/ver/4780/trunk/package/webif/files/www/cgi-bin/webif/network-wakeonlan.sh
+END
+download.sh
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/3797/trunk/package/webif/files/www/cgi-bin/webif/download.sh
+END
+network-interfaces_old.sh
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/!svn/ver/4936/trunk/package/webif/files/www/cgi-bin/webif/network-interfaces_old.sh
+END
+system-editor.sh
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/3399/trunk/package/webif/files/www/cgi-bin/webif/system-editor.sh
+END
+graphs-cpu.sh
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/4722/trunk/package/webif/files/www/cgi-bin/webif/graphs-cpu.sh
+END
+logout.sh
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/3399/trunk/package/webif/files/www/cgi-bin/webif/logout.sh
+END
+data.sh
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/4365/trunk/package/webif/files/www/cgi-bin/webif/data.sh
+END
+network-services.sh
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/!svn/ver/4419/trunk/package/webif/files/www/cgi-bin/webif/network-services.sh
+END
+network-interfaces.sh
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/!svn/ver/4935/trunk/package/webif/files/www/cgi-bin/webif/network-interfaces.sh
+END
+status-usb.sh
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/4829/trunk/package/webif/files/www/cgi-bin/webif/status-usb.sh
+END
+system-ipkg.sh
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/4964/trunk/package/webif/files/www/cgi-bin/webif/system-ipkg.sh
+END
+status-wlan-survey.sh
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/!svn/ver/4972/trunk/package/webif/files/www/cgi-bin/webif/status-wlan-survey.sh
+END
+log-dmesg.sh
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/4131/trunk/package/webif/files/www/cgi-bin/webif/log-dmesg.sh
+END
+log-setup.sh
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/4820/trunk/package/webif/files/www/cgi-bin/webif/log-setup.sh
+END
+network-ddns.sh
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/4419/trunk/package/webif/files/www/cgi-bin/webif/network-ddns.sh
+END
+graphs-if.sh
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/4722/trunk/package/webif/files/www/cgi-bin/webif/graphs-if.sh
+END
+status-connection.sh
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/!svn/ver/3399/trunk/package/webif/files/www/cgi-bin/webif/status-connection.sh
+END
+system-startup.sh
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/!svn/ver/3400/trunk/package/webif/files/www/cgi-bin/webif/system-startup.sh
+END
+status-iptables.sh
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/3627/trunk/package/webif/files/www/cgi-bin/webif/status-iptables.sh
+END
+system-password.sh
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/4875/trunk/package/webif/files/www/cgi-bin/webif/system-password.sh
+END
+status-diag.sh
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/4288/trunk/package/webif/files/www/cgi-bin/webif/status-diag.sh
+END
+graphs-bandwidth.sh
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/!svn/ver/4728/trunk/package/webif/files/www/cgi-bin/webif/graphs-bandwidth.sh
+END
+graph_cpu_svg.sh
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/4288/trunk/package/webif/files/www/cgi-bin/webif/graph_cpu_svg.sh
+END
+network-hosts.sh
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/4643/trunk/package/webif/files/www/cgi-bin/webif/network-hosts.sh
+END

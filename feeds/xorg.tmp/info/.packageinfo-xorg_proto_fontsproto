@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xorg/xorg/proto/fontsproto/Makefile
+Package: fontsproto
+Submenu: proto
+Version: 2.1.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Section: xorg-proto
+Category: Xorg
+Title: fontsproto
+Maintainer: 
+Source: fontsproto-2.1.0.tar.bz2
+Type: ipkg
+Description: fontsproto
+http://xorg.freedesktop.org/
+
+@@
+
+

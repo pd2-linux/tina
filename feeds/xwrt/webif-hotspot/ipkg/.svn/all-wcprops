@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/4804/trunk/package/webif-hotspot/ipkg
+END
+webif-hotspot.postinst
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/4804/trunk/package/webif-hotspot/ipkg/webif-hotspot.postinst
+END
+webif-hotspot.postrm
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/4804/trunk/package/webif-hotspot/ipkg/webif-hotspot.postrm
+END

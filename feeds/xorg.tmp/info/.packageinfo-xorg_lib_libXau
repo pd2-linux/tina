@@ -1,0 +1,20 @@
+Source-Makefile: feeds/xorg/xorg/lib/libXau/Makefile
+Package: libXau
+Submenu: libraries
+Version: 1.0.5-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread 
+Menu-Depends: 
+Provides: 
+Build-Depends: xproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libXau
+Maintainer: 
+Source: libXau-1.0.5.tar.bz2
+Type: ipkg
+Description: libXau
+http://xorg.freedesktop.org/
+
+@@
+
+

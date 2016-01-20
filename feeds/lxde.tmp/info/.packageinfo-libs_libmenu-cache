@@ -1,0 +1,19 @@
+Source-Makefile: feeds/lxde/libs/libmenu-cache/Makefile
+Package: libmenu-cache
+Submenu: app
+Version: 0.3.2-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +glib2
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-app
+Category: Xorg
+Title: libmenu-cache
+Maintainer: 
+Source: menu-cache-0.3.2.tar.gz
+Type: ipkg
+Description: libmenu-cache
+
+@@
+
+

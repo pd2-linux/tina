@@ -1,0 +1,20 @@
+Source-Makefile: feeds/efl/elementary/Makefile
+Package: elementary
+Submenu: libraries
+Version: r40853-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +eina +eet +evas +ecore +edje +libpthread
+Menu-Depends: 
+Provides: 
+Build-Depends: edje/host libtool libintl libiconv
+Section: xorg-lib
+Category: Xorg
+Title: Elementary
+Maintainer: 
+Source: elementary-r40853.tar.gz
+Type: ipkg
+Description: Elementary
+http://wiki.enlightenment.org/index.php/Elementary
+
+@@
+
+

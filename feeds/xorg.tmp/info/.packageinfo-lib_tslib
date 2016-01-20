@@ -1,0 +1,23 @@
+Source-Makefile: feeds/xorg/lib/tslib/Makefile
+Package: tslib
+Submenu: libraries
+Version: 1.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread @!LINUX_2_4
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: Tslib is an abstraction layer for touchscreen panel events.
+Maintainer: 
+Source: tslib-1.0.tar.bz2
+Type: ipkg
+Description: 	Tslib is an abstraction layer for touchscreen panel events,
+	as well as a filter stack for the manipulation of those events.
+	It was created by Russell King, of arm.linux.org.uk.
+	Examples of implemented filters include jitter smoothing and the calibration transform.
+http://tslib.berlios.de/
+
+@@
+
+

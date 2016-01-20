@@ -1,0 +1,24 @@
+Source-Makefile: feeds/desktop/libs/libburn/Makefile
+Package: libburn
+Version: 0.6.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libpthread
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv
+Section: libs
+Category: Libraries
+Title: libburn
+Maintainer: 
+Source: libburn-0.6.0.pl01.tar.gz
+Type: ipkg
+Description: libburn is the library by which preformatted data get onto optical media.
+It uses either /dev/sgN (e.g. on kernel 2.4 with ide-scsi) or /dev/srM or
+/dev/hdX (e.g. on kernel 2.6). libburn is the foundation of our cdrecord
+emulation. Its code is independent of cdrecord. Its DVD capabilities are
+learned from studying the code of dvd+rw-tools and MMC-5 specs. No code but
+only the pure SCSI knowledge has been taken from dvd+rw-tools, though.
+http://www.libburnia-project.org
+
+@@
+
+

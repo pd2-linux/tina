@@ -1,0 +1,41 @@
+--- a/components/Makefile.am
++++ b/components/Makefile.am
+@@ -1,4 +1,4 @@
+ 
+-SUBDIRS = editor
++SUBDIRS = 
+ 
+ -include $(top_srcdir)/git.mk
+--- a/components/Makefile.in
++++ b/components/Makefile.in
+@@ -265,7 +265,7 @@ target_alias = @target_alias@
+ top_build_prefix = @top_build_prefix@
+ top_builddir = @top_builddir@
+ top_srcdir = @top_srcdir@
+-SUBDIRS = editor
++SUBDIRS = 
+ all: all-recursive
+ 
+ .SUFFIXES:
+--- a/configure
++++ b/configure
+@@ -21911,7 +21911,7 @@ fi
+ 
+ 
+ 
+-GTKHTML_MODULES="gtk+-2.0 >= 2.16.0 enchant gconf-2.0 iso-codes"
++GTKHTML_MODULES="gtk+-2.0 >= 2.16.0 gconf-2.0"
+ 
+ pkg_failed=no
+ { $as_echo "$as_me:$LINENO: checking for GTKHTML" >&5
+--- a/configure.ac
++++ b/configure.ac
+@@ -136,7 +136,7 @@ PKG_CHECK_MODULES(GTHREAD, $GTHREAD_MODU
+ AC_SUBST(GTHREAD_CFLAGS)
+ AC_SUBST(GTHREAD_LIBS)
+ 
+-GTKHTML_MODULES="gtk+-2.0 >= gtk_minimum_version enchant gconf-2.0 iso-codes"
++GTKHTML_MODULES="gtk+-2.0 >= gtk_minimum_version gconf-2.0"
+ PKG_CHECK_MODULES(GTKHTML, $GTKHTML_MODULES)
+ AC_SUBST(GTKHTML_CFLAGS)
+ AC_SUBST(GTKHTML_LIBS)

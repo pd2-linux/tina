@@ -1,0 +1,19 @@
+Source-Makefile: feeds/xorg/xorg/app/xset/Makefile
+Package: xset
+Submenu: app
+Version: 1.1.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +libXmuu +libX11 +libXext
+Menu-Depends: 
+Provides: 
+Section: xorg-app
+Category: Xorg
+Title: xset
+Maintainer: 
+Source: xset-1.1.0.tar.bz2
+Type: ipkg
+Description: xset
+http://xorg.freedesktop.org/
+
+@@
+
+

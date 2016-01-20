@@ -1,0 +1,20 @@
+Source-Makefile: feeds/xorg/xorg/lib/libfontenc/Makefile
+Package: libfontenc
+Submenu: libraries
+Version: 1.0.5-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +zlib
+Menu-Depends: 
+Provides: 
+Build-Depends: xproto libtool libintl libiconv
+Section: xorg-libraries
+Category: Xorg
+Title: libfontenc
+Maintainer: 
+Source: libfontenc-1.0.5.tar.bz2
+Type: ipkg
+Description: libfontenc
+http://xorg.freedesktop.org/
+
+@@
+
+

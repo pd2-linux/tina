@@ -1,0 +1,19 @@
+Source-Makefile: feeds/phone/fso-gpsd/Makefile
+Package: fso-gpsd
+Version: 20081211-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread fso-frameworkd
+Menu-Depends: 
+Provides: 
+Build-Depends: libtool libintl libiconv !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: phone
+Category: Phone
+Title: FSO gps daemon
+Maintainer: 
+Source: fso-gpsd-20081211.tar.bz2
+Type: ipkg
+Description: FSO gps daemon
+http://freesmartphone.org
+
+@@
+
+

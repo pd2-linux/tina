@@ -1,0 +1,21 @@
+Source-Makefile: feeds/desktop/wm/openbox/Makefile
+Package: openbox
+Submenu: window manager
+Version: 3.5.0-1
+Depends: +libc +USE_EGLIBC:librt +USE_EGLIBC:libpthread +glib2 +libxml2 +fontconfig +libXft +libXrandr +libXt +libXcursor +pango +xextproto +xf86vidmodeproto +freedesktop-compliant +imlib2 +libXcursor +dejavu-fonts-ttf +dejavu-fonts-ttf-DejaVuSans +dejavu-fonts-ttf-DejaVuSans-Bold +dejavu-fonts-ttf-DejaVuSerif +dejavu-fonts-ttf-DejaVuSerif-Bold +dejavu-fonts-ttf-DejaVuSerif-Italic
+Menu-Depends: 
+Provides: 
+Build-Depends: !BUILD_NLS:libiconv !BUILD_NLS:libintl
+Section: xorg-wm
+Category: Xorg
+Title: The Openbox Window Manager
+Maintainer: 
+Source: openbox-3.5.0.tar.gz
+Type: ipkg
+Description:   Openbox is a highly configurable, next generation window manager 
+  with extensive standards support.
+http://icculus.org/openbox/
+
+@@
+
+

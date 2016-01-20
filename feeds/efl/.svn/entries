@@ -1,0 +1,79 @@
+10
+
+dir
+46983
+svn://svn.openwrt.org/openwrt/feeds/efl
+svn://svn.openwrt.org/openwrt
+
+
+
+2011-02-02T20:42:37.585375Z
+25329
+jow
+has-props
+
+
+
+
+
+
+
+
+
+
+
+
+
+3c298f89-4303-0410-b956-a3cf2f4a3e73
+
+edje
+dir
+
+efreet
+dir
+
+python-ecore
+dir
+
+eina
+dir
+
+python-evas
+dir
+
+eet
+dir
+
+python-e_dbus
+dir
+
+etk
+dir
+
+python-elementary
+dir
+
+python-edje
+dir
+
+embryo
+dir
+
+ecore
+dir
+
+evas
+dir
+
+enlightenment
+dir
+
+python-etk
+dir
+
+edbus
+dir
+
+elementary
+dir
+
