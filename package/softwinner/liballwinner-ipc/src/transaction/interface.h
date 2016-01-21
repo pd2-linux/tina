@@ -1,13 +1,10 @@
 #ifndef __INTERFACE_H__
 #define __INTERFACE_H__
 
-#include "thread.h"
+#include <thread.h>
+#include <locker.h>
 
-#define TAG "ipc"
-#define CONFIG_LOG_LEVEL OPTION_LOG_LEVEL_DETAIL
-#include <tina_log.h>
-
-//those macro only use for class interface and it's subclass, because of the m_socketname member 
+//those macro only use for class interface and it's subclass, because of the m_socketname member
 #define ipc_loge(fmt, ...) TLOGE("(%s)"fmt, m_socketname, ## __VA_ARGS__);
 #define ipc_logd(fmt, ...) TLOGD("(%s)"fmt, m_socketname, ## __VA_ARGS__);
 #define ipc_logi(fmt, ...) TLOGI("(%s)"fmt, m_socketname, ## __VA_ARGS__);
@@ -20,9 +17,8 @@ enum
     USER_CODE_BASE = 0x20,
 };
 
-#define MAX_DATA_T_LEN 50
 typedef struct data_t{
-    char buf[ MAX_DATA_T_LEN ];
+    char* buf;
     int len;
 }data_t;
 
@@ -51,7 +47,7 @@ public:
 
 public:
     interface();
-    virtual ~interface(){}; 
+    virtual ~interface(){};
 
     int init();
 
@@ -61,7 +57,7 @@ public:
 
 protected:
     virtual void setSocketName(const char* name);
-    
+
     virtual int loop() = 0;
     virtual int initSocket() = 0;
     virtual int read(int fd,char* buf, int size) = 0;
@@ -70,6 +66,7 @@ protected:
     int m_epollfd;
     int m_clientfd;
     char m_socketname[100];
+    locker m_transact_lock;
 };
 
 class s_interface : public interface {
@@ -84,7 +81,7 @@ protected:
     virtual int read(int fd,char* buf, int size);
 
 
-    
+
 };
 
 class c_interface : public interface {
