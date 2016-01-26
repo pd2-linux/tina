@@ -83,3 +83,18 @@ define Package/ap6212-firmware/install
 endef
 
 $(eval $(call BuildPackage,ap6212-firmware))
+
+define Package/esp8089-firmware
+  SECTION:=firmware
+  CATEGORY:=Firmware
+  TITLE:=esp8089 firmware
+endef
+
+define Package/esp8089-firmware/install
+	mkdir -p $(1)/lib/firmware/esp8089
+	$(CP) \
+		$(TOPDIR)/package/firmware/esp8089/*  \
+		$(1)/lib/firmware/esp8089/
+endef
+
+$(eval $(call BuildPackage,esp8089-firmware))
