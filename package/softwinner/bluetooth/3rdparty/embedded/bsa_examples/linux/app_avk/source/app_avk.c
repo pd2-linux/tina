@@ -437,7 +437,7 @@ static void app_avk_cback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
 
         printf("AVK connected to device %02X:%02X:%02X:%02X:%02X:%02X\n",
             p_data->open.bd_addr[0], p_data->open.bd_addr[1],p_data->open.bd_addr[2],
-            p_data->open.bd_addr[3], p_data->open.bd_addr[4],p_data->open.bd_addr[5]);
+            p_data->open.bd_addr[3], p_data->open.bd_addr[4],p_data->open.bd_addr[5]);      
         break;
 
     case BSA_AVK_CLOSE_EVT:
@@ -685,20 +685,31 @@ static void app_avk_cback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
                 connection = app_avk_find_connection_by_rc_handle(p_data->reg_notif_cmd.handle);
                 if(connection != NULL)
                 {
-                    connection->m_bAbsVolumeSupported = TRUE;
-                    connection->volChangeLabel = p_data->reg_notif_cmd.label;
+                    //connection->m_bAbsVolumeSupported = TRUE;
+                    //connection->volChangeLabel = p_data->reg_notif_cmd.label;
+                    printf(" notification of volume change...\n");
 
                     /* Peer requested registration for vol change event. Send response with current system volume. BSA is TG role in AVK */
                     app_avk_reg_notfn_rsp(app_avk_cb.volume,
                                           p_data->reg_notif_cmd.handle,
                                           p_data->reg_notif_cmd.label,
                                           p_data->reg_notif_cmd.reg_notif_cmd.event_id,
-                                          BTA_AV_RSP_INTERIM);
+                                          //BTA_AV_RSP_INTERIM);
+                                          BTA_AV_RSP_NOT_IMPL);
                 }
 
             }
         }
         break;
+
+/*
+    case BSA_AVK_SET_ABS_VOL_CMD_EVT:
+        printf("Receive ABS VOL control from TC...\n");
+        connection = app_avk_find_connection_by_rc_handle(p_data->abs_volume.handle);
+        app_avk_cb.volume = p_data->abs_volume.abs_volume_cmd.volume;
+        app_avk_set_abs_vol_rsp(p_data->abs_volume.abs_volume_cmd.volume, connection->rc_handle, p_data->abs_volume.label);
+        break;
+*/
 
     default:
         APP_ERROR1("Unsupported event %d", event);
@@ -708,6 +719,109 @@ static void app_avk_cback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
     /* forward the callback to registered applications */
     if(s_pCallback)
         s_pCallback(event, p_data);
+}
+
+void app_avk_auto_connect(BD_ADDR bt_auto_addr)
+{
+    tBSA_STATUS status;
+    int choice;
+    BOOLEAN connect = FALSE;
+    BD_ADDR bd_addr;
+    UINT8 *p_name;
+    tBSA_AVK_OPEN open_param;
+    tAPP_AVK_CONNECTION *connection = NULL;
+
+    if (app_avk_cb.open_pending)
+    {
+        APP_ERROR0("already trying to connect");
+        return;
+    }
+
+
+        /* Read the XML file which contains all the bonded devices */
+        app_read_xml_remote_devices();
+        app_xml_display_devices(app_xml_remote_devices_db, APP_NUM_ELEMENTS(app_xml_remote_devices_db));
+        
+        choice = 0;
+        while(choice < APP_NUM_ELEMENTS(app_xml_remote_devices_db))
+        {
+        	  printf("bt %s, use %d\n", app_xml_remote_devices_db[choice].name, app_xml_remote_devices_db[choice].in_use);
+        	
+            if (app_xml_remote_devices_db[choice].in_use != FALSE)
+            {
+            	  bdcpy(bd_addr, app_xml_remote_devices_db[choice].bd_addr);
+                if(bt_auto_addr[0] == bd_addr[0] && bt_auto_addr[1] == bd_addr[1]
+                    && bt_auto_addr[2] == bd_addr[2] && bt_auto_addr[3] == bd_addr[3]
+                    && bt_auto_addr[4] == bd_addr[4] && bt_auto_addr[5] == bd_addr[5]){
+                    p_name = app_xml_remote_devices_db[choice].name;
+                    connect = TRUE;
+                    break;
+                }
+            }
+            else
+            {
+                APP_ERROR0("Device entry not in use");
+            }
+            
+            choice++;
+        }
+        
+
+    if (connect != FALSE)
+    {
+        /* Open AVK stream */
+        printf("Connecting to AV device:%s \n", p_name);
+
+        app_avk_cb.open_pending = TRUE;
+
+        BSA_AvkOpenInit(&open_param);
+        memcpy((char *) (open_param.bd_addr), bd_addr, sizeof(BD_ADDR));
+
+        open_param.sec_mask = BSA_SEC_NONE;
+        status = BSA_AvkOpen(&open_param);
+        if (status != BSA_SUCCESS)
+        {
+            APP_ERROR1("Unable to connect to device %02X:%02X:%02X:%02X:%02X:%02X with status %d",
+                    open_param.bd_addr[0], open_param.bd_addr[1], open_param.bd_addr[2],
+                    open_param.bd_addr[3], open_param.bd_addr[4], open_param.bd_addr[5], status);
+
+            app_avk_cb.open_pending = FALSE;
+        }
+        else
+        {
+            /* this is an active wait for demo purpose */
+            printf("waiting for AV connection to open\n");
+
+            while (app_avk_cb.open_pending == TRUE);
+
+            connection = app_avk_find_connection_by_bd_addr(open_param.bd_addr);
+            if(connection == NULL || connection->is_open == FALSE)
+            {
+                printf("failure opening AV connection  \n");
+            }
+            else
+            {
+                /* XML Database update should be done upon reception of AV OPEN event */
+                APP_DEBUG1("Connected to AV device:%s", p_name);
+                /* Read the Remote device xml file to have a fresh view */
+                app_read_xml_remote_devices();
+
+                /* Add AV service for this devices in XML database */
+                app_xml_add_trusted_services_db(app_xml_remote_devices_db,
+                    APP_NUM_ELEMENTS(app_xml_remote_devices_db), bd_addr,
+                    BSA_A2DP_SERVICE_MASK | BSA_AVRCP_SERVICE_MASK);
+
+                app_xml_update_name_db(app_xml_remote_devices_db,
+                    APP_NUM_ELEMENTS(app_xml_remote_devices_db), bd_addr, p_name);
+
+                /* Update database => write to disk */
+                if (app_write_xml_remote_devices() < 0)
+                {
+                    APP_ERROR0("Failed to store remote devices database");
+                }
+            }
+        }
+    }	
 }
 
 /*******************************************************************************

@@ -9,8 +9,12 @@
 #include <unistd.h>
 #include <interface.h>
 
+#define BT_NAME_PATH_LEN   256
+
 enum {
-    BT_CMD_SET_NAME = 0xf0,	
+    BT_CMD_SET_NAME = 0xf0,
+    BT_CMD_SET_DISCOVERABLE,
+    BT_CMD_SET_CONNECTABLE,
     BT_CMD_PLAY,
     BT_CMD_PAUSE,
     BT_CMD_PRE,
@@ -48,13 +52,19 @@ public:
     c_bt();
     virtual ~c_bt();
 private:
+    char   bt_wd[256];
     tBtCallback *pBtCb;
 
 protected:
     void onTransact(request_t* request,data_t* data);
 
 public:
-    int set_bt_name(const char *bt_name); // strlen(bt_name) <= MAX_DATA_T_LEN-1   
+	  int set_bt_wd(char *pwd);
+	  int bt_on(char *bt_addr);
+	  int bt_off();
+    int set_bt_name(const char *bt_name); // strlen(bt_name) <= MAX_DATA_T_LEN-1
+    int set_dev_discoverable(int enable);
+    int set_dev_connectable(int enable);   
     int avk_play();
     int avk_pause();
     int avk_previous();

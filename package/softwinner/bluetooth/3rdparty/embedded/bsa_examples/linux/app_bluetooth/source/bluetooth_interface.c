@@ -45,10 +45,12 @@
 extern tAPP_MGR_CB app_mgr_cb;
 static tBSA_SEC_IO_CAP g_sp_caps = 0;
 extern tAPP_XML_CONFIG         app_xml_config;
-char bta_conf_path[MAX_PATH_LEN];
+extern tAPP_AVK_CB app_avk_cb;
+char bta_conf_path[MAX_PATH_LEN] = {0};
 
 /*static variables */
-static BD_ADDR     dev_connected;        /* BdAddr of connected device */
+static BD_ADDR     cur_connected_dev;        /* BdAddr of connected device */
+static BD_ADDR     last_connected_dev;       /* store connected dev last reboot */
 static void *p_sbt = NULL;
 
 //tAvkCallback
@@ -63,13 +65,15 @@ static void app_avk_callback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
 	  	  {
 	  	      printf("avk connected!\n");
 	  	      bt_event_transact(p_sbt, APP_AVK_CONNECTED_EVT);
-	  	      bdcpy(app_sec_db_addr, p_data->open.bd_addr);   
+	  	      bdcpy(cur_connected_dev, p_data->open.bd_addr);
+	  	      store_connected_dev(cur_connected_dev);   
 	  	      break;	
 	  	  }
 	  	  case BSA_AVK_CLOSE_EVT:
 	  	  {
 	  	      printf("avk disconnected!\n");
             bt_event_transact(p_sbt, APP_AVK_DISCONNECTED_EVT);
+            memset(cur_connected_dev, 0, sizeof(cur_connected_dev));
 	  	      break;	
 	  	  }
 	      case BSA_AVK_START_EVT:
@@ -205,10 +209,14 @@ int bluetooth_start(void *p, char *p_conf)
     //auto register 
     app_avk_register();
     
+    memset(last_connected_dev, 0, sizeof(last_connected_dev));
+    read_connected_dev(last_connected_dev);
+    app_avk_auto_connect(last_connected_dev);
+    
     /* Init Headset Application */
-    app_hs_init();
+    //app_hs_init();
     /* Start Headset service*/
-    app_hs_start(app_hs_callback);
+    //app_hs_start(app_hs_callback);
     
     return 0;
 }
@@ -218,11 +226,87 @@ void s_set_bt_name(const char *name)
     app_mgr_set_bd_name(name);	
 }
 
+
+void s_set_discoverable(int enable)
+{
+    if(enable){
+        app_mgr_set_discoverable();
+    }else{
+        app_mgr_set_non_discoverable();
+    }	
+}
+
+void s_set_connectable(int enable)
+{
+    if(enable){
+        app_mgr_set_connectable();
+    }else{
+        app_mgr_set_non_connectable();
+    }	
+}
+
+void s_set_volume(int volume)
+{
+    return ;
+}
+
+void s_set_volume_up()
+{
+    tAPP_AVK_CONNECTION *connection = NULL;
+    
+    connection = app_avk_find_connection_by_bd_addr(cur_connected_dev);
+    if(connection)
+    {
+        printf("set_volume_up app_avk volume %d\n", app_avk_cb.volume);    	
+        app_avk_cb.volume += 8;
+        if(app_avk_cb.volume > 127){
+            app_avk_cb.volume = 127;
+        }
+        app_avk_reg_notfn_rsp(app_avk_cb.volume,
+            connection->rc_handle,
+            connection->volChangeLabel,
+            AVRC_EVT_VOLUME_CHANGE,
+            BTA_AV_RSP_CHANGED);
+        printf("volume up change locally at TG\n");    	
+    }
+    else
+    {
+        printf("Connection is NULL when set volume up\n");	
+    }	
+}
+
+void s_set_volume_down()
+{
+    tAPP_AVK_CONNECTION *connection = NULL;
+    
+    connection = app_avk_find_connection_by_bd_addr(cur_connected_dev);
+    if(connection)
+    {
+    	  printf("set_volume_down app_avk volume %d\n", app_avk_cb.volume);
+        if(app_avk_cb.volume < 8 ){
+            app_avk_cb.volume = 0;
+        } else {
+            app_avk_cb.volume -= 8;
+        }
+        
+        app_avk_reg_notfn_rsp(app_avk_cb.volume,
+            connection->rc_handle,
+            connection->volChangeLabel,
+            AVRC_EVT_VOLUME_CHANGE,
+            BTA_AV_RSP_CHANGED);
+        printf("volume down change locally at TG\n");    	
+    }
+    else
+    {
+        printf("Connection is NULL when set volume down\n");	
+    }	
+}
+
 void s_avk_play()
 {
     tAPP_AVK_CONNECTION *connection = NULL;
 	  
-	  connection = app_avk_find_connection_by_bd_addr(dev_connected);
+	  connection = app_avk_find_connection_by_bd_addr(cur_connected_dev);
 	  if(connection)
 	  {
         app_avk_play_start(connection->rc_handle);
@@ -237,7 +321,7 @@ void s_avk_pause()
 {
 	  tAPP_AVK_CONNECTION *connection = NULL;
 	  
-	  connection = app_avk_find_connection_by_bd_addr(dev_connected);
+	  connection = app_avk_find_connection_by_bd_addr(cur_connected_dev);
 	  if(connection)
 	  {
         app_avk_play_pause(connection->rc_handle);
@@ -252,7 +336,7 @@ void s_avk_play_previous()
 {
 	  tAPP_AVK_CONNECTION *connection = NULL;
 	  
-	  connection = app_avk_find_connection_by_bd_addr(dev_connected);
+	  connection = app_avk_find_connection_by_bd_addr(cur_connected_dev);
 	  if(connection)
 	  {
         app_avk_play_previous_track(connection->rc_handle);
@@ -267,7 +351,7 @@ void s_avk_play_next()
 {
     tAPP_AVK_CONNECTION *connection = NULL;
 	  
-	  connection = app_avk_find_connection_by_bd_addr(dev_connected);
+	  connection = app_avk_find_connection_by_bd_addr(cur_connected_dev);
 	  if(connection)
 	  {
         app_avk_play_next_track(connection->rc_handle);
@@ -291,7 +375,7 @@ void s_hs_hung_up()
 void bluetooth_stop()
 {
 	  /* Stop Headset service*/
-    app_hs_stop();
+    //app_hs_stop();
 
     app_avk_deregister();
     /* Terminate the avk profile */
@@ -307,6 +391,31 @@ int bluetooth_start(void *p, char *p_conf)
 }
 
 void s_set_bt_name(const char *name)
+{
+    ;	
+}
+
+void s_set_discoverable(int enable)
+{
+	  ;
+}
+
+void s_set_connectable(int enable)
+{
+    ;	
+}
+
+void s_set_volume(int volume)
+{
+    ;	
+}
+
+void s_set_volume_up()
+{
+    ;
+}
+
+void s_set_volume_down()
 {
     ;	
 }

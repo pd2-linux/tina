@@ -18,7 +18,7 @@ enum
 };
 
 typedef struct data_t{
-    char* buf;
+    void* buf;
     int len;
 }data_t;
 

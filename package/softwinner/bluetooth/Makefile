@@ -135,7 +135,7 @@ define Package/bluetooth/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bsa_server $(1)/etc/bluetooth/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/app_bluetooth $(1)/etc/bluetooth/
-	$(INSTALL_BIN) ./bsastart.sh $(1)/etc/bluetooth/
+	$(INSTALL_BIN) ./btenable.sh $(1)/etc/bluetooth/
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libbtapp.so $(1)/usr/lib
 endef
 

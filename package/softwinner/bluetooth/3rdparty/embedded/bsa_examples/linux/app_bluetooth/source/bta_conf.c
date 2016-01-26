@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 #include "bsa_api.h"
 
@@ -11,6 +12,7 @@ extern BD_ADDR local_device_set_addr;
 #define CONF_DELIMITERS " =\n\r\t"
 #define CONF_VALUES_DELIMITERS "\"=\n\r\t"
 #define CONF_MAX_LINE_LEN 255
+#define APP_REM_DEVICES_CONNECTED_FILE_PATH "./bt_connected"
 
 typedef int (conf_action_t)(char *p_conf_name, char *p_conf_value);
 
@@ -56,7 +58,9 @@ int device_addr_set(char *p_conf_name, char *p_conf_value)
 	  char *str = p_conf_value;
 	  
 	  if (!p_conf_value){
-	      local_device_set_addr[0] = '\0';
+	  	  for(i=0; i<6; i++){
+	          local_device_set_addr[0] = 0;
+	      }
 	      return ;
 	  }
 	  
@@ -159,4 +163,29 @@ void bta_load_addr(const char *p_path)
     printf("open file error!\n");
     
     device_addr_set(NULL, NULL);    	
+}
+
+void store_connected_dev(BD_ADDR bt_mac_addr)
+{
+    FILE    *p_file;
+    
+    printf("Attempt to store connected dev mac addr to %s\n", APP_REM_DEVICES_CONNECTED_FILE_PATH);
+    
+    if ((p_file = fopen(APP_REM_DEVICES_CONNECTED_FILE_PATH, "w+")) != NULL){
+        fwrite(bt_mac_addr, 1, BD_ADDR_LEN, p_file);
+        fclose(p_file);
+    } else {
+        printf("Error: open %s failed! %s\n", APP_REM_DEVICES_CONNECTED_FILE_PATH);
+        printf("errno %d:%s\n", errno, strerror(errno));
+    }    	
+}
+
+void read_connected_dev(BD_ADDR bt_mac_addr)
+{
+    FILE    *p_file;
+    
+    if ((p_file = fopen(APP_REM_DEVICES_CONNECTED_FILE_PATH, "r+")) != NULL){
+        fread(bt_mac_addr, 1, BD_ADDR_LEN, p_file);
+        fclose(p_file);
+    } 	
 }

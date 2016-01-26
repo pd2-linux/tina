@@ -1,26 +1,52 @@
 #include "bluetooth_socket.h"
+#include <stdlib.h>
+#include <unistd.h>
 
 extern "C"
 {
 #include "bluetooth_interface.h" 	
 }
 
-//extern "C" void s_avk_play();
-//extern "C" void s_avk_pause();
-//extern "C" void s_avk_play_previous();
-//extern "C" void s_avk_play_next();
-//extern "C" void s_hs_pick_up();
-//extern "C" void s_hs_hung_up();
-
 const char* UNIX_DOMAIN = "tina-bluetooth-service";
 
 c_bt::c_bt(){
-    setSocketName(UNIX_DOMAIN);
-    init();
+    bt_wd[0] = '.';
+    bt_wd[1] = '\0';
 }
 
 c_bt::~c_bt(){
 
+}
+
+int c_bt::set_bt_wd(char *pwd){
+    if(pwd && pwd[0]){
+        strncpy(bt_wd, pwd, 256);
+    }
+}
+
+int c_bt::bt_on(char *bt_addr){
+	
+    char cmd[512] = {0};	
+	  setSocketName(UNIX_DOMAIN);
+    if (init() != 0) {
+        /* start bt server */
+        if(!bt_addr || !bt_addr[0]){
+        	  snprintf(cmd, 512, "/etc/bluetooth/btenable.sh on %s", bt_wd);
+        } else {
+            snprintf(cmd, 512, "/etc/bluetooth/btenable.sh on %s %s", bt_wd, bt_addr);
+        }
+        
+        system(cmd);
+        usleep(1000000);
+        init();
+    }
+    return 0;
+}
+
+int c_bt::bt_off(){
+    /* stop bt server */
+    system("/etc/bluetooth/btenable.sh off");
+    return 0;
 }
 
 void c_bt::onTransact(request_t* request,data_t* data){
@@ -55,17 +81,71 @@ int c_bt::set_bt_name(const char *name)
 {
     request_t  request;
     data_t senddata;
+    char in_name[BT_NAME_PATH_LEN];
     
     memset(&request, 0 ,sizeof(request));
     request.code = BT_CMD_SET_NAME;
     
     memset(&senddata, 0, sizeof(senddata));
-    memcpy(senddata.buf,(void *)name, MAX_DATA_T_LEN - 1);
-    senddata.buf[MAX_DATA_T_LEN - 1] = '\0';
-    senddata.len = sizeof(senddata.buf);
+    if (!name || !name[0]){
+        printf("Set bt name NULL! Use default!\n");
+        return 0;    	
+    } else {
+        strncpy(in_name, name, BT_NAME_PATH_LEN);
+        in_name[BT_NAME_PATH_LEN-1] = '\0';
+        senddata.buf = in_name;
+        senddata.len = strlen(in_name) + 1;
+    }
     
 	  transact(&request, &senddata);
     return 0;	
+}
+
+int c_bt::set_dev_discoverable(int enable)
+{
+    request_t  request;
+    bt_data    data;
+    data_t     senddata;
+    
+    memset(&request, 0 ,sizeof(request));
+    request.code = BT_CMD_SET_DISCOVERABLE;
+    
+    memset(&senddata, 0, sizeof(senddata));
+    memset(&data, 0, sizeof(data));
+    if(enable != 0){
+        data.data1 = 1;    
+    } else {
+        data.data1 = 0;
+    }
+    
+    senddata.buf = (void *)&data;
+    senddata.len = sizeof(data);
+    
+	  transact(&request, &senddata);
+    return 0;    	
+}
+
+int c_bt::set_dev_connectable(int enable)
+{
+    request_t  request;
+    bt_data    data;
+    data_t     senddata;
+    
+    memset(&request, 0 ,sizeof(request));
+    request.code = BT_CMD_SET_CONNECTABLE;
+    
+    memset(&senddata, 0, sizeof(senddata));
+    memset(&data, 0, sizeof(data));
+    if(enable != 0){
+        data.data1 = 1;    
+    } else {
+        data.data1 = 0;
+    }
+    senddata.buf = (void *)&data;
+    senddata.len = sizeof(data);
+    
+	  transact(&request, &senddata);
+    return 0;    	
 }
 
 int c_bt::avk_play()
@@ -155,8 +235,8 @@ void c_bt::do_test()
     memset(&senddata, 0, sizeof(senddata));
     data.data1 = 'B';
     data.data2 = 'T';
-    senddata.len = sizeof(bt_data);
-    memcpy(senddata.buf,(void*)&data,senddata.len);
+    senddata.buf = (void *)&data;
+    senddata.len = sizeof(data);
     
     transact(&request, &senddata);	
 }
@@ -182,14 +262,47 @@ void s_bt::onTransact(request_t* request,data_t* data){
     switch(request->code){
     case BT_CMD_SET_NAME:
     {
-    	  char bt_name[MAX_DATA_T_LEN] = {0};
-        if (data) {
-            strncpy(bt_name, data->buf, MAX_DATA_T_LEN-1);
-            bt_name[MAX_DATA_T_LEN - 1] = '\0';  
+    	  char bt_name[BT_NAME_PATH_LEN] = {0};
+        if (data && data->buf) {
+            memcpy(bt_name, data->buf, BT_NAME_PATH_LEN - 1);
+            bt_name[BT_NAME_PATH_LEN - 1] = '\0';
+            printf("set bt name %s\n", bt_name);  
         }
-    	  printf("set bt name %s\n", bt_name);
     	  s_set_bt_name(bt_name);
     	  break;
+    }
+    
+    case BT_CMD_SET_DISCOVERABLE:
+    {
+        bt_data  *s_data;
+        if (data && data->buf){
+            s_data = (bt_data *)data->buf; 
+            printf("set discoverable %d\n", s_data->data1);
+        
+            if(s_data->data1 != 0){
+                s_set_discoverable(1);
+            } else {
+                s_set_discoverable(0);      
+            }
+        }
+        break;        	
+    }
+    
+    case BT_CMD_SET_CONNECTABLE:
+    {
+        bt_data  *s_data;
+        
+        if (data && data->buf){
+            s_data = (bt_data *)data->buf;
+            printf("set connectable %d\n", s_data->data1);
+            
+            if(s_data->data1 != 0){
+                s_set_connectable(1);
+            } else {
+                s_set_connectable(0);      
+            }
+        }
+        break;        	
     }
     
     case BT_CMD_PLAY:
@@ -290,8 +403,8 @@ int s_bt::do_transact_event(BT_EVENT event)
     memset(&senddata, 0, sizeof(senddata));
     data.data1 = event;
     data.data2 = 0;
-    senddata.len = sizeof(bt_data);
-    memcpy(senddata.buf,(void*)&data,senddata.len);
+    senddata.buf = (void *)&data;
+    senddata.len = sizeof(data);
 	  
 	  transact(&request,&senddata);
 }

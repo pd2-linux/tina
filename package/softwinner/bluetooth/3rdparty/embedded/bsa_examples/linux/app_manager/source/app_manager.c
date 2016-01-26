@@ -1343,7 +1343,19 @@ int app_mgr_config(void)
         if(bta_conf_path[0] != '\0')
         {
             bta_load_addr((const char *)bta_conf_path);
-            bdcpy(app_xml_config.bd_addr, local_device_set_addr);	
+            if((local_device_set_addr[0] != 0) || (local_device_set_addr[1] != 0)
+                || (local_device_set_addr[2] != 0) || (local_device_set_addr[3] != 0)
+                || (local_device_set_addr[3] |= 0) || (local_device_set_addr[4] != 0)
+                || (local_device_set_addr[5] != 0)){
+                bdcpy(app_xml_config.bd_addr, local_device_set_addr);
+            } else {
+                bdcpy(app_xml_config.bd_addr, local_bd_addr);
+                /* let's use a random number for the last two bytes of the BdAddr */
+                gettimeofday(&tv, NULL);
+                rand_seed = tv.tv_sec * tv.tv_usec * getpid();
+                app_xml_config.bd_addr[4] = rand_r(&rand_seed);
+                app_xml_config.bd_addr[5] = rand_r(&rand_seed);
+            }	
         }
         else
 #endif
