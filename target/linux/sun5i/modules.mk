@@ -63,3 +63,16 @@ define KernelPackage/sun5i-csi/description
 endef
 
 $(eval $(call KernelPackage,sun5i-csi))
+
+define KernelPackage/net-esp8089
+  SUBMENU:=$(WIRELESS_MENU)
+  TITLE:=esp8089 support
+  DEPENDS:=@TARGET_sun5i +esp8089-firmware
+  FILES:=$(LINUX_DIR)/drivers/net/wireless/esp8089/esp8089.ko
+endef
+
+define KernelPackage/net-esp8089/description
+ Kernel modules for net-esp8089  support
+endef
+
+$(eval $(call KernelPackage,net-esp8089))
