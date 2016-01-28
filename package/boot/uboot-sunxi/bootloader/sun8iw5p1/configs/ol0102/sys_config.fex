@@ -341,6 +341,25 @@ mode          = 0
 
 
 ;----------------------------------------------------------------------------------
+;[led_para] sunxi led configuration
+;----------------------------------------------------------------------------------
+[led_para]
+led_used                = 1
+led_num                 = 5
+led1                    = port:PE06<1><default><default><default>
+led1_trigger           = "none"
+led2                    = port:PE05<1><default><default><default>
+led2_trigger           = "none"
+led3                    = port:PH04<1><default><default><default>
+led3_trigger           = "none"
+led4                    = port:PE03<1><default><default><default>
+led4_trigger           = "none"
+led5                    = port:PE02<1><default><default><default>
+led5_trigger           = "none"
+led6                    = port:PE01<1><default><default><default>
+led6_trigger           = "none"
+
+;----------------------------------------------------------------------------------
 ;capacitor tp configuration
 ;ctp_twi_id : twi controller ID
 ;ctp_twi_addr : I2C slave address, 7bit
