@@ -1,0 +1,26 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2006-2011 OpenWrt.org
+
+START=21
+STOP=99
+
+USE_PROCD=1
+PROG=/usr/sbin/wpa_supplicant
+
+start_service() {
+    procd_open_instance 
+    if ps | grep [w]pa_supplicant ; then 
+        killall -q -KILL wpa_supplicant
+        sleep 2 
+    fi 
+    procd_set_param command $PROG -iwlan0 -Dnl80211 -c/etc/wifi/wpa_supplicant.conf 
+    procd_close_instance 
+}
+
+stop_service() {
+    procd_open_instance
+    if ps | grep [w]pa_supplicant ; then 
+        killall -q -KILL wpa_supplicant 
+    fi
+    procd_close_instance
+}
