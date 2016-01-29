@@ -16,6 +16,8 @@ void Apa3165::setVolume(int value){
     mixer_set(VolumeName,(100 - mVolume)*mMaxVolume/100);
 }
 int Apa3165::getVolume(){
+    mVolume = mixer_getcurvolume(VolumeName);
+    mVolume = 100 - mVolume * 100 / mMaxVolume;
     return mVolume;
 }
 int Apa3165::getMaxVolumeHw(){
