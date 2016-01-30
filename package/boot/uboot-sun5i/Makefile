@@ -50,11 +50,18 @@ define uboot/R8-Evb-Board
   PROFILE:=evb
 endef
 
+define uboot/R8-Dev-Board
+  TITLE:=U-Boot 2011.09 Pre-Built for R8
+  CONFIG:=sun5i
+  PROFILE:=dev
+endef
+
 UBOOTS:=R8M-Evb-Board \
 	R8-NextThing-Board \
 	R8-ChangHong-Board \
 	R8-Slbh-Board \
-	R8-Evb-Board
+	R8-Evb-Board \
+	R8-Dev-Board
 
 define Package/uboot/template
 define Package/uboot-sun5i-$(1)

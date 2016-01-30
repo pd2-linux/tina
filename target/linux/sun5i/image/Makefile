@@ -16,7 +16,8 @@ BOARDS:= \
 	R8-Evb-Board \
 	R8-NextThing-Board \
 	R8-ChangHong-Board \
-	R8-Slbh-Board
+	R8-Slbh-Board \
+	R8-Dev-Board
 
 ifeq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),)
 define Image/BuildKernel
@@ -74,6 +75,10 @@ endef
 
 define Image/Build/Profile/R8-Slbh-Board
 	$(call Image/Build/FirmWare,$(1),sun5i, uart0, slbh)
+endef
+
+define Image/Build/Profile/R8-Dev-Board
+	$(call Image/Build/FirmWare,$(1),sun5i, uart0, dev)
 endef
 
 define Image/Build
