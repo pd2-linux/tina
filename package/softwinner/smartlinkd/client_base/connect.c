@@ -1,3 +1,4 @@
+#define TAG "smartlinkd-client"
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/socket.h>
@@ -22,27 +23,29 @@ extern "C" {
 #endif
 
 int(*func)(char*,int) = NULL;
+
 #ifndef ANDROID_ENV
 #define UNIX_DOMAIN "/tmp/UNIX.domain"
 #else
-//#define LOG_TAG "smartlink_jni"
-//#include <cutils/log.h>
-//#include <android/log.h>
 #define UNIX_DOMAIN "/data/misc/wifi/UNIX.domain"
-//#undef LOGD
-//#undef LOGE
-//#define LOGD ALOGD
-//#define LOGE ALOGE
 #endif
 int sockfd;
 
 void printf_info(struct _cmd *c){
 	LOGD("cmd: %d\n",c->cmd);
+	if(c->cmd == FAILED){
+		LOGD("response failed\n");
+		return;
+	}
 	LOGD("ssid: %s\n",c->info.base_info.ssid);
 	LOGD("pasd: %s\n",c->info.base_info.password);
 	LOGD("pcol: %d\n",c->info.protocol);
-	LOGD("radm: %d\n",c->info.airkiss_random);
-	
+	if(c->info.protocol == PROTO_AKISS)
+		LOGD("radm: %d\n",c->info.airkiss_random);
+	if(c->info.protocol == PROTO_COOEE){
+		LOGD("ip: %s\n",c->info.ip_info.ip);
+		LOGD("port: %d\n",c->info.ip_info.port);
+	}
 }
 
 int init_socket(){
@@ -71,13 +74,17 @@ int init_socket(){
 	return 0;
 }
 
-int init(int fd,int(*f)(char*,int))
-{
+void prepare(){
+	//stop wpa_supplicant
+	system("/etc/init.d/wifi stop");
+	//up the wlan
+	system("ifconfig wlan0 up");
+}
+int init(int fd,int(*f)(char*,int)){
 	func = f;
 	return init_socket();
 }
-void release()
-{
+void release(){
 	close(sockfd);
 }
 
@@ -94,14 +101,11 @@ void* readthread(void* arg){
 				continue;
 			}
 			LOGE("recv failed(%s)\n",strerror(errno));
-			//exit(0);
+			break;
 		}
 		else if ( bytes_read == 0 ){
-			LOGE("server close\n");
-			if(func != NULL)
-				func(buf,bytes_read);
+			if(func != NULL) func(buf,bytes_read);
 			break;
-			//exit(0);
 		}
 
 		if(func != NULL && func(buf,bytes_read) == THREAD_EXIT)
@@ -122,19 +126,26 @@ int init_thread(){
 	}
 	return 0;
 }
-int startairkiss(){
+static int startprotocol(int protocol){
 	struct _cmd c;
-	c.cmd = START_AIRKISS;
-	LOGD("cmd = %d\n",c.cmd);
+	c.cmd = START;
+	c.info.protocol = protocol;
+	LOGD("protocol = %d\n",protocol);
 	if(init_thread() == -1) return -1;
-	return send(sockfd,(char*)&c,sizeof(c),0);
+	return send(sockfd,(char*)&c,sizeof(c),0);	
 }
+int startairkiss(){
+	return startprotocol(PROTO_AKISS);
+}
+
+int startcooee(){
+	return startprotocol(PROTO_COOEE);
+}
+
 int easysetupfinish(struct _cmd *c){
 	//printf_info(c);
-	c->cmd = AIRKISS_FINISHED;
-	
+	c->cmd = FINISHED;	
 	return send(sockfd,(char*)c,sizeof(struct _cmd),0);
-
 }
 #ifdef __cplusplus
 }

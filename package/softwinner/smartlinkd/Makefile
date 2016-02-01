@@ -29,17 +29,32 @@ HAVE_SOURCE := no
 
 include $(INCLUDE_DIR)/package.mk
  
-define Package/smartlinkd
+define Package/$(PKG_NAME)/Default
   SECTION:=utils
   CATEGORY:=softwinner
-  TITLE:=smartlink for openwrt
   DEPENDS:=+libpthread +libstdcpp +liballwinner-base
 endef
 
-define Package/smartlinkd/description
+define Package/$(PKG_NAME)
+  $(call Package/$(PKG_NAME)/Default)
+  TITLE:=smartlinkd for Tina
+  MENU:=1
+endef
+
+define Package/$(PKG_NAME)-demo
+  $(call Package/$(PKG_NAME)/Default)
+  TITLE:=smartlinkd demo
+  DEPENDS:=$(PKG_NAME)
+endef
+
+define Package/$(PKG_NAME)/description
 	wifi configuration for none input platform
 endef
  
+define Package/$(PKG_NAME)-demo/description
+	client demo
+endef
+
 define Build/Prepare
 
 	mkdir -p $(PKG_BUILD_DIR)
@@ -102,7 +117,7 @@ ifeq ($(HAVE_SOURCE),yes)
 else
 
 	#compile client
-	$(MAKE) -C $(PKG_BUILD_DIR)/client \
+	$(MAKE) -C $(PKG_BUILD_DIR)/demo \
 		ARCH="$(TARGET_ARCH)" \
 		AR="$(TARGET_AR)" \
 		CC="$(TARGET_CC)" \
@@ -113,18 +128,18 @@ endif
 	
 endef
 
-define Package/smartlinkd/install
+define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/bin
-	$(INSTALL_DIR) $(1)/network
+	$(INSTALL_DIR) $(1)/etc/wifi
 	$(INSTALL_DIR) $(1)/etc/init.d
 
 
 ifeq ($(HAVE_SOURCE),yes)
 	
-	$(INSTALL_BIN) ./tina/wpa.sh $(1)/network/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/setup $(1)/network/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/client $(1)/network/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/smartlinkd $(1)/network/
+	$(INSTALL_BIN) ./tina/wpa.sh $(1)/etc/wifi/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/setup $(1)/etc/wifi/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/client $(1)/etc/wifi/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/smartlinkd $(1)/etc/wifi/
 	$(INSTALL_BIN) ./tina/smartlinkd.init $(1)/etc/init.d/smartlinkd
 	
 	rm -rf ./release
@@ -139,15 +154,25 @@ ifeq ($(HAVE_SOURCE),yes)
 	$(CP) ./tina/wpa.sh ./release/
 	$(CP) -r $(PKG_BUILD_DIR)/src/client_base ./release/
 	$(CP) -r $(PKG_BUILD_DIR)/src/include ./release/
-	$(CP) -r $(PKG_BUILD_DIR)/src/client ./release/
+	$(CP) -r $(PKG_BUILD_DIR)/src/client ./release/demo
 	$(CP) ./tina/smartlinkd.init ./release/
 else
-	$(INSTALL_BIN) wpa.sh $(1)/network/
-	$(INSTALL_BIN) setup $(1)/network/
-	$(INSTALL_BIN) smartlinkd $(1)/network/
+	$(INSTALL_BIN) wpa.sh $(1)/etc/wifi/
+	$(INSTALL_BIN) setup $(1)/etc/wifi/
+	$(INSTALL_BIN) smartlinkd $(1)/etc/wifi/
 	$(INSTALL_BIN) smartlinkd.init $(1)/etc/init.d/smartlinkd
 endif
 
 endef
 
-$(eval $(call BuildPackage,smartlinkd))
+define Package/$(PKG_NAME)-demo/install
+	$(INSTALL_DIR) $(1)/usr/bin
+ifeq ($(HAVE_SOURCE),yes)
+	$(CP) -r $(PKG_BUILD_DIR)/src/client/client $(1)/usr/bin
+else
+	$(CP) -r $(PKG_BUILD_DIR)/demo/client $(1)/usr/bin
+endif
+
+endef
+$(eval $(call BuildPackage,$(PKG_NAME)))
+$(eval $(call BuildPackage,$(PKG_NAME)-demo))

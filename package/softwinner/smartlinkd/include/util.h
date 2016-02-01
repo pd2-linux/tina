@@ -54,12 +54,10 @@ enum {
 
 //cmd for processes
 enum {
-	START_COOEE = 0,
-	COOEE_FINISHED,
-	START_AIRKISS,
-	AIRKISS_FINISHED,
-	CONFIG_NETWORK,
-	ENABLE_NETWORK,
+	START = 0,
+	FINISHED,
+	CONFIG_NETWORK,  //useless now
+	ENABLE_NETWORK,  //useless now
 	FAILED,
 };
 

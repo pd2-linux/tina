@@ -9,13 +9,18 @@ extern "C" {
 #define THREAD_INIT -100
 #define THREAD_EXIT 1
 #define THREAD_CONTINUE 0
-int init(int fd,int(f)(char*,int));
-void release();
 
-int easysetupfinish(struct _cmd *c);
+/*********** app client API ***********/
+void prepare();
+int init(int fd,int(f)(char*,int));
 
 int startairkiss();
+int startcooee();
 
+/*********** no use for app client ***********/
+int easysetupfinish(struct _cmd *c);
+
+/***************** for debug *****************/
 void printf_info(struct _cmd *c);
 
 #ifdef __cplusplus

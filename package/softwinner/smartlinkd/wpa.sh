@@ -5,7 +5,7 @@
 #$4 ifName, eg:wlan0, wlan1...  default:wlan0
 
 export ifName=wlan0
-export configPath=/network
+export configPath=/etc/wifi
 export configFile=$configPath/wpa_supplicant.conf
 export wpaInterface=$configPath/sockets
 

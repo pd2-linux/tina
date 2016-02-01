@@ -1,3 +1,4 @@
+#define TAG "smartlinkd-demo"
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/socket.h>
@@ -25,12 +26,12 @@ int onRead(char* buf,int length)
 	else if(length == -1){
 		
 	}else if(length == 0){
-		exit(0);
+		LOGD("server close the connection...\n");
 	}else {
 		LOGD("lenght: %d\n",length);
 		printf_info((struct _cmd *)buf);
 	}
-	return 0;
+	return THREAD_EXIT;
 }
 
 int main(int argc, char* argv[])  
@@ -39,6 +40,8 @@ int main(int argc, char* argv[])
 	if(argc > 1){
 		proto = atoi(argv[1]);
 	}
+
+	prepare();
 	if(init(0,onRead) == 0){
 		if(proto == 0){
 			LOGD("start airkiss\n");
@@ -46,7 +49,7 @@ int main(int argc, char* argv[])
 		}
 		else if(proto == 1){
 			LOGD("start cooee\n");
-			//startcooee();
+			startcooee();
 		}
 	}
 	while(1);
