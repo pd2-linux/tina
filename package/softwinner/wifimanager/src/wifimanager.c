@@ -365,14 +365,8 @@ int connect_ap(const char *ssid, const char *passwd)
 
 end:
     if(gwifi_state == NETWORK_CONNECTED){
-        /* stop udhcpc */
-	      system("/etc/init.d/udhcpc stop");	
-    	
-    	  printf("/etc/init.d/udhcpc start\n");
-    	  
-    	  usleep(1000000); 
-        /* start udhcpc */
-	      system("/etc/init.d/udhcpc start");
+        /* restart udhcpc */
+	      system("/etc/init.d/udhcpc_wlan0 restart");
     }	
     
     /* save config */
@@ -499,13 +493,8 @@ int connect_ap_key_mgmt(const char *ssid, tKEY_MGMT key_mgnt, const char *passwd
     }
     
     if(gwifi_state == NETWORK_CONNECTED){
-        /* stop udhcpc */
-	      system("/etc/init.d/udhcpc stop");	
-    	
-    	  printf("/etc/init.d/udhcpc start\n");
-    	  usleep(1000000);
-        /* start udhcpc */
-	      system("/etc/init.d/udhcpc start");
+        /* restart udhcpc */
+	      system("/etc/init.d/udhcpc_wlan0 restart");
     }
     
     /* save config */
