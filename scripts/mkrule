@@ -9,5 +9,6 @@ sun5i_tina r8_defconfig r8_config-3.4
 sun5iw1p2_tina r8_defconfig r8_config-3.4
 sun5i_tina_changhong r8_changhong_config r8_config-3.4
 sun5i_dragonboard r8_defconfig r8_config-3.4
+sun5i_tina_dev r8_dev_config r8_dev_config-3.4
 
 
