@@ -93,7 +93,6 @@ void* readthread(void* arg){
 	if(func != NULL && func(buf,THREAD_INIT) == THREAD_EXIT);//test
 	while(1){
 		memset(buf,0,sizeof(buf));
-		//int bytes_read = recv( sockfd, buf, sizeof(buf), 0 );
 		int bytes_read = read(sockfd, buf, sizeof(buf)); //read once only
 		//LOGD("read byte %d\n",bytes_read);
 		if ( bytes_read == -1 )	{
@@ -104,6 +103,7 @@ void* readthread(void* arg){
 			break;
 		}
 		else if ( bytes_read == 0 ){
+            //LOGD("server close the connection\n");
 			if(func != NULL) func(buf,bytes_read);
 			break;
 		}

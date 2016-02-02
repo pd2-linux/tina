@@ -1,23 +1,29 @@
 CC ?= g++
 
-TARGET          = client
-INCLUDES        += -I. \
-                   -I../client_base \
-		   -I../include \
-		   -I../include/platform/Tina \
+TARGET = smartlinkd_demo
+INCLUDES += -I. \
+			-I../client_base \
+			-I../include \
+			-I../include/platform/Tina \
+			-L../client_base
 
 SRCS := \
 	main.c \
-	../client_base/connect.c
 
 SUB_LIB := \
-	-lpthread
+	-lpthread \
+	-L../src/libclient \
+	-lsmartlink_client
 
 
-$(TARGET): $(SRCS) $(SUB_LIB)
+$(TARGET):
 	$(CC) $(LDFLAGS) $(INCLUDES) $(SRCS) $(SUB_LIB) -o $@
 
-#all:$(TARGET)
+all:$(TARGET) install
 
 clean:
 	rm -rf $(TARGET) *.o *.a *~
+
+install:
+	mkdir -p $(CONFIG_PREFIX)/usr/bin
+	cp $(TARGET) $(CONFIG_PREFIX)/usr/bin

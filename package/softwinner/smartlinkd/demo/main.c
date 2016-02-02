@@ -14,8 +14,9 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
+#include <tina_log.h>
 #include "connect.h"
-#include "log.h"
+
 int debug_enable = 1;
 
 int onRead(char* buf,int length)
@@ -26,12 +27,14 @@ int onRead(char* buf,int length)
 	else if(length == -1){
 		
 	}else if(length == 0){
-		LOGD("server close the connection...\n");
+		TLOGD("server close the connection...\n");
+	    return THREAD_EXIT;
+
 	}else {
-		LOGD("lenght: %d\n",length);
+		TLOGD("lenght: %d\n",length);
 		printf_info((struct _cmd *)buf);
 	}
-	return THREAD_EXIT;
+	return THREAD_CONTINUE;
 }
 
 int main(int argc, char* argv[])  
@@ -44,11 +47,11 @@ int main(int argc, char* argv[])
 	prepare();
 	if(init(0,onRead) == 0){
 		if(proto == 0){
-			LOGD("start airkiss\n");
+			TLOGD("start airkiss\n");
 			startairkiss();
 		}
 		else if(proto == 1){
-			LOGD("start cooee\n");
+			TLOGD("start cooee\n");
 			startcooee();
 		}
 	}

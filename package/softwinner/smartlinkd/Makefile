@@ -25,7 +25,7 @@ PKG_RELEASE:=1
 
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
-HAVE_SOURCE := no
+HAVE_SOURCE := yes
 
 include $(INCLUDE_DIR)/package.mk
  
@@ -56,16 +56,9 @@ define Package/$(PKG_NAME)-demo/description
 endef
 
 define Build/Prepare
-
-	mkdir -p $(PKG_BUILD_DIR)
-
-ifeq ($(HAVE_SOURCE),yes)
-	mkdir -p $(PKG_BUILD_DIR)/src
-	$(CP) -r ./src/* $(PKG_BUILD_DIR)/src/
-else
-	$(CP) -r * $(PKG_BUILD_DIR)/
-endif
-
+	mkdir -p $(PKG_BUILD_DIR)/
+	$(CP) -r ./src $(PKG_BUILD_DIR)/
+	$(CP) -r ./demo $(PKG_BUILD_DIR)/
 endef
 
 define Build/Configure
@@ -73,106 +66,60 @@ endef
 
 define Build/Compile
 	
-ifeq ($(HAVE_SOURCE),yes)
-
-	#compile realtek rtw_ak
-	#$(MAKE) -C $(PKG_BUILD_DIR)/src/realtek/rtw_ak_r14202 \
+	#compile libs and service
+	$(MAKE) -C $(PKG_BUILD_DIR)/src \
+		MAKE="$(MAKE)" \
 		ARCH="$(TARGET_ARCH)" \
 		AR="$(TARGET_AR)" \
 		CC="$(TARGET_CC)" \
-		CFLAGS="$(TARGET_CFLAGS)" \
-		LDFLAGS="$(TARGET_LDFLAGS)"
-	
-	#compile broadcom easysetup
-	$(MAKE) -C $(PKG_BUILD_DIR)/src/broadcom/EasySetupTarget/jni \
-		ARCH="$(TARGET_ARCH)" \
-		AR="$(TARGET_AR)" \
-		CC="$(TARGET_CC)" \
-		CFLAGS="$(TARGET_CFLAGS)" \
-		LDFLAGS="$(TARGET_LDFLAGS)"
-	
-	#copy target
-	$(CP) -r $(PKG_BUILD_DIR)/src/broadcom/EasySetupTarget/jni/setup $(PKG_BUILD_DIR)/
-	#$(CP) -r $(PKG_BUILD_DIR)/src/realtek/rtw_ak_r14202/rtw_ak $(PKG_BUILD_DIR)/
-	
-	#compile client
-	$(MAKE) -C $(PKG_BUILD_DIR)/src/client \
-		ARCH="$(TARGET_ARCH)" \
-		AR="$(TARGET_AR)" \
-		CC="$(TARGET_CC)" \
-		CFLAGS="$(TARGET_CFLAGS)" \
-		LDFLAGS="$(TARGET_LDFLAGS)"
-	
-	#compile core
-	$(MAKE) -C $(PKG_BUILD_DIR)/src/server \
-		ARCH="$(TARGET_ARCH)" \
-		AR="$(TARGET_AR)" \
-		CC="$(TARGET_CXX)" \
+		CXX="$(TARGET_CXX)" \
 		CFLAGS="$(TARGET_CFLAGS)"\
-		LDFLAGS="$(TARGET_LDFLAGS)"
+		LDFLAGS="$(TARGET_LDFLAGS)" \
+		CONFIG_PREFIX="$(PKG_INSTALL_DIR)" \
+		SAVE_DIR="`pwd`" \
+		all
 
-	#copy target
-	$(CP) -r $(PKG_BUILD_DIR)/src/server/smartlinkd $(PKG_BUILD_DIR)/
-	$(CP) -r $(PKG_BUILD_DIR)/src/client/client $(PKG_BUILD_DIR)/
-else
-
-	#compile client
+	#compile demo
 	$(MAKE) -C $(PKG_BUILD_DIR)/demo \
+		MAKE="$(MAKE)" \
 		ARCH="$(TARGET_ARCH)" \
 		AR="$(TARGET_AR)" \
 		CC="$(TARGET_CC)" \
-		CFLAGS="$(TARGET_CFLAGS)" \
-		LDFLAGS="$(TARGET_LDFLAGS)"
-endif
-	
-	
+		CXX="$(TARGET_CXX)" \
+		CFLAGS="$(TARGET_CFLAGS)"\
+		LDFLAGS="$(TARGET_LDFLAGS)" \
+		CONFIG_PREFIX="$(PKG_INSTALL_DIR)" \
+		all
+
+endef
+
+define Build/InstallDev
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(INSTALL_DIR) $(1)/usr/include
+
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/*.so $(1)/usr/lib/
+	$(INSTALL_DATA) src/include/smartlink_util.h $(1)/usr/include
+	$(INSTALL_DATA) src/libclient/connect.h $(1)/usr/include
 endef
 
 define Package/$(PKG_NAME)/install
-	$(INSTALL_DIR) $(1)/bin
-	$(INSTALL_DIR) $(1)/etc/wifi
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(INSTALL_DIR) $(1)/etc/wifi/smartlink
 	$(INSTALL_DIR) $(1)/etc/init.d
 
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libsmartlink_client.so $(1)/usr/lib/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/setup $(1)/etc/wifi/smartlink/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/smartlinkd $(1)/etc/wifi/smartlink/
 
-ifeq ($(HAVE_SOURCE),yes)
-	
-	$(INSTALL_BIN) ./tina/wpa.sh $(1)/etc/wifi/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/setup $(1)/etc/wifi/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/client $(1)/etc/wifi/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/smartlinkd $(1)/etc/wifi/
 	$(INSTALL_BIN) ./tina/smartlinkd.init $(1)/etc/init.d/smartlinkd
+	$(INSTALL_BIN) ./tina/wpa.sh $(1)/etc/wifi/smartlink/
 	
-	rm -rf ./release
-	mkdir -p ./release
-	$(CP) Makefile ./release/
-	sed -i s/"HAVE_SOURCE := no"/"HAVE_SOURCE := no"/g ./release/Makefile
-	mv ./release/Makefile ./release/Makefile_release
-	
-	#release bin 
-	$(CP) $(PKG_BUILD_DIR)/setup ./release/
-	$(CP) $(PKG_BUILD_DIR)/smartlinkd ./release/
-	$(CP) ./tina/wpa.sh ./release/
-	$(CP) -r $(PKG_BUILD_DIR)/src/client_base ./release/
-	$(CP) -r $(PKG_BUILD_DIR)/src/include ./release/
-	$(CP) -r $(PKG_BUILD_DIR)/src/client ./release/demo
-	$(CP) ./tina/smartlinkd.init ./release/
-else
-	$(INSTALL_BIN) wpa.sh $(1)/etc/wifi/
-	$(INSTALL_BIN) setup $(1)/etc/wifi/
-	$(INSTALL_BIN) smartlinkd $(1)/etc/wifi/
-	$(INSTALL_BIN) smartlinkd.init $(1)/etc/init.d/smartlinkd
-endif
-
 endef
 
 define Package/$(PKG_NAME)-demo/install
 	$(INSTALL_DIR) $(1)/usr/bin
-ifeq ($(HAVE_SOURCE),yes)
-	$(CP) -r $(PKG_BUILD_DIR)/src/client/client $(1)/usr/bin
-else
-	$(CP) -r $(PKG_BUILD_DIR)/demo/client $(1)/usr/bin
-endif
-
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/smartlinkd_demo $(1)/usr/bin
 endef
+
 $(eval $(call BuildPackage,$(PKG_NAME)))
 $(eval $(call BuildPackage,$(PKG_NAME)-demo))

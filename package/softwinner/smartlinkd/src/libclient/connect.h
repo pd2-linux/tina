@@ -1,7 +1,7 @@
 #ifndef _CONNECT_H_
 #define _CONNECT_H_
 
-#include "util.h"
+#include "smartlink_util.h"
 
 #ifdef __cplusplus
 extern "C" {
