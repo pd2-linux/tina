@@ -100,6 +100,7 @@ void* readthread(void* arg){
 				continue;
 			}
 			LOGE("recv failed(%s)\n",strerror(errno));
+			if(func != NULL) func(buf,bytes_read);
 			break;
 		}
 		else if ( bytes_read == 0 ){
@@ -111,6 +112,7 @@ void* readthread(void* arg){
 		if(func != NULL && func(buf,bytes_read) == THREAD_EXIT)
 			break;
 	}
+    LOGD("thread exit....");
 	release();
 	return (void*)0;
 }
