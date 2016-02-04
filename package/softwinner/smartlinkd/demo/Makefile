@@ -2,10 +2,9 @@ CC ?= g++
 
 TARGET = smartlinkd_demo
 INCLUDES += -I. \
-			-I../client_base \
-			-I../include \
-			-I../include/platform/Tina \
-			-L../client_base
+			-I../src/include \
+			-I../src/libclient \
+			-I../src/include/platform/Tina \
 
 SRCS := \
 	main.c \
