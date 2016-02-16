@@ -48,7 +48,7 @@ void printf_info(struct _cmd *c){
 	}
 }
 
-int init_socket(){
+static int init_socket(){
 	int ret;  
 	struct sockaddr_un srv_addr;  
 	//creat unix socket
@@ -74,13 +74,13 @@ int init_socket(){
 	return 0;
 }
 
-void prepare(){
+void smartlinkd_prepare(){
 	//stop wpa_supplicant
 	system("/etc/init.d/wifi stop");
 	//up the wlan
 	system("ifconfig wlan0 up");
 }
-int init(int fd,int(*f)(char*,int)){
+int smartlinkd_init(int fd,int(*f)(char*,int)){
 	func = f;
 	return init_socket();
 }

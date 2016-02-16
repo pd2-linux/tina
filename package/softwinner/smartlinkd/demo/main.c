@@ -64,8 +64,8 @@ int main(int argc, char* argv[])
         proto = atoi(argv[1]);
     }
 
-    prepare();
-    if(init(0,onRead) == 0){
+    smartlinkd_prepare();
+    if(smartlinkd_init(0,onRead) == 0){
         if(proto == 0){
             TLOGD("start airkiss\n");
             startairkiss();

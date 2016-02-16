@@ -32,7 +32,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/$(PKG_NAME)/Default
   SECTION:=utils
   CATEGORY:=softwinner
-  DEPENDS:=+libpthread +libstdcpp +liballwinner-base
+  DEPENDS:=+libpthread +libstdcpp +liballwinner-base +wifimanager
 endef
 
 define Package/$(PKG_NAME)
@@ -107,7 +107,7 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/etc/wifi/smartlink
 	$(INSTALL_DIR) $(1)/etc/init.d
 
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libsmartlink_client.so $(1)/usr/lib/
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libsmartlinkd_client.so $(1)/usr/lib/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/setup $(1)/etc/wifi/smartlink/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/smartlinkd $(1)/etc/wifi/smartlink/
 

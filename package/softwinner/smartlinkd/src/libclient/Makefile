@@ -1,4 +1,4 @@
-TARGET = libsmartlink_client.so
+TARGET = libsmartlinkd_client.so
 LOCAL_FLAGS =  -I../include \
 			   -I../include/platform/Tina \
 

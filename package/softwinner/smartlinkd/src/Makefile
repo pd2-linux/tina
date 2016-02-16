@@ -62,4 +62,4 @@ package_install:
 
 	cp smartlinkd $(CONFIG_PREFIX)/usr/bin/
 	cp setup $(CONFIG_PREFIX)/usr/bin/
-	cp -r libclient/libsmartlink_client.so $(CONFIG_PREFIX)/usr/lib  
+	cp -r libclient/libsmartlinkd_client.so $(CONFIG_PREFIX)/usr/lib  

@@ -11,8 +11,8 @@ extern "C" {
 #define THREAD_CONTINUE 0
 
 /*********** app client API ***********/
-void prepare();
-int init(int fd,int(f)(char*,int));
+void smartlinkd_prepare();
+int smartlinkd_init(int fd,int(f)(char*,int));
 
 int startairkiss();
 int startcooee();

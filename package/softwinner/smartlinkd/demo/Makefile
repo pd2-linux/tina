@@ -12,7 +12,7 @@ SRCS := \
 SUB_LIB := \
 	-lpthread \
 	-L../src/libclient \
-	-lsmartlink_client
+	-lsmartlinkd_client
 
 
 $(TARGET):
