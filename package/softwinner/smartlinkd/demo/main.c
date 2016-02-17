@@ -64,15 +64,15 @@ int main(int argc, char* argv[])
         proto = atoi(argv[1]);
     }
 
-    smartlinkd_prepare();
-    if(smartlinkd_init(0,onRead) == 0){
+    aw_smartlinkd_prepare();
+    if(aw_smartlinkd_init(0,onRead) == 0){
         if(proto == 0){
             TLOGD("start airkiss\n");
-            startairkiss();
+            aw_startairkiss();
         }
         else if(proto == 1){
             TLOGD("start cooee\n");
-            startcooee();
+            aw_startcooee();
         }
     }
     while(1);

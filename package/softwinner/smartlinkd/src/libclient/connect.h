@@ -11,14 +11,14 @@ extern "C" {
 #define THREAD_CONTINUE 0
 
 /*********** app client API ***********/
-void smartlinkd_prepare();
-int smartlinkd_init(int fd,int(f)(char*,int));
+void aw_smartlinkd_prepare();
+int aw_smartlinkd_init(int fd,int(f)(char*,int));
 
-int startairkiss();
-int startcooee();
+int aw_startairkiss();
+int aw_startcooee();
 
 /*********** no use for app client ***********/
-int easysetupfinish(struct _cmd *c);
+int aw_easysetupfinish(struct _cmd *c);
 
 /***************** for debug *****************/
 void printf_info(struct _cmd *c);

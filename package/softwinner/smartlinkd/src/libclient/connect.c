@@ -74,21 +74,21 @@ static int init_socket(){
 	return 0;
 }
 
-void smartlinkd_prepare(){
+void aw_smartlinkd_prepare(){
 	//stop wpa_supplicant
 	system("/etc/init.d/wifi stop");
 	//up the wlan
 	system("ifconfig wlan0 up");
 }
-int smartlinkd_init(int fd,int(*f)(char*,int)){
+int aw_smartlinkd_init(int fd,int(*f)(char*,int)){
 	func = f;
 	return init_socket();
 }
-void release(){
+void aw_release(){
 	close(sockfd);
 }
 
-void* readthread(void* arg){
+static void* readthread(void* arg){
 	char buf[1024];
 	if(func != NULL && func(buf,THREAD_INIT) == THREAD_EXIT);//test
 	while(1){
@@ -113,10 +113,10 @@ void* readthread(void* arg){
 			break;
 	}
     LOGD("thread exit....");
-	release();
+	aw_release();
 	return (void*)0;
 }
-int init_thread(){
+static int init_thread(){
 	pthread_t tid;
 	if(pthread_create( &tid, NULL, readthread, (void*)0 ) != 0){
 		LOGE("create read thread failed!\n");
@@ -136,15 +136,15 @@ static int startprotocol(int protocol){
 	if(init_thread() == -1) return -1;
 	return send(sockfd,(char*)&c,sizeof(c),0);	
 }
-int startairkiss(){
+int aw_startairkiss(){
 	return startprotocol(PROTO_AKISS);
 }
 
-int startcooee(){
+int aw_startcooee(){
 	return startprotocol(PROTO_COOEE);
 }
 
-int easysetupfinish(struct _cmd *c){
+int aw_easysetupfinish(struct _cmd *c){
 	//printf_info(c);
 	c->cmd = FINISHED;	
 	return send(sockfd,(char*)c,sizeof(struct _cmd),0);
