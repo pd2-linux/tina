@@ -22,7 +22,7 @@ enum WPA_EVENT{
     UNKNOWN,
 };
 
-void event_loop(tWifi_event_callback pcb);
+void wifi_event_loop(tWifi_event_callback pcb);
 
 #if __cplusplus
 };  // extern "C"

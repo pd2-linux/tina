@@ -54,7 +54,7 @@ int wifi_on(tWifi_event_callback pcb)
         	i++;
         }while(ret && i<10);
     }
-    event_loop(pcb); 
+    wifi_event_loop(pcb); 
     return 0;    	
 }
 

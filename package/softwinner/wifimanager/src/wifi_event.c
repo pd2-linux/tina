@@ -165,7 +165,7 @@ void *event_handle_thread(void* args)
     printf("event handle thread exit!\n");	
 }
 
-void event_loop(tWifi_event_callback pcb)
+void wifi_event_loop(tWifi_event_callback pcb)
 {
     pthread_t thread_id;
     p_event_callback = pcb;
