@@ -1149,24 +1149,27 @@ i2s1_din             = port:PG13<2><1><default><default>
 ;--------------------------------------------------------------------------------
 [audio0]
 audio_used          	= 1
-audio_hp_ldo       = "none"
-headphone_vol			= 0x3b
-earpiece_vol = 0x3e
-cap_vol					= 0x5
-pa_single_vol			= 0x3e
-pa_double_used			= 0
-pa_double_vol			= 0x3e
+audio_hp_ldo       	= "none"
+headphone_vol		= 0x3b
+earpiece_vol 		= 0x3e
+cap_vol			= 0x5
+pa_single_vol		= 0x3e
+pa_double_used		= 0
+pa_double_vol		= 0x3e
 headphone_direct_used	= 1
-headset_mic_vol = 3
-main_mic_vol        = 1
-audio_pa_ctrl          = port:PD11<1><default><default><0>
-aif2_used              = 0
-aif3_used              = 0
-headphone_mute_used = 0
+headset_mic_vol 	= 3
+main_mic_vol        	= 1
+linein_to_spk_used     	= 0
+linein_to_hp_used 	= 0
+linein_to_aif2_used     = 0
+audio_pa_ctrl           = port:PD11<1><default><default><0>
+aif2_used              	= 0
+aif3_used              	= 0
+headphone_mute_used 	= 0
 DAC_VOL_CTRL_SPK        = 0xa0a0
-DAC_VOL_CTRL_HEADPHONE = 0xa0a0
-agc_used	= 0
-drc_used	= 0
+DAC_VOL_CTRL_HEADPHONE 	= 0xa0a0
+agc_used		= 0
+drc_used		= 0
 ;-------------------------------------------------------------------------------------
 ;pmu_used                    ---0:not used,1:used
 ;pmu_twi_addr                ---slave address
