@@ -1163,6 +1163,7 @@ linein_to_spk_used     	= 0
 linein_to_hp_used 	= 0
 linein_to_aif2_used     = 0
 audio_pa_ctrl           = port:PD11<1><default><default><0>
+audio_linein_ctrl      	= port:PE14<0><default><default><0>
 aif2_used              	= 0
 aif3_used              	= 0
 headphone_mute_used 	= 0
