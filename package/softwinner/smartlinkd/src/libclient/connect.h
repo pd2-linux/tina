@@ -6,9 +6,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#define THREAD_INIT -100
-#define THREAD_EXIT 1
-#define THREAD_CONTINUE 0
+const int THREAD_INIT = -100;
+const int THREAD_EXIT = 1;
+const int THREAD_CONTINUE = 0;
 
 /*********** app client API ***********/
 void aw_smartlinkd_prepare();
