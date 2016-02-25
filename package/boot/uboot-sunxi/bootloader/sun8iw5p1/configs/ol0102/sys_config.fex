@@ -1110,17 +1110,16 @@ i2s0_dout2           =
 i2s0_dout3           =
 i2s0_din             = port:PB07<2><1><default><default>
 
-;aux_signal_time: 600s
-[apa3165]
-apa3165_used		 = 1
+[tas5707]
+tas5707_used		 = 1
 aux_signal_time		 = 600
 amp_pa_ctrl        	 = port:PE15<1><default><default><default>
-apa3165_reset        = port:PE14<1><default><default><default>
-apa3165_power0       = port:PL04<1><default><default><default>
-apa3165_power1       = port:PE07<1><default><default><default>
+tas5707_reset        = port:PE14<1><default><default><default>
+tas5707_power0       = port:PL04<1><default><default><default>
+tas5707_power1       = port:PE07<1><default><default><default>
 chip_en              = port:PL03<1><default><default><0>
 aux_signal           = port:PL02<0><default><default><0>
-apa3165_voltage      = "dldo1_vol"
+tas5707_voltage      = "dldo1_vol"
 
 ;--------------------------------------------------------------------------------
 ;i2s1_master:1: SND_SOC_DAIFMT_CBM_CFM(codec clk & FRM master)        use
