@@ -52,6 +52,8 @@ char bta_conf_path[MAX_PATH_LEN] = {0};
 static BD_ADDR     cur_connected_dev;        /* BdAddr of connected device */
 static BD_ADDR     last_connected_dev;       /* store connected dev last reboot */
 static void *p_sbt = NULL;
+static int discoverable;
+static int connectable;
 
 //tAvkCallback
 static void app_avk_callback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data);
@@ -209,6 +211,9 @@ int bluetooth_start(void *p, char *p_conf)
     //auto register 
     app_avk_register();
     
+    discoverable = 1;
+    connectable = 1;
+    
     memset(last_connected_dev, 0, sizeof(last_connected_dev));
     read_connected_dev(last_connected_dev);
     app_avk_auto_connect(last_connected_dev);
@@ -230,19 +235,21 @@ void s_set_bt_name(const char *name)
 void s_set_discoverable(int enable)
 {
     if(enable){
-        app_mgr_set_discoverable();
+        discoverable=1;
     }else{
-        app_mgr_set_non_discoverable();
-    }	
+        discoverable=0;
+    }
+    app_dm_set_visibility(discoverable, connectable);	
 }
 
 void s_set_connectable(int enable)
 {
     if(enable){
-        app_mgr_set_connectable();
+        connectable=1;
     }else{
-        app_mgr_set_non_connectable();
-    }	
+        connectable=0;
+    }
+    app_dm_set_visibility(discoverable, connectable);	
 }
 
 void s_set_volume(int volume)
@@ -382,6 +389,9 @@ void bluetooth_stop()
     app_avk_end();
 
     app_mgt_close();
+    
+    discoverable = 0;
+    connectable = 0;
 }
 
 #else
