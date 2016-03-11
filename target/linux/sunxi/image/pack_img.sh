@@ -157,9 +157,17 @@ function do_finish()
 		mv -f sys_partition.bin         sys_partition.bin_back
 		cp -f sys_partition_nor.bin     sys_partition.bin
 		update_mbr                      sys_partition.bin 1 > /dev/null
-
-		merge_package full_img.fex      boot0_spinor.fex \
-		u-boot-spinor.fex sunxi_mbr.fex sys_partition.bin
+		BOOT1_FILE=u-boot-spinor.fex
+		LOGIC_START=496 #496+16=512K
+		merge_full_img --out full_img.fex \
+		      --boot0 boot0_spinor.fex \
+		      --boot1 ${BOOT1_FILE} \
+		      --mbr sunxi_mbr.fex \
+		      --logic_start ${LOGIC_START} \
+		      --partition sys_partition.bin
+		if [ $? -ne 0 ]; then
+			pack_error "merge_full_img failed"
+		fi
 
 		mv -f sys_partition.bin_back    sys_partition.bin
 	fi
