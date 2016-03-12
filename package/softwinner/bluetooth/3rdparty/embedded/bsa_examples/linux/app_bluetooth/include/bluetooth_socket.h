@@ -15,6 +15,7 @@ enum {
     BT_CMD_SET_NAME = 0xf0,
     BT_CMD_SET_DISCOVERABLE,
     BT_CMD_SET_CONNECTABLE,
+    BT_CMD_START_DISCOVERY,
     BT_CMD_PLAY,
     BT_CMD_PAUSE,
     BT_CMD_PRE,
@@ -22,6 +23,7 @@ enum {
     BT_CMD_PICK_UP,
     BT_CMD_HUNG_UP,
     BT_CMD_TRANSACT_EVENT,
+    BT_CMD_TRANSACT_DISC_RESULTS,
     
     BT_CMD_DO_TEST,
 };
@@ -35,6 +37,7 @@ enum BT_EVENT{
     BT_HS_DISCONNECTED_EVT,
     BT_HS_RING_EVT,
     BT_HS_OK_EVT,
+    BT_DISCOVER_COMPLETE, 
     BT_HS_ERROR_EVT
 };
 
@@ -43,6 +46,12 @@ typedef struct bt_data{
     int data1;
     int data2;
 }bt_data;
+
+typedef struct bt_disc_data{
+    int  num;
+    char *buf;
+    int  len;
+}bt_disc_data;
 
 typedef void (tBtCallback)(BT_EVENT event);
 
@@ -54,6 +63,9 @@ public:
 private:
     char   bt_wd[256];
     tBtCallback *pBtCb;
+    int  disc_flag;
+    int  dev_nums;
+    char dev_info[4096];
 
 protected:
     void onTransact(request_t* request,data_t* data);
@@ -64,7 +76,9 @@ public:
 	  int bt_off();
     int set_bt_name(const char *bt_name); // strlen(bt_name) <= MAX_DATA_T_LEN-1
     int set_dev_discoverable(int enable);
-    int set_dev_connectable(int enable);   
+    int set_dev_connectable(int enable);
+    int start_discovery(int time);
+    int get_disc_results(char *disc_results, int *len);   
     int avk_play();
     int avk_pause();
     int avk_previous();
@@ -86,6 +100,7 @@ protected:
 
 public:
     int do_transact_event(BT_EVENT event);
+    int do_transact_disc_results(char *reply, int *len);
 };
 
 

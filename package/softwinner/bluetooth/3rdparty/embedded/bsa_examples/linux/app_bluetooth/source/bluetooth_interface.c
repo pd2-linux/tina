@@ -45,6 +45,7 @@
 extern tAPP_MGR_CB app_mgr_cb;
 static tBSA_SEC_IO_CAP g_sp_caps = 0;
 extern tAPP_XML_CONFIG         app_xml_config;
+tAPP_DISCOVERY_CB app_discovery_cb;
 extern tAPP_AVK_CB app_avk_cb;
 char bta_conf_path[MAX_PATH_LEN] = {0};
 
@@ -56,8 +57,84 @@ static int discoverable;
 static int connectable;
 
 //tAvkCallback
+static void app_disc_callback(tBSA_DISC_EVT event, tBSA_DISC_MSG *p_data);
 static void app_avk_callback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data);
 static void app_hs_callback(tBSA_HS_EVT event, tBSA_HS_MSG *p_data);
+
+static int store_disc_results(char *buf, int *buf_len)
+{
+    int num = 0, index = 0, bd_addr = 0;
+	  char *pw = NULL, snum[10];
+	  int  len = 0;
+	  
+	  pw = buf;
+	  len = 0;
+	  for (index = 0; index < APP_DISC_NB_DEVICES; index++)
+    {
+        if (app_discovery_cb.devs[index].in_use != FALSE)
+        {
+        	  num++;
+        	  len=len+4;
+        	  
+        	  sprintf(pw, "Dev:%d", num);
+        	  pw=pw+4;
+        	  if(num<10){
+        	      len = len+1;
+        	      pw=pw+1;  
+        	  }else if(num<100){
+        	      len=len+2;
+        	      pw=pw+2;
+        	  }else{
+        	      goto end;
+        	  }
+        	  
+        	  sprintf(pw, "\tBdaddr:%02x:%02x:%02x:%02x:%02x:%02x",
+                    app_discovery_cb.devs[index].device.bd_addr[0],
+                    app_discovery_cb.devs[index].device.bd_addr[1],
+                    app_discovery_cb.devs[index].device.bd_addr[2],
+                    app_discovery_cb.devs[index].device.bd_addr[3],
+                    app_discovery_cb.devs[index].device.bd_addr[4],
+                    app_discovery_cb.devs[index].device.bd_addr[5]);
+            len = len+25;
+            pw=pw+25;
+
+            sprintf(pw, "\tName:%s", app_discovery_cb.devs[index].device.name);
+            len=len+6;
+            len=len+strlen(app_discovery_cb.devs[index].device.name);
+            pw=pw+6;
+            pw=pw+strlen(app_discovery_cb.devs[index].device.name);
+            
+            *pw='\n';
+            len=len+1;
+            pw=pw+1;
+        }
+    }
+
+end:
+	  *pw='\0';
+	  *buf_len = len;    
+    if(num > 0){
+        *(pw-1)='\0';
+        *buf_len = (len-1);
+    }
+    
+    return 	num;    	
+}
+
+static void app_disc_callback(tBSA_DISC_EVT event, tBSA_DISC_MSG *p_data)
+{
+	  int num = 0;
+	  char buf[4096] = {0};
+	  int len = 4096;
+	  
+    switch(event)
+    {
+    	  case BSA_DISC_CMPL_EVT: /* Discovery complete. */
+        num = store_disc_results(buf, &len);
+        bt_event_transact(p_sbt, APP_MGR_DISC_RESULTS, buf, &len);
+        break;
+    }	
+}
 
 static void app_avk_callback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
 {
@@ -66,7 +143,7 @@ static void app_avk_callback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
 	  	  case BSA_AVK_OPEN_EVT:
 	  	  {
 	  	      printf("avk connected!\n");
-	  	      bt_event_transact(p_sbt, APP_AVK_CONNECTED_EVT);
+	  	      bt_event_transact(p_sbt, APP_AVK_CONNECTED_EVT, NULL, NULL);
 	  	      bdcpy(cur_connected_dev, p_data->open.bd_addr);
 	  	      store_connected_dev(cur_connected_dev);   
 	  	      break;	
@@ -74,7 +151,7 @@ static void app_avk_callback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
 	  	  case BSA_AVK_CLOSE_EVT:
 	  	  {
 	  	      printf("avk disconnected!\n");
-            bt_event_transact(p_sbt, APP_AVK_DISCONNECTED_EVT);
+            bt_event_transact(p_sbt, APP_AVK_DISCONNECTED_EVT, NULL, NULL);
             memset(cur_connected_dev, 0, sizeof(cur_connected_dev));
 	  	      break;	
 	  	  }
@@ -83,14 +160,14 @@ static void app_avk_callback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
 	      	  if(p_data->start.streaming == TRUE)
 	      	  {
                 printf("BT is playing music!\n");
-                bt_event_transact(p_sbt, APP_AVK_START_EVT);
+                bt_event_transact(p_sbt, APP_AVK_START_EVT, NULL, NULL);
 	      	  }
 	      	  break;
 	      }
 	      case BSA_AVK_STOP_EVT:
 	      {
 	      	  printf("BT is stop music!\n");
-	      	  bt_event_transact(p_sbt, APP_AVK_STOP_EVT);
+	      	  bt_event_transact(p_sbt, APP_AVK_STOP_EVT, NULL, NULL);
 	      	  break;
 	      }
 	      
@@ -106,13 +183,13 @@ static void app_hs_callback(tBSA_HS_EVT event, tBSA_HS_MSG *p_data)
         case BSA_HS_CONN_EVT:
         {
             printf("hs connected!\n");
-            bt_event_transact(p_sbt, APP_HS_CONNECTED_EVT);	
+            bt_event_transact(p_sbt, APP_HS_CONNECTED_EVT, NULL, NULL);	
             break;	
         }
         case BSA_HS_CLOSE_EVT:
         {
         	  printf("hs disconnected!\n");
-        	  bt_event_transact(p_sbt, APP_AVK_DISCONNECTED_EVT);
+        	  bt_event_transact(p_sbt, APP_AVK_DISCONNECTED_EVT, NULL, NULL);
         	  break;
         }	
         case BSA_HS_AUDIO_OPEN_EVT:
@@ -250,6 +327,11 @@ void s_set_connectable(int enable)
         connectable=0;
     }
     app_dm_set_visibility(discoverable, connectable);	
+}
+
+void s_start_discovery(int time)
+{
+	  app_disc_start_regular(app_disc_callback);
 }
 
 void s_set_volume(int volume)
@@ -413,6 +495,11 @@ void s_set_discoverable(int enable)
 void s_set_connectable(int enable)
 {
     ;	
+}
+
+void s_start_discovery(int time)
+{
+	  ;
 }
 
 void s_set_volume(int volume)

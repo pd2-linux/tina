@@ -12,6 +12,7 @@ const char* UNIX_DOMAIN = "tina-bluetooth-service";
 c_bt::c_bt(){
     bt_wd[0] = '.';
     bt_wd[1] = '\0';
+    disc_flag = 0;
 }
 
 c_bt::~c_bt(){
@@ -71,6 +72,42 @@ void c_bt::onTransact(request_t* request,data_t* data){
         }
         break;
     }
+    
+    case BT_CMD_TRANSACT_DISC_RESULTS:
+    {
+    	  char *buf, *ptr;
+    	  int len = 0;
+    	  
+    	  buf = (char *)data->buf;
+    	  len = data->len;
+    	  
+    	  if(len == 0){
+    	      disc_flag = 1;
+    	      dev_info[0] = '\0';
+    	      break;
+    	  }
+    	  
+    	  /* parse disc result */
+    	  strncpy(dev_info, buf, 4095);
+    	  dev_info[4095] = '\0';
+    	  
+    	  ptr = strstr(dev_info, "Dev:");
+    	  while(ptr != NULL){
+    	      dev_nums++;
+    	      buf=strchr(ptr, '\n');
+    	      if(buf != NULL){
+    	          buf++;
+    	          ptr = strstr(buf, "Dev:");    
+    	      }else{
+    	          ptr = NULL;
+    	      }
+    	  }
+    	  
+    	  disc_flag = 1;
+    	  break;
+    }
+    
+    
     default:
         printf("s_bt code: %x\n",request->code);
 
@@ -146,6 +183,48 @@ int c_bt::set_dev_connectable(int enable)
     
 	  transact(&request, &senddata);
     return 0;    	
+}
+
+int c_bt::start_discovery(int time)
+{
+    request_t  request;
+    bt_data    data;
+    data_t     senddata;
+    
+    memset(&request, 0 ,sizeof(request));
+    request.code = BT_CMD_START_DISCOVERY;
+    
+    memset(&senddata, 0, sizeof(senddata));
+    memset(&data, 0, sizeof(data));
+    data.data1 = time;   
+    senddata.buf = (void *)&data;
+    senddata.len = sizeof(data);
+	  transact(&request, &senddata);
+	  
+	  dev_nums = 0;
+	  disc_flag = 0;
+    return 0;	
+}
+
+int c_bt::get_disc_results(char *disc_results, int *len)
+{  
+	  int times = 0;
+	  
+	  while((disc_flag == 0) && (times < 300)){
+	      usleep(100*1000);
+	      times++;
+	  }
+	  
+	  if(disc_flag == 0 || dev_nums == 0){
+	      disc_results[0] = '\0';
+	      *len = 0;
+	      return 0;
+	  }else{
+	      strncpy(disc_results, dev_info, *len);
+	      *len = strlen(dev_info);
+	      disc_results[*len] = '\0';
+	      return dev_nums;
+	  }
 }
 
 int c_bt::avk_play()
@@ -305,6 +384,20 @@ void s_bt::onTransact(request_t* request,data_t* data){
         break;        	
     }
     
+    case BT_CMD_START_DISCOVERY:
+    {
+        bt_data  *s_data;
+        int time;
+        
+        if (data && data->buf){
+            s_data = (bt_data *)data->buf;
+            
+            time = s_data->data1;
+            s_start_discovery(time);
+        }
+        break;	
+    }
+    
     case BT_CMD_PLAY:
     {
         printf("s play comming\n");
@@ -390,7 +483,7 @@ void s_bt::onTransact(request_t* request,data_t* data){
 int s_bt::do_transact_event(BT_EVENT event)
 {
 	  request_t  request;
-    bt_data data;
+	  bt_data data;
     data_t senddata;
     
     printf("do transact event %d\n", event);
@@ -409,12 +502,30 @@ int s_bt::do_transact_event(BT_EVENT event)
 	  transact(&request,&senddata);
 }
 
-extern "C" void bt_event_transact(s_bt *p, APP_BT_EVENT event)
+int s_bt::do_transact_disc_results(char *reply, int *len)
+{
+	  request_t  request;
+    data_t senddata;
+    
+    memset(&request, 0 ,sizeof(request));
+    request.code = BT_CMD_TRANSACT_DISC_RESULTS;
+    request.client_handle = m_clientfd;
+    
+    memset(&senddata, 0, sizeof(senddata));
+    senddata.buf = (void *)reply;
+    senddata.len = *len;
+	  
+	  transact(&request,&senddata);
+}
+
+extern "C" void bt_event_transact(s_bt *p, APP_BT_EVENT event, char *reply, int *len)
 {
     switch(event)
     {
     	  case APP_AVK_CONNECTED_EVT:
     	  {
+    	  	  bt_data data;
+    	  	  data.data1=
     	      p->do_transact_event(BT_AVK_CONNECTED_EVT);
     	      break;	
     	  }
@@ -436,6 +547,12 @@ extern "C" void bt_event_transact(s_bt *p, APP_BT_EVENT event)
         {
             p->do_transact_event(BT_AVK_STOP_EVT);
             break;
+        }
+        
+        case APP_MGR_DISC_RESULTS:
+        {
+        	  p->do_transact_disc_results(reply, len);
+            break;	
         }
         
         default:

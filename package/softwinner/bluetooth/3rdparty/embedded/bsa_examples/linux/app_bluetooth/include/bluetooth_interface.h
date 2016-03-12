@@ -14,12 +14,14 @@ enum APP_BT_EVENT{
     APP_HS_DISCONNECTED_EVT = 6,
     APP_HS_AUDIO_OPEN_EVT = 7,
     APP_HS_AUDIO_CLOSE_EVT =8,
+    APP_MGR_DISC_RESULTS = 9,
 };
 
 int bluetooth_start(void *p, char *p_conf);
 void s_set_bt_name(const char *name);
 void s_set_discoverable(int enable);
 void s_set_connectable(int enable);
+void s_start_discovery(int time);
 void s_set_volume(int volume);
 void s_set_volume_up();
 void s_set_volume_down();
