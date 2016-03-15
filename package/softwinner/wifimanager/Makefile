@@ -80,12 +80,11 @@ define Package/wifimanager/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/usr/include
 	$(INSTALL_DIR) $(1)/etc/wifi
-	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libwifimg.so $(1)/usr/lib
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/*.h $(1)/usr/include
 	$(INSTALL_DATA) ./src/wpa_supplicant.conf $(1)/etc/wifi
-	$(INSTALL_BIN) ./wifi.init $(1)/etc/init.d/wifi
-	$(INSTALL_BIN) ./udhcpc_wlan0.init $(1)/etc/init.d/udhcpc_wlan0
+	$(INSTALL_BIN) ./wifi.init $(1)/etc/wifi/wifi
+	$(INSTALL_BIN) ./udhcpc_wlan0.init $(1)/etc/wifi/udhcpc_wlan0
 endef
 
 define Package/wifimanager-demo/install

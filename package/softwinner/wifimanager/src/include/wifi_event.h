@@ -23,6 +23,7 @@ enum WPA_EVENT{
 };
 
 void wifi_event_loop(tWifi_event_callback pcb);
+void start_check_connect_timeout();
 
 #if __cplusplus
 };  // extern "C"

@@ -375,7 +375,7 @@ int wifi_start_supplicant(int p2p_supported)
     exit_sockets[0] = exit_sockets[1] = -1;
     
     /* start wpa_supplicant */
-    strncpy(cmd, "/etc/init.d/wifi start", 511);
+    strncpy(cmd, "/etc/wifi/wifi start", 511);
     cmd[511] = '\0';
     system(cmd);
     
@@ -384,7 +384,7 @@ int wifi_start_supplicant(int p2p_supported)
 
 int wifi_stop_supplicant(int p2p_supported)
 {
-	  system("/etc/init.d/wifi stop");
+	  system("/etc/wifi/wifi stop");
 	  return 0;
 }
 

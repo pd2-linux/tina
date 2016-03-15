@@ -2,10 +2,13 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include<unistd.h>
 
 #include "wifi.h"
 #include "wifi_event.h"
 #include "wifi_intf.h"
+
+extern void start_udhcpc_thread(tWifi_event_callback pcb, void *args);
 
 extern int gwifi_state;
 static tWifi_event_callback p_event_callback = NULL;
@@ -23,10 +26,9 @@ static void handle_event(int event, char * remainder) {
         case CONNECTED:
             printf("Network connected!\n");
             gwifi_state = NETWORK_CONNECTED;
-            printf("Connected event data: %s\n", remainder);
-            if (p_event_callback) {
-        	      p_event_callback(NETWORK_CONNECTED, remainder);
-        	  }
+            
+            /* start udhcpcd */
+            start_udhcpc_thread(p_event_callback, (void *)remainder);
             break;
         
         case SCAN_RESULTS:
@@ -162,6 +164,7 @@ void *event_handle_thread(void* args)
         }
     }
     
+    pthread_exit(NULL);
     printf("event handle thread exit!\n");	
 }
 
@@ -170,4 +173,32 @@ void wifi_event_loop(tWifi_event_callback pcb)
     pthread_t thread_id;
     p_event_callback = pcb;
     pthread_create(&thread_id, NULL, &event_handle_thread, NULL);	
+}void *check_connect_timeout(void *args)
+{
+	  int i = 0;
+    
+    i = 0;        
+    do {
+        usleep(100000);
+        if (gwifi_state == PASSWORD_FAILED){
+        	  printf("Exit: password failed!\n");
+            break;	
+        }	
+        i++;  
+    } while((gwifi_state != NETWORK_CONNECTED) && (i < 30)); 
+		
+		if (gwifi_state == NETWORK_DISCONNECTED){
+		    if (p_event_callback) {
+            p_event_callback(CONNECT_TIMEOUT, NULL);
+        }
+		}
+		
+		pthread_exit(NULL);
+}
+
+
+void start_check_connect_timeout()
+{
+    pthread_t check_timeout_id;
+    pthread_create(&check_timeout_id, NULL, &check_connect_timeout, NULL);
 }

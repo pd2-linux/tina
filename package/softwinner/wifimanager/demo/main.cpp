@@ -30,6 +30,12 @@ static void wifi_event_handle(tWIFI_STATE wifi_state, void *buf)
             break;	
         }
         
+        case CONNECT_TIMEOUT:
+        {
+            printf("Connected timeout!\n");
+            break;	
+        }
+        
         default:
         {
             printf("Other event, no care!\n");	
@@ -53,16 +59,23 @@ int main(int argv, char *argc[]){
     usleep(2000000);
     len = 4096;
     get_scan_results(scan_results, &len);
+    printf("scan results:\n");
+    printf("%s\n", scan_results);
     
-    //connect_ap("BU2-PD2", "awtbu2pd2");
     connect_ap_key_mgmt(argc[1], WPA_PSK, argc[2]);
     //connect_ap(argc[1], argc[2]);
+    usleep(1000000);
     
     len = 256;
     ret = is_ap_connected(ssid, &len);
     if(ret){
         printf("Connected ap %s\n", ssid);
     }
+    
+    disconnect_ap();
+    usleep(1000000);
+    
+    connect_ap_auto();
     
 /********************************************************/
    
