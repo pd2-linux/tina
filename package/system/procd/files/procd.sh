@@ -28,7 +28,11 @@
 #   Kill a service instance (or all instances)
 #
 
-. $IPKG_INSTROOT/usr/share/libubox/jshn.sh
+if [ -f $IPKG_INSTROOT/usr/share/libubox/jshn.sh ]; then
+    . $IPKG_INSTROOT/usr/share/libubox/jshn.sh
+else
+    . $IPKG_INSTROOT/lib/functions/jshn.sh
+fi
 
 _PROCD_SERVICE=
 
