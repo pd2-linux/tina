@@ -76,7 +76,7 @@ static int init_socket(){
 
 void aw_smartlinkd_prepare(){
 	//stop wpa_supplicant
-	system("/etc/init.d/wifi stop");
+	system("/etc/wifi/wifi stop");
 	//up the wlan
 	system("ifconfig wlan0 up");
 }
