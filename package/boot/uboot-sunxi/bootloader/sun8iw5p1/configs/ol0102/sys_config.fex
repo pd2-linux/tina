@@ -1200,7 +1200,7 @@ aif3_used              = 0
 headphone_mute_used = 0
 DAC_VOL_CTRL_SPK        = 0xa0a0
 DAC_VOL_CTRL_HEADPHONE = 0xa0a0
-agc_used	= 0
+agc_used	= 1
 drc_used	= 0
 ;-------------------------------------------------------------------------------------
 ;pmu_used                    ---0:not used,1:used
