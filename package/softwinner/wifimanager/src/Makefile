@@ -12,7 +12,7 @@ install:
 
 #libwifimg.so
 $(target): $(SRCS) libwpa_cli.a
-	$(CXX) -fPIC -shared $(INCLUDES) $(LDFLAGS) $^ -o $@ $(LIBS)
+	$(CC) -fPIC -shared $(INCLUDES) $(LDFLAGS) $^ -o $@ $(LIBS)
 	@cp $@ $(CONFIG_PREFIX)/usr/lib
 
 ####################################################################

@@ -70,17 +70,17 @@ define Build/Compile
 endef
 
 define Build/InstallDev
-	$(INSTALL_DIR) $(1)/usr/lib
+	$(INSTALL_DIR) $(1)/lib
 	$(INSTALL_DIR) $(1)/usr/include
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libwifimg.so $(1)/usr/lib
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libwifimg.so $(1)/lib
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/*.h $(1)/usr/include
 endef
 
 define Package/wifimanager/install
-	$(INSTALL_DIR) $(1)/usr/lib
+	$(INSTALL_DIR) $(1)/lib
 	$(INSTALL_DIR) $(1)/usr/include
 	$(INSTALL_DIR) $(1)/etc/wifi
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libwifimg.so $(1)/usr/lib
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libwifimg.so $(1)/lib
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/*.h $(1)/usr/include
 	$(INSTALL_DATA) ./src/wpa_supplicant.conf $(1)/etc/wifi
 	$(INSTALL_BIN) ./wifi.init $(1)/etc/wifi/wifi
@@ -88,8 +88,8 @@ define Package/wifimanager/install
 endef
 
 define Package/wifimanager-demo/install
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/wifitest $(1)/usr/bin 
+	$(INSTALL_DIR) $(1)/bin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/wifitest $(1)/bin 
 endef
 
 $(eval $(call BuildPackage,wifimanager))
