@@ -13,6 +13,7 @@ void bt_event_f(BT_EVENT event)
     	  	  printf("Media audio connected!\n");
     	  	  c.set_dev_discoverable(0);
     	  	  c.set_dev_connectable(0);
+    	  	  status = 1;
     	  	  break;
     	  }
     	  
@@ -21,20 +22,19 @@ void bt_event_f(BT_EVENT event)
     	  	  printf("Media audio disconnected");
     	  	  c.set_dev_connectable(1);
     	  	  c.set_dev_discoverable(1);
+    	  	  status = 0;
     	  	  break;
     	  }
     	  
     	  case BT_AVK_START_EVT:
     	  {
     	  	  printf("Media start playing!\n");
-    	  	  status = 1;
     	  	  break;
     	  }
     	  
     	  case BT_AVK_STOP_EVT:
     	  {
     	      printf("Media stop playing!\n");
-    	      status = 0;
     	      break;	
     	  }
     	  
@@ -45,19 +45,39 @@ void bt_event_f(BT_EVENT event)
 
 
 int main(int argc, char *args[]){
+    int times = 0;
     
     if(argc >= 2){
         c.set_bt_wd(args[1]);
     }
+    
+    c.set_callback(bt_event_f);
     
     if(argc >= 3){
        c.bt_on(args[2]);
     } else {
        c.bt_on(NULL); 
     }
-      
-    usleep(2000*1000);
-    c.do_test();
+    
+    while(status == 0){
+    	  printf("wait bt connected!\n");
+        usleep(1000*1000);
+    }
+    
+    while(1){
+    	  usleep(20000*1000);
+    	  if (status == 1){
+    	  	  printf("BT connected, disconnect!\n");
+    	      c.disconnect();
+    	  }
+    	  
+    	  usleep(10000*1000);
+    	  
+        if(status == 0){
+        	  printf("BT disconnect, auto connect!\n");
+            c.connect_auto();
+        }
+    }
     
 /*    
     c.bt_off();
@@ -66,8 +86,6 @@ int main(int argc, char *args[]){
     printf("bt do second test!\n");
     c.do_test();
     c.set_bt_name("aw bt test001");
-    c.set_callback(bt_event_f);
- 
  
     while(1){
         usleep(2000*1000);

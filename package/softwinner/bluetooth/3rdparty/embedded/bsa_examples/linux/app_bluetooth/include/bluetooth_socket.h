@@ -16,6 +16,8 @@ enum {
     BT_CMD_SET_DISCOVERABLE,
     BT_CMD_SET_CONNECTABLE,
     BT_CMD_START_DISCOVERY,
+    BT_CMD_CONNECT_AUTO,
+    BT_CMD_DISCONNECT,
     BT_CMD_PLAY,
     BT_CMD_PAUSE,
     BT_CMD_PRE,
@@ -78,7 +80,9 @@ public:
     int set_dev_discoverable(int enable);
     int set_dev_connectable(int enable);
     int start_discovery(int time);
-    int get_disc_results(char *disc_results, int *len);   
+    int get_disc_results(char *disc_results, int *len);
+    int connect_auto();
+    int disconnect();   
     int avk_play();
     int avk_pause();
     int avk_previous();

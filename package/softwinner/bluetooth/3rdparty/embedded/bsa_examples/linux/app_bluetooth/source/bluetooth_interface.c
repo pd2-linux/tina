@@ -142,7 +142,7 @@ static void app_avk_callback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
 	  {
 	  	  case BSA_AVK_OPEN_EVT:
 	  	  {
-	  	      printf("avk connected!\n");
+	  	      APP_DEBUG0("avk connected!\n");
 	  	      bt_event_transact(p_sbt, APP_AVK_CONNECTED_EVT, NULL, NULL);
 	  	      bdcpy(cur_connected_dev, p_data->open.bd_addr);
 	  	      store_connected_dev(cur_connected_dev);   
@@ -150,7 +150,7 @@ static void app_avk_callback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
 	  	  }
 	  	  case BSA_AVK_CLOSE_EVT:
 	  	  {
-	  	      printf("avk disconnected!\n");
+	  	      APP_DEBUG0("avk disconnected!\n");
             bt_event_transact(p_sbt, APP_AVK_DISCONNECTED_EVT, NULL, NULL);
             memset(cur_connected_dev, 0, sizeof(cur_connected_dev));
 	  	      break;	
@@ -159,14 +159,14 @@ static void app_avk_callback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
 	      {
 	      	  if(p_data->start.streaming == TRUE)
 	      	  {
-                printf("BT is playing music!\n");
+                APP_DEBUG0("BT is playing music!\n");
                 bt_event_transact(p_sbt, APP_AVK_START_EVT, NULL, NULL);
 	      	  }
 	      	  break;
 	      }
 	      case BSA_AVK_STOP_EVT:
 	      {
-	      	  printf("BT is stop music!\n");
+	      	  APP_DEBUG0("BT is stop music!\n");
 	      	  bt_event_transact(p_sbt, APP_AVK_STOP_EVT, NULL, NULL);
 	      	  break;
 	      }
@@ -182,19 +182,19 @@ static void app_hs_callback(tBSA_HS_EVT event, tBSA_HS_MSG *p_data)
     {
         case BSA_HS_CONN_EVT:
         {
-            printf("hs connected!\n");
+            APP_DEBUG0("hs connected!\n");
             bt_event_transact(p_sbt, APP_HS_CONNECTED_EVT, NULL, NULL);	
             break;	
         }
         case BSA_HS_CLOSE_EVT:
         {
-        	  printf("hs disconnected!\n");
+        	  APP_DEBUG0("hs disconnected!\n");
         	  bt_event_transact(p_sbt, APP_AVK_DISCONNECTED_EVT, NULL, NULL);
         	  break;
         }	
         case BSA_HS_AUDIO_OPEN_EVT:
         {
-            printf("hs audio open!\n");
+            APP_DEBUG0("hs audio open!\n");
             break;	
         } 			
     }   	
@@ -391,6 +391,19 @@ void s_set_volume_down()
     }	
 }
 
+void s_connect_auto()
+{
+    memset(last_connected_dev, 0, sizeof(last_connected_dev));
+    read_connected_dev(last_connected_dev);
+    app_avk_auto_connect(last_connected_dev);    	
+}
+
+void s_disconnect()
+{
+    app_avk_close(cur_connected_dev);	
+}
+
+
 void s_avk_play()
 {
     tAPP_AVK_CONNECTION *connection = NULL;
@@ -453,12 +466,12 @@ void s_avk_play_next()
 
 void s_hs_pick_up()
 {
-    app_hs_answer_call();	
+    app_hs_answer_call();
 }
 
 void s_hs_hung_up()
 {
-    app_hs_hangup();    	
+    app_hs_hangup();
 }
 
 void bluetooth_stop()
@@ -484,7 +497,7 @@ int bluetooth_start(void *p, char *p_conf)
 
 void s_set_bt_name(const char *name)
 {
-    ;	
+    ;
 }
 
 void s_set_discoverable(int enable)
@@ -494,7 +507,7 @@ void s_set_discoverable(int enable)
 
 void s_set_connectable(int enable)
 {
-    ;	
+    ;
 }
 
 void s_start_discovery(int time)
@@ -504,7 +517,7 @@ void s_start_discovery(int time)
 
 void s_set_volume(int volume)
 {
-    ;	
+    ;
 }
 
 void s_set_volume_up()
@@ -514,7 +527,17 @@ void s_set_volume_up()
 
 void s_set_volume_down()
 {
-    ;	
+    ;
+}
+
+void s_connect_auto()
+{
+    ;
+}
+
+void s_disconnect()
+{
+	  ;
 }
 
 void s_avk_play()

@@ -64,7 +64,6 @@ void c_bt::onTransact(request_t* request,data_t* data){
     	  {
             bt_data* d = (bt_data*)data->buf;
             BT_EVENT rec_event = (BT_EVENT)(d->data1);
-            printf("BT EVENT %d comming\n", rec_event);
             if(pBtCb != NULL)
             {
                 pBtCb(rec_event);    	
@@ -227,6 +226,28 @@ int c_bt::get_disc_results(char *disc_results, int *len)
 	  }
 }
 
+int c_bt::connect_auto()
+{
+    request_t  request;
+	  
+	  memset(&request, 0 ,sizeof(request));
+    request.code = BT_CMD_CONNECT_AUTO;
+    
+	  transact(&request,NULL);
+    return 0;	
+}
+
+int c_bt::disconnect()
+{
+    request_t  request;
+	  
+	  memset(&request, 0 ,sizeof(request));
+    request.code = BT_CMD_DISCONNECT;
+    
+	  transact(&request,NULL);
+    return 0;	
+}
+
 int c_bt::avk_play()
 {
 	  request_t  request;
@@ -304,9 +325,6 @@ void c_bt::do_test()
 	  bt_data data;
     data_t senddata;
     
-    printf("This is test socket!\n");
-    printf("Client T->BT\n");
-    
     memset(&request, 0 ,sizeof(request));
     request.code = BT_CMD_DO_TEST;
     
@@ -344,8 +362,7 @@ void s_bt::onTransact(request_t* request,data_t* data){
     	  char bt_name[BT_NAME_PATH_LEN] = {0};
         if (data && data->buf) {
             memcpy(bt_name, data->buf, BT_NAME_PATH_LEN - 1);
-            bt_name[BT_NAME_PATH_LEN - 1] = '\0';
-            printf("set bt name %s\n", bt_name);  
+            bt_name[BT_NAME_PATH_LEN - 1] = '\0';  
         }
     	  s_set_bt_name(bt_name);
     	  break;
@@ -355,8 +372,7 @@ void s_bt::onTransact(request_t* request,data_t* data){
     {
         bt_data  *s_data;
         if (data && data->buf){
-            s_data = (bt_data *)data->buf; 
-            printf("set discoverable %d\n", s_data->data1);
+            s_data = (bt_data *)data->buf;
         
             if(s_data->data1 != 0){
                 s_set_discoverable(1);
@@ -373,7 +389,6 @@ void s_bt::onTransact(request_t* request,data_t* data){
         
         if (data && data->buf){
             s_data = (bt_data *)data->buf;
-            printf("set connectable %d\n", s_data->data1);
             
             if(s_data->data1 != 0){
                 s_set_connectable(1);
@@ -398,30 +413,38 @@ void s_bt::onTransact(request_t* request,data_t* data){
         break;	
     }
     
+    case BT_CMD_CONNECT_AUTO:
+    {
+        s_connect_auto();
+        break;	
+    }
+    
+    case BT_CMD_DISCONNECT:
+    {
+        s_disconnect();
+        break;	
+    }
+    
     case BT_CMD_PLAY:
     {
-        printf("s play comming\n");
         s_avk_play();
         break;
     }
     
     case BT_CMD_PAUSE:
     {
-        printf("s pause comming\n");
         s_avk_pause();
         break;
     }
     
     case BT_CMD_PRE:
     {
-        printf("s previous comming\n");
         s_avk_play_previous();
         break;
     }
     
     case BT_CMD_NEXT:
     {
-        printf("s next comming\n");
         s_avk_play_next();
         break;
     }
@@ -429,20 +452,17 @@ void s_bt::onTransact(request_t* request,data_t* data){
     case BT_CMD_PICK_UP:
     {
     	  s_hs_pick_up();
-    	  printf("s pick up cmd comming\n");
     	  break;
     }
     
     case BT_CMD_HUNG_UP:
     {
     	  s_hs_hung_up();
-    	  printf("s hung up cmd comming\n");
     	  break;
     }
         
     case TRANSACT_CODE_CLIENT_CONNECT:
     {
-        printf("client connected\n");
         m_clientfd = request->client_handle;
         break;
     }
@@ -456,7 +476,6 @@ void s_bt::onTransact(request_t* request,data_t* data){
 
     case BT_CMD_DO_TEST:
     {
-    	  printf("server received test\n");
     	  if(data->len == sizeof(bt_data))
     	  {
     	      bt_data* d = (bt_data*)data->buf;
@@ -524,8 +543,6 @@ extern "C" void bt_event_transact(s_bt *p, APP_BT_EVENT event, char *reply, int 
     {
     	  case APP_AVK_CONNECTED_EVT:
     	  {
-    	  	  bt_data data;
-    	  	  data.data1=
     	      p->do_transact_event(BT_AVK_CONNECTED_EVT);
     	      break;	
     	  }

@@ -25,6 +25,8 @@ void s_start_discovery(int time);
 void s_set_volume(int volume);
 void s_set_volume_up();
 void s_set_volume_down();
+void s_connect_auto();
+void s_disconnect();
 void s_avk_play();
 void s_avk_pause();
 void s_avk_play_previous();
