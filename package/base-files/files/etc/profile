@@ -15,3 +15,4 @@ export PS1='\u@\h:\w\$ '
 [ -x /usr/bin/ldd ] || ldd() { LD_TRACE_LOADED_OBJECTS=1 $*; }
 
 [ -x /bin/ll ] || alias ll='ls -al'
+[ -x /sbin/aw_reboot.sh ] && alias reboot='aw_reboot.sh'
