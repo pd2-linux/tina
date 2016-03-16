@@ -59,7 +59,13 @@ size = 16384
 
 [partition]
     name         = rootfs_data
-    size         = 32768
+    size         = 36864
+    user_type    = 0x8000
+
+
+[partition]
+    name         = misc
+    size         = 8
     user_type    = 0x8000
 
 [partition]
