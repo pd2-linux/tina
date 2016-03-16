@@ -1,6 +1,9 @@
 #!/bin/ash
 # $1: on or off
 
+BSA_SERVER=/usr/bin/bsa_server
+APP_BLUETOOTH=/usr/bin/app_bluetooth
+
 bt_on()
 {
   echo 0 > /sys/class/rfkill/rfkill0/state
@@ -12,9 +15,9 @@ bt_on()
   echo bt addr path $2
   cd $1
 
-  /etc/bluetooth/bsa_server -all=0 -d /dev/ttyS1 -p /lib/firmware/ap6212/bcm43438a0.hcd -r 12 &
+  $BSA_SERVER -all=0 -d /dev/ttyS1 -p /lib/firmware/ap6212/bcm43438a0.hcd -r 12 &
   sleep 2
-  /etc/bluetooth/app_bluetooth $2 &
+  $APP_BLUETOOTH $2 &
 }
 
 bt_off()

@@ -133,15 +133,16 @@ endef
 define Package/bluetooth/install
 	$(INSTALL_DIR) $(1)/etc/bluetooth
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bsa_server $(1)/etc/bluetooth/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/app_bluetooth $(1)/etc/bluetooth/
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bsa_server $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/app_bluetooth $(1)/usr/bin/
 	$(INSTALL_BIN) ./btenable.sh $(1)/etc/bluetooth/
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libbtapp.so $(1)/usr/lib
 endef
 
 define Package/bluetooth-demo/install
-	$(INSTALL_DIR) $(1)/etc/bluetooth
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bt_demo $(1)/etc/bluetooth/  
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bt_demo $(1)/usr/bin/  
 endef
 
 
