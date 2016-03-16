@@ -16,7 +16,8 @@ do_check_jffs2(){ #1 device
 		echo "formating " $1 "to jffs2..."
 		mkdir /tmp/jffs2
 		touch /tmp/jffs2/.mount_data
-		dd if=/dev/zero of=/tmp/jffs2/.mount_data bs=1024 count=1
+		#dd if=/dev/zero of=/tmp/jffs2/.mount_data bs=1024 count=1
+                echo "mounted" > /tmp/jffs2/.mount_data 
 		mkfs.jffs2 -p 0x4000000 -d /tmp/jffs2 -o /tmp/jffs2.img
 		dd if=/tmp/jffs2.img of=$1
 		rm -rf /tmp/jffs2 /tmp/jffs2.img
