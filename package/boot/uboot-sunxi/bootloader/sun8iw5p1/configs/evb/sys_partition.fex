@@ -63,8 +63,8 @@ size = 16384
     user_type    = 0x8000
 
 [partition]
-    name         = private
-    size         = 8192
+    name         = misc
+    size         = 8
     user_type    = 0x8000
 
 [partition]
