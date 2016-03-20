@@ -386,7 +386,7 @@ static void app_avk_handle_start(tBSA_AVK_MSG *p_data, tAPP_AVK_CONNECTION *conn
             }
             
             /* set output */
-            mixer_set("Speaker Function",1);
+            mixer_set("Speaker Function",2);
         }
 #endif
     }
@@ -464,6 +464,18 @@ static void app_avk_cback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
             }
             else
                 app_avk_close_wave_file(connection);
+            
+            /* close alsa dev */
+            if (connection->format == BSA_AVK_CODEC_PCM){
+#ifdef PCM_ALSA
+                /* If ALSA PCM driver was already open => close it */
+                if (app_avk_cb.alsa_handle != NULL)
+                {
+                    snd_pcm_close(app_avk_cb.alsa_handle);
+                    app_avk_cb.alsa_handle = NULL;
+                }
+#endif /* PCM_ALSA */
+            }
         }
         app_avk_reset_connection(connection->bda_connected);
         break;
@@ -482,6 +494,7 @@ static void app_avk_cback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
         }
         else
         {
+        	  APP_DEBUG1("p_data->start.discarded %d\n", p_data->start.discarded);
             /* We got START_EVT for a new device that is streaming but server discards the data
                 because another stream is already active */
             if(p_data->start.discarded)

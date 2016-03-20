@@ -35,6 +35,7 @@
 
 #include "app_manager.h"
 #include "app_avk.h"
+#include "app_hs.h"
 #include "bluetooth_interface.h"
 
 #define MAX_PATH_LEN  256
@@ -138,14 +139,19 @@ static void app_disc_callback(tBSA_DISC_EVT event, tBSA_DISC_MSG *p_data)
 
 static void app_avk_callback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
 {
+    	
 	  switch(event)
 	  {
 	  	  case BSA_AVK_OPEN_EVT:
 	  	  {
-	  	      APP_DEBUG0("avk connected!\n");
-	  	      bt_event_transact(p_sbt, APP_AVK_CONNECTED_EVT, NULL, NULL);
-	  	      bdcpy(cur_connected_dev, p_data->open.bd_addr);
-	  	      store_connected_dev(cur_connected_dev);   
+	  	  	  /* open status must be success */
+	  	  	  if (p_data->open.status == BSA_SUCCESS){
+	  	  	      APP_DEBUG0("avk connected!\n");
+	  	  	      bt_event_transact(p_sbt, APP_AVK_CONNECTED_EVT, NULL, NULL);
+	  	  	      bdcpy(cur_connected_dev, p_data->open.bd_addr);
+	  	  	      store_connected_dev(cur_connected_dev);
+	  	  	  }
+	  	  	    
 	  	      break;	
 	  	  }
 	  	  case BSA_AVK_CLOSE_EVT:
@@ -178,11 +184,28 @@ static void app_avk_callback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
 
 static void app_hs_callback(tBSA_HS_EVT event, tBSA_HS_MSG *p_data)
 {
+    UINT16 handle = 0;
+    tBSA_HS_CONN_CB *p_conn;
+    
+    /* retrieve the handle of the connection for which this event */
+    handle = p_data->hdr.handle;
+
+    /* retrieve the connection for this handle */
+    p_conn = app_hs_get_conn_by_handle(handle);
+    	
     switch(event)
     {
         case BSA_HS_CONN_EVT:
         {
             APP_DEBUG0("hs connected!\n");
+            
+            /* check if this conneciton is already opened */
+            if (p_conn->connection_active)
+            {
+                printf("BSA_HS_CONN_EVT: connection already opened for handle %d\n", handle);
+                break;
+            }
+            
             bt_event_transact(p_sbt, APP_HS_CONNECTED_EVT, NULL, NULL);	
             break;	
         }
