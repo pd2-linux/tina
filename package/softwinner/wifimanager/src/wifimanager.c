@@ -13,6 +13,7 @@
 extern int is_ip_exist();
 
 int  gwifi_state = NETWORK_DISCONNECTED;
+char netid_connecting[NET_ID_LEN+1] = {0};
 static tWifi_event_callback event_handle = NULL;
 
 static int docommand(char const *cmd, char *reply, size_t reply_len)
@@ -289,7 +290,7 @@ static int get_max_priority()
 {
     int  ret = -1;
     int  val = -1, max_val = 0, len = 0;
-    char cmd[CMD_LEN + 1] = {0}, reply[REPLY_BUF_SIZE] = {0};
+    char cmd[CMD_LEN + 1] = {0}, reply[REPLY_BUF_SIZE] = {0}, priority[32] = {0};
     char net_id[NET_ID_LEN+1];
     char *p_n = NULL, *p_t = NULL; 
     
@@ -314,18 +315,18 @@ static int get_max_priority()
         }
         
         sprintf(cmd, "GET_NETWORK %s priority", net_id);
-        ret = docommand(cmd, reply, sizeof(reply));
+        ret = docommand(cmd, priority, sizeof(priority));
         if(ret){
             printf("do get network priority error!\n");
             return -1;
         }
         
-        val = atoi(reply);
+        val = atoi(priority);
         if(val >= max_val){
             max_val = val;
         }
         
-        p_n = strchr(reply, '\n');
+        p_n = strchr(p_n, '\n');
     }
     	
     return max_val;    	
@@ -482,10 +483,18 @@ int connect_ap(const char *ssid, const char *passwd)
     if(ret){
         printf("do save config error!\n");
         return -1;
-    }	
+    }
+    
+    /* save netid */
+    strcpy(netid_connecting, netid);	
     
     /* reconnect */
-    connect_ap_auto();
+	  sprintf(cmd, "%s", "RECONNECT");
+	  ret = docommand(cmd, reply, sizeof(reply));
+    if(ret){
+        printf("do reconnect network error!\n");
+        return -1;
+    }
     
     /* check timeout */
     start_check_connect_timeout();
@@ -607,8 +616,16 @@ int connect_ap_key_mgmt(const char *ssid, tKEY_MGMT key_mgnt, const char *passwd
         return -1;
     }
     
+    /* save netid */
+    strcpy(netid_connecting, netid);
+    
     /* reconnect */
-    connect_ap_auto();
+	  sprintf(cmd, "%s", "RECONNECT");
+	  ret = docommand(cmd, reply, sizeof(reply));
+    if(ret){
+        printf("do reconnect network error!\n");
+        return -1;
+    }
     
     /* check timeout */
     start_check_connect_timeout();
@@ -662,6 +679,8 @@ int connect_ap_auto()
     char cmd[CMD_LEN+1] = {0}, reply[REPLY_BUF_SIZE] = {0};
     char netid[NET_ID_LEN+1]={0};
     int len = 0;
+
+    netid_connecting[0] = '\0';
 
     /* reconnected */
 	  sprintf(cmd, "%s", "RECONNECT");
