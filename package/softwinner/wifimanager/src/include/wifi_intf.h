@@ -31,6 +31,7 @@ int connect_ap(const char *ssid, const char *passwd);
 int connect_ap_key_mgmt(const char *ssid, tKEY_MGMT key_mgnt, const char *passwd);
 int disconnect_ap();
 int connect_ap_auto();
+int remove_all_networks();
 
 #if __cplusplus
 };  // extern "C"

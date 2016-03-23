@@ -10,13 +10,14 @@
 
 extern char netid_connecting[];
 extern void start_udhcpc_thread(tWifi_event_callback pcb, void *args);
+extern int get_ap_connected(char *netid, int *len);
 
 extern int gwifi_state;
 static tWifi_event_callback p_event_callback = NULL;
 
 static void handle_event(int event, char * remainder) {
     char netid_connected[4] = {0};
-    int len = 3;
+    int len = 4;
             
     switch (event){
         case DISCONNECTED:
@@ -30,10 +31,9 @@ static void handle_event(int event, char * remainder) {
         	  break;
         
         case CONNECTED:
-            printf("Network connected!\n");
             if(netid_connecting[0] != '\0'){
                 /* get already connected netid */
-                is_ap_connected(netid_connected, &len);
+                get_ap_connected(netid_connected, &len);
                 if(strcmp(netid_connected,netid_connecting) != 0){
                     disconnect_ap();
                     break;
@@ -197,13 +197,14 @@ void *check_connect_timeout(void *args)
     do {
         usleep(100000);
         if (gwifi_state == PASSWORD_FAILED){
-        	  printf("Exit: password failed!\n");
+        	  printf("check_connect_timeout exit: password failed!\n");
             break;	
         }	
         i++;  
-    } while((gwifi_state != NETWORK_CONNECTED) && (i < 30)); 
+    } while((gwifi_state != NETWORK_CONNECTED) && (i < 50)); 
 		
 		if (gwifi_state == NETWORK_DISCONNECTED){
+		    gwifi_state = CONNECT_TIMEOUT;	
 		    if (p_event_callback) {
             p_event_callback(CONNECT_TIMEOUT, NULL);
         }

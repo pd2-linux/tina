@@ -25,7 +25,7 @@ static int exit_sockets[2];
 //static const char IFACE_DIR[]           = "/data/misc/wifi/sockets";
 static const char IFACE_DIR[]           = "/etc/wifi/sockets";
 static char primary_iface[IFACE_VALUE_MAX];
-static const char SUPP_CONFIG_TEMPLATE[]= "/system/etc/wifi/wpa_supplicant.conf";
+static const char SUPP_CONFIG_TEMPLATE[]= "/rom/etc/wifi/wpa_supplicant.conf";
 static const char SUPP_CONFIG_FILE[]    = "/etc/wifi/wpa_supplicant.conf";
 static const char CONTROL_IFACE_PATH[]  = "/etc/wifi/sockets";
 
@@ -294,9 +294,6 @@ int ensure_config_file_exists(const char *config_file)
     int ret;
 
     ret = access(config_file, R_OK|W_OK);
-    
-    printf("access file %s return %d\n", config_file, ret);
-    
     if ((ret == 0) || (errno == EACCES)) {
         if ((ret != 0) &&
             (chmod(config_file, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) != 0)) {
