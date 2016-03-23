@@ -9,6 +9,7 @@ override TARGET_BUILD=
 include $(INCLUDE_DIR)/prereq.mk
 include $(INCLUDE_DIR)/kernel.mk
 include $(INCLUDE_DIR)/host.mk
+include $(INCLUDE_DIR)/aw-upgrade.mk
 
 .NOTPARALLEL:
 override MAKEFLAGS=
@@ -120,7 +121,11 @@ endif
 ifneq ($(CONFIG_TARGET_ROOTFS_SQUASHFS),)
     define Image/mkfs/squashfs
 		@mkdir -p $(TARGET_DIR)/overlay
+		$(call Aw/BuildUpgradeImage/normal-prepare,$(TARGET_DIR),./temp_usr)
+		$(STAGING_DIR_HOST)/bin/mksquashfs4 ./temp_usr $(KDIR)/usr.squashfs -noappend -root-owned -comp xz
 		$(STAGING_DIR_HOST)/bin/mksquashfs4 $(TARGET_DIR) $(KDIR)/root.squashfs -noappend -root-owned -comp xz
+		
+		$(call Aw/BuildUpgradeImage/normal-resume,$(TARGET_DIR),./temp_usr)
 		$(call Image/Build,squashfs)
     endef
 endif

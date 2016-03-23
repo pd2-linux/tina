@@ -53,13 +53,20 @@ size = 16
 
 [partition]
     name         = rootfs
-    size         = 16384
+    size         = 6144
     downloadfile = "rootfs.fex"
     user_type    = 0x8000
 
 [partition]
     name         = rootfs_data
     size         = 2048
+    user_type    = 0x8000
+
+
+[partition]
+    name         = extend
+    size         = 12288
+    downloadfile = "usr.fex"
     user_type    = 0x8000
 
 [partition]

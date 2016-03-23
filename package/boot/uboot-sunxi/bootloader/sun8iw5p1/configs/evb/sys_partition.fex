@@ -63,6 +63,12 @@ size = 16384
     user_type    = 0x8000
 
 [partition]
+    name         = extend
+    size         = 32768
+    downloadfile = "usr.fex"
+    user_type    = 0x8000
+
+[partition]
     name         = misc
     size         = 8
     user_type    = 0x8000

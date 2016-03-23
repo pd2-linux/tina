@@ -205,16 +205,91 @@ function pack()
 		$P -r $O -c $CHIP -d $D -b $BOARD
 	fi
 }
+function make_img_md5(){
+    #$1: target image
+    md5sum $1 | awk '{print $1}' > $1.md5
+}
+function refresh_ota_env(){
+    local T=$(gettop)
+    list=$T/package/base-files/files/etc/config/fstab
+    for i in $list; do
+        touch $i
+    done
+}
+function clean_ota_env(){
+    local T=$(gettop)
+    local chip=sunxi
+    [ x$BOARD = x"sun5i" ] && chip=sun5i
+    local BIN_DIR=$T/bin/$chip
+    local OTA_DIR=$BIN_DIR/ota
 
+    [ -f $OTA_DIR/.config.old ] && cp $OTA_DIR/.config.old $T/.config
+    refresh_ota_env
+}
 function make_ota_image(){
-	local T=$(gettop)
-	printf "build ota package\n"
-	[ -e $T/package/utils/otabuilder/Makefile ] && 
-		make -j
-		make package/utils/otabuilder/clean -j
-		make package/utils/otabuilder/install -j
-		print_red bin/sunxi/ota_md5.tar.gz
-	printf "build ota package end\n"
+    local T=$(gettop)
+    local chip=sunxi
+    [ x$BOARD = x"sun5i" ] && chip=sun5i
+    local BIN_DIR=$T/bin/$chip
+    local OTA_DIR=$BIN_DIR/ota
+    mkdir -p $OTA_DIR
+    print_red "build ota package"
+
+    #target image
+    target_list="$BIN_DIR/boot.img $BIN_DIR/rootfs.img $BIN_DIR/usr.img"
+    [ -n $1 ] && [ x$1 = x"--force" ] && rm -rf $target_list
+    for i in $target_list; do
+        if [ ! -f $i ]; then
+            img=${i##*/}
+            print_red "$img is not exsit! rebuild the image."
+            make -j
+            break
+        fi
+    done
+    
+    rm -rf $OTA_DIR/target_sys
+    mkdir -p $OTA_DIR/target_sys
+    cp $BIN_DIR/boot.img $OTA_DIR/target_sys/
+    make_img_md5 $OTA_DIR/target_sys/boot.img
+    
+    cp $BIN_DIR/rootfs.img $OTA_DIR/target_sys/
+    make_img_md5 $OTA_DIR/target_sys/rootfs.img
+    
+    cp $BIN_DIR/usr.img $OTA_DIR/target_sys/
+    make_img_md5 $OTA_DIR/target_sys/usr.img
+
+    rm -rf $OTA_DIR/usr_sys
+    mkdir -p $OTA_DIR/usr_sys
+    cp $BIN_DIR/usr.img $OTA_DIR/usr_sys/
+    make_img_md5 $OTA_DIR/usr_sys/usr.img
+
+    #upgrade image
+    cp $T/.config $OTA_DIR/.config.old
+
+    grep -v -e CONFIG_TARGET_ROOTFS_INITRAMFS  $OTA_DIR/.config.old > .config
+    echo 'CONFIG_TARGET_ROOTFS_INITRAMFS=y' >> .config
+    echo 'CONFIG_TARGET_AW_OTA_INITRAMFS=y' >> .config
+    
+    refresh_ota_env
+
+    make V=s -j
+    
+    cp $OTA_DIR/.config.old $T/.config
+    
+    rm -rf $OTA_DIR/ramdisk_sys
+    mkdir -p $OTA_DIR/ramdisk_sys
+
+    cp $BIN_DIR/boot_initramfs.img $OTA_DIR/ramdisk_sys/
+    make_img_md5 $OTA_DIR/ramdisk_sys/boot_initramfs.img
+
+
+    cd $OTA_DIR && \
+        tar -zcvf target_sys.tar.gz target_sys && \
+        tar -zcvf ramdisk_sys.tar.gz ramdisk_sys && \
+        tar -zcvf usr_sys.tar.gz usr_sys && \
+        cd $T
+    refresh_ota_env
+    print_red "build ota packag finish!"
 }
 
 T=$(gettop)

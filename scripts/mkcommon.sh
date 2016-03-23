@@ -46,6 +46,10 @@ elif [ "x$1" = "xrelease" ] ; then
 	init_defconf
 	mkrelease
 	exit $?
+elif [ "x$1" = "xota" ] ; then
+    init_defconf
+    mktinaota $2
+    exit $?
 elif [ $# -eq 0 ] ; then
 	init_defconf
 	mktina

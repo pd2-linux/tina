@@ -53,7 +53,7 @@ endif
 endef
 
 define Build/InstallDev
-	$(INSTALL_DIR) $(1)/usr/lib
+	$(INSTALL_DIR) $(1)/lib
 	$(INSTALL_DIR) $(1)/usr/include
 	$(INSTALL_DATA) tina_log.h $(1)/usr/include/
 	$(INSTALL_DATA) locker.h $(1)/usr/include/
@@ -62,26 +62,26 @@ define Build/InstallDev
 
 
 ifeq ($(HAVE_SRC),yes)
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/libawbase.so $(1)/usr/lib
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/lib/libawbase.so $(1)/lib
 else
-	$(INSTALL_BIN) ./libawbase.so $(PKG_INSTALL_DIR)/usr/lib/libawbase.so
-	$(INSTALL_BIN) ./libawbase.so $(1)/usr/lib
+	$(INSTALL_BIN) ./libawbase.so $(PKG_INSTALL_DIR)/lib/libawbase.so
+	$(INSTALL_BIN) ./libawbase.so $(1)/lib
 endif
 
 endef
 
 define Package/liballwinner-base/install
-	$(INSTALL_DIR) $(1)/usr/lib/
-	$(INSTALL_DIR) $(PKG_INSTALL_DIR)/usr/lib
+	$(INSTALL_DIR) $(1)/lib/
+	$(INSTALL_DIR) $(PKG_INSTALL_DIR)/lib
 
 ifeq ($(HAVE_SRC),yes)
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/libawbase.so $(1)/usr/lib/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/lib/libawbase.so $(1)/lib/
 	mkdir -p ./release
-	cp $(PKG_INSTALL_DIR)/usr/lib/libawbase.so ./release
+	cp $(PKG_INSTALL_DIR)/lib/libawbase.so ./release
 	cp Makefile ./release/Makefile_release
 	sed -i s/"HAVE_SRC := no"/"HAVE_SRC := no"/g ./release/Makefile_release
 else
-	$(INSTALL_BIN) ./libawbase.so $(1)/usr/lib/
+	$(INSTALL_BIN) ./libawbase.so $(1)/lib/
 endif
 
 endef

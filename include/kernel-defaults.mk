@@ -5,6 +5,8 @@
 # See /LICENSE for more information.
 #
 
+include $(INCLUDE_DIR)/aw-upgrade.mk
+
 KERNEL_MAKEOPTS := -C $(LINUX_DIR) \
 	HOSTCFLAGS="$(HOST_CFLAGS) -Wall -Wmissing-prototypes -Wstrict-prototypes" \
 	CROSS_COMPILE="$(KERNEL_CROSS)" \
@@ -161,9 +163,15 @@ define Kernel/CompileImage/Initramfs
 	$(call Kernel/Configure/Initramfs)
 	$(CP) $(GENERIC_PLATFORM_DIR)/base-files/init $(TARGET_DIR)/init
 	rm -rf $(KERNEL_BUILD_DIR)/linux-$(LINUX_VERSION)/usr/initramfs_data.cpio*
+
+	$(call Aw/BuildUpgradeImage/initramfs-prepare,$(TARGET_DIR),./temp_usr)
+	
 	+$(MAKE) $(KERNEL_MAKEOPTS) $(subst ",,$(KERNELNAME))
 	#")
 	#")
+
+	$(call Aw/BuildUpgradeImage/initramfs-resume,$(TARGET_DIR),./temp_usr)
+
 	$(call Kernel/CopyImage,-initramfs)
 endef
 else
