@@ -47,7 +47,7 @@ size = 16
 
 [partition]
     name         = boot
-    size         = 8192
+    size         = 6144
     downloadfile = "boot.fex"
     user_type    = 0x8000
 
@@ -65,7 +65,7 @@ size = 16
 
 [partition]
     name         = extend
-    size         = 12288
+    size         = 16384
     downloadfile = "usr.fex"
     user_type    = 0x8000
 
