@@ -1,0 +1,67 @@
+#ifndef MPLAYER_TOTAL_INF_H
+#define MPLAYER_TOTAL_INF_H
+
+#include "subBase.h"
+
+enum SUB_ALIGNMENT
+{   
+    SUB_ALIGNMENT_UNKNOWN = -1,
+    SUB_ALIGNMENT_MIDDLE  = 0,
+    SUB_ALIGNMENT_LEFT    = 1,
+    SUB_ALIGNMENT_RIGHT   = 2,
+    SUB_ALIGNMENT_
+};
+
+enum SUB_FONTSTYLE
+{   
+    SUB_FONT_UNKNOWN         = -1,
+    SUB_FONT_EPILOG          = 0,
+    SUB_FONT_VERDANA         = 1,
+    SUB_FONT_GEORGIA         = 2,
+    SUB_FONT_ARIAL           = 3,
+    SUB_FONT_TIMES_NEW_ROMAN = 4,
+    SUB_FONT_
+};
+enum
+{  
+   SUB_RENDER_EFFECT_NONE          = 0,
+   SUB_RENDER_EFFECT_SCROLL_UP     = 1,
+   SUB_RENDER_EFFECT_SCROLL_DOWN   = 2,
+   SUB_RENDER_EFFECT_BANNER_LTOR   = 3,
+   SUB_RENDER_EFFECT_BANNER_RTOL   = 4,
+   SUB_RENDER_EFFECT_MOVE          = 5,
+   SUB_RENDER_EFFECT_KARAOKE       = 6,
+   
+};
+
+enum SUB_MODE
+{
+    SUB_MODE_BITMAP = 0,
+    SUB_MODE_TEXT   = 1,
+    SUB_MODE_
+};
+
+#if 1
+#define SUB_MAX_KARAOKE_EFFECT_NUM 16
+
+typedef struct SUBTITLE_KARAKO_EFFECT_INF
+{
+    OMX_U32  karakoSectionNum;
+    OMX_U32  karaKoSectionPts[SUB_MAX_KARAOKE_EFFECT_NUM];
+    OMX_U32  karaKoSectionLen[SUB_MAX_KARAOKE_EFFECT_NUM];
+    OMX_U32  karaKoSectionColor[SUB_MAX_KARAOKE_EFFECT_NUM];
+}sub_karako_effect_inf;
+#endif
+
+enum SUB_DATA_STRUCT
+{
+    SUB_DATA_STRUCT_ARGB = 0,
+    SUB_DATA_STRUCT_RGBA = 1,
+    SUB_DATA_STRUCT_BGRA = 2,
+    SUB_DATA_STRUCT_ABGR = 3,
+    SUB_DATA_STRUCT_
+};
+
+
+#endif
+
