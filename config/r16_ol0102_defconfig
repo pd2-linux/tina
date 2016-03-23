@@ -90,7 +90,7 @@ CONFIG_TARGET_UBIFS_JOURNAL_SIZE=""
 #
 # Image Options
 #
-CONFIG_SUNXI_BOOT_PARTSIZE=4
+CONFIG_SUNXI_BOOT_PARTSIZE=3
 CONFIG_TARGET_ROOTFS_INCLUDE_UIMAGE=y
 CONFIG_TARGET_ROOTFS_INCLUDE_ZIMAGE=y
 CONFIG_TARGET_ROOTFS_INCLUDE_FIT=y
@@ -1260,6 +1260,7 @@ CONFIG_PACKAGE_gdbserver=y
 # Firmware
 #
 CONFIG_PACKAGE_ap6212-firmware=y
+# CONFIG_PACKAGE_esp8089-firmware is not set
 # CONFIG_PACKAGE_r8169-firmware is not set
 # CONFIG_PACKAGE_r8188eu-firmware is not set
 
@@ -3381,14 +3382,21 @@ CONFIG_WPA_MSG_MIN_PRIORITY=3
 #
 # softwinner
 #
+# CONFIG_PACKAGE_AudioManager is not set
 CONFIG_PACKAGE_adb=y
-# CONFIG_PACKAGE_bluetooth is not set
+CONFIG_PACKAGE_bluetooth=y
+# CONFIG_PACKAGE_bluetooth-demo is not set
 CONFIG_PACKAGE_demoplayer=y
 CONFIG_PACKAGE_dlnatest=y
 CONFIG_PACKAGE_liballwinner-audio=y
 CONFIG_PACKAGE_liballwinner-base=y
-# CONFIG_PACKAGE_liballwinner-ipc is not set
+# CONFIG_PACKAGE_liballwinner-dlna is not set
+CONFIG_PACKAGE_liballwinner-ipc=y
+CONFIG_PACKAGE_misc-upgrade=y
 CONFIG_PACKAGE_smartlinkd=y
+# CONFIG_PACKAGE_smartlinkd-demo is not set
+CONFIG_PACKAGE_wifimanager=y
+# CONFIG_PACKAGE_wifimanager-demo is not set
 
 #
 # Sound
