@@ -17,6 +17,9 @@ int aw_smartlinkd_init(int fd,int(f)(char*,int));
 int aw_startairkiss();
 int aw_startcooee();
 
+int aw_stopairkiss();
+int aw_stopcooee();
+
 /*********** no use for app client ***********/
 int aw_easysetupfinish(struct _cmd *c);
 

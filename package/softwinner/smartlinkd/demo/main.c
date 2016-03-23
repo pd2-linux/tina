@@ -28,6 +28,7 @@ int onRead(char* buf,int length)
         
     }else if(length == 0){
         TLOGD("server close the connection...\n");
+        exit(0);
         return THREAD_EXIT;
 
     }else {
@@ -42,6 +43,7 @@ int onRead(char* buf,int length)
             TLOGD("proto scan fail");
             return THREAD_CONTINUE;
         }
+        TLOGD("cmd: %d\n",c->cmd);
         TLOGD("pcol: %d\n",c->info.protocol);
         TLOGD("ssid: %s\n",c->info.base_info.ssid);
         TLOGD("pasd: %s\n",c->info.base_info.password);
@@ -75,6 +77,21 @@ int main(int argc, char* argv[])
             aw_startcooee();
         }
     }
+    sleep(1);
+    aw_stopcooee();
+    sleep(2);
+    aw_startcooee();
+    sleep(1);
+    aw_stopcooee();
+    sleep(1);
+    aw_startcooee();
+    sleep(1);
+    aw_startairkiss();
+    sleep(1);
+    aw_stopairkiss();
+    sleep(1);
+    aw_startairkiss();
+    
     while(1);
 
     return 0;  

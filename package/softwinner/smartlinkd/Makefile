@@ -103,16 +103,17 @@ define Build/InstallDev
 endef
 
 define Package/$(PKG_NAME)/install
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(INSTALL_DIR) $(1)/etc/wifi/smartlink
+	$(INSTALL_DIR) $(1)/lib
+	$(INSTALL_DIR) $(1)/etc/wifi
+	$(INSTALL_DIR) $(1)/bin
 	$(INSTALL_DIR) $(1)/etc/init.d
 
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libsmartlinkd_client.so $(1)/usr/lib/
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/setup $(1)/etc/wifi/smartlink/
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/smartlinkd $(1)/etc/wifi/smartlink/
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libsmartlinkd_client.so $(1)/lib/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/setup $(1)/bin/smartlinkd_setup
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/smartlinkd $(1)/bin/
 
 	$(INSTALL_BIN) ./tina/smartlinkd.init $(1)/etc/init.d/smartlinkd
-	$(INSTALL_BIN) ./tina/wpa.sh $(1)/etc/wifi/smartlink/
+	$(INSTALL_BIN) ./tina/wpa.sh $(1)/etc/wifi
 	
 endef
 

@@ -55,6 +55,7 @@ enum {
 //cmd for processes
 enum {
 	START = 0,
+    STOP,
 	FINISHED,
 	CONFIG_NETWORK,  //useless now
 	ENABLE_NETWORK,  //useless now

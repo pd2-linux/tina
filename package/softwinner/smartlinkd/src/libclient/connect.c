@@ -68,7 +68,8 @@ static int init_socket(){
 	if(ret==-1)  
 	{  
 		LOGE("cannot connect to the server: %s",strerror(errno));  
-		close(sockfd);  
+		close(sockfd);
+        sockfd = -1;
 		return -1;  
 	}
 	return 0;
@@ -80,12 +81,9 @@ void aw_smartlinkd_prepare(){
 	//up the wlan
 	system("ifconfig wlan0 up");
 }
-int aw_smartlinkd_init(int fd,int(*f)(char*,int)){
-	func = f;
-	return init_socket();
-}
 void aw_release(){
 	close(sockfd);
+    sockfd = -1;
 }
 
 static void* readthread(void* arg){
@@ -128,12 +126,23 @@ static int init_thread(){
 	}
 	return 0;
 }
+int aw_smartlinkd_init(int fd,int(*f)(char*,int)){
+	func = f;
+	int ret = init_socket();
+    if(ret == 0)
+        ret = init_thread();
+    return ret;
+}
 static int startprotocol(int protocol){
 	struct _cmd c;
 	c.cmd = START;
 	c.info.protocol = protocol;
 	LOGD("protocol = %d\n",protocol);
-	if(init_thread() == -1) return -1;
+	return send(sockfd,(char*)&c,sizeof(c),0);	
+}
+static int stopprotocol(){
+	struct _cmd c;
+	c.cmd = STOP;
 	return send(sockfd,(char*)&c,sizeof(c),0);	
 }
 int aw_startairkiss(){
@@ -144,6 +153,12 @@ int aw_startcooee(){
 	return startprotocol(PROTO_COOEE);
 }
 
+int aw_stopairkiss(){
+    return stopprotocol();
+}
+int aw_stopcooee(){
+    return stopprotocol();
+}
 int aw_easysetupfinish(struct _cmd *c){
 	//printf_info(c);
 	c->cmd = FINISHED;	
