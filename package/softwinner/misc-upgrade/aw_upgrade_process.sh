@@ -148,9 +148,10 @@ upgrade_pre_mode(){
     download_prepare_image $TARGET_IMG
     
     upgrade_start pre
-    [ $? -eq 0 ] && [ $NORMAL_MODE -eq 1 ] && {
+
+    if [ $? -eq 0 ] || [ ! x$NORMAL_MODE = x"normal" ]; then
         $UPGRADE_SH upgrade
-    }
+    fi
     upgrade_finish
 }
 upgrade_post_mode(){
@@ -166,7 +167,9 @@ upgrade_post_mode(){
     download_prepare_image $USR_IMG
  
     upgrade_start post
-    $UPGRADE_SH upgrade
+    if [ $? -eq 0 ] || [ ! x$NORMAL_MODE = x"normal" ]; then
+        $UPGRADE_SH upgrade
+    fi
     upgrade_finish
 }
 upgrade_end_mode(){
@@ -177,10 +180,17 @@ upgrade_end_mode(){
 ####################################################
 # force to upgrade
 if [ -n $1 ] && [ x$1 = x"--force" ]; then
-    export NORMAL_MODE=1
+    export NORMAL_MODE=normal
     upgrade_pre_mode
     exit 0
 fi
+
+if [ -n $1 ] && [ x$1 = x"--post" ]; then
+    export NORMAL_MODE=normal
+    upgrade_post_mode
+    exit 0
+fi
+
 system_flag=`read_misc command`
 if [ x$system_flag = x"boot-recovery" ]; then
     boot_recovery_mode
