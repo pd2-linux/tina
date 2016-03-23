@@ -3,7 +3,7 @@
 #define TINA_SOUND_CONTROL_H
 
 #include <alsa/asoundlib.h>
-#include "soundControl.h"
+#include <soundControl.h>
 
 namespace aw
 {

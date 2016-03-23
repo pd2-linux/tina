@@ -133,7 +133,7 @@ endif
 	cp $(PKG_BUILD_DIR)/LIBRARY/CODEC/AUDIO/DECODER/include/adecoder.h          $(PKG_INSTALL_DIR)/usr/include/allwinner/
 	cp $(PKG_BUILD_DIR)/LIBRARY/CODEC/SUBTITLE/DECODER/include/sdecoder.h       $(PKG_INSTALL_DIR)/usr/include/allwinner/
 	## PLAYER
-	cp $(PKG_BUILD_DIR)/LIBRARY/PLAYER/include/soundControl.h                   $(PKG_INSTALL_DIR)/usr/include/allwinner/
+	cp $(PKG_BUILD_DIR)/LIBRARY/PLAYER/include/soundControl.h                   $(PKG_INSTALL_DIR)/usr/include/
 	cp $(PKG_BUILD_DIR)/LIBRARY/PLAYER/include/layerControl.h                   $(PKG_INSTALL_DIR)/usr/include/allwinner/
 	cp $(PKG_BUILD_DIR)/LIBRARY/PLAYER/include/player.h                         $(PKG_INSTALL_DIR)/usr/include/allwinner/
 	## MEMORY
@@ -144,6 +144,7 @@ endif
 	cp $(PKG_BUILD_DIR)/awrecorder/awencoder.h                                  $(PKG_INSTALL_DIR)/usr/include/allwinner/
 	## tinaplayer
 	cp $(PKG_BUILD_DIR)/tinaplayer/tinaplayer.h                                 $(PKG_INSTALL_DIR)/usr/include/allwinner/
+	cp $(PKG_BUILD_DIR)/tinaplayer/tinasoundcontrol.h                           $(PKG_INSTALL_DIR)/usr/include/
 	#########################################################################################
 
 	$(CP) $(PKG_INSTALL_DIR)/usr $(1)/
@@ -188,5 +189,5 @@ define Package/tinaplayerdemo/install
 endef
 
 $(eval $(call BuildPackage,liballwinner-audio))
-$(eval $(call BuildPackage,tinaplayerdemo))
+#$(eval $(call BuildPackage,tinaplayerdemo))
 
