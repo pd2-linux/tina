@@ -2,8 +2,6 @@
 
 . /sbin/aw_upgrade_vendor.sh
 
-echo ..... haha2 $1
-
 #DOMAIN="we.china-ota.com"
 #ADDR=http://$DOMAIN/WeChatSurvey/
 
@@ -77,6 +75,15 @@ set_version(){
     # $1 version
     $UPGRADE_SH version $1
 }
+upgrade_start(){
+    # return  0 -> start upgrade 1 -> no upgrade
+    type upgrade_start_vendor 1>/dev/null 2>/dev/null 
+    [ $? -ne 0 ] || {
+        upgrade_start_vendor $@
+        return $?
+    }
+    return 1
+}
 upgrade_finish(){
     type upgrade_finish_vendor 1>/dev/null 2>/dev/null 
     [ $? -ne 0 ] || {
@@ -119,7 +126,9 @@ boot_recovery_mode(){
     
     download_prepare_image $TARGET_IMG
 
+    upgrade_start boot_recovery
     $UPGRADE_SH upgrade
+    upgrade_finish
 }
 upgrade_pre_mode(){
     # upgrade_pre mode
@@ -138,7 +147,11 @@ upgrade_pre_mode(){
     download_prepare_image $RAMDISK_IMG
     download_prepare_image $TARGET_IMG
     
-    $UPGRADE_SH upgrade
+    upgrade_start pre
+    [ $? -eq 0 ] && [ $NORMAL_MODE -eq 1 ] && {
+        $UPGRADE_SH upgrade
+    }
+    upgrade_finish
 }
 upgrade_post_mode(){
     # upgrade_post mode
@@ -151,9 +164,10 @@ upgrade_post_mode(){
     $UPGRADE_SH clean
     
     download_prepare_image $USR_IMG
-    
+ 
+    upgrade_start post
     $UPGRADE_SH upgrade
-
+    upgrade_finish
 }
 upgrade_end_mode(){
     # upgrade_end mode
@@ -163,20 +177,17 @@ upgrade_end_mode(){
 ####################################################
 # force to upgrade
 if [ -n $1 ] && [ x$1 = x"--force" ]; then
+    export NORMAL_MODE=1
     upgrade_pre_mode
-    upgrade_finish
     exit 0
 fi
 system_flag=`read_misc command`
 if [ x$system_flag = x"boot-recovery" ]; then
     boot_recovery_mode
-    upgrade_finish
 elif [ x$system_flag = x"upgrade_pre" ]; then
     upgrade_pre_mode
-    upgrade_finish
 elif [ x$system_flag = x"upgrade_post" ]; then
     upgrade_post_mode
-    upgrade_finish
 elif [ x$system_flag = x"upgrade_end" ]; then
     upgrade_end_mode
 else
