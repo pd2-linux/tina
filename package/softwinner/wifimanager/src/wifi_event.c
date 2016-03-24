@@ -206,6 +206,7 @@ void *check_connect_timeout(void *args)
 		if (gwifi_state == NETWORK_DISCONNECTED){
 		    gwifi_state = CONNECT_TIMEOUT;	
 		    if (p_event_callback) {
+            printf("check_connect_timeout connect timeout!\n");
             p_event_callback(CONNECT_TIMEOUT, NULL);
         }
 		}

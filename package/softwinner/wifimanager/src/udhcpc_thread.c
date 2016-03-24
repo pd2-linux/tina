@@ -69,12 +69,13 @@ void *udhcpc_thread(void *args)
 	      usleep(100000);
 	      get_net_ip("wlan0", ipaddr, &len, &vflag);
 	      times++;    
-	  }while((vflag == 0) && (times < 30));
+	  }while((vflag == 0) && (times < 50));
 	  
 	  if(p_state_callback != NULL){
 	      if(vflag != 0){
 	          p_state_callback(NETWORK_CONNECTED, args);
 	      }else{
+	      	  printf("udhcpc wlan0 timeout!\n");
 	          p_state_callback(CONNECT_TIMEOUT, NULL);
 	      }    
 	  }
