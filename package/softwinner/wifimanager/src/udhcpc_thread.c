@@ -10,6 +10,7 @@
 
 #include "wifi_event.h"
 
+extern int disconnecting;
 static tWifi_event_callback p_state_callback = NULL;
 
 static int get_net_ip(const char *if_name, char *ip, int *len, int *vflag)
@@ -67,9 +68,14 @@ void *udhcpc_thread(void *args)
 	  times = 0;
 	  do{
 	      usleep(100000);
+	      if(disconnecting == 1){
+	          printf("receive disconnect cmd!\n");
+	          system("/etc/wifi/udhcpc_wlan0 stop");
+	          break;
+	      }
 	      get_net_ip("wlan0", ipaddr, &len, &vflag);
 	      times++;    
-	  }while((vflag == 0) && (times < 50));
+	  }while((vflag == 0) && (times < 120));
 	  
 	  if(p_state_callback != NULL){
 	      if(vflag != 0){

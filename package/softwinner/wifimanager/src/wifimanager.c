@@ -14,6 +14,7 @@ extern int is_ip_exist();
 
 int  gwifi_state = NETWORK_DISCONNECTED;
 char netid_connecting[NET_ID_LEN+1] = {0};
+int  disconnecting = 0;
 static tWifi_event_callback event_handle = NULL;
 
 static int docommand(char const *cmd, char *reply, size_t reply_len)
@@ -453,6 +454,9 @@ int connect_ap_key_mgmt(const char *ssid, tKEY_MGMT key_mgmt, const char *passwd
 	  /* must disconnect */
 	  disconnect_ap();
 	  
+	  /* remove disconnecting flag */
+	  disconnecting = 0;
+	  
 	  /* check already exist or connected */
 	  len = 3;
 	  ret = is_ap_exist(ssid, key_mgmt, netid, &len);
@@ -775,6 +779,8 @@ int disconnect_ap()
     char cmd[CMD_LEN+1] = {0}, reply[REPLY_BUF_SIZE] = {0};
     char netid[NET_ID_LEN+1]={0};
     int len = 0;
+    
+    disconnecting = 1;
     
     len = NET_ID_LEN+1;
     ret = get_netid_connected(netid, &len);
