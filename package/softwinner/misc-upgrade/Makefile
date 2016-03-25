@@ -48,6 +48,7 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_BIN) ./aw_upgrade_vendor.sh $(1)/sbin/
 	
 	$(INSTALL_BIN) ./aw_upgrade_autorun.init $(1)/etc/init.d/aw_upgrade_autorun
+	$(INSTALL_BIN) ./aw_fstab.init $(1)/etc/init.d/aw_fstab
 	
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/sbin/* $(1)/sbin
 endef
