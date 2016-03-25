@@ -31,6 +31,8 @@ define Aw/BuildUpgradeImage/prepare
 	-mv $(1)/usr/lib/libe2p.so* $(1)/lib/
 	-mv $(1)/usr/lib/libz.so* $(1)/lib/
 
+	#for tinymp3player
+	-mv $(1)/usr/lib/libmad.so* $(1)/lib/
 	-mv $(1)/usr/lib/libasound.so* $(1)/lib/
 
 	find $(1)/usr/lib | grep libstdc++.so | xargs -i mv  {} $(1)/lib
