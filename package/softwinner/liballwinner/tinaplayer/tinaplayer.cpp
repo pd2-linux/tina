@@ -6,7 +6,7 @@
 #define TAG "TinaPlayer"
 #define CONFIG_LOG_LEVEL OPTION_LOG_LEVEL_DETAIL
 
-#define SAVE_PCM_DATA 1
+#define SAVE_PCM_DATA 0
 
 #if SAVE_PCM_DATA
 	FILE* savaPcmFd = NULL;
