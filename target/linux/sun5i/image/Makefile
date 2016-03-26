@@ -41,10 +41,17 @@ define Image/BuildKernel
 		$(BIN_DIR)/$(IMG_PREFIX)-zImage-initramfs, \
 		$(BIN_DIR)/$(IMG_PREFIX)-uImage-initramfs \
 		)
+	
+ifeq ($(CONFIG_TARGET_AW_OTA_INITRAMFS),y)
+	rm -f $(BIN_DIR)/boot_initramfs.img
+	mkdosfs $(BIN_DIR)/boot_initramfs.img -C $(EXTEND_BLOCKS)
+	mcopy -i $(BIN_DIR)/boot_initramfs.img $(BIN_DIR)/$(IMG_PREFIX)-uImage-initramfs ::uImage
+else
 	rm -f $(BIN_DIR)/boot.img
 	mkdosfs $(BIN_DIR)/boot.img -C $(FAT32_BLOCKS)
-	
 	mcopy -i $(BIN_DIR)/boot.img $(BIN_DIR)/$(IMG_PREFIX)-uImage-initramfs ::uImage
+endif
+
 endef
 endif
 
@@ -81,11 +88,20 @@ define Image/Build/Profile/R8-Dev-Board
 	$(call Image/Build/FirmWare,$(1),sun5i, uart0, dev)
 endef
 
+ifeq ($(CONFIG_TARGET_AW_OTA_INITRAMFS),y)
 define Image/Build
+endef
+else
+define Image/Build
+
 	dd if=$(KDIR)/root.$(1) of=$(BIN_DIR)/rootfs.img bs=128k conv=sync
+	dd if=$(KDIR)/usr.$(1) of=$(BIN_DIR)/usr.img bs=128k conv=sync
+
 	$(call Image/Build/$(1),$(1))
 	$(call Image/Build/Profile/$(PROFILE),$(1))
 	
 endef
+
+endif
 
 $(eval $(call BuildImage))

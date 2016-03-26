@@ -143,8 +143,10 @@ function do_pack_linux()
 	#ln -s ${BIN_DIR}/vmlinux.tar.bz2 vmlinux.fex
 	rm -rf boot.fex
 	rm -rf rootfs.fex
+        rm -rf usr.fex
 	ln -s ${PACK_DIR}/boot.img        boot.fex
 	ln -s ${PACK_DIR}/rootfs.img     rootfs.fex
+	ln -s ${PACK_DIR}/usr.img     usr.fex
 
 	# Those files is ready for SPINor.
 	#ln -s ${BIN_DIR}/uImage          kernel.fex
