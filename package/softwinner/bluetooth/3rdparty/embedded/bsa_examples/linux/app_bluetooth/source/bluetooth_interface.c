@@ -314,10 +314,6 @@ int bluetooth_start(void *p, char *p_conf)
     discoverable = 1;
     connectable = 1;
     
-    memset(last_connected_dev, 0, sizeof(last_connected_dev));
-    read_connected_dev(last_connected_dev);
-    app_avk_auto_connect(last_connected_dev);
-    
     /* Init Headset Application */
     //app_hs_init();
     /* Start Headset service*/
