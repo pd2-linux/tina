@@ -1,11 +1,10 @@
+#define TAG "TinaSoundControl"
+#define CONFIG_TLOG_LEVEL OPTION_TLOG_LEVEL_CLOSE
+#include <tina_log.h>
+
 #include "tinasoundcontrol.h"
 #include <pthread.h>
 #include <sys/time.h>
-#include <tina_log.h>
-
-#define TAG "TinaSoundControl"
-#define CONFIG_LOG_LEVEL OPTION_LOG_LEVEL_DETAIL
-
 
 namespace aw{
 	int BLOCK_MODE = 0;
@@ -18,14 +17,15 @@ namespace aw{
 	{
 		int ret = 0;
 		TLOGD("openSoundDevice()\n");
+		printf("openSoundDevice()\n");
 		if(!sc->alsa_handler){
 			if(isOpenForPlay){
 				if(ret = snd_pcm_open(&sc->alsa_handler, "default",SND_PCM_STREAM_PLAYBACK ,mode)<0){
-					TLOGD("open audio device failed:%s\n",strerror(errno));
+					TLOGE("open audio device failed:%s\n",strerror(errno));
 				}
 			}else{
 				if(ret = snd_pcm_open(&sc->alsa_handler, "default",SND_PCM_STREAM_CAPTURE ,mode)<0){
-					TLOGD("open audio device failed:%s\n",strerror(errno));
+					TLOGE("open audio device failed:%s\n",strerror(errno));
 				}
 			}
 		}else{
@@ -38,10 +38,11 @@ namespace aw{
 	{
 		int ret = 0;
 		TLOGD("closeSoundDevice()\n");
+		printf("closeSoundDevice()\n");
 		if (sc->alsa_handler){
 			if ((ret = snd_pcm_close(sc->alsa_handler)) < 0) 
 	        {
-	            TLOGD("snd_pcm_close failed:%s\n",strerror(errno));
+	            TLOGE("snd_pcm_close failed:%s\n",strerror(errno));
 			}
 			else
 			{
@@ -58,46 +59,46 @@ namespace aw{
 		TLOGD("setSoundDeviceParams()\n");
 		if ((ret = snd_pcm_hw_params_malloc(&sc->alsa_hwparams)) < 0)
 		{
-			TLOGD("snd_pcm_hw_params_malloc failed:%s\n",strerror(errno));
+			TLOGE("snd_pcm_hw_params_malloc failed:%s\n",strerror(errno));
 			return ret;
 		}
 
 		if ((ret = snd_pcm_hw_params_any(sc->alsa_handler, sc->alsa_hwparams)) < 0) 
         {
-        	TLOGD("snd_pcm_hw_params_any failed:%s\n",strerror(errno));
+        	TLOGE("snd_pcm_hw_params_any failed:%s\n",strerror(errno));
         	return ret;
         }
 		
 		if ((ret = snd_pcm_hw_params_set_access(sc->alsa_handler, sc->alsa_hwparams,
                     SND_PCM_ACCESS_RW_INTERLEAVED)) < 0) 
         {
-        	TLOGD("snd_pcm_hw_params_set_access failed:%s\n",strerror(errno));
+        	TLOGE("snd_pcm_hw_params_set_access failed:%s\n",strerror(errno));
         	return ret;
         }
 
 		if ((ret = snd_pcm_hw_params_test_format(sc->alsa_handler, sc->alsa_hwparams,
                 sc->alsa_format)) < 0) 
         {
-            TLOGD("MSGTR_AO_ALSA_FormatNotSupportedByHardware");
+            TLOGE("MSGTR_AO_ALSA_FormatNotSupportedByHardware");
             sc->alsa_format = SND_PCM_FORMAT_S16_LE;
         }
 		
 		if ((ret = snd_pcm_hw_params_set_format(sc->alsa_handler, sc->alsa_hwparams,
                     sc->alsa_format)) < 0) 
         {
-            TLOGD("snd_pcm_hw_params_set_format failed:%s\n",strerror(errno));
+            TLOGE("snd_pcm_hw_params_set_format failed:%s\n",strerror(errno));
             return ret;
         }
 
         if ((ret = snd_pcm_hw_params_set_channels_near(sc->alsa_handler,
                 sc->alsa_hwparams, &sc->nChannelNum)) < 0) {
-            TLOGD("snd_pcm_hw_params_set_channels_near failed:%s\n",strerror(errno));
+            TLOGE("snd_pcm_hw_params_set_channels_near failed:%s\n",strerror(errno));
             return ret;
         }
 
 		if ((ret = snd_pcm_hw_params_set_rate_near(sc->alsa_handler, sc->alsa_hwparams,
                 &sc->nSampleRate, NULL)) < 0) {    
-            TLOGD("snd_pcm_hw_params_set_rate_near failed:%s\n",strerror(errno));
+            TLOGE("snd_pcm_hw_params_set_rate_near failed:%s\n",strerror(errno));
             return ret;
         }
 
@@ -108,7 +109,7 @@ namespace aw{
 		
 		if ((ret = snd_pcm_hw_params_set_period_size_near(sc->alsa_handler,
 				sc->alsa_hwparams, &sc->chunk_size, NULL)) < 0) {
-			TLOGD("MSGTR_AO_ALSA_UnableToSetPeriodSize");
+			TLOGE("MSGTR_AO_ALSA_UnableToSetPeriodSize");
 			return ret;
 		} else {
 			TLOGD("alsa-init: chunksize set to %d\n", sc->chunk_size);
@@ -117,14 +118,14 @@ namespace aw{
         if ((ret = snd_pcm_hw_params_set_periods_near(sc->alsa_handler,
                 sc->alsa_hwparams, (unsigned int*)&sc->alsa_fragcount, NULL)) < 0)
         {
-            TLOGD("MSGTR_AO_ALSA_UnableToSetPeriods");
+            TLOGE("MSGTR_AO_ALSA_UnableToSetPeriods");
             return ret;
         } else {
             TLOGD("alsa-init: fragcount=%d\n", sc->alsa_fragcount);
         }
 
 		if ((ret = snd_pcm_hw_params(sc->alsa_handler, sc->alsa_hwparams)) < 0) {
-            TLOGD("snd_pcm_hw_params failed:%s\n",strerror(errno));
+            TLOGE("snd_pcm_hw_params failed:%s\n",strerror(errno));
             return ret;
         }
 
@@ -144,7 +145,7 @@ namespace aw{
 		TLOGD("TinaSoundDeviceInit()\n");
 	    if(s == NULL)
 	    {
-	        TLOGD("malloc memory fail.\n");
+	        TLOGE("malloc memory fail.\n");
 	        return NULL;
 	    }
 	    memset(s, 0, sizeof(SoundCtrlContext));
@@ -190,7 +191,7 @@ namespace aw{
 			}
 		}
 		else{
-			TLOGD("error:sc is null !!!\n");
+			TLOGE("error:sc is null !!!\n");
 		}
 		pthread_mutex_unlock(&sc->mutex);
 	}
@@ -201,6 +202,7 @@ namespace aw{
 		pthread_mutex_lock(&sc->mutex);
 		int ret = 0;
 		TLOGD("TinaSoundDeviceStart(): sc->sound_status = %d\n",sc->sound_status);
+		printf("TinaSoundDeviceStart()\n");
 		if(sc->sound_status == STATUS_START){
 			TLOGD("Sound device already start.\n");
 			pthread_mutex_unlock(&sc->mutex);
@@ -214,14 +216,14 @@ namespace aw{
 			}
 			if(sc->alsa_can_pause){
 				if((ret = snd_pcm_pause(sc->alsa_handler, 0))<0){
-					TLOGD("snd_pcm_pause failed:%s\n",strerror(errno));
+					TLOGE("snd_pcm_pause failed:%s\n",strerror(errno));
 					pthread_mutex_unlock(&sc->mutex);
 	            	return ret;
 				}
 			}else{
 				if ((ret = snd_pcm_prepare(sc->alsa_handler)) < 0) 
 				{
-					TLOGD("snd_pcm_prepare failed:%s\n",strerror(errno));
+					TLOGE("snd_pcm_prepare failed:%s\n",strerror(errno));
 					pthread_mutex_unlock(&sc->mutex);
 					return ret;
 				}
@@ -253,13 +255,13 @@ namespace aw{
 	    }else{
 	    	if ((ret = snd_pcm_drop(sc->alsa_handler)) < 0) 
 		    {
-		        TLOGD("MSGTR_AO_ALSA_PcmPrepareError");
+		        TLOGE("MSGTR_AO_ALSA_PcmPrepareError");
 				pthread_mutex_unlock(&sc->mutex);
 				return ret;
 			}
 			if ((ret = snd_pcm_prepare(sc->alsa_handler)) < 0) 
 		    {
-		        TLOGD("MSGTR_AO_ALSA_PcmPrepareError");
+		        TLOGE("MSGTR_AO_ALSA_PcmPrepareError");
 				pthread_mutex_unlock(&sc->mutex);
 				return ret;
 			}
@@ -281,7 +283,7 @@ namespace aw{
 				TLOGD("alsa can pause,use snd_pcm_pause\n");
 				ret = snd_pcm_pause(sc->alsa_handler, 1);
 				if(ret<0){
-					TLOGD("snd_pcm_pause failed:%s\n",strerror(errno));
+					TLOGE("snd_pcm_pause failed:%s\n",strerror(errno));
 					pthread_mutex_unlock(&sc->mutex);
 	            	return ret;
 				}
@@ -289,7 +291,7 @@ namespace aw{
 				TLOGD("alsa can not pause,use snd_pcm_drop\n");
 				if ((ret = snd_pcm_drop(sc->alsa_handler)) < 0) 
 				{
-					TLOGD("snd_pcm_drop failed:%s\n",strerror(errno));
+					TLOGE("snd_pcm_drop failed:%s\n",strerror(errno));
 					pthread_mutex_unlock(&sc->mutex);
 					return ret;
 				}
@@ -343,10 +345,10 @@ namespace aw{
 			}
 			if (res < 0) 
 	        {
-	            TLOGD("MSGTR_AO_ALSA_WriteError\n");
+	            TLOGE("MSGTR_AO_ALSA_WriteError\n");
 				if ((res = snd_pcm_prepare(sc->alsa_handler)) < 0) 
 	            {
-	                TLOGD("MSGTR_AO_ALSA_PcmPrepareError\n");
+	                TLOGE("MSGTR_AO_ALSA_PcmPrepareError\n");
 					return res;
 				}
 			}
@@ -370,7 +372,7 @@ namespace aw{
 			//notify:snd_pcm_delay means the cache has how much data(the cache has been filled with pcm data),
 			//snd_pcm_avail_update means the free cache,  
 			if ((ret = snd_pcm_delay(sc->alsa_handler, &delay)) < 0){
-				TLOGD("TinaSoundDeviceGetCachedTime(),ret = %d , delay = %d\n",ret,delay);
+				TLOGE("TinaSoundDeviceGetCachedTime(),ret = %d , delay = %d\n",ret,delay);
 				return ret;
 			}
 			//printf("TinaSoundDeviceGetCachedTime(),snd_pcm_delay>>> delay = %d\n",delay);

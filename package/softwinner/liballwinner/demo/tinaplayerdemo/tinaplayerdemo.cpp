@@ -1,3 +1,6 @@
+#define TAG "TinaPlayerDemo"
+#define CONFIG_TLOG_LEVEL OPTION_TLOG_LEVEL_DEBUG
+#include <tina_log.h>
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -8,11 +11,6 @@
 #include <errno.h>
 
 #include <tinaplayer.h>
-
-#include <tina_log.h>
-
-#define TAG "TinaPlayerDemo"
-#define CONFIG_LOG_LEVEL OPTION_LOG_LEVEL_DETAIL
 
 using namespace aw;
 

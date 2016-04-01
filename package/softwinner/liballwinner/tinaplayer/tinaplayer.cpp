@@ -1,11 +1,11 @@
+#define TAG "TinaPlayer"
+#define CONFIG_TLOG_LEVEL OPTION_TLOG_LEVEL_CLOSE
+#include <tina_log.h>
+
 #include "tinaplayer.h"
 #include <string.h>
-#include <tina_log.h>
 #include "awplayer.h"
 #include "tinasoundcontrol.h"
-
-#define TAG "TinaPlayer"
-#define CONFIG_LOG_LEVEL OPTION_LOG_LEVEL_DETAIL
 
 #define SAVE_PCM_DATA 0
 
@@ -30,7 +30,7 @@ namespace aw{
 		TLOGD(" _SoundDeviceInit\n");
 		gSoundCtrl = TinaSoundDeviceInit(pAudioSink);
 		if(gSoundCtrl == NULL){
-			TLOGD(" _SoundDeviceInit,ERR:gSoundCtrl == NULL\n");
+			TLOGE(" _SoundDeviceInit,ERR:gSoundCtrl == NULL\n");
 		}
 		return gSoundCtrl;
 	}
@@ -68,7 +68,7 @@ namespace aw{
 				int write_ret = fwrite(pData, 1, nDataSize, savaPcmFd);
 				//TLOGD("PCM write_ret = %d\n",write_ret);
 				if(write_ret <= 0){
-					TLOGD("err str: %s\n",strerror(errno));
+					TLOGE("err str: %s\n",strerror(errno));
 				}
 			}
 		#endif
@@ -404,8 +404,8 @@ namespace aw{
 		#if SAVE_PCM_DATA
 			savaPcmFd = fopen("/mnt/UDISK/save.pcm", "wb");
 			if(savaPcmFd==NULL){
-				TLOGD("fopen save.pcm fail****\n");
-				TLOGD("err str: %s\n",strerror(errno));
+				TLOGE("fopen save.pcm fail****\n");
+				TLOGE("err str: %s\n",strerror(errno));
 			}else{
 				fseek(savaPcmFd,0,SEEK_SET);
 			}

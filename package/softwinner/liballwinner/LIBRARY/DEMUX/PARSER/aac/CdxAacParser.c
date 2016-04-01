@@ -518,7 +518,7 @@ static int GetFrame(AacParserImplS *impl)
             nBytes = AACFindSyncWord(readPtr,bytesLeft);
             if(nBytes<0)
             {
-                CDX_LOGE("AACFindSyncWord error");
+                CDX_LOGD("AACFindSyncWord error");
                 return -1;
             }
             nSyncLen  += nBytes; 
@@ -1325,13 +1325,13 @@ static cdx_int32 __AacParserPrefetch(CdxParserT *parser, CdxPacketT *pkt)
         }
         else if(ret == 0)
         {
-           CDX_LOGE("CdxStream EOS");
+           CDX_LOGD("CdxStream EOS");
            impl->mErrno = PSR_EOS;
            return CDX_FAILURE;
         }
         if(ret != AAC_MAINBUF_SIZE)
         {
-           CDX_LOGE("CdxStream EOS");
+           CDX_LOGD("CdxStream EOS");
            impl->mErrno = PSR_EOS;
         }
         
@@ -1346,12 +1346,12 @@ static cdx_int32 __AacParserPrefetch(CdxParserT *parser, CdxPacketT *pkt)
         {
             if(impl->eofReached)
             {
-                CDX_LOGE("CdxStream EOS");
+                CDX_LOGD("CdxStream EOS");
                 impl->mErrno = PSR_EOS;            	
             }
             pkt->length = impl->bytesLeft;
             pkt->pts = -1;
-            CDX_LOGE("maybe sync err");            
+            CDX_LOGD("maybe sync err");            
         } 
         else
         {
@@ -1364,7 +1364,7 @@ static cdx_int32 __AacParserPrefetch(CdxParserT *parser, CdxPacketT *pkt)
     CDX_LOGV("****len:%d,",pkt->length);
     if(pkt->length == 0)
 	{
-	   CDX_LOGE("CdxStream EOS");
+	   CDX_LOGD("CdxStream EOS");
 	   impl->mErrno = PSR_EOS;
 	   return CDX_FAILURE;
 	}
@@ -1402,7 +1402,7 @@ static cdx_int32 __AacParserRead(CdxParserT *parser, CdxPacketT *pkt)
     }
     if(pkt->length == 0)
     {
-       CDX_LOGE("CdxStream EOS");
+       CDX_LOGD("CdxStream EOS");
        impl->mErrno = PSR_EOS;
        return CDX_FAILURE;
     }

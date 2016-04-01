@@ -14,7 +14,7 @@
 #define OPTION_HLS_NOT_SEEK_IN_SEGMENT 0
 
 #ifndef CONFIG_LOG_LEVEL
-#define CONFIG_LOG_LEVEL    OPTION_LOG_LEVEL_WARNING
+#define CONFIG_LOG_LEVEL    OPTION_LOG_LEVEL_ERROR
 #endif
 
 // <CONFIG_HLS_SEEK=1>: seek to the right request point, it may be slower a little.

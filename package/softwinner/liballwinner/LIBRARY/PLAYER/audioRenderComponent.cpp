@@ -715,7 +715,7 @@ process_message:
                     {
 						//check we how much cache we have outside cedarx
 						int cacheout = p->pSoundCtrlOps->SoundDeviceGetCachedTime(p->pSoundCtrl);
-						loge("we have %d ms",cacheout/1000);
+						logd("we have %d ms",cacheout/1000);
 						while(1)
                         {
 							ret = MessageQueueTryGetMessage(p->mq, &msg, 5);
@@ -729,9 +729,9 @@ process_message:
 								goto process_message;
 							}
 	                        cacheout = p->pSoundCtrlOps->SoundDeviceGetCachedTime(p->pSoundCtrl);
-	                        loge("we still have %d ms",cacheout/1000);
+	                        logd("we still have %d ms",cacheout/1000);
 	                        if(cacheout < 10*1000){
-	                            loge("we quit but still have %d ms",cacheout/1000);
+	                            logd("we quit but still have %d ms",cacheout/1000);
 	                            break;
 	                        }
                         }
