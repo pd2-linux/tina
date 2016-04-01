@@ -14,7 +14,7 @@ define Package/tinaplayerdemo
   SECTION:=utils
   CATEGORY:=softwinner
   TITLE:=outside : CedarX2.0 tina player utils for softwinner
-  DEPENDS:=+liballwinner-audio
+  DEPENDS:=+liballwinner
 endef
 
 define Package/tinaplayerdemo/description
