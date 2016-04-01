@@ -449,9 +449,9 @@ static int __WStreamWrite(CdxStreamT *stream, void * buf, cdx_uint32 len)
 	{		
 		memcpy(impl->cache_buf+impl->cache_size, buf, remaind_size);
 		ret = fwrite64(impl->fd, impl->cache_buf, impl->cache_buf_size);	
-	    if(ret < len)
+	    if(ret < impl->cache_buf_size)
 	    {
-	    	loge("wrie err(%d)", errno);
+	    	loge("wrie err(%d), ret: %d, len: %d", errno, ret, len);
 	    	CdxAtomicSet(&impl->state, WRITE_STREAM_IDLE);
 	    	return -1;
 	    }

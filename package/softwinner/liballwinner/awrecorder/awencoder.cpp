@@ -68,6 +68,10 @@ static int ComponentCallbackProcess(void* pSelf, int eMessageId, void* param)
 			
 		case VIDEO_ENCODE_NOTIFY_RETURN_BUFFER:
 		{
+			int id = *((int*)param);
+			logv("===== VIDEO_ENCODE_NOTIFY_RETURN_BUFFER: %d", id);
+			if(p->mCallback)
+				p->mCallback(p->mUserData, AWENCODER_VIDEO_ENCODER_NOTIFY_RETURN_BUFFER, &id);
 		    break;
 		}
 

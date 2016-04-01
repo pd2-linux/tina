@@ -200,6 +200,7 @@ static void* encodeThread(void* pArg)
 	int 				 ret;
 	sem_t*				 pReplySem;
 	int*				 	pReplyValue;
+	VencInputBuffer inputBufferReturn;
 	
 	while(1)
 	{
@@ -245,6 +246,16 @@ static void* encodeThread(void* pArg)
 		} //* end ENC_COMMAND_START.
 		else if(msg.messageId == ENC_COMMAND_ENCODE)
 		{
+			if(p->mUseAllocInputBuffer == 0)
+			{
+				//* check used buffer, return it
+				if(0==AlreadyUsedInputBuffer(p->pEncoder, &inputBufferReturn))
+				{
+					logv("return this buf(%lu)", inputBufferReturn.nID);
+					p->mCallback(p->mUserData, VIDEO_ENCODE_NOTIFY_RETURN_BUFFER, &inputBufferReturn.nID);
+				}
+			}
+			
 			ret = VideoEncodeOneFrame(p->pEncoder);
 			if(ret == VENC_RESULT_ERROR)
 			{
@@ -507,8 +518,15 @@ static int setEncodeType(EncodeCompContex *p, VideoEncodeConfig* config)
 	 	VideoEncGetParameter(p->pEncoder, VENC_IndexParamH264SPSPPS, &p->mPpsInfo);    //VencHeaderData    spsppsInfo;
 	}
 
+	if(config->bUsePhyBuf)
+	{
+		p->mUseAllocInputBuffer = 0;
+	}
+	
 	if(p->mUseAllocInputBuffer)
+	{
 		AllocInputBuffer(p->pEncoder, &bufferParam);
+	}
 
     return 0;
 }
@@ -732,25 +750,33 @@ int VideoEncodeCompReset(VideoEncodeComp* v)
 
 int VideoEncodeCompInputBuffer(VideoEncodeComp* v, VideoInputBuffer *buf)
 {
-	if(buf == NULL || buf->pData == NULL)
-	{
-		loge("input buffer failed");
-		return -1;
-	}
 	EncodeCompContex* p;
 	int ret;
 	p = (EncodeCompContex*)v;
+
+	if(buf == NULL )
+	{
+		if((p->mUseAllocInputBuffer && buf->pAddrPhyC == NULL && buf->pAddrPhyY == NULL) ||
+			(!p->mUseAllocInputBuffer && buf->pData == NULL))
+		{
+			loge("input buffer failed");
+			return -1;
+		}		
+	}
+	
 	unsigned int sizeY = p->mInputWidth*p->mInputHeight;
 	VencInputBuffer inputBuffer, inputBufferReturn;
 
-	if(buf->nLen!= sizeY*3/2)
-	{
-		loge("input buf length not right");
-		return -1;
-	}
+	memset(&inputBuffer, 0x00, sizeof(VencInputBuffer));
 	
 	if(p->mUseAllocInputBuffer)
 	{
+		if(buf->nLen!= sizeY*3/2)
+		{
+			loge("input buf length not right");
+			return -1;
+		}
+		
 		//* check used buffer, return it
 		if(0==AlreadyUsedInputBuffer(p->pEncoder, &inputBufferReturn))
 		{
@@ -783,12 +809,17 @@ int VideoEncodeCompInputBuffer(VideoEncodeComp* v, VideoInputBuffer *buf)
 	}
 	else
 	{
-		//* check used buffer, return it
-		if(0==AlreadyUsedInputBuffer(p->pEncoder, &inputBufferReturn))
-		{
-			logd("return this buf(%lu)", inputBufferReturn.nID);
-			p->mCallback(p->mUserData, VIDEO_ENCODE_NOTIFY_RETURN_BUFFER, &inputBufferReturn);
-		}
+		inputBuffer.nID = buf->nID;
+		inputBuffer.nPts = buf->nPts;
+		inputBuffer.nFlag = 0;
+		inputBuffer.pAddrPhyY = buf->pAddrPhyY;
+		inputBuffer.pAddrPhyC = buf->pAddrPhyC;
+
+		inputBuffer.bEnableCorp = 0;
+		inputBuffer.sCropInfo.nLeft =  240;
+		inputBuffer.sCropInfo.nTop  =  240;
+		inputBuffer.sCropInfo.nWidth  =  240;
+		inputBuffer.sCropInfo.nHeight =  240;
 	}
 
 	ret = AddOneInputBuffer(p->pEncoder, &inputBuffer);

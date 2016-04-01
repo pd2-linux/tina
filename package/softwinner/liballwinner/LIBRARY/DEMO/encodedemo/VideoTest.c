@@ -4,23 +4,17 @@
 #include <string.h>
 #include "vencoder.h"
 #include <time.h>
+#include "memoryAdapter.h"
 
 #define DEMO_FILE_NAME_LEN 256
 #define	USE_SVC	0
 
-#define _ENCODER_TIME_
-#ifdef _ENCODER_TIME_
-static long long GetNowUs()
-{
-	struct timeval now;
-	gettimeofday(&now, NULL);
-	return now.tv_sec * 1000000 + now.tv_usec;
-}
-
-long long time1=0;
-long long time2=0;
-long long time3=0;
+#if CONFIG_CHIP == OPTION_CHIP_1639
+#define PHY_OFFSET 0x20000000
+#else
+#define PHY_OFFSET 0x40000000
 #endif
+
 
 
 typedef struct
@@ -293,7 +287,6 @@ int main(int argc, char** argv)
 	VencH264FixQP fixQP;
 	EXIFInfo exifinfo;
 	VencCyclicIntraRefresh sIntraRefresh;
-	unsigned int src_width,src_height,dst_width,dst_height;
 	unsigned char *uv_tmp_buffer = NULL;
 
 	VencSuperFrameConfig 	sSuperFrameCfg;
@@ -302,7 +295,6 @@ int main(int argc, char** argv)
 
 	int result = 0;
 	int i = 0;
-	long long pts = 0;
 	
 	FILE *in_file = NULL;
 	FILE *out_file = NULL;
@@ -467,7 +459,6 @@ int main(int argc, char** argv)
 		fclose(in_file);
 		return -1;
 	}
-	logd("++xhuqi");
 
 	memset(&baseConfig, 0 ,sizeof(VencBaseConfig));
 	memset(&bufferParam, 0 ,sizeof(VencAllocateBufferParam));
@@ -478,7 +469,7 @@ int main(int argc, char** argv)
 	
 	baseConfig.nDstWidth = encode_param.dst_width;
 	baseConfig.nDstHeight = encode_param.dst_height;
-	baseConfig.eInputFormat = VENC_PIXEL_YUV420SP;
+	baseConfig.eInputFormat = VENC_PIXEL_YUV420P;
 
 	bufferParam.nSizeY = baseConfig.nInputWidth*baseConfig.nInputHeight;
 	bufferParam.nSizeC = baseConfig.nInputWidth*baseConfig.nInputHeight/2;
@@ -499,28 +490,6 @@ int main(int argc, char** argv)
 		int value;
 		
 		VideoEncSetParameter(pVideoEnc, VENC_IndexParamH264Param, &h264Param);
-
-#if USE_SVC
-		// Add for  Temporal SVC and Skip_Frame
-		SVCSkip.nTemporalSVC = T_LAYER_4;
-		switch(SVCSkip.nTemporalSVC)
-		{
-			case T_LAYER_4:
-				SVCSkip.nSkipFrame = SKIP_8;
-				break;
-			case T_LAYER_3:
-				SVCSkip.nSkipFrame = SKIP_4;
-				break;	
-			case T_LAYER_2:
-				SVCSkip.nSkipFrame = SKIP_2;
-				break;	
-			default:	
-				SVCSkip.nSkipFrame = NO_SKIP;
-				break;
-		}
-		
-		VideoEncSetParameter(pVideoEnc, VENC_IndexParamH264SVCSkip, &SVCSkip);
-#endif
 
 		value = 0;
 		VideoEncSetParameter(pVideoEnc, VENC_IndexParamIfilter, &value);
@@ -580,71 +549,38 @@ int main(int argc, char** argv)
 		//encode_param.encode_frame_num = 1;
 	}
 
-	AllocInputBuffer(pVideoEnc, &bufferParam);
+	//AllocInputBuffer(pVideoEnc, &bufferParam);
 
-	if(baseConfig.eInputFormat == VENC_PIXEL_YUV420SP)
-	{
-		uv_tmp_buffer = (unsigned char*)malloc(baseConfig.nInputWidth*baseConfig.nInputHeight/2);
-		if(uv_tmp_buffer == NULL)
-		{
-			loge("malloc uv_tmp_buffer fail\n");
-			fclose(out_file);
-			fclose(in_file);
-			return -1;
-		}
-	}
 
-#if USE_SVC
-	// used for throw frame test with SVC
-	int TemporalLayer = -1;
-	char p9bytes[9] = {0};
-#endif
-		
+	unsigned char* pAddrVirY = MemAdapterPalloc(bufferParam.nSizeY);
+	unsigned char* pAddrVirC = MemAdapterPalloc(bufferParam.nSizeC);
+			
+	unsigned int size1, size2;
+
+	size1 = fread(pAddrVirY, 1, baseConfig.nInputWidth*baseConfig.nInputHeight, in_file);
+	size2 = fread(pAddrVirC, 1, baseConfig.nInputWidth*baseConfig.nInputHeight/2, in_file);
+	MemAdapterFlushCache(pAddrVirY, bufferParam.nSizeY);
+	MemAdapterFlushCache(pAddrVirC, bufferParam.nSizeC);
+
+	inputBuffer.nID = 0;
+	inputBuffer.pAddrPhyY = MemAdapterGetPhysicAddress(pAddrVirY)+PHY_OFFSET;
+	inputBuffer.pAddrPhyC = MemAdapterGetPhysicAddress(pAddrVirC)+PHY_OFFSET;
+			
 	unsigned int testNumber = 0;
-	
+		
 	while(testNumber < encode_param.encode_frame_num)
 	{
-		GetOneAllocInputBuffer(pVideoEnc, &inputBuffer);
-		{
-			unsigned int size1, size2;
-			
-			size1 = fread(inputBuffer.pAddrVirY, 1, baseConfig.nInputWidth*baseConfig.nInputHeight, in_file);
-			size2 = fread(inputBuffer.pAddrVirC, 1, baseConfig.nInputWidth*baseConfig.nInputHeight/2, in_file);
-
-			if((size1!= baseConfig.nInputWidth*baseConfig.nInputHeight) || (size2!= baseConfig.nInputWidth*baseConfig.nInputHeight/2))
-			{
-				fseek(in_file, 0L, SEEK_SET);
-				size1 = fread(inputBuffer.pAddrVirY, 1, baseConfig.nInputWidth*baseConfig.nInputHeight, in_file);
-				size2 = fread(inputBuffer.pAddrVirC, 1, baseConfig.nInputWidth*baseConfig.nInputHeight/2, in_file);
-			}
-
-			
-			if(baseConfig.eInputFormat == VENC_PIXEL_YUV420SP)
-			{
-				yu12_nv12(baseConfig.nInputWidth, baseConfig.nInputHeight, inputBuffer.pAddrVirC, uv_tmp_buffer);
-			}
-		}
-		
 		inputBuffer.bEnableCorp = 0;
 		inputBuffer.sCropInfo.nLeft =  240;
 		inputBuffer.sCropInfo.nTop  =  240;
 		inputBuffer.sCropInfo.nWidth  =  240;
 		inputBuffer.sCropInfo.nHeight =  240;
 
-		FlushCacheAllocInputBuffer(pVideoEnc, &inputBuffer);
-
-		//pts += 66000;
-		//inputBuffer.nPts = pts;
-		
 		AddOneInputBuffer(pVideoEnc, &inputBuffer);
-		time1 = GetNowUs();
 		VideoEncodeOneFrame(pVideoEnc);
-		time2 = GetNowUs();
-		logv("encode frame %d use time is %lldus..\n",testNumber,(time2-time1));
-		time3 += time2-time1;
 
 		AlreadyUsedInputBuffer(pVideoEnc,&inputBuffer);
-		ReturnOneAllocInputBuffer(pVideoEnc, &inputBuffer);
+		logd("========= used buf: %d", inputBuffer.nID);
 
 		result = GetOneBitstreamFrame(pVideoEnc, &outputBuffer);
 		if((sSuperFrameCfg.eSuperFrameMode==VENC_SUPERFRAME_DISCARD) && (result==-1))
@@ -657,39 +593,12 @@ int main(int argc, char** argv)
 			goto out;
 		}
 		
-#if USE_SVC
-		// used for throw frame test with SVC
-		memcpy(p9bytes, outputBuffer.pData0, 9);
-		TemporalLayer = SeekPrefixNAL(p9bytes);		
-
-		switch(TemporalLayer)
-		{
-
-			case 3:
-			case 2:
-			case 1:
-				logv("just write the PrefixNAL\n");
-				fwrite(outputBuffer.pData0, 1, 9, out_file);
-				break;
-
-			default:
-				logv("\nTemporalLayer=%d,  testNumber=%d\n", TemporalLayer, testNumber);
-				fwrite(outputBuffer.pData0, 1, outputBuffer.nSize0, out_file);
-				//fwrite(outputBuffer.pData0+9, 1, outputBuffer.nSize0-9, out_file);
-				if(outputBuffer.nSize1)
-				{
-					fwrite(outputBuffer.pData1, 1, outputBuffer.nSize1, out_file);
-				}
-				break;		
-		}					
-#else
 		fwrite(outputBuffer.pData0, 1, outputBuffer.nSize0, out_file);
 
 		if(outputBuffer.nSize1)
 		{
 			fwrite(outputBuffer.pData1, 1, outputBuffer.nSize1, out_file);
 		}
-#endif
 
 		FreeOneBitStreamFrame(pVideoEnc, &outputBuffer);
 
@@ -711,14 +620,17 @@ int main(int argc, char** argv)
 		testNumber++;
 	}
 
-	logd("the average encode time is %lldus...\n",time3/testNumber);
-
 out:
 	printf("output file is saved:%s\n",encode_param.output_file);
 	fclose(out_file);
 	fclose(in_file);
 	if(uv_tmp_buffer)
 		free(uv_tmp_buffer);
+
+	if(pAddrVirY)
+		MemAdapterPfree(pAddrVirY);
+	if(pAddrVirC)
+		MemAdapterPfree(pAddrVirC);
 
 	return 0;
 }

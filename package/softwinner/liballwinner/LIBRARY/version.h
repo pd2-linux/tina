@@ -7,7 +7,7 @@ extern "C" {
 
 #define REPO_TAG "cedarx_linux_v0.7"
 #define REPO_BRANCH "master"
-#define REPO_COMMIT "6064dd49ef9dbe181a240d537f3e804966d3382d"
+#define REPO_COMMIT "b1b0e207df8a2b26d099eb6e27197935a500cda4"
 #define RELEASE_AUTHOR "xuqi"
 
 static inline void LogVersionInfo(void)

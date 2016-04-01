@@ -530,7 +530,7 @@ int main(int argc, char** argv)
         {
             memcpy((char*)pkt.buf + outputBuffer.nSize0, outputBuffer.pData1, outputBuffer.nSize1);
         }
-        pkt.pts = outputBuffer.nPts;
+        pkt.pts = outputBuffer.nPts / 1000;
         pkt.duration = 1.0/ media_info.video.nFrameRate * 1000;
         pkt.type = 0;
         pkt.streamIndex = 0;

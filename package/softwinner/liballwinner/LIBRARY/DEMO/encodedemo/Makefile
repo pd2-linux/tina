@@ -70,6 +70,7 @@ SourceIncludePath = $(foreach dir,$(SourcePath),-I$(dir)) \
                     -I../../CODEC/SUBTITLE/DECODER/include  \
                     -I../../PLAYER/include/ \
                     -I../../PLUGIN/include/ \
+                    -I../../MEMORY/include/ \
 
 ## set compile flags
 CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -Wall -O2 -ldl

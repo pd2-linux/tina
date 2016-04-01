@@ -267,7 +267,7 @@ unsigned long ion_alloc_alloc(int size)
 	/*alloc buffer*/
 	alloc_data.len = size;
 	alloc_data.align = ION_ALLOC_ALIGN ;
-	alloc_data.heap_id_mask = ION_HEAP_CARVEOUT_MASK;
+	alloc_data.heap_id_mask = ION_HEAP_CARVEOUT_MASK | ION_HEAP_DMA_MASK;
 	alloc_data.flags = ION_FLAG_CACHED | ION_FLAG_CACHED_NEEDS_SYNC;
 	ret = ioctl(g_alloc_context->fd, ION_IOC_ALLOC, &alloc_data);
 	if (ret)

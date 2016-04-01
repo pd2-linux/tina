@@ -36,6 +36,8 @@ cdx_int32  CdxSockAsynConnect(cdx_int32 sockfd, const struct sockaddr *addr,
 
 cdx_int32 CdxSockIsBlocking(cdx_int32 sockfd);
 
+cdx_void CdxSockDisableTcpKeepalive(cdx_int32 sockfd);
+
 #ifdef __cplusplus
 }
 #endif

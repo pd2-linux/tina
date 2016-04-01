@@ -274,6 +274,12 @@ static int __TsMuxerClose(CdxMuxerT *mux)
 		ts->services = NULL;
     }
 
+    if(impl->stream_writer)
+    {
+    	CdxStreamClose(impl->stream_writer);
+    	impl->stream_writer = NULL;
+    }
+
     if(impl->cache_in_ts_stream)
     {
         free(impl->cache_in_ts_stream);

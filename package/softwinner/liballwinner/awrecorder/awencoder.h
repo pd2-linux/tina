@@ -27,6 +27,7 @@ enum ERECORDERINTERNALNOTIFY  //*
     AWENCODER_VIDEO_ENCODER_NOTIFY_CRASH,
     AWENCODER_VIDEO_ENCODER_NOTIFY_EOS,
     AWENCODER_VIDEO_ENCODER_NOTIFY_OUT_BUFFER,
+    AWENCODER_VIDEO_ENCODER_NOTIFY_RETURN_BUFFER,
  
     AWENCODER_AUDIO_ENCODER_NOTIFY_STREAM_UNDERFLOW        = 96,
     AWENCODER_AUDIO_ENCODER_NOTIFY_CRASH,
@@ -76,13 +77,18 @@ typedef struct VideoEncodeConfig
     int 			nSrcFrameRate;
     int 			nSrcWidth;
     int 			nSrcHeight;
+    int             bUsePhyBuf;
 }VideoEncodeConfig;
 
 typedef struct VideoInputBuffer
 {
-    unsigned char   *pData;			//data buff
+    unsigned char*  pData;			//virtual data buff
     int             nLen;			//data len
     long long       nPts;			//pts
+
+    unsigned long   nID;
+	unsigned char*  pAddrPhyY;
+	unsigned char*  pAddrPhyC;
 }VideoInputBuffer;
 
 typedef struct AudioInputBuffer
@@ -116,7 +122,7 @@ typedef struct EncDataCallBackOps
 } EncDataCallBackOps;
 
 
-typedef void (*EncoderNotifyCallback)(void* pUserData, int msg, int param0, void* param1);
+typedef void (*EncoderNotifyCallback)(void* pUserData, int msg, void* param);
 
 AwEncoder*     AwEncoderCreate(void * app);
 void           AwEncoderDestory(AwEncoder* p);
