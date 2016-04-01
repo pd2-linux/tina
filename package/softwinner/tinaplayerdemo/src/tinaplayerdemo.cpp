@@ -1,5 +1,5 @@
 #define TAG "TinaPlayerDemo"
-#define CONFIG_LOG_LEVEL OPTION_LOG_LEVEL_DETAIL
+#define CONFIG_TLOG_LEVEL OPTION_TLOG_LEVEL_DEBUG
 #include <tina_log.h>
 
 #include <unistd.h>
@@ -11,8 +11,6 @@
 #include <errno.h>
 
 #include <allwinner/tinaplayer.h>
-
-
 
 using namespace aw;
 
@@ -425,6 +423,7 @@ void CallbackForTinaPlayer(void* pUserData, int msg, int param0, void* param1)
             pDemoPlayer->mPreStatus = pDemoPlayer->mStatus;
             pDemoPlayer->mStatus = STATUS_PREPARED;
             TLOGD("info: prepare ok.\n");
+			printf("TINA_NOTIFY_PREPARED : is playing = %d\n",pDemoPlayer->mTinaPlayer->isPlaying());
             pthread_mutex_unlock(&pDemoPlayer->mMutex);
             break;
         }
@@ -448,6 +447,7 @@ void CallbackForTinaPlayer(void* pUserData, int msg, int param0, void* param1)
             //* TODO
             TLOGD("TINA_NOTIFY_PLAYBACK_COMPLETE\n");
             pDemoPlayer->mStatus = STATUS_COMPLETED;
+			printf("TINA_NOTIFY_PLAYBACK_COMPLETE : is playing = %d\n",pDemoPlayer->mTinaPlayer->isPlaying());
             break;
         }
             
@@ -546,7 +546,7 @@ int main(int argc, char** argv)
     demoPlayer.mTinaPlayer= new TinaPlayer();
     if(demoPlayer.mTinaPlayer == NULL)
     {
-        TLOGD("can not create tinaplayer, quit.\n");
+        TLOGE("can not create tinaplayer, quit.\n");
         exit(-1);
     }
     
@@ -556,7 +556,7 @@ int main(int argc, char** argv)
     //* check if the player work.
     if(demoPlayer.mTinaPlayer->initCheck() != 0)
     {
-        TLOGD("initCheck of the player fail, quit.\n");
+        TLOGE("initCheck of the player fail, quit.\n");
         delete demoPlayer.mTinaPlayer;
 	    demoPlayer.mTinaPlayer = NULL;
         exit(-1);
@@ -603,7 +603,7 @@ int main(int argc, char** argv)
                 {
                     char* pUrl;
                     pUrl = (char*)(uintptr_t)nCommandParam;
-                    
+                    printf("COMMAND_SET_SOURCE : is playing = %d\n",demoPlayer.mTinaPlayer->isPlaying());
                     if((demoPlayer.mStatus != STATUS_STOPPED) && (demoPlayer.mStatus != STATUS_COMPLETED))
                     {
                         TLOGD("invalid command:\n");
@@ -630,7 +630,7 @@ int main(int argc, char** argv)
                         TLOGD("    tinaplayer::setDataSource() return fail.\n");
                         break;
                     }
-                     TLOGD("setDataSource end\n");
+                    TLOGD("setDataSource end\n");
                     
                     //* start preparing.
                     pthread_mutex_lock(&demoPlayer.mMutex);    //* lock to sync with the prepare finish notify.
@@ -653,6 +653,7 @@ int main(int argc, char** argv)
                 
                 case COMMAND_PLAY:   //* start playback.
                 {
+					
                     if(demoPlayer.mStatus != STATUS_PREPARED &&
                        demoPlayer.mStatus != STATUS_SEEKING &&
                        demoPlayer.mStatus != STATUS_PAUSED &&
@@ -683,6 +684,7 @@ int main(int argc, char** argv)
                         demoPlayer.mPreStatus = STATUS_PLAYING; //* current status is seeking, will set 
                                                                 //* to mPreStatus when seek finish callback.
                     }
+					printf("COMMAND_PLAY : is playing = %d\n",demoPlayer.mTinaPlayer->isPlaying());
                     break;
                 }
                 
@@ -717,6 +719,7 @@ int main(int argc, char** argv)
                         demoPlayer.mPreStatus = STATUS_PAUSED;  //* current status is seeking, will set 
                                                                 //* to mPreStatus when seek finish callback.
                     }
+					printf("COMMAND_PAUSE : is playing = %d\n",demoPlayer.mTinaPlayer->isPlaying());
                     break;
                 }
                 
@@ -730,6 +733,7 @@ int main(int argc, char** argv)
                     }
                     demoPlayer.mPreStatus = demoPlayer.mStatus;
                     demoPlayer.mStatus    = STATUS_STOPPED;
+					printf("COMMAND_STOP : is playing = %d\n",demoPlayer.mTinaPlayer->isPlaying());
                     TLOGD("stopped.\n");
                     break;
                 }
@@ -785,7 +789,7 @@ int main(int argc, char** argv)
                     if(demoPlayer.mTinaPlayer->getDuration(&nDuration) == 0)
                         TLOGD("media duration = %u seconds.\n", nDuration/1000);
                     else
-                        TLOGD("fail to get media duration.\n");
+                        TLOGE("fail to get media duration.\n");
                     break;
                 }
                 
@@ -795,7 +799,7 @@ int main(int argc, char** argv)
                     if(demoPlayer.mTinaPlayer->getCurrentPosition(&nPosition) == 0)
                         TLOGD("current position = %u seconds.\n", nPosition/1000);
                     else
-                        TLOGD("fail to get pisition.\n");
+                        TLOGE("fail to get pisition.\n");
                     break;
                 }
                 
