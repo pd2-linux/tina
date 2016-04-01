@@ -6,7 +6,6 @@
 #include <pthread.h>
 #include <string>
 #include <map>
-#include <tinasoundcontrol.h>
 
 using namespace std;
 

@@ -2,6 +2,7 @@
 #include <string.h>
 #include <tina_log.h>
 #include "awplayer.h"
+#include "tinasoundcontrol.h"
 
 #define TAG "TinaPlayer"
 #define CONFIG_LOG_LEVEL OPTION_LOG_LEVEL_DETAIL
