@@ -350,7 +350,7 @@ int AwPlayer::reset()
 int AwPlayer::isPlaying()
 {
     logv("isPlaying");
-    if(mStatus == AWPLAYER_STATUS_STARTED || mStatus == AWPLAYER_STATUS_COMPLETE)
+    if((mStatus == AWPLAYER_STATUS_STARTED) || ((mStatus == AWPLAYER_STATUS_COMPLETE) && (mLoop != 0)))
         return 1;
     else
         return 0;
