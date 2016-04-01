@@ -1,34 +1,25 @@
-# liballwinner avanced configuration
+# liballwinner advanced configuration
 
-menu "liballwiner Configuration"
+menu "liballwinner of chip platform Configuration"
 
 	depends on PACKAGE_liballwinner
 
 	choice
 	
-		prompt "select the chip platform and multimedia control type"
-		default R16_ALL_ENDECODE
+		prompt "select the chip platform"
+		default R16_LIBALLWINNER
 		
 		help
-		  Select the chip platform and multimedia control type ,ALL_ENDECODE means support encode and decode,ONLY_AUDIO_DECODE means only support audio decode
+		  Select the chip platform 
 
-		config R8_ALL_ENDECODE
-			bool "R8_ALL_ENDECODE"
+		config R8_LIBALLWINNER
+			bool "R8_LIBALLWINNER"
 
-		config R8_ONLY_AUDIO_DECODE
-			bool "R8_ONLY_AUDIO_DECODE"
+		config R16_LIBALLWINNER
+			bool "R16_LIBALLWINNER"
 
-		config R16_ALL_ENDECODE
-			bool "R16_ALL_ENDECODE"
-
-		config R16_ONLY_AUDIO_DECODE
-			bool "R16_ONLY_AUDIO_DECODE"
-
-		config R58_ALL_ENDECODE
-			bool "R58_ALL_ENDECODE"
-
-		config R58_ONLY_AUDIO_DECODE
-			bool "R58_ONLY_AUDIO_DECODE"
+		config R58_LIBALLWINNER
+			bool "R58_LIBALLWINNER"
 
 	endchoice
 		

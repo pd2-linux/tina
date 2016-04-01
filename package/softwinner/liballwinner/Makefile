@@ -13,34 +13,36 @@ include ./LIBRARY/config.mk
 TINA_CHIP_TYPE = 1667
 TINA_PRODUCT_TYPE = pad
 
-ifeq ($(CONFIG_R8_ALL_ENDECODE),y) 
+VIDEO_DECODE_LIB := libawavs.so \
+                    libawh264.so \
+                    libawh265.so \
+                    libawmjpegplus.so \
+                    libawmjpeg.so \
+                    libawmpeg2.so \
+                    libawmpeg4base.so \
+                    libawmpeg4dx.so \
+                    libawmpeg4h263.so \
+                    libawmpeg4normal.so \
+                    libawmpeg4vp6.so \
+                    libawvp8.so \
+                    libawwmv3.so
+
+SYSTEM_LIB := libasound.so \
+              libcrypto.so \
+              libssl.so \
+              libxml2.so \
+              libz.so
+
+ifeq ($(CONFIG_R8_LIBALLWINNER),y) 
     TINA_CHIP_TYPE = 1625
-    TINA_PRODUCT_TYPE = pad
 endif
 
-ifeq ($(CONFIG_R8_ONLY_AUDIO_DECODE),y) 
-    TINA_CHIP_TYPE = 1625
-    TINA_PRODUCT_TYPE = loudspeaker
-endif
-
-ifeq ($(CONFIG_R16_ALL_ENDECODE),y) 
+ifeq ($(CONFIG_R16_LIBALLWINNER),y) 
     TINA_CHIP_TYPE = 1667
-    TINA_PRODUCT_TYPE = pad
 endif
 
-ifeq ($(CONFIG_R16_ONLY_AUDIO_DECODE),y) 
-    TINA_CHIP_TYPE = 1667
-    TINA_PRODUCT_TYPE = loudspeaker
-endif
-
-ifeq ($(CONFIG_R58_ALL_ENDECODE),y) 
+ifeq ($(CONFIG_R58_LIBALLWINNER),y) 
     TINA_CHIP_TYPE = 1673
-    TINA_PRODUCT_TYPE = pad
-endif
-
-ifeq ($(CONFIG_R58_ONLY_AUDIO_DECODE),y) 
-    TINA_CHIP_TYPE = 1673
-    TINA_PRODUCT_TYPE=loudspeaker
 endif
 
 define Package/liballwinner
@@ -106,12 +108,6 @@ endef
 
 define Build/Configure
 	$(warning ***********Build/Configure***************)
-	$(warning **********R8_ALL_ENDECODE = $(CONFIG_R8_ALL_ENDECODE)********in Build/Configure)
-	$(warning **********R8_ONLY_AUDIO_DECODE = $(CONFIG_R8_ONLY_AUDIO_DECODE)********in Build/Configure)
-	$(warning **********R16_ALL_ENDECODE = $(CONFIG_R16_ALL_ENDECODE)********in Build/Configure)
-	$(warning **********R16_ONLY_AUDIO_DECODE = $(CONFIG_R16_ONLY_AUDIO_DECODE)********in Build/Configure)
-	$(warning **********R58_ALL_ENDECODE = $(CONFIG_R58_ALL_ENDECODE)********in Build/Configure)
-	$(warning **********R58_ONLY_AUDIO_DECODE = $(CONFIG_R58_ONLY_AUDIO_DECODE)********in Build/Configure)
 	$(warning **********TINA_CHIP_TYPE = $(TINA_CHIP_TYPE)********in Build/Configure)
 	$(warning **********TINA_PRODUCT_TYPE = $(TINA_PRODUCT_TYPE)********in Build/Configure)
 	cd $(PKG_BUILD_DIR); ./LIBRARY/configure --tool-chain=ucgnueabi --chip=$(TINA_CHIP_TYPE) --product=$(TINA_PRODUCT_TYPE)
@@ -209,6 +205,9 @@ define Package/liballwinner/install
 	## copy libraries
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/LIBRARY/install/lib/*.so                           $(1)/usr/lib/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/tinaplayer/libtinaplayer.so                        $(1)/usr/lib/
+
+	cd $(1)/usr/lib/; rm -rf $(VIDEO_DECODE_LIB) $(SYSTEM_LIB)
+
 endef
 
 define Package/recoderdemo/install
