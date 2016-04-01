@@ -17,17 +17,14 @@ endif
 ifeq ($(CONFIG_CHIP),$(OPTION_CHIP_1673))
 		ln -s ./EXTERNAL/lib32/ve/ucgnueabi_1673/ VE
 endif
+ifeq ($(CONFIG_CHIP),$(OPTION_CHIP_1625))
+		ln -s ./EXTERNAL/lib32/ve/ucgnueabi_1625/ VE
+endif
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_UCGNUEABI))
 ifeq ($(CONFIG_CHIP),$(OPTION_CHIP_1651))
 		ln -s ./EXTERNAL/lib32/ve/linuxgnueabi_1651/ VE
-endif
-endif
-
-ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_UCGNUEABI))
-ifeq ($(CONFIG_CHIP),$(OPTION_CHIP_1625))
-		ln -s ./EXTERNAL/lib32/ve/linuxgnueabi_1625/ VE
 endif
 endif
 
