@@ -20,11 +20,17 @@ namespace aw{
 		printf("openSoundDevice()\n");
 		if(!sc->alsa_handler){
 			if(isOpenForPlay){
-				if(ret = snd_pcm_open(&sc->alsa_handler, "default",SND_PCM_STREAM_PLAYBACK ,mode)<0){
-					TLOGE("open audio device failed:%s\n",strerror(errno));
+				if((ret = snd_pcm_open(&sc->alsa_handler, "default",SND_PCM_STREAM_PLAYBACK ,mode))<0){
+					TLOGE("open audio device failed:%s\n, errno = %d",strerror(errno),errno);
+					if(errno == 16){//the device is busy,sleep 2 second and try again
+						sleep(2);
+						if((ret = snd_pcm_open(&sc->alsa_handler, "default",SND_PCM_STREAM_PLAYBACK ,mode))<0){
+							TLOGE("open audio device failed:%s\n, errno = %d",strerror(errno),errno);
+						}
+					}
 				}
 			}else{
-				if(ret = snd_pcm_open(&sc->alsa_handler, "default",SND_PCM_STREAM_CAPTURE ,mode)<0){
+				if((ret = snd_pcm_open(&sc->alsa_handler, "default",SND_PCM_STREAM_CAPTURE ,mode))<0){
 					TLOGE("open audio device failed:%s\n",strerror(errno));
 				}
 			}
@@ -65,15 +71,15 @@ namespace aw{
 
 		if ((ret = snd_pcm_hw_params_any(sc->alsa_handler, sc->alsa_hwparams)) < 0) 
         {
-        	TLOGE("snd_pcm_hw_params_any failed:%s\n",strerror(errno));
-        	return ret;
+		TLOGE("snd_pcm_hw_params_any failed:%s\n",strerror(errno));
+		return ret;
         }
 		
 		if ((ret = snd_pcm_hw_params_set_access(sc->alsa_handler, sc->alsa_hwparams,
                     SND_PCM_ACCESS_RW_INTERLEAVED)) < 0) 
         {
-        	TLOGE("snd_pcm_hw_params_set_access failed:%s\n",strerror(errno));
-        	return ret;
+		TLOGE("snd_pcm_hw_params_set_access failed:%s\n",strerror(errno));
+		return ret;
         }
 
 		if ((ret = snd_pcm_hw_params_test_format(sc->alsa_handler, sc->alsa_hwparams,
@@ -137,7 +143,7 @@ namespace aw{
 
 		return ret;
 
-   	}
+	}
 
 	SoundCtrl* TinaSoundDeviceInit(void* pAudioSink){
 		SoundCtrlContext* s;
@@ -161,21 +167,21 @@ namespace aw{
 
 	void TinaSoundDeviceRelease(SoundCtrl* s){
 		SoundCtrlContext* sc;
-    	sc = (SoundCtrlContext*)s;
+	sc = (SoundCtrlContext*)s;
 		pthread_mutex_lock(&sc->mutex);
 		TLOGD("TinaSoundDeviceRelease()\n");
 		if(sc->sound_status != STATUS_STOP){
 			closeSoundDevice(sc);
 		}
 		pthread_mutex_unlock(&sc->mutex);
-    	pthread_mutex_destroy(&sc->mutex);
+	pthread_mutex_destroy(&sc->mutex);
 		free(sc);
-    	sc = NULL;
+	sc = NULL;
 	}
 
 	void TinaSoundDeviceSetFormat(SoundCtrl* s, unsigned int nSampleRate, unsigned int nChannelNum){
 		SoundCtrlContext* sc;
-    	sc = (SoundCtrlContext*)s;
+	sc = (SoundCtrlContext*)s;
 		pthread_mutex_lock(&sc->mutex);
 		TLOGD("TinaSoundDeviceSetFormat(),sc->sound_status == %d\n",sc->sound_status);
 		if(sc){
@@ -185,7 +191,7 @@ namespace aw{
 				sc->nChannelNum = nChannelNum;
 				sc->alsa_format = SND_PCM_FORMAT_S16_LE;
 				sc->bytes_per_sample = snd_pcm_format_physical_width(sc->alsa_format) / 8;
-	        	sc->bytes_per_sample *= nChannelNum;
+			sc->bytes_per_sample *= nChannelNum;
 				TLOGD("TinaSoundDeviceSetFormat()>>>sample_rate:%d,channel_num:%d,sc->bytes_per_sample:%d\n",
 					nSampleRate,nChannelNum,sc->bytes_per_sample);
 			}
@@ -198,7 +204,7 @@ namespace aw{
 
 	int TinaSoundDeviceStart(SoundCtrl* s){
 		SoundCtrlContext* sc;
-    	sc = (SoundCtrlContext*)s;
+	sc = (SoundCtrlContext*)s;
 		pthread_mutex_lock(&sc->mutex);
 		int ret = 0;
 		TLOGD("TinaSoundDeviceStart(): sc->sound_status = %d\n",sc->sound_status);
@@ -218,7 +224,7 @@ namespace aw{
 				if((ret = snd_pcm_pause(sc->alsa_handler, 0))<0){
 					TLOGE("snd_pcm_pause failed:%s\n",strerror(errno));
 					pthread_mutex_unlock(&sc->mutex);
-	            	return ret;
+			return ret;
 				}
 			}else{
 				if ((ret = snd_pcm_prepare(sc->alsa_handler)) < 0) 
@@ -234,8 +240,11 @@ namespace aw{
 			sc->alsa_fragcount = 8;
             sc->chunk_size = 2048;//1024;
 			ret = openSoundDevice(sc, true, BLOCK_MODE);
-			ret = setSoundDeviceParams(sc);
-			sc->sound_status = STATUS_START;
+			TLOGD("after openSoundDevice() ret = %d\n",ret);
+			if(ret >= 0){
+				ret = setSoundDeviceParams(sc);
+				sc->sound_status = STATUS_START;
+			}
 		}
 		pthread_mutex_unlock(&sc->mutex);
 		return ret;
@@ -244,7 +253,7 @@ namespace aw{
 	int TinaSoundDeviceStop(SoundCtrl* s){
 		int ret = 0;
 		SoundCtrlContext* sc;
-    	sc = (SoundCtrlContext*)s;
+	sc = (SoundCtrlContext*)s;
 		pthread_mutex_lock(&sc->mutex);
 		TLOGD("TinaSoundDeviceStop():sc->sound_status = %d\n",sc->sound_status);
 		if(sc->sound_status == STATUS_STOP)
@@ -253,7 +262,7 @@ namespace aw{
 			pthread_mutex_unlock(&sc->mutex);
 			return ret;
 	    }else{
-	    	if ((ret = snd_pcm_drop(sc->alsa_handler)) < 0) 
+		if ((ret = snd_pcm_drop(sc->alsa_handler)) < 0)
 		    {
 		        TLOGE("MSGTR_AO_ALSA_PcmPrepareError");
 				pthread_mutex_unlock(&sc->mutex);
@@ -274,7 +283,7 @@ namespace aw{
 
 	int TinaSoundDevicePause(SoundCtrl* s){
 		SoundCtrlContext* sc;
-    	sc = (SoundCtrlContext*)s;
+	sc = (SoundCtrlContext*)s;
 		pthread_mutex_lock(&sc->mutex);
 		int ret = 0;
 		TLOGD("TinaSoundDevicePause(): sc->sound_status = %d\n",sc->sound_status);
@@ -285,7 +294,7 @@ namespace aw{
 				if(ret<0){
 					TLOGE("snd_pcm_pause failed:%s\n",strerror(errno));
 					pthread_mutex_unlock(&sc->mutex);
-	            	return ret;
+			return ret;
 				}
 			}else{
 				TLOGD("alsa can not pause,use snd_pcm_drop\n");
@@ -306,8 +315,8 @@ namespace aw{
 
 	int TinaSoundDeviceWrite(SoundCtrl* s, void* pData, int nDataSize){
 		int ret;
-    	SoundCtrlContext* sc;
-    	sc = (SoundCtrlContext*)s; 
+	SoundCtrlContext* sc;
+	sc = (SoundCtrlContext*)s;
 		//TLOGD("TinaSoundDeviceWrite:sc->bytes_per_sample = %d\n",sc->bytes_per_sample);
 		if(sc->bytes_per_sample == 0){
 			sc->bytes_per_sample = 4;
@@ -441,4 +450,3 @@ namespace aw{
 	
 	
 }
-

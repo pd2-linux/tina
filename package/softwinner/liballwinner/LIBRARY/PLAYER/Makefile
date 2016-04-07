@@ -1,7 +1,8 @@
 
-
 include ../config.mk
 include ../../Makefile.inc
+
+
 ################################################################################
 ## set flags for golobal compile and link setting.
 ################################################################################
@@ -40,7 +41,7 @@ SourceFiles  = \
     framerateEstimater.cpp                \
     streamManager.cpp                     \
     player.cpp                            \
-    deinterlace.cpp
+    deinterlace.cpp                      \
     
 SourceFiles  +=    soundControl/soundControl_null.cpp \
 	           layerControl/layerControl_null.cpp
@@ -70,44 +71,27 @@ SourceIncludePath = $(foreach dir,$(SourcePath),-I$(dir)) \
 					-I./	\
                     -I../          \
                     -I./include/   \
-                    -I../MEMORY/include/    \
-                    -I../VE/include/        \
-                    -I../CODEC/VIDEO/DECODER/include/ \
-                    -I../CODEC/AUDIO/DECODER/include/ \
-                    -I../CODEC/SUBTITLE/DECODER/include/ \
                     -I./layerControl/1623 \
-		            -I../EXTERNAL/include/
+		            -I../EXTERNAL/include/ \
+					-I../libcedarc/include/ \
 
 
 ## set compile flags
-ifeq ($(CONFIG_CHIP),$(OPTION_CHIP_1689))
-	CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath)  -O1 -fPIC -ldl -march=armv8-a 
-else
-	ifeq ($(CONFIG_CHIP),$(OPTION_CHIP_1663))
-		CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -mfpu=neon -O1 -fPIC -ldl -march=armv5te	
-	else
-		CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -mfpu=neon -O1 -fPIC -ldl -march=armv7-a
-	endif
-endif
+CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -mfpu=neon -O1 -fPIC -ldldif
 
 
 ## set link flags
 LoadFlags = $(CONFIG_FOR_LINK)  -ldl -shared
 
-LoadFlags +=   -ladecoder  -lnormal_audio \
+LoadFlags +=   -lcdc_adecoder  -lnormal_audio \
              -lcdx_parser -lcdx_stream -lcdx_base \
               -lpthread -ldl -lstdc++ -lrt
 
-LoadFlags += -lsdecoder -lvdecoder -lVE -lMemAdapter 
+LoadFlags += -lcdc_sdecoder -lcdc_vdecoder -lcdc_ve -lcdc_memory 
 
 LoadFlags += -L../DEMUX/BASE/ \
              -L../DEMUX/STREAM/ \
              -L../DEMUX/PARSER/ \
-             -L../CODEC/VIDEO/DECODER/ \
-             -L../CODEC/AUDIO/DECODER/ \
-             -L../CODEC/SUBTITLE/DECODER/ \
-             -L../VE/ \
-             -L../MEMORY/ \
              -L../PLUGIN/manager \
 					
 ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABIHF))
@@ -118,16 +102,27 @@ endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABI))
 LoadFlags += -L../EXTERNAL/lib32/lgnueabi
+LoadFlags +=-L../libcedarc/library/lib32/lgnueabi
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_UCGNUEABI))
 LoadFlags += -L../EXTERNAL/lib32/uclgnueabi
+LoadFlags +=-L../libcedarc/library/lib32/uclgnueabi
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_UCGNUEABI))
 LoadFlags +=-L../EXTERNAL/lib32/linuxgnueabi
+LoadFlags +=-L../libcedarc/library/lib32/linuxgnueabi
 endif
 
+ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI))
+LoadFlags +=-L../EXTERNAL/lib32/muslgnueabi
+LoadFlags +=-L../libcedarc/library/lib32/muslgnueabi
+endif
+
+ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI64))
+LoadFlags +=-L../EXTERNAL/lib64/muslgnueabi
+endif
 ################################################################################
 ## make commands, all/clean/cleanall
 ################################################################################

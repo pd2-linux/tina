@@ -61,10 +61,8 @@ SourceIncludePath = $(foreach dir,$(SourcePath),-I$(dir)) \
                     -I../../DEMUX/BASE/include/ \
                     -I../../DEMUX/STREAM/include/ \
                     -I../../DEMUX/PARSER/include/ \
-                    -I../../CODEC/VIDEO/DECODER/include  \
-                    -I../../CODEC/AUDIO/DECODER/include  \
-                    -I../../CODEC/SUBTITLE/DECODER/include  \
                     -I../../PLAYER/include \
+					-I../../libcedarc/include \
                     -I../../EXTERNAL/include 
 
 ## set compile flags
@@ -72,9 +70,9 @@ CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -Wall -ldl
 
 ## set link flags
 $(warning $(CONFIG_PRODUCT))
-LoadFlags = $(CONFIG_FOR_LINK) -lplayer -lvdecoder -ladecoder -lpostprocess -lnormal_audio -lsdecoder \
-             -lcdx_parser -lcdx_stream -lcdx_base -lVE -lMemAdapter \
-               -lpthread -ldl -lstdc++ -lrt
+LoadFlags = $(CONFIG_FOR_LINK) -lplayer -lcdc_vdecoder -lcdc_adecoder -lpostprocess -lnormal_audio -lcdc_sdecoder -lcdc_base \
+             -lcdx_parser -lcdx_stream -lcdx_base -lcdc_ve -lcdc_memory \
+               -lpthread -ldl -lstdc++ -lrt -lc
 
 ifeq ($(CONFIG_HAVE_ZLIB), $(OPTION_HAVE_ZLIB))
 LoadFlags += -lz
@@ -87,30 +85,37 @@ endif
 LoadFlags += -L../../DEMUX/BASE/ \
              -L../../DEMUX/STREAM/ \
              -L../../DEMUX/PARSER/ \
-             -L../../CODEC/VIDEO/DECODER/ \
-             -L../../CODEC/AUDIO/DECODER/ \
-             -L../../CODEC/SUBTITLE/DECODER/ \
              -L../../PLAYER/ \
-             -L../../VE/ \
-             -L../../MEMORY/
 
              
 ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABIHF))
 LoadFlags += -L../../EXTERNAL/lib32/lgnueabihf/
+LoadFlags +=-L../../libcedarc/library/lib32/lgnueabihf
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABI))
 LoadFlags += -L../../EXTERNAL/lib32/lgnueabi/ 
+LoadFlags +=-L../../libcedarc/library/lib32/lgnueabi
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_UCGNUEABI))
-LoadFlags += -L../../EXTERNAL/lib32/uclgnueabi/ 
+#LoadFlags += -L/home/xuqi/release/lib
+LoadFlags += -L../../EXTERNAL/lib32/uclgnueabi 
+LoadFlags += -L../../libcedarc/library/lib32/uclgnueabi
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_UCGNUEABI))
 LoadFlags +=-L../../EXTERNAL/lib32/linuxgnueabi
+LoadFlags +=-L../../libcedarc/library/lib32/linuxgnueabi
 endif
 
+ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI))
+LoadFlags +=-L../../EXTERNAL/lib32/muslgnueabi
+LoadFlags +=-L../../libcedarc/library/lib32/muslgnueabi
+endif
+ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI64))
+LoadFlags +=-L../../EXTERNAL/lib64/muslgnueabi
+endif
 ################################################################################
 ## make commands, all/clean/cleanall
 ################################################################################

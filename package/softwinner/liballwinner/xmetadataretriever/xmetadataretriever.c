@@ -31,6 +31,7 @@ typedef struct AwRetriverContext
     VideoDecoder*               mVideoDecoder;
     VideoFrame                  mVideoFrame;
     int                         mCancelPrepareFlag;
+    struct ScMemOpsS *memops;
 }AwRetriverContext;
 
 
@@ -170,7 +171,7 @@ typedef struct
 	unsigned int  nDataSize;
 }RgbVideoFrame;
 
-static int transformPictureMb32ToRGB(VideoPicture* pPicture, VideoFrame* pVideoFrame)
+static int transformPictureMb32ToRGB(struct ScMemOpsS *memOps, VideoPicture* pPicture, VideoFrame* pVideoFrame)
 {
     unsigned char*   pClipTable;
     unsigned char*   pClip;
@@ -207,8 +208,8 @@ static int transformPictureMb32ToRGB(VideoPicture* pPicture, VideoFrame* pVideoF
     pClip = &pClipTable[-nClipMin];
 
     //* flush cache.
-    MemAdapterFlushCache(pPicture->pData0, pPicture->nWidth*pPicture->nHeight);
-    MemAdapterFlushCache(pPicture->pData1, pPicture->nHeight*pPicture->nHeight/2);
+    CdcMemFlushCache(memOps, pPicture->pData0, pPicture->nWidth*pPicture->nHeight);
+    CdcMemFlushCache(memOps, pPicture->pData1, pPicture->nHeight*pPicture->nHeight/2);
 
     pDst  = (unsigned short*)pVideoFrame->mData;
     pSrcY = (unsigned char*)pPicture->pData0;
@@ -290,7 +291,7 @@ static int transformPictureMb32ToRGB(VideoPicture* pPicture, VideoFrame* pVideoF
     return 0;
 }
 
-static int transformPicture(VideoPicture* pPicture, VideoFrame* pVideoFrame);
+static int transformPicture(struct ScMemOpsS *memOps, VideoPicture* pPicture, VideoFrame* pVideoFrame);
 
 
 static void clear(AwRetriever* v)
@@ -347,7 +348,13 @@ AwRetriever* AwRetrieverCreate()
 
 	AwPluginInit();
     memset(&p->mSource, 0, sizeof(CdxDataSourceT));
-    MemAdapterOpen();
+
+    p->memops = MemAdapterGetOpsS();
+    if(p->memops == NULL)
+    {
+    	return NULL;
+    }
+    CdcMemOpen(p->memops);
 
     return (AwRetriever*)p;
 }
@@ -358,7 +365,7 @@ int  AwRetrieverDestory(AwRetriever* v)
 	p = (AwRetriverContext*)v;
 
 	clear(v);
-	MemAdapterClose();
+	CdcMemClose(p->memops);
 	free(p);
 	return 0;
 }
@@ -486,7 +493,7 @@ VideoFrame *AwRetrieverGetFrameAtTime(AwRetriever* v, int64_t timeUs)
         //* use decoder to capture thumbnail, decoder use less memory in this mode.
         vconfig.bThumbnailMode      = 1;
         //* all decoder support YV12 format.
-        #if(CONFIG_CHIP == OPTION_CHIP_1663 )
+        #if(CONFIG_CHIP == OPTION_CHIP_C500 )
         vconfig.eOutputPixelFormat  = PIXEL_FORMAT_YUV_MB32_420;
         #else
         vconfig.eOutputPixelFormat  = PIXEL_FORMAT_YV12;
@@ -577,6 +584,8 @@ VideoFrame *AwRetrieverGetFrameAtTime(AwRetriever* v, int64_t timeUs)
         vconfig.nDisplayHoldingFrameBufferNum = 0;
         vconfig.nRotateHoldingFrameBufferNum = NUM_OF_PICTURES_KEEPPED_BY_ROTATE;
         vconfig.nDecodeSmoothFrameBufferNum = NUM_OF_PICTURES_FOR_EXTRA_SMOOTH;
+
+        vconfig.memops = p->memops;
         if(InitializeVideoDecoder(p->mVideoDecoder, &p->mMediaInfo.program[p->mMediaInfo.programIndex].video[0], &vconfig) != 0)
         {
             loge("initialize video decoder fail.");
@@ -826,14 +835,14 @@ VideoFrame *AwRetrieverGetFrameAtTime(AwRetriever* v, int64_t timeUs)
 		{
 	        
 	        //* convert pixel format.       
-	        if(transformPictureMb32ToRGB(pPicture, &p->mVideoFrame) < 0)
+	        if(transformPictureMb32ToRGB(p->memops, pPicture, &p->mVideoFrame) < 0)
 	        {
 	            return NULL;
 	        }
         }
         else
         {
-        	if(transformPicture(pPicture, &p->mVideoFrame) < 0)
+        	if(transformPicture(p->memops, pPicture, &p->mVideoFrame) < 0)
 	        {
 	            return NULL;
 	        }
@@ -898,7 +907,7 @@ static int64_t GetSysTime()
 }
 
 
-static int transformPicture(VideoPicture* pPicture, VideoFrame* pVideoFrame)
+static int transformPicture(struct ScMemOpsS *memOps, VideoPicture* pPicture, VideoFrame* pVideoFrame)
 {
     unsigned short*  pDst;
     unsigned char*   pSrcY;
@@ -933,9 +942,9 @@ static int transformPicture(VideoPicture* pPicture, VideoFrame* pVideoFrame)
     pClip = &pClipTable[-nClipMin];
 
     //* flush cache.
-    MemAdapterFlushCache(pPicture->pData0, pPicture->nLineStride*pPicture->nHeight);
-    MemAdapterFlushCache(pPicture->pData1, pPicture->nLineStride*pPicture->nHeight/4);
-    MemAdapterFlushCache(pPicture->pData2, pPicture->nLineStride*pPicture->nHeight/4);
+    CdcMemFlushCache(memOps, pPicture->pData0, pPicture->nLineStride*pPicture->nHeight);
+    CdcMemFlushCache(memOps, pPicture->pData1, pPicture->nLineStride*pPicture->nHeight/4);
+    CdcMemFlushCache(memOps, pPicture->pData2, pPicture->nLineStride*pPicture->nHeight/4);
     
     //* set pointers.
     pDst  = (unsigned short*)pVideoFrame->mData;

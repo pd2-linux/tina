@@ -23,9 +23,15 @@
 #define USE_DETNTERLACE 1
 
 #if(CONFIG_PRODUCT == OPTION_PRODUCT_TVBOX)
-#define SEND_PTS_TO_SF	1
+#define SEND_PTS_TO_SF	0
 #else
 #define SEND_PTS_TO_SF	0
+#endif
+
+#if(CONFIG_DTV == OPTION_DTV_YES)
+#define DTMB_PRODUCT	1
+#else
+#define DTMB_PRODUCT	0
 #endif
 
 extern LayerControlOpsT mNewLayerControlOps;
@@ -66,7 +72,7 @@ typedef struct VideoRenderCompContext
     
     enum EPLAYERSTATUS   eStatus;
     void*                pNativeWindow;
-    LayerControlOpsT*    pLayerOps;
+    NewLayerControlOpsT*    mNewLayerOps;
     LayerCtrl*           pLayerCtrl;
     VideoDecComp*        pDecComp;
     
@@ -145,7 +151,7 @@ VideoRenderComp* VideoRenderCompCreate(void)
     }
     memset(p, 0, sizeof(VideoRenderCompContext));
 
-    p->pLayerOps = &mNewLayerControlOps;
+    p->mNewLayerOps = __GetNewLayerControlOps();
 	p->nDeinterlaceDispNum = 1;
     p->bVideoWithTwoStream = -1;
     p->mq = MessageQueueCreate(4, "VideoRenderMq");
@@ -722,7 +728,7 @@ process_message:
             {
                 if(p->pLayerCtrl != NULL)
                 {
-                    p->pLayerOps->LayerQueueBuffer(p->pLayerCtrl, p->pDiOutPicture, 0);
+                    p->mNewLayerOps->queueBuffer(p->pLayerCtrl, p->pDiOutPicture, 0);
                 }
                 p->pDiOutPicture = NULL;
             }
@@ -730,12 +736,12 @@ process_message:
             if(p->pLayerCtrl != NULL)
             {
                 if(bHoldLastPicture)
-                    p->pLayerOps->LayerCtrlHoldLastPicture(p->pLayerCtrl, 1);
+                    p->mNewLayerOps->ctrlHoldLastPicture(p->pLayerCtrl, 1);
                 else
                 {
-                    p->pLayerOps->LayerCtrlHoldLastPicture(p->pLayerCtrl, 0);
-                    if(p->pLayerOps->LayerCtrlIsVideoShow(p->pLayerCtrl) == 1)
-                        p->pLayerOps->LayerCtrlHideVideo(p->pLayerCtrl);
+                    p->mNewLayerOps->ctrlHoldLastPicture(p->pLayerCtrl, 0);
+                    if(p->mNewLayerOps->ctrlIsVideoShow(p->pLayerCtrl) == 1)
+                        p->mNewLayerOps->ctrlHideVideo(p->pLayerCtrl);
                 }
             }
                
@@ -783,7 +789,7 @@ process_message:
             {
                 if(p->pLayerCtrl != NULL)
                 {
-                    p->pLayerOps->LayerQueueBuffer(p->pLayerCtrl, p->pDiOutPicture, 0);
+                    p->mNewLayerOps->queueBuffer(p->pLayerCtrl, p->pDiOutPicture, 0);
                 }
                 p->pDiOutPicture = NULL;
             }
@@ -812,7 +818,7 @@ process_message:
             {
                 if(p->pLayerCtrl != NULL)
                 {
-                    p->pLayerOps->LayerQueueBuffer(p->pLayerCtrl, p->pDiOutPicture, 0);
+                    p->mNewLayerOps->queueBuffer(p->pLayerCtrl, p->pDiOutPicture, 0);
                 }
                 p->pDiOutPicture = NULL;
             }    
@@ -860,7 +866,7 @@ process_message:
             {
                 if(p->pLayerCtrl != NULL)
                 {
-                    p->pLayerOps->LayerQueueBuffer(p->pLayerCtrl, p->pDiOutPicture, 0);
+                    p->mNewLayerOps->queueBuffer(p->pLayerCtrl, p->pDiOutPicture, 0);
                 }
                 p->pDiOutPicture = NULL;
             }
@@ -884,7 +890,7 @@ process_message:
 						break;
 					}
 					
-            		pPicture = p->pLayerOps->LayerGetPicNode(p->pLayerCtrl);
+            		pPicture = p->mNewLayerOps->getBufferOwnedByGpu(p->pLayerCtrl);
             		if(pPicture == NULL)
             		{
             			break;
@@ -892,14 +898,14 @@ process_message:
             		VideoDecCompReturnPicture(p->pDecComp, pPicture);
             	}
 
-				p->pLayerOps->LayerResetNativeWindow(p->pLayerCtrl,p->pNativeWindow);
+				p->mNewLayerOps->resetNativeWindow(p->pLayerCtrl,p->pNativeWindow);
 				VideoDecCompSetVideoFbmBufRelease(p->pDecComp);
 				p->bResetBufToDecoderFlag = 1;
 				p->nNeedReleaseBufferNum  = p->nGpuBufferNum;
 				
                 goto set_nativeWindow_exit;
 #else
-                p->pLayerOps->LayerRelease(p->pLayerCtrl, 0);
+                p->mNewLayerOps->release(p->pLayerCtrl);
                 p->pLayerCtrl = NULL;
 #endif                
             }
@@ -911,31 +917,23 @@ process_message:
             if(p->pNativeWindow != NULL)
 #endif
             {
-                p->pLayerCtrl = p->pLayerOps->LayerInit(p->pNativeWindow,p->bProtectedBufferFlag);
+                p->pLayerCtrl = p->mNewLayerOps->init(p->pNativeWindow,p->bProtectedBufferFlag);
             }
             p->bNeedResetLayerParams = 1;
 
             //* we should set layer info here if it hadn't set it
             if(p->bHadSetLayerInfoFlag == 0 && p->mFbmBufInfo.nBufNum != 0)
             {
-#if 0
-                LayerSetIsSoftDecoderFlag(p->pLayerCtrl, p->mFbmBufInfo.bIsSoftDecoderFlag);
-                LayerSetVideoWithTwoStreamFlag(p->pLayerCtrl,p->bVideoWithTwoStream);
-                LayerSetExpectPixelFormat(p->pLayerCtrl,(enum EPIXELFORMAT)p->mFbmBufInfo.ePixelFormat);
-                LayerSetPictureSize(p->pLayerCtrl, p->mFbmBufInfo.nBufWidth, p->mFbmBufInfo.nBufHeight);
-                LayerSetBufferCount(p->pLayerCtrl, p->mFbmBufInfo.nBufNum);
-                p->bHadSetLayerInfoFlag    = 1;
-#endif
+               enum EPIXELFORMAT eDisplayPixelFormat = PIXEL_FORMAT_DEFAULT;
                FbmBufInfo* pFbmBufInfo = &p->mFbmBufInfo;
                 //* we init deinterlace device here
-			   if(p->di != NULL && pFbmBufInfo->bProgressiveFlag == 0 && USE_DETNTERLACE)
+			   if(p->di != NULL && pFbmBufInfo->bProgressiveFlag == 0 && USE_DETNTERLACE && !DTMB_PRODUCT)
 			   {
 				   if (p->di->init() == 0)
 				   {
 					   int di_flag = p->di->flag();
 					   p->bDeinterlaceFlag   = 1;
 					   p->nDeinterlaceDispNum   = (di_flag == DE_INTERLACE_HW) ? 2 : 1;
-					   p->pLayerOps->LayerSetExpectPixelFormat(p->pLayerCtrl, p->di->expectPixelFormat());
 				   }
 				   else
 				   {
@@ -943,19 +941,21 @@ process_message:
 				   }
 			   }
 
-			   p->pLayerOps->LayerSetIsSoftDecoderFlag(p->pLayerCtrl, pFbmBufInfo->bIsSoftDecoderFlag);
-			   p->pLayerOps->LayerSetVideoWithTwoStreamFlag(p->pLayerCtrl,p->bVideoWithTwoStream);
-			   p->pLayerOps->LayerSetPictureSize(p->pLayerCtrl, pFbmBufInfo->nBufWidth, pFbmBufInfo->nBufHeight);
-
 			   if(p->bDeinterlaceFlag == 1)
 			   {
-				   p->nGpuBufferNum = p->pLayerOps->LayerSetBufferCount(p->pLayerCtrl, pFbmBufInfo->nBufNum/* + 2*/);
+                   eDisplayPixelFormat = p->di->expectPixelFormat();
 			   }
 			   else
 			   {
-				   p->pLayerOps->LayerSetExpectPixelFormat(p->pLayerCtrl,(enum EPIXELFORMAT)pFbmBufInfo->ePixelFormat);
-				   p->nGpuBufferNum = p->pLayerOps->LayerSetBufferCount(p->pLayerCtrl, pFbmBufInfo->nBufNum);
+                   eDisplayPixelFormat = (enum EPIXELFORMAT)pFbmBufInfo->ePixelFormat;
 			   }
+
+               p->mNewLayerOps->setDisplayPixelFormat(p->pLayerCtrl,(enum EPIXELFORMAT)pFbmBufInfo->ePixelFormat);
+               p->mNewLayerOps->setVideoWithTwoStreamFlag(p->pLayerCtrl,p->bVideoWithTwoStream);
+               p->mNewLayerOps->setIsSoftDecoderFlag(p->pLayerCtrl, pFbmBufInfo->bIsSoftDecoderFlag);
+			   p->mNewLayerOps->setDisplayBufferSize(p->pLayerCtrl, pFbmBufInfo->nBufWidth, pFbmBufInfo->nBufHeight);
+               p->nGpuBufferNum = p->mNewLayerOps->setDisplayBufferCount(p->pLayerCtrl, pFbmBufInfo->nBufNum);
+               
 			   p->bHadSetLayerInfoFlag    = 1;
             }
 
@@ -1005,15 +1005,15 @@ set_nativeWindow_exit:
             p->bHideVideo = msg.params[2];
             if(p->bHideVideo == 1) //* hide video.
             {
-                if(p->pLayerCtrl != NULL && p->pLayerOps->LayerCtrlIsVideoShow(p->pLayerCtrl) == 1)
-                    p->pLayerOps->LayerCtrlHideVideo(p->pLayerCtrl);
+                if(p->pLayerCtrl != NULL && p->mNewLayerOps->ctrlIsVideoShow(p->pLayerCtrl) == 1)
+                    p->mNewLayerOps->ctrlHideVideo(p->pLayerCtrl);
             }
             else
             {
                 if(p->pLayerCtrl != NULL && 
-                   p->pLayerOps->LayerCtrlIsVideoShow(p->pLayerCtrl) == 0 && 
+                   p->mNewLayerOps->ctrlIsVideoShow(p->pLayerCtrl) == 0 && 
                    p->bFirstPictureShowed == 1)
-                    p->pLayerOps->LayerCtrlShowVideo(p->pLayerCtrl);
+                    p->mNewLayerOps->ctrlShowVideo(p->pLayerCtrl);
             }
             sem_post(pReplySem);
             
@@ -1139,11 +1139,11 @@ process_render:
                         if(p->pLayerCtrl != NULL)
                         {
                             if(p->bFirstPictureShowed == 1)
-                                p->pLayerOps->LayerCtrlHoldLastPicture(p->pLayerCtrl, 1);
-                            p->pLayerOps->LayerRelease(p->pLayerCtrl, 0);
+                                p->mNewLayerOps->ctrlHoldLastPicture(p->pLayerCtrl, 1);
+                            p->mNewLayerOps->release(p->pLayerCtrl);
                             p->pLayerCtrl = NULL;
                             
-                            p->pLayerCtrl = p->pLayerOps->LayerInit(p->pNativeWindow,p->bProtectedBufferFlag);
+                            p->pLayerCtrl = p->mNewLayerOps->init(p->pNativeWindow,p->bProtectedBufferFlag);
                             if(p->pLayerCtrl != NULL)
                                 p->bNeedResetLayerParams = 1;
                         }
@@ -1223,6 +1223,17 @@ step_5:
                 logv("** p->bDeinterlaceFlag[%d]",p->bDeinterlaceFlag);
                 if(p->bDeinterlaceFlag == 0)
                 {
+#if DTMB_PRODUCT
+                	if(p->bFirstPictureShowed == 0)
+                	{
+                		QueueBufferToShow(p, p->pPicture);
+                            p->pPicture = NULL;
+
+                            VideoPicture* pReturnPicture = NULL;
+                            p->mNewLayerOps->dequeueBuffer(p->pLayerCtrl, &pReturnPicture, 0);
+                            VideoDecCompReturnPicture(p->pDecComp, pReturnPicture);
+                	}
+#endif					
                     //* 6.1. wait according to the presentation time stamp.
                     if(p->bFirstPictureShowed != 0)    //* the first picture is showed unsychronized.
                     {
@@ -1244,7 +1255,7 @@ step_5:
 
                             //* 6.3. dequeue buffer from gpu and return it to decoder
                             VideoPicture* pReturnPicture = NULL;
-                            p->pLayerOps->LayerDequeueBuffer(p->pLayerCtrl, &pReturnPicture, 0);
+                            p->mNewLayerOps->dequeueBuffer(p->pLayerCtrl, &pReturnPicture, 0);
                             VideoDecCompReturnPicture(p->pDecComp, pReturnPicture);
                         }
                     }
@@ -1267,7 +1278,7 @@ step_5:
                         	ret = ProcessVideoSync(p, p->pDiOutPicture, &msg);
 							if(ret == VIDEO_RENDER_PROCESS_MESSAGE)
 							{
-                                p->pLayerOps->LayerQueueBuffer(p->pLayerCtrl, p->pDiOutPicture, 0);
+                                p->mNewLayerOps->queueBuffer(p->pLayerCtrl, p->pDiOutPicture, 0);
                                 p->pDiOutPicture = NULL;
 
                                 if(p->pPicture != p->pPrePicture && p->pPrePicture != NULL)
@@ -1280,7 +1291,7 @@ step_5:
 							}
 							else if(ret == VIDEO_RENDER_DROP_THE_PICTURE)
 							{
-                                p->pLayerOps->LayerQueueBuffer(p->pLayerCtrl, p->pDiOutPicture, 0);
+                                p->mNewLayerOps->queueBuffer(p->pLayerCtrl, p->pDiOutPicture, 0);
                                 p->pDiOutPicture = NULL;
 								break;
 							}
@@ -1328,7 +1339,7 @@ step_5:
 
     if(p->pLayerCtrl != NULL)
     {
-        p->pLayerOps->LayerRelease(p->pLayerCtrl, 0);
+        p->mNewLayerOps->release(p->pLayerCtrl);
         p->pLayerCtrl = NULL;
     }
     
@@ -1386,7 +1397,7 @@ static inline void NotifyVideoSizeAndSetDisplayRegion(VideoRenderCompContext* p)
 
         if(p->pLayerCtrl != NULL)
         {
-            p->pLayerOps->LayerSetDisplayRegion(p->pLayerCtrl,
+            p->mNewLayerOps->setDisplayRegion(p->pLayerCtrl,
             		              p->pPicture->nLeftOffset,
             		              p->pPicture->nTopOffset,
             		              p->pPicture->nRightOffset - p->pPicture->nLeftOffset,
@@ -1407,7 +1418,7 @@ static inline void NotifyVideoSizeAndSetDisplayRegion(VideoRenderCompContext* p)
 
         if(p->pLayerCtrl != NULL)
         {
-            p->pLayerOps->LayerSetDisplayRegion(p->pLayerCtrl,
+            p->mNewLayerOps->setDisplayRegion(p->pLayerCtrl,
             		              0,
             		              0,
             		              p->pPicture->nWidth,
@@ -1474,7 +1485,7 @@ static inline int ProcessVideoSync(VideoRenderCompContext* p,
 #if (CONFIG_PRODUCT == OPTION_PRODUCT_TVBOX)	
     else if(nWaitTime < -100)
     {
-		 int nDispFPS = p->pLayerOps->LayerGetDisplayFPS(p->pLayerCtrl);
+		 int nDispFPS = p->mNewLayerOps->getDisplayFPS(p->pLayerCtrl);
 		 if(nDispFPS <= 30)
 		 {
         	/* when disp in 24fps/30fps, SurfaceFlinger could not drop-frame correctly when video framerate larger than 2x */
@@ -1495,9 +1506,9 @@ static inline int QueueBufferToShow(VideoRenderCompContext* p,
         if (SEND_PTS_TO_SF == 1)
         {
             int64_t ptsAbs = p->pAvTimer->PtsToSystemTime(p->pAvTimer, pPicture->nPts);
-            p->pLayerOps->LayerSetBufferTimeStamp(p->pLayerCtrl, ptsAbs);
+            p->mNewLayerOps->setBufferTimeStamp(p->pLayerCtrl, ptsAbs);
         }
-    	p->pLayerOps->LayerQueueBuffer(p->pLayerCtrl, pPicture, 1);
+    	p->mNewLayerOps->queueBuffer(p->pLayerCtrl, pPicture, 1);
     }
     else
     {
@@ -1510,10 +1521,10 @@ static inline int QueueBufferToShow(VideoRenderCompContext* p,
     }
     
     if(p->pLayerCtrl != NULL && 
-       p->pLayerOps->LayerCtrlIsVideoShow(p->pLayerCtrl) == 0 && 
+       p->mNewLayerOps->ctrlIsVideoShow(p->pLayerCtrl) == 0 && 
        p->bHideVideo == 0)
     {
-        p->pLayerOps->LayerCtrlShowVideo(p->pLayerCtrl);
+        p->mNewLayerOps->ctrlShowVideo(p->pLayerCtrl);
     }
 
 	return 0;
@@ -1529,7 +1540,7 @@ static inline int ProcessDeinterlace(VideoRenderCompContext* p,
     {
         p->pPrePicture          = p->pPicture;
     }
-	ret = p->pLayerOps->LayerDequeueBuffer(p->pLayerCtrl, &p->pDiOutPicture, 0);
+	ret = p->mNewLayerOps->dequeueBuffer(p->pLayerCtrl, &p->pDiOutPicture, 0);
 	if(ret != 0)
 	{
 		loge("** dequeue buffer failed when process deinterlace");
@@ -1545,7 +1556,7 @@ static inline int ProcessDeinterlace(VideoRenderCompContext* p,
 		p->di->reset();
 
         VideoDecCompReturnPicture(p->pDecComp, p->pPrePicture);
-		p->pLayerOps->LayerQueueBuffer(p->pLayerCtrl, p->pDiOutPicture, 0);
+		p->mNewLayerOps->queueBuffer(p->pLayerCtrl, p->pDiOutPicture, 0);
 		p->pPrePicture = NULL;
 		p->pDiOutPicture = NULL;
 		return VIDEO_RENDER_DEINTERLACE_RESET;	   	   
@@ -1555,6 +1566,7 @@ static inline int ProcessDeinterlace(VideoRenderCompContext* p,
 
 static inline int RenderGetVideoFbmBufInfo(VideoRenderCompContext* p)
 {
+    enum EPIXELFORMAT eDisplayPixelFormat = PIXEL_FORMAT_DEFAULT;
 	FbmBufInfo* pFbmBufInfo =  VideoDecCompGetVideoFbmBufInfo(p->pDecComp);
 
 	logv("pFbmBufInfo = %p",pFbmBufInfo);
@@ -1579,14 +1591,13 @@ static inline int RenderGetVideoFbmBufInfo(VideoRenderCompContext* p)
                   pFbmBufInfo->bIsSoftDecoderFlag);
 
             //* we init deinterlace device here
-            if(p->di != NULL && pFbmBufInfo->bProgressiveFlag == 0 && USE_DETNTERLACE)
+            if(p->di != NULL && pFbmBufInfo->bProgressiveFlag == 0 && USE_DETNTERLACE && !DTMB_PRODUCT)
             {
                 if (p->di->init() == 0)
                 {
                     int di_flag = p->di->flag();
                     p->bDeinterlaceFlag   = 1;
                     p->nDeinterlaceDispNum   = (di_flag == DE_INTERLACE_HW) ? 2 : 1;
-                    p->pLayerOps->LayerSetExpectPixelFormat(p->pLayerCtrl, p->di->expectPixelFormat());
                 }
                 else
                 {
@@ -1594,19 +1605,21 @@ static inline int RenderGetVideoFbmBufInfo(VideoRenderCompContext* p)
                 }
             }
 			
-			p->pLayerOps->LayerSetIsSoftDecoderFlag(p->pLayerCtrl, pFbmBufInfo->bIsSoftDecoderFlag);
-            p->pLayerOps->LayerSetVideoWithTwoStreamFlag(p->pLayerCtrl,p->bVideoWithTwoStream);
-            p->pLayerOps->LayerSetPictureSize(p->pLayerCtrl, pFbmBufInfo->nBufWidth, pFbmBufInfo->nBufHeight);
-
             if(p->bDeinterlaceFlag == 1)
             {
-                p->nGpuBufferNum = p->pLayerOps->LayerSetBufferCount(p->pLayerCtrl, pFbmBufInfo->nBufNum/* + 2*/);
+                eDisplayPixelFormat = p->di->expectPixelFormat();
             }
             else
             {
-                p->pLayerOps->LayerSetExpectPixelFormat(p->pLayerCtrl,(enum EPIXELFORMAT)pFbmBufInfo->ePixelFormat);
-                p->nGpuBufferNum = p->pLayerOps->LayerSetBufferCount(p->pLayerCtrl, pFbmBufInfo->nBufNum);
+                eDisplayPixelFormat = (enum EPIXELFORMAT)pFbmBufInfo->ePixelFormat;
             }
+
+            p->mNewLayerOps->setDisplayPixelFormat(p->pLayerCtrl,eDisplayPixelFormat);
+            p->mNewLayerOps->setDisplayBufferSize(p->pLayerCtrl, pFbmBufInfo->nBufWidth, pFbmBufInfo->nBufHeight);
+            p->mNewLayerOps->setVideoWithTwoStreamFlag(p->pLayerCtrl,p->bVideoWithTwoStream);
+            p->mNewLayerOps->setIsSoftDecoderFlag(p->pLayerCtrl, pFbmBufInfo->bIsSoftDecoderFlag);
+            p->nGpuBufferNum = p->mNewLayerOps->setDisplayBufferCount(p->pLayerCtrl, pFbmBufInfo->nBufNum);
+            
             p->bHadSetLayerInfoFlag  = 1;
         }
 
@@ -1619,11 +1632,11 @@ static inline int SetGpuBufferToDecoder(VideoRenderCompContext*p)
 {
 	VideoPicture mTmpVideoPicture;
 	VideoPicture* pTmpVideoPicture = &mTmpVideoPicture;
-	int nLayerBufferNum = p->pLayerOps->LayerGetAddedPicturesCount(p->pLayerCtrl);
+	int nLayerBufferNum = p->mNewLayerOps->getBufferNumHoldByGpu(p->pLayerCtrl);
 	memset(pTmpVideoPicture, 0, sizeof(VideoPicture));
 	for(int i = 0; i< p->nGpuBufferNum; i++)
 	{
-		int ret = p->pLayerOps->LayerDequeueBuffer(p->pLayerCtrl, &pTmpVideoPicture, 1);					
+		int ret = p->mNewLayerOps->dequeueBuffer(p->pLayerCtrl, &pTmpVideoPicture, 1);					
 		if(ret == 0)
 		{
 			if (i >= p->nGpuBufferNum - nLayerBufferNum)
@@ -1644,7 +1657,7 @@ static inline int SetGpuBufferToDecoder(VideoRenderCompContext*p)
 
 	for (int i = 0; i < nLayerBufferNum; ++i)
 	{
-		p->pLayerOps->LayerQueueBuffer(p->pLayerCtrl, p->pCancelPicture[i], 0);
+		p->mNewLayerOps->queueBuffer(p->pLayerCtrl, p->pCancelPicture[i], 0);
 	}
 	return 0;
 }
@@ -1663,7 +1676,7 @@ static inline int ResetBufToDecoder(VideoRenderCompContext*p)
 
 		if(pReleasePicture != NULL)
 		{
-			p->pLayerOps->LayerReleaseBuffer(p->pLayerCtrl, pReleasePicture);
+			p->mNewLayerOps->releaseBuffer(p->pLayerCtrl, pReleasePicture);
 		}
 		else
 		{
@@ -1684,13 +1697,13 @@ static inline int ResetBufToDecoder(VideoRenderCompContext*p)
 		VideoPicture mTmpReturnPicture;
 		memset(&mTmpReturnPicture, 0, sizeof(VideoPicture));
 		VideoPicture* pTmpReturnPicture = &mTmpReturnPicture; 
-		ret = p->pLayerOps->LayerDequeueBuffer(p->pLayerCtrl, &pTmpReturnPicture, 1);
+		ret = p->mNewLayerOps->dequeueBuffer(p->pLayerCtrl, &pTmpReturnPicture, 1);
 		if(ret == 0)
 		{
 			if(p->nNeedReleaseBufferNum == 2 || p->nNeedReleaseBufferNum == 1)
 			{
 				pTmpReturnPicture = VideoDecCompReturnRelasePicture(p->pDecComp, pTmpReturnPicture, 1);
-				p->pLayerOps->LayerQueueBuffer(p->pLayerCtrl, pTmpReturnPicture, 0);
+				p->mNewLayerOps->queueBuffer(p->pLayerCtrl, pTmpReturnPicture, 0);
 			}
 			else
 			{
@@ -1717,13 +1730,3 @@ static inline int ResetBufToDecoder(VideoRenderCompContext*p)
 	}
 	return 0;
 }
-
-int VideoRenderCompSetLayerCtlOps(VideoRenderComp* v, LayerControlOpsT* ops)
-{
-	VideoRenderCompContext* p;
-    p = (VideoRenderCompContext*)v;
-
-    (void*)ops;
-	return 0;
-}
-

@@ -61,11 +61,7 @@ SourceIncludePath = $(foreach dir,$(SourcePath),-I$(dir)) \
 		   			-I../LIBRARY/DEMUX/MUXER/include/ \
                     -I../LIBRARY/DEMUX/STREAM/include/ \
                     -I../LIBRARY/DEMUX/PARSER/include/ \
-                    -I../LIBRARY/CODEC/VIDEO/DECODER/include  \
-                    -I../LIBRARY/CODEC/VIDEO/ENCODER/include  \
-                    -I../LIBRARY/CODEC/AUDIO/DECODER/include  \
-		    		-I../LIBRARY/CODEC/AUDIO/ENCODER/include  \
-                    -I../LIBRARY/CODEC/SUBTITLE/DECODER/include  \
+                    -I../LIBRARY/libcedarc/include \
                     -I../LIBRARY/PLAYER/include/ \
                     -I../LIBRARY/PLUGIN/include/ \
 					-I../xplayer
@@ -102,7 +98,7 @@ $(ObjectFiles):$(ObjectPath)/%.o:%.cpp
 
 ## link object files to the target share library.
 $(Target):$(ObjectFiles)
-	$(CPP) -o $@ $^ -fPIC -shared
+	$(CPP) -o $@ $^ -fPIC -shared $(LDFLAGS)
 
 ## set rules to generate .d files.
 $(DependFilePath)/%.d:%.cpp

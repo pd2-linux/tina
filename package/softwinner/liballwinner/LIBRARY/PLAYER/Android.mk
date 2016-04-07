@@ -1,7 +1,9 @@
 LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
-include $(LOCAL_PATH)/../config.mk
+MOD_PATH=$(LOCAL_PATH)/../..
+CEDARC_PATH=$(TOP)/frameworks/av/media/libcedarc
+include $(MOD_PATH)/config.mk
 
 LOCAL_ARM_MODE := arm
 
@@ -21,11 +23,11 @@ LOCAL_SRC_FILES := \
     streamManager.cpp                     \
     player.cpp                            \
     deinterlace.cpp                       \
-    deinterlaceHw.cpp                     \
-    layerControl/layerControl_android.cpp
+    deinterlaceHw.cpp                     
+
     
     
-ifeq ($(USE_SW_DEINTERLACE), yes)
+ifeq ($(CONFIG_DEINTERLACE),$(OPTION_SW_DEINTERLACE))
 LOCAL_SRC_FILES += \
     sw-deinterlace/deinterlaceSw.cpp 	\
     sw-deinterlace/postprocess.cpp      \
@@ -40,42 +42,54 @@ LOCAL_SRC_FILES += \
     videoRenderComponent_newDisplay.cpp
 else
 LOCAL_SRC_FILES += \
-    videoRenderComponent.cpp              
+    videoRenderComponent.cpp \
+    layerControl/layerControl_android.cpp    
 endif
 
 ifeq ($(ENABLE_SUBTITLE_DISPLAY_IN_CEDARX),1)
 LOCAL_SRC_FILES += \
     subtitleNativeDisplay/subtitleNativeDisplay.cpp
+else ifeq ($(CONFIG_ALI_YUNOS), $(OPTION_ALI_YUNOS_YES))
+	# on AliYUNOS android4.4
+	ifeq ($(CONFIG_OS_VERSION),$(OPTION_OS_VERSION_ANDROID_4_4))
+		LOCAL_SRC_FILES += \
+		    subtitleNativeDisplay/subtitleNativeDisplay.cpp
+	endif
 endif
 
 LOCAL_C_INCLUDES  := \
         $(TOP)/frameworks/av/                    \
         $(TOP)/frameworks/av/include/            \
         $(TOP)/frameworks/native/include/android/            \
-        $(LOCAL_PATH)/../CODEC/VIDEO/DECODER/include    \
-        $(LOCAL_PATH)/../CODEC/AUDIO/DECODER/include    \
-        $(LOCAL_PATH)/../CODEC/SUBTITLE/DECODER/include \
-        $(LOCAL_PATH)/../VE/include                     \
-        $(LOCAL_PATH)/../MEMORY/include                 \
-        $(LOCAL_PATH)/../                        \
-        $(LOCAL_PATH)/include                        \
+        $(TOP)/frameworks/av/media/libcedarc/include \
+        $(CEDARC_PATH)/include    \
+        $(MOD_PATH)    \
+        $(MOD_PATH)/libcore/include    \
+        $(MOD_PATH)/external/include/adecoder    \
+        $(MOD_PATH)/libcore/memory/include \
+        $(LOCAL_PATH)/include             \
         $(LOCAL_PATH)/subtitleNativeDisplay             \
-        external/skia/include/core \
+        external/skia/include/libcore \
 		external/skia/include/effects \
 		external/skia/include/images \
 		external/skia/src/ports \
-		external/skia/src/core \
+		external/skia/src/libcore \
 		external/skia/include/utils \
 		external/icu4c/common 
 
 ifeq ($(CONFIG_OS_VERSION), $(OPTION_OS_VERSION_ANDROID_5_0))
-ifeq ($(CONFIG_CHIP), $(OPTION_CHIP_1667))
+LOCAL_C_INCLUDES  += external/icu/icu4c/source/common
+LOCAL_C_INCLUDES  += external/skia/src/core/
+endif
+ifeq ($(CONFIG_OS_VERSION), $(OPTION_OS_VERSION_ANDROID_5_0))
+ifeq ($(CONFIG_TARGET_PRODUCT), astar)
 LOCAL_C_INCLUDES  += $(TOP)/hardware/aw/hwc/astar/
 endif
 endif
 
 ifeq ($(CONFIG_OS_VERSION), $(OPTION_OS_VERSION_ANDROID_6_0))
-ifeq ($(CONFIG_CHIP), $(OPTION_CHIP_1667))
+LOCAL_C_INCLUDES  += external/skia/src/core
+ifeq ($(CONFIG_TARGET_PRODUCT), astar)
 LOCAL_C_INCLUDES  += $(TOP)/hardware/aw/hwc/astar/
 endif
 endif

@@ -4,7 +4,7 @@
 #include <string.h>
 #include "vencoder.h"
 #include "CdxMuxer.h"
-#include <time.h>
+#include <sys/time.h>
 
 #define DEMO_FILE_NAME_LEN 256
 #define	USE_SVC	0
@@ -150,9 +150,11 @@ void demoParseArgument(encode_param_t *encode_param, char *argument, char *value
 
 	int len = 0;
 	if(arg != HELP)
-		strlen(value);
-    if(len > DEMO_FILE_NAME_LEN)
-    	return;
+	{
+		len = strlen(value);
+    	if(len > DEMO_FILE_NAME_LEN)
+    		return;
+    }
 	
     switch(arg)
     {

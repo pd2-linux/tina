@@ -7,6 +7,8 @@
 #include <CdxHttpStream.h>
 #include <CdxMemory.h>
 #include <CdxTypes.h>
+#include <sys/time.h>
+#include <stdint.h>
 
 #define PROBE_DATA_LEN_DEFAULT (128*1024) 
 #define MAX_STREAM_BUF_SIZE (10*1024*1024)
@@ -1576,7 +1578,8 @@ static cdx_int32 __CdxHttpStreamClose(CdxStreamT *stream)
 
     ExitGetNetworkData(impl);// exit from GetNetworkData
 
-	pthread_join(impl->threadId, NULL);
+	if(impl->threadId)
+		pthread_join(impl->threadId, NULL);
 	
     if(impl->tcpStream)
     {

@@ -730,8 +730,9 @@ process_message:
 							}
 	                        cacheout = p->pSoundCtrlOps->SoundDeviceGetCachedTime(p->pSoundCtrl);
 	                        logd("we still have %d ms",cacheout/1000);
-	                        if(cacheout < 10*1000){
-	                            logd("we quit but still have %d ms",cacheout/1000);
+	                        if(cacheout < 10*1000)
+	                        {
+	                            loge("we quit but still have %d ms",cacheout/1000);
 	                            break;
 	                        }
                         }

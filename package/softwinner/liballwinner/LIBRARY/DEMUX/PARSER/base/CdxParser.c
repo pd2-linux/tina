@@ -361,18 +361,14 @@ cdx_void AwParserInit(cdx_void)
     CdxListInit(&parserList.list);
     parserList.size = 0;
 
-#if (CONFIG_CROP_LEVEL == OPTION_CROP_LEVEL0)
     AwParserRegister(&asfParserCtor, CDX_PARSER_ASF, &asfKeyInfo);
-#endif
     AwParserRegister(&movParserCtor, CDX_PARSER_MOV, &movKeyInfo);
 #if (CONFIG_OS != OPTION_OS_LINUX)
 //    AwParserRegister(&remuxParserCtor, CDX_PARSER_REMUX, &remuxKeyInfo);
 #endif
 #if (CONFIG_PRODUCT != OPTION_PRODUCT_LOUDSPEAKER)
-#if (CONFIG_CROP_LEVEL == OPTION_CROP_LEVEL0)
     AwParserRegister(&flvParserCtor, CDX_PARSER_FLV, &flvKeyInfo);
     AwParserRegister(&aviParserCtor, CDX_PARSER_AVI, &aviKeyInfo);
-#endif
 
     AwParserRegister(&tsParserCtor, CDX_PARSER_TS, &tsKeyInfo);
 #if (CONFIG_OS != OPTION_OS_LINUX)
@@ -383,16 +379,15 @@ cdx_void AwParserInit(cdx_void)
 #if (CONFIG_HAVE_SSL == OPTION_HAVE_SSL)
     AwParserRegister(&hlsParserCtor, CDX_PARSER_HLS, &hlsKeyInfo);
 #endif
-#if (CONFIG_CROP_LEVEL == OPTION_CROP_LEVEL0)
+
     AwParserRegister(&mkvParserCtor, CDX_PARSER_MKV, &mkvKeyInfo);
-#endif
+
 //    AwParserRegister(&bdParserCtor, CDX_PARSER_BD, &bdKeyInfo);
 //    AwParserRegister(&pmpParserCtor, CDX_PARSER_PMP, &pmpKeyInfo);
 #endif
 
-#if (CONFIG_CROP_LEVEL == OPTION_CROP_LEVEL0)
     AwParserRegister(&oggParserCtor, CDX_PARSER_OGG, &oggKeyInfo);
-#endif
+
 #if (CONFIG_PRODUCT != OPTION_PRODUCT_LOUDSPEAKER)
 //    AwParserRegister(&m3u9ParserCtor, CDX_PARSER_M3U9, &m3u9KeyInfo);
 //    AwParserRegister(&playlistParserCtor, CDX_PARSER_PLAYLIST, &playlistKeyInfo);
@@ -400,15 +395,15 @@ cdx_void AwParserInit(cdx_void)
 //    AwParserRegister(&wvmParserCtor, CDX_PARSER_WVM, &wvmKeyInfo);
 //	AwParserRegister(&envParserCtor, CDX_PARSER_ENV, &envKeyInfo);
 #endif
-#if (CONFIG_CROP_LEVEL == OPTION_CROP_LEVEL0)
+
     AwParserRegister(&mpgParserCtor, CDX_PARSER_MPG, &mpgKeyInfo);
+
 #endif
-#endif
-#if (CONFIG_CROP_LEVEL == OPTION_CROP_LEVEL0)
+
     AwParserRegister(&apeParserCtor, CDX_PARSER_APE, &apeKeyInfo);
     AwParserRegister(&flacParserCtor, CDX_PARSER_FLAC, &flacKeyInfo);
     AwParserRegister(&amrParserCtor, CDX_PARSER_AMR, &amrKeyInfo);
-#endif
+
 //    AwParserRegister(&atracParserCtor, CDX_PARSER_ATRAC, &atracKeyInfo);
     AwParserRegister(&mp3ParserCtor, CDX_PARSER_MP3, &mp3KeyInfo);
     AwParserRegister(&aacParserCtor, CDX_PARSER_AAC, &aacKeyInfo);
@@ -419,9 +414,9 @@ cdx_void AwParserInit(cdx_void)
 //    AwParserRegister(&sstrParserCtor, CDX_PARSER_SSTR, &sstrKeyInfo);
 #endif
 #endif
-#if (CONFIG_CROP_LEVEL == OPTION_CROP_LEVEL0)
+
 	AwParserRegister(&cafParserCtor, CDX_PARSER_CAF, &cafKeyInfo);
-#endif
+
 
 //	AwParserRegister(&g729ParserCtor, CDX_PARSER_G729, &g729KeyInfo);
 //	AwParserRegister(&dsdParserCtor, CDX_PARSER_DSD, &dsdKeyInfo);

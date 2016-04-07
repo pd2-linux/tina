@@ -11,6 +11,7 @@
 
 #include "videoDecComponent.h"
 #include "messageQueue.h"
+#include "memoryAdapter.h"
 
 typedef struct VideoDecCompContext
 {
@@ -64,6 +65,7 @@ typedef struct VideoDecCompContext
     int                 bUseNewDisplayFlag;
 
     pthread_mutex_t     videoRenderCallbackMutex;
+    struct ScMemOpsS*   memOps;
 
 }VideoDecCompContext;
 
@@ -143,11 +145,9 @@ VideoDecComp* VideoDecCompCreate(void)
     //* we set gpu align to 16 as defual, maybe we should set it 
     //* rely on different chip(as 1673, 1680) if they are not the same
 #if(USE_NEW_DISPLAY == 1)   
-    #if(CONFIG_CHIP == OPTION_CHIP_1673 && CONFIG_PRODUCT == OPTION_PRODUCT_PAD)   
+    #if(USE_NEW_DISPLAY_GPU_ALIGN_STRIDE == GPU_ALIGN_STRIDE_32)
         p->nGpuAlignStride = 32;
-    #elif(GPU_TYPE_MALI == 1)
-        p->nGpuAlignStride = 32;
-    #else
+    #elif(USE_NEW_DISPLAY_GPU_ALIGN_STRIDE == GPU_ALIGN_STRIDE_16)
         p->nGpuAlignStride = 16;
     #endif
 #else
@@ -182,10 +182,13 @@ int VideoDecCompDestroy(VideoDecComp* v)
         abort();
     }
 
-    if(p->pSecureBuf != NULL)
+    if(p->memOps != NULL)
     {
-        VideoReleaseSecureBuffer(p->pDecoder,p->pSecureBuf);
-        p->pSecureBuf = NULL;
+        if(p->pSecureBuf != NULL)
+        {
+            CdcMemPfree(p->memOps, p->pSecureBuf);
+        }
+        CdcMemClose(p->memOps);
     }
     
     if(p->videoStreamInfo.pCodecSpecificData)
@@ -444,7 +447,6 @@ int VideoDecCompSetVideoStreamInfo(VideoDecComp* v, VideoStreamInfo* pStreamInfo
 
     logd("++++++++ pVconfig->bGpuBufValid = %d,nGpuAlignStride = %d ",
 		 pVconfig->bGpuBufValid,p->nGpuAlignStride);
-    
 	//* save the config and video stream info
 	if(p->videoStreamInfo.pCodecSpecificData)
     {
@@ -470,6 +472,16 @@ int VideoDecCompSetVideoStreamInfo(VideoDecComp* v, VideoStreamInfo* pStreamInfo
         p->videoStreamInfo.nCodecSpecificDataLen = pStreamInfo->nCodecSpecificDataLen;
     }
 	
+    logv("pStreamInfo->bSecureStreamFlagLevel1 = %d",pStreamInfo->bSecureStreamFlagLevel1);
+    if(pStreamInfo->bSecureStreamFlagLevel1 == 1)
+    {
+        pVconfig->memops = SecureMemAdapterGetOpsS();
+    }
+    else
+    {
+        pVconfig->memops = MemAdapterGetOpsS();
+    }
+
     ret = InitializeVideoDecoder(p->pDecoder, pStreamInfo, pVconfig);
 
 	//* set secure buffer to wvm parser
@@ -484,7 +496,20 @@ int VideoDecCompSetVideoStreamInfo(VideoDecComp* v, VideoStreamInfo* pStreamInfo
         int nMessageId = PLAYER_VIDEO_DECODER_NOTIFY_SET_SECURE_BUFFER_COUNT;
         p->callback(p->pUserData,nMessageId,(void*)&nBufferCount);
 
-        pBuf = VideoRequestSecureBuffer(p->pDecoder,nBufferSize);
+        if(p->memOps != NULL)
+        {
+            if(p->pSecureBuf != NULL)
+            {
+                CdcMemPfree(p->memOps, p->pSecureBuf);
+            }
+            
+            CdcMemClose(p->memOps);
+        }
+        
+        p->memOps = SecureMemAdapterGetOpsS();
+        CdcMemOpen(p->memOps);
+        
+        pBuf = (char*)CdcMemPalloc(p->memOps, nBufferSize);
         if(pBuf == NULL)
         {
             loge("video request secure buffer failed!");
@@ -499,10 +524,12 @@ int VideoDecCompSetVideoStreamInfo(VideoDecComp* v, VideoStreamInfo* pStreamInfo
         
         p->callback(p->pUserData,nMessageId,(void*)param);
 
-        if(p->pSecureBuf != NULL)
-            VideoReleaseSecureBuffer(p->pDecoder,p->pSecureBuf);
-        
         p->pSecureBuf = pBuf;
+    }
+    else
+    {
+        p->memOps = MemAdapterGetOpsS();
+        CdcMemOpen(p->memOps);
     }
 	_exit:
 	if(ret < 0)
@@ -886,26 +913,28 @@ int VideoDecCompRotatePicture(VideoDecComp* v,
     p = (VideoDecCompContext*)v;
     
     //* on chip-1673,we use hardware to do video rotation
-#if(CONFIG_CHIP == OPTION_CHIP_1673 && CONFIG_PRODUCT == OPTION_PRODUCT_PAD)
+#if(ROTATE_PIC_HW == 1)
+    CDX_PLAYER_UNUSE(nGpuYAlign);
+    CDX_PLAYER_UNUSE(nGpuCAlign);
     return RotatePictureHw(p->pDecoder,pPictureIn, pPictureOut, nRotateDegree);
 #else
     //* rotatePicture() should known the gpuAlign
-    return RotatePicture(pPictureIn, pPictureOut, nRotateDegree,nGpuYAlign,nGpuCAlign);
+    return RotatePicture(p->memOps, pPictureIn, pPictureOut, nRotateDegree,nGpuYAlign,nGpuCAlign);
 #endif
     
 }
 
-
+/*
 VideoPicture* VideoDecCompAllocatePictureBuffer(int nWidth, int nHeight, int nLineStride, int ePixelFormat)
 {
     return AllocatePictureBuffer(nWidth, nHeight, nLineStride, ePixelFormat);
 }
 
-
 int VideoDecCompFreePictureBuffer(VideoPicture* pPicture)
 {
     return FreePictureBuffer(pPicture);
 }
+*/
 
 #if 0
 //* for new display
@@ -1012,8 +1041,32 @@ VideoPicture*  VideoDecCompReturnRelasePicture(VideoDecComp* v, VideoPicture* pV
 	}
 }
 
+
+//***************************************************************************//
+//*********************added by xyliu at 2015-12-23*****************************************************//
+int VideoDecCompSetExtraScaleInfo(VideoDecComp* v, int nWidthTh, int nHeightTh,
+		                          int nHorizontalScaleRatio, int nVerticalScaleRatio)
+{
+    VideoDecCompContext* p;
+
+    p = (VideoDecCompContext*)v;
+
+    return ConfigExtraScaleInfo(p->pDecoder, nWidthTh, nHeightTh, nHorizontalScaleRatio, nVerticalScaleRatio);
+
+}
+//****************************************************************************//
 //********************************  END  ***********************************//
 
+#if 0
+void VideoDecCompFreePictureBuffer(VideoDecComp* v, VideoPicture* pPicture)
+{
+    VideoDecCompContext* p;
+
+    p = (VideoDecCompContext*)v;
+
+	FreePictureBuffer(v, pPicture);
+}
+#endif
 
 static void* VideoDecodeThread(void* arg)
 {

@@ -56,18 +56,10 @@ DependFiles = $(addprefix $(DependFilePath)/, $(addsuffix .d ,$(notdir $(basenam
 SourceIncludePath = $(foreach dir,$(SourcePath),-I$(dir)) -I../../
 
 ## set compile flags
-ifeq ($(CONFIG_CHIP),$(OPTION_CHIP_1689))
-	CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath)  -O2 -fPIC -ldl -march=armv8-a 
-else
-	ifeq ($(CONFIG_CHIP),$(OPTION_CHIP_1663))
-		CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -mfpu=neon -O2 -fPIC -ldl -march=armv5te	
-	else
-		CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -mfpu=neon -O2 -fPIC -ldl -march=armv7-a
-	endif
-endif
+CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -mfpu=neon -O1 -fPIC -ldl
 
 ## set link flags
-LoadFlags = $(CONFIG_FOR_LINK) -ldl -shared
+LoadFlags = $(CONFIG_FOR_LINK) -lpthread -ldl -shared
 
 
 ################################################################################

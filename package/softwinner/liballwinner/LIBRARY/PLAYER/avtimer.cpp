@@ -4,7 +4,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <sys/time.h>
-
+#include <stdint.h>
 #include "avtimer.h"
 #include "log.h"
 

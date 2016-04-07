@@ -4,6 +4,7 @@
 #include <CdxAtomic.h>
 #include <CdxLock.h>
 
+#include <stdint.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <pthread.h>
@@ -172,11 +173,15 @@ AwPoolT *PoolNodeCreate(char *file, int line)
         CDX_LOGE("init thread mutex attr failure...");
         return NULL;
     }
+    
+#if (CONFIG_CC != OPTION_CC_LINUX_MUSLGNUEABI)
     if (pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK_NP) != 0)
     {
         CDX_LOGE("pthread_mutexattr_settype failure...");
         return NULL;
     }
+#endif
+
     pthread_mutex_init(&pool->mutex, &attr);
 
     CdxListAddTail(&poolData->node, &pool->pdList);

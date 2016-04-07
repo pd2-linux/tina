@@ -86,11 +86,6 @@ else
 SourcePath := $(filter-out $(SvnPath) $(EnvPath) $(SstrPath) $(DashPath) $(BuildPath), $(SourcePath))             
 endif
 
-ifeq ($(CONFIG_CROP_LEVEL), $(OPTION_CROP_LEVEL1))
-SourcePath := $(filter-out $(SvnPath) $(AwSpecialStreamPath) $(HlsPath) $(AwRawStreamPath) $(MpgPath) $(CafPath) \
-				$(ApePath) $(FlacPath) $(AmrPath) $(OggPath) $(AsfPath) $(AviPath) $(MkvPath) $(FlvPath), $(SourcePath))  
-endif
-                       
 VPATH := $(SourcePath)
 
 ## set the source files.
@@ -124,9 +119,7 @@ SourceIncludePath = $(foreach dir,$(SourcePath),-I$(dir)) \
                     -I../STREAM/include \
                     -I../STREAM/rtsp \
                     -I../../          \
-                    -I../../CODEC/VIDEO/DECODER/include/ \
-                    -I../../CODEC/AUDIO/DECODER/include/ \
-                    -I../../CODEC/SUBTITLE/DECODER/include/ \
+					-I../../libcedarc/include/ \
                     -I../../PLAYER/include/ \
                     -I../../EXTERNAL/include/zlib/ \
                     -I../../EXTERNAL/include/openssl/ \
@@ -135,15 +128,7 @@ SourceIncludePath = $(foreach dir,$(SourcePath),-I$(dir)) \
                     -I../../EXTERNAL/include
                     
 ## set compile flags
-ifeq ($(CONFIG_CHIP),$(OPTION_CHIP_1689))
-	CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath)  -O1 -fPIC -ldl -march=armv8-a 
-else
-	ifeq ($(CONFIG_CHIP),$(OPTION_CHIP_1663))
-		CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -O1 -fPIC -ldl -march=armv5te	
-	else
-		CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -O1 -fPIC -ldl -march=armv7-a
-	endif
-endif
+CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -mfpu=neon -O1 -fPIC -ldl
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABI))
 #CompileFlags += -mfloat-abi=softfp -mfpu=neon 
@@ -161,9 +146,20 @@ endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_UCGNUEABI))
 LoadFlags +=-L../../EXTERNAL/lib32/uclgnueabi
+LoadFlags +=-L../../libcedarc/library/lib32/uclgnueabi
 endif
 ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_UCGNUEABI))
 LoadFlags +=-L../../EXTERNAL/lib32/linuxgnueabi
+LoadFlags +=-L../../libcedarc/library/lib32/linuxgnueabi
+endif
+
+ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI))
+LoadFlags +=-L../../EXTERNAL/lib32/muslgnueabi
+LoadFlags +=-L../../libcedarc/library/lib32/muslgnueabi
+endif
+ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI64))
+LoadFlags +=-L../../EXTERNAL/lib64/muslgnueabi
+LoadFlags +=-L../../libcedarc/library/lib64/muslgnueabi64
 endif
 
 LoadFlags += -L../BASE/
@@ -172,6 +168,10 @@ LoadFlags += -lcdx_base
 #LoadFlags += -L../STREAM/
 #LoadFlags += -lcdx_stream
 #LoadFlags += -Wl,--no-undefined
+
+ifeq ($(CONFIG_HAVE_ZLIB), $(OPTION_HAVE_ZLIB))
+LoadFlags += -lz
+endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABIHF))
 LoadFlags += -L../../CODEC/AUDIO/DECODER/libs_for_linux/build-by-arm-linux-gnueabihf/static

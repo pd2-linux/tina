@@ -62,12 +62,12 @@ namespace android
 		    CedarXSubTextBoxSpacingAlign    getSpacingAlign() const { return (CedarXSubTextBoxSpacingAlign)fSpacingAlign; }
 		    void            setSpacingAlign(CedarXSubTextBoxSpacingAlign);
 		
-		    void    getBox(SkRect*) const;
-		    void    setBox(const SkRect&);
-		    void    setBox(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom);
+		    void    subGetBox(SkRect* pRect) const;
+		    void    subSetBox(const SkRect& mRect);
+		    void    subSetBox(SkScalar mLeft, SkScalar mTop, SkScalar mRight, SkScalar mBottom);
 		
-		    void    getSpacing(SkScalar* mul, SkScalar* add) const;
-		    void    setSpacing(SkScalar mul, SkScalar add);
+		    void    subGetSpacing(SkScalar* pMul, SkScalar* pAdd) const;
+		    void    subSetSpacing(SkScalar mMul, SkScalar mAdd);
 		
 		    void    drawText(SkCanvas*, const char text[], size_t len, const SkPaint&, SkScalar textHeight, int specialEffectFlag);
 		    int 	countLines(const char* text, size_t len, const SkPaint&, SkScalar width,  SkScalar* subTextWidth, int specialEffectFlag);
@@ -77,8 +77,8 @@ namespace android
                                          int textBoxEndx, int textBoxStarty, int textBoxEndy,int specialEffectFlag);
             
 		private:
-		    SkRect      fBox;
-		    SkScalar    fSpacingMul, fSpacingAdd;
+		    SkRect      mFBox;
+		    SkScalar    mFSpacingMul, mFSpacingAdd;
 		    uint8_t     fMode, fSpacingAlign;
             int         mLastDispXPos;
             int         mLastDispYPos;

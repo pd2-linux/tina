@@ -227,7 +227,7 @@ int SoundDeviceStart_raw(SoundCtrl* s)
         	//TODO
 		}
 #endif
-#if (CONFIG_CHIP == OPTION_CHIP_1689 && CONFIG_PRODUCT == OPTION_PRODUCT_TVBOX)
+#if (SOUND_DEVICE_SET_RAW_FLAG == 1)
 		SoundDeviceSetRawFlag(sc->raw_data.nRawDataFlag, sc->config.raw_flag);
 #endif		
 		sc->pcm = pcm_open(sc->raw_data.nRawDataFlag, sc->device, PCM_OUT, &(sc->config));

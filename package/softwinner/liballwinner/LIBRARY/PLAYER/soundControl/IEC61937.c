@@ -56,10 +56,10 @@ int add61937Head(void *outint,void * tempshort, int samples)
 		w1.wval = (*temp)&(0xffff);
 
 #if 1
-		head.head0.P = w1.bits.bit15 ^ w1.bits.bit14 ^ w1.bits.bit13 ^ w1.bits.bit12
-		              ^w1.bits.bit11 ^ w1.bits.bit10 ^ w1.bits.bit9 ^ w1.bits.bit8
-		              ^w1.bits.bit7 ^ w1.bits.bit6 ^ w1.bits.bit5 ^ w1.bits.bit4
-		              ^w1.bits.bit3 ^ w1.bits.bit2 ^ w1.bits.bit1 ^ w1.bits.bit0;
+		head.head0.P = w1.bits.bit_15 ^ w1.bits.bit_14 ^ w1.bits.bit_13 ^ w1.bits.bit_12
+		              ^w1.bits.bit_11 ^ w1.bits.bit_10 ^ w1.bits.bit_9 ^ w1.bits.bit_8
+		              ^w1.bits.bit_7 ^ w1.bits.bit_6 ^ w1.bits.bit_5 ^ w1.bits.bit_4
+		              ^w1.bits.bit_3 ^ w1.bits.bit_2 ^ w1.bits.bit_1 ^ w1.bits.bit_0;
 #endif
 
 		ret = (int)(head.head1)<<24;

@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include <string>
 #include <map>
+#include <asm/types.h>
 
 using namespace std;
 
@@ -64,6 +65,8 @@ enum EVIDEOPIXELFORMAT
 
 typedef void (*NotifyCallback)(void* pUserData, int msg, int param0, void* param1);
 
+typedef __s64 int64_t;
+
 typedef struct DemuxData
 {
 	int64_t        nPts;
@@ -75,15 +78,15 @@ typedef struct DemuxData
 
 typedef struct VideoPicData
 {
-	int64_t        	nPts;
-	int            	ePixelFormat;
-	int            	nWidth;
-	int            	nHeight;
-	int            	nLineStride;
-    int     	    nTopOffset;
-    int     		nLeftOffset;
-    int     		nBottomOffset;
-    int     		nRightOffset;
+	int64_t		nPts;
+	int		ePixelFormat;
+	int		nWidth;
+	int		nHeight;
+	int		nLineStride;
+    int		    nTopOffset;
+    int			nLeftOffset;
+    int			nBottomOffset;
+    int			nRightOffset;
 	char*  pData0;
     char*  pData1;
     char*  pData2;
@@ -127,5 +130,3 @@ class TinaPlayer{
 }
 
 #endif 
-
-

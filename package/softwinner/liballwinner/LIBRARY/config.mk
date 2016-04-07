@@ -3,7 +3,9 @@
 ## configurations.
 ################################################################################
 
-## conpile tool chain for linux makefile.
+CONFIG_CEDARX_PATH = $(PWD)
+$(warning ***********CONFIG_CEDARX_PATH = $(CONFIG_CEDARX_PATH)********&&&&&&&&&&&&&&&&&&&&&*******)
+## configure tool chain for linux makefile.
 # arm-linux-gnueabihf- or arm-none-linux-gnueabi- tool chain
 OPTION_CC_GNUEABIHF = 1
 LOCAL_CFLAGS += -DOPTION_CC_GNUEABIHF=$(OPTION_CC_GNUEABIHF)
@@ -13,6 +15,10 @@ OPTION_CC_UCGNUEABI   = 3
 LOCAL_CFLAGS += -DOPTION_CC_UCGNUEABI=$(OPTION_CC_UCGNUEABI)
 OPTION_CC_LINUX_UCGNUEABI = 4
 LOCAL_CFLAGS += -DOPTION_CC_LINUX_UCGNUEABI=$(OPTION_CC_LINUX_UCGNUEABI)
+OPTION_CC_LINUX_MUSLGNUEABI = 5
+LOCAL_CFLAGS += -DOPTION_CC_LINUX_MUSLGNUEABI=$(OPTION_CC_LINUX_MUSLGNUEABI)
+OPTION_CC_LINUX_MUSLGNUEABI64 = 6
+LOCAL_CFLAGS += -DOPTION_CC_LINUX_MUSLGNUEABI64=$(OPTION_CC_LINUX_MUSLGNUEABI64)
 
 ########## option for os config. ##########
 OPTION_OS_ANDROID = 1
@@ -51,34 +57,19 @@ OPTION_PRODUCT_LOUDSPEAKER = 6
 LOCAL_CFLAGS += -DOPTION_PRODUCT_LOUDSPEAKER=$(OPTION_PRODUCT_LOUDSPEAKER)
 
 ########## option for chip config. ##########
-OPTION_CHIP_1623 = 1
-LOCAL_CFLAGS += -DOPTION_CHIP_1623=$(OPTION_CHIP_1623)
-OPTION_CHIP_1625 = 2
-LOCAL_CFLAGS += -DOPTION_CHIP_1625=$(OPTION_CHIP_1625)
-OPTION_CHIP_1633 = 3
-LOCAL_CFLAGS += -DOPTION_CHIP_1633=$(OPTION_CHIP_1633)
-OPTION_CHIP_1651 = 4
-LOCAL_CFLAGS += -DOPTION_CHIP_1651=$(OPTION_CHIP_1651)
-OPTION_CHIP_1650 = 5
-LOCAL_CFLAGS += -DOPTION_CHIP_1650=$(OPTION_CHIP_1650)
-OPTION_CHIP_1661 = 6
-LOCAL_CFLAGS += -DOPTION_CHIP_1661=$(OPTION_CHIP_1661)
-OPTION_CHIP_1667 = 7
-LOCAL_CFLAGS += -DOPTION_CHIP_1667=$(OPTION_CHIP_1667)
-OPTION_CHIP_1639 = 8
-LOCAL_CFLAGS += -DOPTION_CHIP_1639=$(OPTION_CHIP_1639)
-OPTION_CHIP_1673 = 9
-LOCAL_CFLAGS += -DOPTION_CHIP_1673=$(OPTION_CHIP_1673)
-OPTION_CHIP_1680 = 10
-LOCAL_CFLAGS += -DOPTION_CHIP_1680=$(OPTION_CHIP_1680)
-OPTION_CHIP_1681 = 11
-LOCAL_CFLAGS += -DOPTION_CHIP_1681=$(OPTION_CHIP_1681)
-OPTION_CHIP_1689 = 12
-LOCAL_CFLAGS += -DOPTION_CHIP_1689=$(OPTION_CHIP_1689)
-OPTION_CHIP_1701 = 13
-LOCAL_CFLAGS += -DOPTION_CHIP_1701=$(OPTION_CHIP_1701)
-OPTION_CHIP_1663 = 14
-LOCAL_CFLAGS += -DOPTION_CHIP_1663=$(OPTION_CHIP_1663)
+OPTION_CHIP_R8 = 1
+LOCAL_CFLAGS += -DOPTION_CHIP_R8=$(OPTION_CHIP_R8)
+OPTION_CHIP_R16 = 2
+LOCAL_CFLAGS += -DOPTION_CHIP_R16=$(OPTION_CHIP_R16)
+OPTION_CHIP_C500 = 3
+LOCAL_CFLAGS += -DOPTION_CHIP_C500=$(OPTION_CHIP_C500)
+OPTION_CHIP_R58 = 4
+LOCAL_CFLAGS += -DOPTION_CHIP_R58=$(OPTION_CHIP_R58)
+OPTION_CHIP_R18 = 5
+LOCAL_CFLAGS += -DOPTION_CHIP_R18=$(OPTION_CHIP_R18)
+OPTION_CHIP_T2 = 6
+LOCAL_CFLAGS += -DOPTION_CHIP_T2=$(OPTION_CHIP_T2)
+
 
 ########## option for dram interface. ##########
 OPTION_DRAM_INTERFACE_DDR1_16BITS = 1
@@ -102,6 +93,18 @@ LOCAL_CFLAGS += -DOPTION_CMCC_NO=$(OPTION_CMCC_NO)
 OPTION_CMCC_YES = 1
 LOCAL_CFLAGS += -DOPTION_CMCC_YES=$(OPTION_CMCC_YES)
 
+########## option for dtv ##########
+OPTION_DTV_NO  = 0
+LOCAL_CFLAGS += -DOPTION_DTV_NO=$(OPTION_DTV_NO)
+OPTION_DTV_YES = 1
+LOCAL_CFLAGS += -DOPTION_DTV_YES=$(OPTION_DTV_YES)
+
+########## option for AliYUNOS ##########
+OPTION_ALI_YUNOS_NO  = 0
+LOCAL_CFLAGS += -DOPTION_ALI_YUNOS_NO=$(OPTION_ALI_YUNOS_NO)
+OPTION_ALI_YUNOS_YES = 1
+LOCAL_CFLAGS += -DOPTION_ALI_YUNOS_YES=$(OPTION_ALI_YUNOS_YES)
+
 ########## option for is_camera_decoder ##########
 OPTION_IS_CAMERA_DECODER_NO  = 0
 LOCAL_CFLAGS += -DOPTION_IS_CAMERA_DECODER_NO=$(OPTION_IS_CAMERA_DECODER_NO)
@@ -114,24 +117,75 @@ LOCAL_CFLAGS += -DOPTION_VE_IPC_DISABLE=$(OPTION_VE_IPC_DISABLE)
 OPTION_VE_IPC_ENABLE = 2
 LOCAL_CFLAGS += -DOPTION_VE_IPC_ENABLE=$(OPTION_VE_IPC_ENABLE)
 
-#############################################################################
-############################## configuration. ############################### 
-#############################################################################
-CONFIG_CC = $(OPTION_CC_UCGNUEABI)
-CONFIG_OS = $(OPTION_OS_LINUX)
-CONFIG_OS_VERSION = $(OPTION_OS_VERSION_ANDROID_5_0)
-CONFIG_MEMORY_DRIVER = $(OPTION_MEMORY_DRIVER_ION)
-CONFIG_PRODUCT = $(OPTION_PRODUCT_LOUDSPEAKER)
-CONFIG_CHIP = $(OPTION_CHIP_1667)
-CONFIG_DRAM_INTERFACE = $(OPTION_DRAM_INTERFACE_DDR3_32BITS)
-CONFIG_VE_IPC = $(OPTION_VE_IPC_DISABLE)
-CONFIG_CMCC = $(OPTION_CMCC_NO)
-CONFIG_IS_CAMERA_DECODER = $(OPTION_IS_CAMERA_DECODER_NO)
-ifdef TARGET_BUSINESS_PLATFORM  
-    ifeq (cmccwasu , $(TARGET_BUSINESS_PLATFORM))
-        CONFIG_CMCC = $(OPTION_CMCC_YES)
-    endif
-endif
+########## option for deinterlace ##########
+OPTION_NO_DEINTERLACE = 0
+LOCAL_CFLAGS += -DOPTION_NO_DEINTERLACE=$(OPTION_NO_DEINTERLACE)
+OPTION_HW_DEINTERLACE = 1
+LOCAL_CFLAGS += -DOPTION_HW_DEINTERLACE=$(OPTION_HW_DEINTERLACE)
+OPTION_SW_DEINTERLACE = 2
+LOCAL_CFLAGS += -DOPTION_SW_DEINTERLACE=$(OPTION_SW_DEINTERLACE)
+
+########## configure linux version ##########
+LINUX_VERSION_3_4  = 1
+LOCAL_CFLAGS += -DLINUX_VERSION_3_4=$(LINUX_VERSION_3_4)
+LINUX_VERSION_3_10 = 2
+LOCAL_CFLAGS += -DLINUX_VERSION_3_10=$(LINUX_VERSION_3_10)
+
+########## configure drop delay frame ##########
+DROP_DELAY_FRAME_NONE = 0
+LOCAL_CFLAGS += -DDROP_DELAY_FRAME_NONE=$(DROP_DELAY_FRAME_NONE)
+DROP_DELAY_FRAME_720P = 1
+LOCAL_CFLAGS += -DDROP_DELAY_FRAME_720P=$(DROP_DELAY_FRAME_720P)
+DROP_DELAY_FRAME_4K = 2
+LOCAL_CFLAGS += -DDROP_DELAY_FRAME_4K=$(DROP_DELAY_FRAME_4K)
+
+########## configure 0 copy pixel format ##########
+ZEROCOPY_PIXEL_FORMAT_NONE = 0
+LOCAL_CFLAGS += -DZEROCOPY_PIXEL_FORMAT_NONE=$(ZEROCOPY_PIXEL_FORMAT_NONE)
+ZEROCOPY_PIXEL_FORMAT_YUV_MB32_420 = 1
+LOCAL_CFLAGS += -DZEROCOPY_PIXEL_FORMAT_YUV_MB32_420=$(ZEROCOPY_PIXEL_FORMAT_YUV_MB32_420)
+ZEROCOPY_PIXEL_FORMAT_YV12 = 2
+LOCAL_CFLAGS += -DZEROCOPY_PIXEL_FORMAT_YV12=$(ZEROCOPY_PIXEL_FORMAT_YV12)
+ZEROCOPY_PIXEL_FORMAT_NV21 = 3
+LOCAL_CFLAGS += -DZEROCOPY_PIXEL_FORMAT_NV21=$(ZEROCOPY_PIXEL_FORMAT_NV21)
+
+########## configure gpu y c align ##########
+GPU_Y16_C16_ALIGN = 1
+LOCAL_CFLAGS += -DGPU_Y16_C16_ALIGN=$(GPU_Y16_C16_ALIGN)
+GPU_Y32_C16_ALIGN = 2
+LOCAL_CFLAGS += -DGPU_Y32_C16_ALIGN=$(GPU_Y32_C16_ALIGN)
+GPU_Y16_C8_ALIGN = 3
+LOCAL_CFLAGS += -DGPU_Y16_C8_ALIGN=$(GPU_Y16_C8_ALIGN)
+
+########## configure gpu y c align ##########
+ZEROCOPY_HAL_PIXEL_FORMAT_AW_YUV_PLANNER420 = 1
+LOCAL_CFLAGS += -DZEROCOPY_HAL_PIXEL_FORMAT_AW_YUV_PLANNER420=$(ZEROCOPY_HAL_PIXEL_FORMAT_AW_YUV_PLANNER420)
+ZEROCOPY_HAL_PIXEL_FORMAT_AW_YVU_PLANNER420 = 2
+LOCAL_CFLAGS += -DZEROCOPY_HAL_PIXEL_FORMAT_AW_YVU_PLANNER420=$(ZEROCOPY_HAL_PIXEL_FORMAT_AW_YVU_PLANNER420)
+
+########## configure deinterlace format ##########
+DEINTERLACE_FORMAT_MB32_12 = 1
+LOCAL_CFLAGS += -DDEINTERLACE_FORMAT_MB32_12=$(DEINTERLACE_FORMAT_MB32_12)
+DEINTERLACE_FORMAT_NV = 2
+LOCAL_CFLAGS += -DDEINTERLACE_FORMAT_NV=$(DEINTERLACE_FORMAT_NV)
+DEINTERLACE_FORMAT_NV21 = 3
+LOCAL_CFLAGS += -DDEINTERLACE_FORMAT_NV21=$(DEINTERLACE_FORMAT_NV21)
+DEINTERLACE_FORMAT_NV12 = 4
+LOCAL_CFLAGS += -DDEINTERLACE_FORMAT_NV12=$(DEINTERLACE_FORMAT_NV12)
+
+########## configure output pixel format ##########
+OUTPUT_PIXEL_FORMAT_NV21 = 1
+LOCAL_CFLAGS += -DOUTPUT_PIXEL_FORMAT_NV21=$(OUTPUT_PIXEL_FORMAT_NV21)
+OUTPUT_PIXEL_FORMAT_YV12 = 2
+LOCAL_CFLAGS += -DOUTPUT_PIXEL_FORMAT_YV12=$(OUTPUT_PIXEL_FORMAT_YV12)
+OUTPUT_PIXEL_FORMAT_MB32 = 3
+LOCAL_CFLAGS += -DOUTPUT_PIXEL_FORMAT_MB32=$(OUTPUT_PIXEL_FORMAT_MB32)
+
+########## configure gpu align stride ##########
+GPU_ALIGN_STRIDE_16 = 1
+LOCAL_CFLAGS += -DGPU_ALIGN_STRIDE_16=$(GPU_ALIGN_STRIDE_16)
+GPU_ALIGN_STRIDE_32 = 2
+LOCAL_CFLAGS += -DGPU_ALIGN_STRIDE_32=$(GPU_ALIGN_STRIDE_32)
 
 ########## configure ZLIB ##########
 OPTION_HAVE_ZLIB = 1
@@ -139,35 +193,22 @@ LOCAL_CFLAGS += -DOPTION_HAVE_ZLIB=$(OPTION_HAVE_ZLIB)
 OPTION_NO_ZLIB = 2
 LOCAL_CFLAGS += -DOPTION_NO_ZLIB=$(OPTION_NO_ZLIB)
 
-CONFIG_HAVE_ZLIB = $(OPTION_HAVE_ZLIB)
-
-ifeq ($(CONFIG_HAVE_ZLIB), $(OPTION_HAVE_ZLIB))
-    LOCAL_CFLAGS += -DCONFIG_HAVE_ZLIB=$(OPTION_HAVE_ZLIB)
-endif
-
 ########## configure SSL ##########
 OPTION_HAVE_SSL = 1
 LOCAL_CFLAGS += -DOPTION_HAVE_SSL=$(OPTION_HAVE_SSL)
 OPTION_NO_SSL = 2
 LOCAL_CFLAGS += -DOPTION_NO_SSL=$(OPTION_NO_SSL)
 
+#############################################################################
+############################## configuration. ############################### 
+#############################################################################
+CONFIG_CC = $(OPTION_CC_GNUEABI)
+CONFIG_OS = $(OPTION_OS_LINUX)
+CONFIG_PRODUCT = $(OPTION_PRODUCT_TVBOX)
+CONFIG_CHIP = $(OPTION_CHIP_C500)
+CONFIG_HAVE_ZLIB = $(OPTION_HAVE_ZLIB)
 CONFIG_HAVE_SSL = $(OPTION_HAVE_SSL)
-
-ifeq ($(CONFIG_HAVE_SSL), $(OPTION_HAVE_SSL))
-    LOCAL_CFLAGS += -DCONFIG_HAVE_SSL=$(OPTION_HAVE_SSL)
-endif
-
-########## configure CROP LEVEL ##########
-OPTION_CROP_LEVEL0 = 0
-LOCAL_CFLAGS += -DOPTION_CROP_LEVEL0=$(OPTION_CROP_LEVEL0)
-OPTION_CROP_LEVEL1 = 1
-LOCAL_CFLAGS += -DOPTION_CROP_LEVEL1=$(OPTION_CROP_LEVEL1)
-
-CONFIG_CROP_LEVEL = $(OPTION_CROP_LEVEL0)
-
-ifeq ($(CONFIG_CROP_LEVEL), $(OPTION_CROP_LEVEL1))
-    LOCAL_CFLAGS += -DCONFIG_CROP_LEVEL=$(OPTION_CROP_LEVEL1)
-endif
+#CONFIG_LOG_LEVEL = $(OPTION_LOG_LEVEL_DETAIL)
 
 ########## configure CONFIG_CC ##########
 LOCAL_CFLAGS += -DCONFIG_CC=$(CONFIG_CC)
@@ -175,77 +216,18 @@ LOCAL_CFLAGS += -DCONFIG_CC=$(CONFIG_CC)
 ########## configure CONFIG_OS ##########
 LOCAL_CFLAGS += -DCONFIG_OS=$(CONFIG_OS)
 
-########## configure CONFIG_MEMORY_DRIVER ##########
-LOCAL_CFLAGS += -DCONFIG_MEMORY_DRIVER=$(CONFIG_MEMORY_DRIVER)
 
-########## configure CONFIG_PRODUCT ##########
-LOCAL_CFLAGS += -DCONFIG_PRODUCT=$(CONFIG_PRODUCT)
-
-#ifdef ($(SW_CHIP_PLATFORM)) #ifdef SW_CHIP_PLATFORM
-#    CONFIG_PRODUCT = $(OPTION_PRODUCT_TVBOX)
-#else
-#    CONFIG_PRODUCT = $(OPTION_PRODUCT_PAD)
-#endif
-
-########## configure CONFIG_DRAM_INTERFACE ##########
-LOCAL_CFLAGS += -DCONFIG_DRAM_INTERFACE=$(CONFIG_DRAM_INTERFACE)
-
-########## configure CONFIG_VE_IPC ##########
-LOCAL_CFLAGS += -DCONFIG_VE_IPC=$(CONFIG_VE_IPC)
-
-########## configure CONFIG_IS_CAMERA_DECODER ##########
-LOCAL_CFLAGS += -DCONFIG_IS_CAMERA_DECODER=$(CONFIG_IS_CAMERA_DECODER)
-
-########## configure CONFIG_CMCC ##########
-LOCAL_CFLAGS += -DCONFIG_CMCC=$(CONFIG_CMCC)
-
-#$(warning "SW_CHIP_PLATFORM:"$(SW_CHIP_PLATFORM))
-#$(warning "PLATFORM_VERSION:"$(PLATFORM_VERSION)) 
-#$(warning "TARGET_PRODUCT:"$(TARGET_PRODUCT))
-
-########## configure CONFIG_CHIP ##########
-ifeq ($(CONFIG_OS), $(OPTION_OS_ANDROID))
-    ifdef SW_CHIP_PLATFORM
-        ifeq (A80, $(SW_CHIP_PLATFORM))
-            CONFIG_CHIP = $(OPTION_CHIP_1639)
-        else ifeq (H8, $(SW_CHIP_PLATFORM))
-            CONFIG_CHIP = $(OPTION_CHIP_1673)
-        else ifeq (H3, $(SW_CHIP_PLATFORM))
-            CONFIG_CHIP = $(OPTION_CHIP_1680)
-        else ifeq (H64, $(SW_CHIP_PLATFORM))
-            CONFIG_CHIP = $(OPTION_CHIP_1689)
-        else
-            $(warning $(SW_CHIP_PLATFORM))
-        endif
-    else
-        product = $(shell echo $(TARGET_PRODUCT) | cut -d '_' -f 1)
-        ifeq (astar, $(product)) #A33
-            CONFIG_CHIP = $(OPTION_CHIP_1667)
-            $(warning A33)
-        else ifeq (eagle, $(product)) #A83
-            CONFIG_CHIP = $(OPTION_CHIP_1673)
-            $(warning A83)
-        else ifeq (tulip, $(product)) #A64
-            CONFIG_CHIP = $(OPTION_CHIP_1689)
-        else ifeq (jaws, $(product)) #A80
-            CONFIG_CHIP = $(OPTION_CHIP_1639)
-        else
-            $(warning $(product))
-            CONFIG_CHIP = -1
-        endif
-    endif
-
-    ifeq (-1, $(CONFIG_CHIP))
-        product = $(shell echo $(TARGET_PRODUCT) | cut -d '_' -f 1)
-        ifeq (sugar, $(product))
-            CONFIG_CHIP = $(OPTION_CHIP_1651)
-        endif
+########## configure CONFIG_ALI_YUNOS ##########
+CONFIG_ALI_YUNOS = $(OPTION_ALI_YUNOS_NO)
+ifdef TARGET_BUSINESS_PLATFORM
+    ifeq (aliyunos , $(TARGET_BUSINESS_PLATFORM))
+		CONFIG_ALI_YUNOS = $(OPTION_ALI_YUNOS_YES)
     endif
 endif
-
-LOCAL_CFLAGS += -DCONFIG_CHIP=$(CONFIG_CHIP)
+LOCAL_CFLAGS += -DCONFIG_ALI_YUNOS=$(CONFIG_ALI_YUNOS)
 
 ########## configure CONFIG_OS_VERSION ########## 
+CONFIG_OS_VERSION = $(OPTION_OS_VERSION_ANDROID_4_4)
 ifeq ($(CONFIG_OS), $(OPTION_OS_ANDROID))
     os_version = $(shell echo $(PLATFORM_VERSION) | cut -c 1-3)
     ifeq ($(os_version), 4.2)
@@ -263,139 +245,81 @@ ifeq ($(CONFIG_OS), $(OPTION_OS_ANDROID))
         CONFIG_OS_VERSION = -1	
     endif
 endif
-
 LOCAL_CFLAGS += -DCONFIG_OS_VERSION=$(CONFIG_OS_VERSION)
 
-########## configure USE_SW_DEINTERLACE ########## 
-LIB_AW_PATH := $(TOP)/frameworks/av/media/liballwinner
-LAW_CFLAGS :=
-
-SW_DEINTERLACE_FLAGS = $(shell test -d $(LIB_AW_PATH)/LIBRARY/PLAYER/sw-deinterlace;echo $$?)
-ifeq ($(SW_DEINTERLACE_FLAGS), 0)
-USE_SW_DEINTERLACE := yes
-LAW_CFLAGS += -DUSE_SW_DEINTERLACE
-endif
-
-############ configure USE_NEW_DISPLAY ############
-USE_NEW_DISPLAY := 0
-ifeq ($(CONFIG_CHIP),$(OPTION_CHIP_1667))
-    USE_NEW_DISPLAY := 1
-# on A83-pad-5.0
-else ifeq ($(CONFIG_CHIP),$(OPTION_CHIP_1673))
-    ifeq ($(CONFIG_PRODUCT),$(OPTION_PRODUCT_PAD))
-        ifeq ($(CONFIG_OS_VERSION),$(OPTION_OS_VERSION_ANDROID_5_0))
-        USE_NEW_DISPLAY := 1
-        endif
-        ifeq ($(CONFIG_OS_VERSION),$(OPTION_OS_VERSION_ANDROID_6_0))
-        USE_NEW_DISPLAY := 1
-        endif
-    endif
-# on A80-pad-5.0
-else ifeq ($(CONFIG_CHIP),$(OPTION_CHIP_1639))
-    ifeq ($(CONFIG_PRODUCT),$(OPTION_PRODUCT_PAD))
-        ifeq ($(CONFIG_OS_VERSION),$(OPTION_OS_VERSION_ANDROID_5_0))
-        USE_NEW_DISPLAY := 1
-        endif
-        ifeq ($(CONFIG_OS_VERSION),$(OPTION_OS_VERSION_ANDROID_6_0))
-        USE_NEW_DISPLAY := 1
-        endif
-    endif
-# on A80-tvbox-5.0
-else ifeq ($(CONFIG_CHIP),$(OPTION_CHIP_1639))
-    ifeq ($(CONFIG_PRODUCT),$(OPTION_PRODUCT_TVBOX))
-        ifeq ($(CONFIG_OS_VERSION),$(OPTION_OS_VERSION_ANDROID_5_0))
-        USE_NEW_DISPLAY := 1
-        endif
-        ifeq ($(CONFIG_OS_VERSION),$(OPTION_OS_VERSION_ANDROID_6_0))
-        USE_NEW_DISPLAY := 1
-        endif
-    endif
-else ifeq ($(CONFIG_CHIP),$(OPTION_CHIP_1689))
-    ifeq ($(CONFIG_OS_VERSION),$(OPTION_OS_VERSION_ANDROID_5_0))
-        USE_NEW_DISPLAY := 1
-    endif
-    ifeq ($(CONFIG_OS_VERSION),$(OPTION_OS_VERSION_ANDROID_6_0))
-        USE_NEW_DISPLAY := 1
-    endif
-endif
-
-# on all secure box
-ifeq ($(CONFIG_PRODUCT),$(OPTION_PRODUCT_TVBOX))
-    ifeq ($(BOARD_WIDEVINE_OEMCRYPTO_LEVEL), 1)
-    USE_NEW_DISPLAY := 1
-    endif
-endif
-
-# on all linux product
-ifeq ($(CONFIG_OS),$(OPTION_OS_LINUX))
-    USE_NEW_DISPLAY := 0
-endif
-
-LOCAL_CFLAGS += -DUSE_NEW_DISPLAY=$(USE_NEW_DISPLAY)
-
-########## configure GPU_TYPE_MALI ##########
-GPU_TYPE_MALI := 0
-ifeq ($(CONFIG_CHIP), $(OPTION_CHIP_1680))
-    GPU_TYPE_MALI := 1
-else ifeq ($(CONFIG_CHIP), $(OPTION_CHIP_1667))
-    GPU_TYPE_MALI := 1
-else ifeq ($(CONFIG_CHIP), $(OPTION_CHIP_1689))
-    GPU_TYPE_MALI := 1
-else
-    GPU_TYPE_MALI := 0
-endif
-LOCAL_CFLAGS += -DGPU_TYPE_MALI=$(GPU_TYPE_MALI)
-
-########## configure DROP_3D_SECOND_VIDEO_STREAM ##########
-DROP_3D_SECOND_VIDEO_STREAM := 0
-ifeq (1, $(USE_NEW_DISPLAY))
-    ifeq ($(CONFIG_PRODUCT), $(OPTION_PRODUCT_PAD))
-        DROP_3D_SECOND_VIDEO_STREAM := 1
-    endif
-endif
-LOCAL_CFLAGS += -DDROP_3D_SECOND_VIDEO_STREAM=$(DROP_3D_SECOND_VIDEO_STREAM)
-
-########## configure MUTE_DRM_WHEN_HDMI_FLAG ##########
-MUTE_DRM_WHEN_HDMI_FLAG := 0
-ifeq ($(CONFIG_PRODUCT), $(OPTION_PRODUCT_PAD))
-    ifeq ($(CONFIG_OS_VERSION), $(OPTION_OS_VERSION_ANDROID_5_0))
-        MUTE_DRM_WHEN_HDMI_FLAG := 1
-    else ifeq ($(CONFIG_OS_VERSION), $(OPTION_OS_VERSION_ANDROID_6_0))
-        MUTE_DRM_WHEN_HDMI_FLAG := 1
-    endif
-endif
-LOCAL_CFLAGS += -DMUTE_DRM_WHEN_HDMI_FLAG=$(MUTE_DRM_WHEN_HDMI_FLAG)
-
-########## configure WIDEVINE_OEMCRYPTO_LEVEL ##########
-ifeq ($(BOARD_WIDEVINE_OEMCRYPTO_LEVEL), 1)
-LAW_CFLAGS += -DWIDEVINE_OEMCRYPTO_LEVEL=1
-else
-LAW_CFLAGS += -DWIDEVINE_OEMCRYPTO_LEVEL=3
-endif
-
-########## configure CMCC ##########
-CMCC := no
-ifeq ($(CONFIG_CMCC), $(OPTION_CMCC_YES))
-CMCC := yes
-endif
-LOCAL_CFLAGS += -DCMCC=$(CMCC)
-
-########## configure ENABLE_SUBTITLE_DISPLAY_IN_CEDARX ##########
-#We surpport display subtitle in cedarx on android4.2 and 4.4.
-#but the APIs of skia on android5.0 are much more different,
-#so it do not work on android5.0
-
-ENABLE_SUBTITLE_DISPLAY_IN_CEDARX := 0
-ifeq ($(CONFIG_OS_VERSION),$(OPTION_OS_VERSION_ANDROID_5_0))
-    ENABLE_SUBTITLE_DISPLAY_IN_CEDARX := 0
-else ifeq ($(CONFIG_OS_VERSION),$(OPTION_OS_VERSION_ANDROID_6_0))
-    ENABLE_SUBTITLE_DISPLAY_IN_CEDARX := 0    
-endif
-LOCAL_CFLAGS += -DENABLE_SUBTITLE_DISPLAY_IN_CEDARX=$(ENABLE_SUBTITLE_DISPLAY_IN_CEDARX)
-
-########## configure CEDARX_SUPPORT_SOUNDTOUCH ##########
+########## configure CONFIG_TARGET_PRODUCT ##########
+LIB_CEDARM_PATH := $(TOP)/frameworks/av/media/libcedarx
 ifeq ($(CONFIG_OS), $(OPTION_OS_ANDROID))
-    #LOCAL_CFLAGS += -DCEDARX_SUPPORT_SOUNDTOUCH
+    product = $(shell echo $(TARGET_PRODUCT) | cut -d '_' -f 1)
+    ifeq (sugar, $(product)) #A20
+        CONFIG_TARGET_PRODUCT=sugar
+        CONFIG_PRODUCT=$(OPTION_PRODUCT_TVBOX)
+        include $(LIB_CEDARM_PATH)/config/sugar_config.mk
+    else ifeq (jaws, $(product)) #A80
+        CONFIG_TARGET_PRODUCT=jaws
+        CONFIG_PRODUCT=$(OPTION_PRODUCT_TVBOX)
+        include $(LIB_CEDARM_PATH)/config/jaws_config.mk
+    else ifeq (eagle, $(product)) #H8
+        CONFIG_TARGET_PRODUCT=eagle
+        CONFIG_PRODUCT=$(OPTION_PRODUCT_TVBOX)
+        include $(LIB_CEDARM_PATH)/config/eagle_config.mk
+    else ifeq (dolphin, $(product)) #H3
+        CONFIG_TARGET_PRODUCT=dolphin
+        CONFIG_PRODUCT=$(OPTION_PRODUCT_TVBOX)
+        include $(LIB_CEDARM_PATH)/config/dolphin_config.mk
+    else ifeq (rabbit, $(product)) #H64
+        CONFIG_TARGET_PRODUCT=rabbit
+        CONFIG_PRODUCT=$(OPTION_PRODUCT_TVBOX)
+        include $(LIB_CEDARM_PATH)/config/rabbit_config.mk
+    else ifeq (astar, $(product)) #A33
+        CONFIG_TARGET_PRODUCT=astar
+        CONFIG_PRODUCT=$(OPTION_PRODUCT_PAD)
+        include $(LIB_CEDARM_PATH)/config/astar_config.mk
+    else ifeq (octopus, $(product)) #A83
+        CONFIG_TARGET_PRODUCT=octopus
+        CONFIG_PRODUCT=$(OPTION_PRODUCT_PAD)
+        include $(LIB_CEDARM_PATH)/config/octopus_config.mk
+    else ifeq (tulip, $(product)) #A64
+        CONFIG_TARGET_PRODUCT=tulip
+        CONFIG_PRODUCT=$(OPTION_PRODUCT_PAD)
+        include $(LIB_CEDARM_PATH)/config/tulip_config.mk
+    else ifeq (kylin, $(product)) #A80
+        CONFIG_TARGET_PRODUCT=kylin
+        CONFIG_PRODUCT=$(OPTION_PRODUCT_PAD)
+        include $(LIB_CEDARM_PATH)/config/kylin_config.mk
+    else ifeq (magton, $(product)) #V40
+        CONFIG_TARGET_PRODUCT=magton
+        CONFIG_PRODUCT=$(OPTION_PRODUCT_TVBOX)
+        include $(LIB_CEDARM_PATH)/config/magton_config.mk
+    else ifeq (aston, $(product)) #V66
+        CONFIG_TARGET_PRODUCT=aston
+        CONFIG_PRODUCT=$(OPTION_PRODUCT_TVBOX)
+        include $(LIB_CEDARM_PATH)/config/aston_config.mk
+    else
+        $(warning $(product))
+    endif
+endif
+LOCAL_CFLAGS += -DCONFIG_TARGET_PRODUCT=$(CONFIG_TARGET_PRODUCT)
+
+########## configure CONFIG_PRODUCT ##########
+LOCAL_CFLAGS += -DCONFIG_PRODUCT=$(CONFIG_PRODUCT)
+
+########## configre zlib ######################
+LOCAL_CFLAGS += -DCONFIG_HAVE_ZLIB=$(CONFIG_HAVE_ZLIB)
+
+########## configre ssl ######################
+LOCAL_CFLAGS += -DCONFIG_HAVE_SSL=$(CONFIG_HAVE_SSL)
+
+
+ifeq ($(CONFIG_OS), $(OPTION_OS_LINUX))
+	ifeq ($(CONFIG_CHIP),$(OPTION_CHIP_R16))
+		include $(CONFIG_CEDARX_PATH)/LIBRARY/config/R16_linux_config.mk   # R16
+	else ifeq  ($(CONFIG_CHIP),$(OPTION_CHIP_C500))
+		include $(CONFIG_CEDARX_PATH)/LIBRARY/config/C500_linux_config.mk   # c500
+	else
+		 $(warning $(CONFIG_CHIP))
+	endif
 endif
 ###################################end define####################################
+
 

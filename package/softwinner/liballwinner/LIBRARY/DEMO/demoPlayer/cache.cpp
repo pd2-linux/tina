@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <malloc.h>
+#include <stdint.h>
 #include "cache.h"
 #include "log.h"
 

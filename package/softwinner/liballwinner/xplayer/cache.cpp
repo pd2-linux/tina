@@ -2,6 +2,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <malloc.h>
+#include <stdint.h>
+
 #include "cache.h"
 #include "log.h"
 

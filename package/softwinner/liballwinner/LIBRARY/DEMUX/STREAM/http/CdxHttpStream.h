@@ -5,13 +5,17 @@
 #include <CdxAtomic.h>
 #include <CdxUrl.h>
 #include <AwPool.h>
-#include <zlib.h>
 #include <assert.h>
 
 #define __SAVE_BITSTREAMS (0)
 #define closesocket close
 
+#if (CONFIG_HAVE_ZLIB == OPTION_HAVE_ZLIB)
+#include <zlib.h>
 #define __CONFIG_ZLIB (1)
+#else
+#define __CONFIG_ZLIB (0)
+#endif
 
 struct HttpHeaderField
 {

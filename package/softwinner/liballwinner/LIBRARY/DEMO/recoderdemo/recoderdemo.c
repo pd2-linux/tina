@@ -8,7 +8,7 @@
 #include <ctype.h>
 #include <errno.h>
 
-#include <config.h>
+#include <cdx_config.h>
 #include <log.h>
 
 #include <CdxQueue.h>
@@ -21,11 +21,6 @@
 
 #define SAVE_VIDEO_FRAME (0)
 
-#if CONFIG_CHIP == OPTION_CHIP_1639
-#define PHY_OFFSET 0x20000000
-#else
-#define PHY_OFFSET 0x40000000
-#endif
 
 
 static const int STATUS_IDEL   = 0;
@@ -299,6 +294,13 @@ int main(int argc, char *argv[])
     mEncDataCallBackOps.onAudioDataEnc = onAudioDataEnc;
     mEncDataCallBackOps.onVideoDataEnc = onVideoDataEnc;
 
+    struct ScMemOpsS* memops = MemAdapterGetOpsS();
+	if(memops == NULL)
+	{
+		return -1;
+	}
+	CdcMemOpen(memops);
+
     printf("\n");
     printf("******************************************************************************************\n");
     printf("* This program implements a simple recoder.\n");
@@ -328,13 +330,13 @@ int main(int argc, char *argv[])
 
 	//VideoEncodeConfig videoConfig;
 	memset(&demoRecoder.videoConfig, 0x00, sizeof(VideoEncodeConfig));
-	demoRecoder.videoConfig.nType = VIDEO_ENCODE_JPEG;
-	demoRecoder.videoConfig.nFrameRate = 30;
-	demoRecoder.videoConfig.nOutHeight = 720;
-	demoRecoder.videoConfig.nOutWidth = 1280;
-	demoRecoder.videoConfig.nSrcHeight = 720;
-	demoRecoder.videoConfig.nSrcWidth = 1280;
-	demoRecoder.videoConfig.nBitRate = 3*1000*1000;
+	demoRecoder.videoConfig.nType       = VIDEO_ENCODE_JPEG;
+	demoRecoder.videoConfig.nFrameRate  = 30;
+	demoRecoder.videoConfig.nOutHeight  = 720;
+	demoRecoder.videoConfig.nOutWidth   = 1280;
+	demoRecoder.videoConfig.nSrcHeight  = 720;
+	demoRecoder.videoConfig.nSrcWidth   = 1280;
+	demoRecoder.videoConfig.nBitRate    = 3*1000*1000;
 	demoRecoder.videoConfig.bUsePhyBuf  = 1;
 
 	//AudioEncodeConfig audioConfig;	
@@ -345,7 +347,9 @@ int main(int argc, char *argv[])
 	demoRecoder.audioConfig.nOutSamplerate = 44100;
 	demoRecoder.audioConfig.nSamplerBits = 16;
 
+
     demoRecoder.muxType = CDX_MUXER_MOV;
+
     if(demoRecoder.muxType == CDX_MUXER_TS && demoRecoder.audioConfig.nType == AUDIO_ENCODE_PCM_TYPE)
     {
     	demoRecoder.audioConfig.nFrameStyle = 2;
@@ -411,8 +415,8 @@ int main(int argc, char *argv[])
     int sizeY = demoRecoder.videoConfig.nSrcHeight* demoRecoder.videoConfig.nSrcWidth;
     if(demoRecoder.videoConfig.bUsePhyBuf)
     {
-    	demoRecoder.pAddrPhyY = MemAdapterPalloc(sizeY);
-		demoRecoder.pAddrPhyC = MemAdapterPalloc(sizeY/2);
+    	demoRecoder.pAddrPhyY = CdcMemPalloc(memops, sizeY);
+		demoRecoder.pAddrPhyC = CdcMemPalloc(memops, sizeY/2);
 		printf("==== palloc demoRecoder.pAddrPhyY: %p\n", demoRecoder.pAddrPhyY);
 /*
 		videoInputBuffer.nID = 0;
@@ -443,8 +447,7 @@ int main(int argc, char *argv[])
     {
     	int ret = -1;
     	int num = 0;
-    	int used = 0;
-    	while(num<50)
+    	while(num<150)
     	{
     		ret = -1;
     		if(!videoEos)
@@ -464,12 +467,12 @@ int main(int argc, char *argv[])
 					videoInputBuffer.nID = 0;
 					fread(demoRecoder.pAddrPhyY, 1, sizeY,  inputYUV);
 					fread(demoRecoder.pAddrPhyC, 1, sizeY/2, inputYUV);
-					MemAdapterFlushCache(demoRecoder.pAddrPhyY, sizeY);
-					MemAdapterFlushCache(demoRecoder.pAddrPhyC, sizeY/2);
+					CdcMemFlushCache(memops, demoRecoder.pAddrPhyY, sizeY);
+					CdcMemFlushCache(memops, demoRecoder.pAddrPhyC, sizeY/2);
 
 					videoInputBuffer.nID = 0;
-					videoInputBuffer.pAddrPhyY = MemAdapterGetPhysicAddress(demoRecoder.pAddrPhyY)+PHY_OFFSET;
-					videoInputBuffer.pAddrPhyC = MemAdapterGetPhysicAddress(demoRecoder.pAddrPhyC)+PHY_OFFSET;
+					videoInputBuffer.pAddrPhyY = CdcMemGetPhysicAddressCpu(memops, demoRecoder.pAddrPhyY);
+					videoInputBuffer.pAddrPhyC = CdcMemGetPhysicAddressCpu(memops, demoRecoder.pAddrPhyC);
 					
 				}
 				else
@@ -544,14 +547,16 @@ int main(int argc, char *argv[])
 	printf("==== freee demoRecoder.pAddrPhyY: %p\n", demoRecoder.pAddrPhyY);
 	if(demoRecoder.pAddrPhyY)
 	{
-		MemAdapterPfree(demoRecoder.pAddrPhyY);
+		CdcMemPfree(memops, demoRecoder.pAddrPhyY);
 	}
 	printf("==== freee demoRecoder.pAddrPhyY  end\n");
 
     if(demoRecoder.pAddrPhyC)
 	{
-		MemAdapterPfree(demoRecoder.pAddrPhyC);
+		CdcMemPfree(memops, demoRecoder.pAddrPhyC);
 	}
+    
+	CdcMemClose(memops);
     
 	if(demoRecoder.mAwEncoder != NULL)
 	{

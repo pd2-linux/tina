@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <sys/ioctl.h>
 
-#include "config.h"
+#include "cdx_config.h"
 #include "layerControl.h"
 #include "log.h"
 #include "memoryAdapter.h"

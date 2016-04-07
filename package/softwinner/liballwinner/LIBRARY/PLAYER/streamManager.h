@@ -3,6 +3,7 @@
 #define STREAM_MANAGER_H
 
 #include <pthread.h>
+#include <stdint.h>
 
 typedef struct STREAMFRAME
 {

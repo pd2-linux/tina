@@ -7,7 +7,7 @@
 #include <ctype.h>
 #include <errno.h>
 
-#include "config.h"
+#include "cdx_config.h"
 #include "log.h"
 #include "awplayer.h"
 

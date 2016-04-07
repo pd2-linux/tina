@@ -9,6 +9,7 @@
 #include <pthread.h>
 #include <ctype.h>
 #include <errno.h>
+#include <sys/select.h>
 
 #include <tinaplayer.h>
 
@@ -30,7 +31,7 @@ static const int STATUS_COMPLETED = 6;
  /*
 　　位图文件的组成
           结构名称 符 号
- 	位图文件头 (bitmap-file header) BITMAPFILEHEADER bmfh
+	位图文件头 (bitmap-file header) BITMAPFILEHEADER bmfh
 	位图信息头 (bitmap-information header) BITMAPINFOHEADER bmih
 	彩色表　(color table) RGBQUAD aColors[]
 	图象数据阵列字节 BYTE aBitmapBits[]
@@ -239,22 +240,22 @@ static int readCommand(char* strCommandLine, int nMaxLineSize)
     {
         if(FD_ISSET(STDIN_FILENO, &readFdSet))
         {
-    		nReadBytes = read(STDIN_FILENO, &strCommandLine[0], nMaxLineSize);
-    		if(nReadBytes > 0)
-    		{
-    		    p = strCommandLine;
-    		    while(*p != 0)
-    		    {
-    		        if(*p == 0xa)
-    		        {
-    		            *p = 0;
-    		            break;
-    		        }
-    		        p++;
-    		    }
-    		}
-    		
-    		return 0;
+		nReadBytes = read(STDIN_FILENO, &strCommandLine[0], nMaxLineSize);
+		if(nReadBytes > 0)
+		{
+		    p = strCommandLine;
+		    while(*p != 0)
+		    {
+		        if(*p == 0xa)
+		        {
+		            *p = 0;
+		            break;
+		        }
+		        p++;
+		    }
+		}
+
+		return 0;
         }
 	}
 	
@@ -423,6 +424,7 @@ void CallbackForTinaPlayer(void* pUserData, int msg, int param0, void* param1)
             pDemoPlayer->mPreStatus = pDemoPlayer->mStatus;
             pDemoPlayer->mStatus = STATUS_PREPARED;
             TLOGD("info: prepare ok.\n");
+			printf("TINA_NOTIFY_PREPARED : is playing = %d\n",pDemoPlayer->mTinaPlayer->isPlaying());
             pthread_mutex_unlock(&pDemoPlayer->mMutex);
             break;
         }
@@ -446,6 +448,7 @@ void CallbackForTinaPlayer(void* pUserData, int msg, int param0, void* param1)
             //* TODO
             TLOGD("TINA_NOTIFY_PLAYBACK_COMPLETE\n");
             pDemoPlayer->mStatus = STATUS_COMPLETED;
+			printf("TINA_NOTIFY_PLAYBACK_COMPLETE : is playing = %d\n",pDemoPlayer->mTinaPlayer->isPlaying());
             break;
         }
             
@@ -466,45 +469,45 @@ void CallbackForTinaPlayer(void* pUserData, int msg, int param0, void* param1)
 
         case TINA_NOTIFY_VIDEO_PACKET:
         {
-        	DemuxData* videoData = (DemuxData*)param1;
+		DemuxData* videoData = (DemuxData*)param1;
 			//TLOGD("TINA_NOTIFY_VIDEO_PACKET>>>> videoData pts: %lld", videoData->nPts);
 			static int frame = 0;
 			if(frame == 0)
 			{
 				FILE* outFp = fopen("/mnt/UDISK/video.jpg", "wb");
-	        	if(videoData->nSize0)
-	        	{
-	        		fwrite(videoData->pData0, 1, videoData->nSize0, outFp);
-	        	}
-	        	if(videoData->nSize1)
-	        	{
-	        		fwrite(videoData->pData1, 1, videoData->nSize1, outFp);
-	        	}
-	        	fclose(outFp);
-	        	frame ++;
-        	}
-        	break;
+			if(videoData->nSize0)
+			{
+				fwrite(videoData->pData0, 1, videoData->nSize0, outFp);
+			}
+			if(videoData->nSize1)
+			{
+				fwrite(videoData->pData1, 1, videoData->nSize1, outFp);
+			}
+			fclose(outFp);
+			frame ++;
+		}
+		break;
         }
 
         case TINA_NOTIFY_AUDIO_PACKET:
         {
-        	DemuxData* audioData = (DemuxData*)param1;
+		DemuxData* audioData = (DemuxData*)param1;
 			//TLOGD("TINA_NOTIFY_AUDIO_PACKET>>>>audio pts: %lld", audioData->nPts);
 			static int audioframe = 0;
 			if(audioframe == 0)
 			{
 				FILE* outFp = fopen("/mnt/UDISK/audio.mp3", "wb");
-	        	if(audioData->nSize0)
-	        	{
-	        		fwrite(audioData->pData0, 1, audioData->nSize0, outFp);
-	        	}
-	        	if(audioData->nSize1)
-	        	{
-	        		fwrite(audioData->pData1, 1, audioData->nSize1, outFp);
-	        	}
-	        	fclose(outFp);
-	        	audioframe ++;
-        	}
+			if(audioData->nSize0)
+			{
+				fwrite(audioData->pData0, 1, audioData->nSize0, outFp);
+			}
+			if(audioData->nSize1)
+			{
+				fwrite(audioData->pData1, 1, audioData->nSize1, outFp);
+			}
+			fclose(outFp);
+			audioframe ++;
+		}
         	
         }
         
@@ -544,7 +547,7 @@ int main(int argc, char** argv)
     demoPlayer.mTinaPlayer= new TinaPlayer();
     if(demoPlayer.mTinaPlayer == NULL)
     {
-        TLOGD("can not create tinaplayer, quit.\n");
+        TLOGE("can not create tinaplayer, quit.\n");
         exit(-1);
     }
     
@@ -554,7 +557,7 @@ int main(int argc, char** argv)
     //* check if the player work.
     if(demoPlayer.mTinaPlayer->initCheck() != 0)
     {
-        TLOGD("initCheck of the player fail, quit.\n");
+        TLOGE("initCheck of the player fail, quit.\n");
         delete demoPlayer.mTinaPlayer;
 	    demoPlayer.mTinaPlayer = NULL;
         exit(-1);
@@ -564,14 +567,14 @@ int main(int argc, char** argv)
     bQuit = 0;
     while(!bQuit)
     {
-    	if(demoPlayer.mError)
+	if(demoPlayer.mError)
         {
-        	TLOGD("has err,reset the tina player.\n");
-        	demoPlayer.mTinaPlayer->reset();
-        	demoPlayer.mError = 0;
+		TLOGD("has err,reset the tina player.\n");
+		demoPlayer.mTinaPlayer->reset();
+		demoPlayer.mError = 0;
 
-        	demoPlayer.mPreStatus = STATUS_PREPARED;
-        	demoPlayer.mStatus    = STATUS_STOPPED;
+		demoPlayer.mPreStatus = STATUS_PREPARED;
+		demoPlayer.mStatus    = STATUS_STOPPED;
         }
         
         //* read command from stdin.
@@ -601,7 +604,7 @@ int main(int argc, char** argv)
                 {
                     char* pUrl;
                     pUrl = (char*)(uintptr_t)nCommandParam;
-                    
+                    printf("COMMAND_SET_SOURCE : is playing = %d\n",demoPlayer.mTinaPlayer->isPlaying());
                     if((demoPlayer.mStatus != STATUS_STOPPED) && (demoPlayer.mStatus != STATUS_COMPLETED))
                     {
                         TLOGD("invalid command:\n");
@@ -681,6 +684,7 @@ int main(int argc, char** argv)
                         demoPlayer.mPreStatus = STATUS_PLAYING; //* current status is seeking, will set 
                                                                 //* to mPreStatus when seek finish callback.
                     }
+					printf("COMMAND_PLAY : is playing = %d\n",demoPlayer.mTinaPlayer->isPlaying());
                     break;
                 }
                 
@@ -715,6 +719,7 @@ int main(int argc, char** argv)
                         demoPlayer.mPreStatus = STATUS_PAUSED;  //* current status is seeking, will set 
                                                                 //* to mPreStatus when seek finish callback.
                     }
+					printf("COMMAND_PAUSE : is playing = %d\n",demoPlayer.mTinaPlayer->isPlaying());
                     break;
                 }
                 
@@ -728,6 +733,7 @@ int main(int argc, char** argv)
                     }
                     demoPlayer.mPreStatus = demoPlayer.mStatus;
                     demoPlayer.mStatus    = STATUS_STOPPED;
+					printf("COMMAND_STOP : is playing = %d\n",demoPlayer.mTinaPlayer->isPlaying());
                     TLOGD("stopped.\n");
                     break;
                 }
@@ -783,7 +789,7 @@ int main(int argc, char** argv)
                     if(demoPlayer.mTinaPlayer->getDuration(&nDuration) == 0)
                         TLOGD("media duration = %u seconds.\n", nDuration/1000);
                     else
-                        TLOGD("fail to get media duration.\n");
+                        TLOGE("fail to get media duration.\n");
                     break;
                 }
                 
@@ -793,7 +799,7 @@ int main(int argc, char** argv)
                     if(demoPlayer.mTinaPlayer->getCurrentPosition(&nPosition) == 0)
                         TLOGD("current position = %u seconds.\n", nPosition/1000);
                     else
-                        TLOGD("fail to get pisition.\n");
+                        TLOGE("fail to get pisition.\n");
                     break;
                 }
                 
@@ -835,4 +841,3 @@ int main(int argc, char** argv)
 	
 	return 0;
 }
-

@@ -60,6 +60,15 @@ typedef struct SubtitleRenderCompContext
     int64_t             nTimeShiftUs;  //* adjustment set by user.
     int64_t				nVideoOrAudioFirstPts;
 	int					bExternalFlag;
+
+#if( CONFIG_ALI_YUNOS == OPTION_ALI_YUNOS_YES)
+	//* AliYUNOS Idx+Sub subtitle render in CedarX
+	SubtitleStreamInfo*     pStreamInfo;
+	int                     nStreamCount;
+	int                     nStreamSelected;
+	bool					bIdxSubFlag;
+#endif
+
 }SubtitleRenderCompContext;
 
 
@@ -148,6 +157,15 @@ int SubtitleRenderCompDestroy(SubtitleRenderComp* s)
     sem_destroy(&p->eosMsgReplySem);
     sem_destroy(&p->quitMsgReplySem);
     sem_destroy(&p->timeshiftMsgReplySem);
+
+#if( CONFIG_ALI_YUNOS == OPTION_ALI_YUNOS_YES)
+    if(p->pStreamInfo != NULL)
+    {
+		free(p->pStreamInfo);
+		p->pStreamInfo = NULL;
+    }
+#endif
+
     MessageQueueDestroy(p->mq);
     free(p);
 
@@ -181,7 +199,11 @@ int SubtitleRenderCompStart(SubtitleRenderComp* s)
         return -1;
     }
     
+#if( (CONFIG_ALI_YUNOS == OPTION_ALI_YUNOS_YES) && (CONFIG_OS_VERSION == OPTION_OS_VERSION_ANDROID_4_4))
+	if(p->bIdxSubFlag)
+#else
 	if(ENABLE_SUBTITLE_DISPLAY_IN_CEDARX == 1)
+#endif
 	{
 		SubRenderCreate();
 		//SubRenderSetZorderTop();
@@ -217,7 +239,11 @@ int SubtitleRenderCompStop(SubtitleRenderComp* s)
         return -1;
     }
     
+#if( CONFIG_ALI_YUNOS == OPTION_ALI_YUNOS_YES && CONFIG_OS_VERSION == OPTION_OS_VERSION_ANDROID_4_4)
+	if(p->bIdxSubFlag)
+#else
 	if(ENABLE_SUBTITLE_DISPLAY_IN_CEDARX == 1)
+#endif
 	{
 		SubRenderHide(0xFFFFFFFF, NULL);
 		SubRenderDestory();
@@ -401,8 +427,84 @@ int SubtitleRenderCompSetVideoOrAudioFirstPts(SubtitleRenderComp* s,int64_t nFir
 	return 0;	
 }
 
+#if( CONFIG_ALI_YUNOS == OPTION_ALI_YUNOS_YES)
+int SubtitleRenderCompSetSubtitleStreamInfo(SubtitleRenderComp*	s,
+                                         SubtitleStreamInfo*  pStreamInfo,
+                                         int                  nStreamCount,
+                                         int                  nDefaultStreamIndex)
+{
+    SubtitleRenderCompContext*		p;
+    int	i;
 
+    p = (SubtitleRenderCompContext*)s;
 
+    //* free old SubtitleStreamInfo.
+    if(p->pStreamInfo != NULL)
+    {
+        free(p->pStreamInfo);
+        p->pStreamInfo = NULL;
+    }
+
+    p->nStreamSelected = 0;
+    p->nStreamCount = 0;
+	p->bIdxSubFlag = false;
+
+    //* set SubtitleStreamInfo.
+    p->pStreamInfo = (SubtitleStreamInfo*)malloc(sizeof(SubtitleStreamInfo)*nStreamCount);
+    if(p->pStreamInfo == NULL)
+    {
+        loge("memory malloc fail!");
+        return -1;
+    }
+    memset(p->pStreamInfo, 0, sizeof(SubtitleStreamInfo)*nStreamCount);
+
+    for(i=0; i<nStreamCount; i++)
+    {
+        memcpy(&p->pStreamInfo[i], &pStreamInfo[i], sizeof(SubtitleStreamInfo));
+    }
+
+    if(i != nStreamCount)
+    {
+		free(p->pStreamInfo);
+		p->pStreamInfo = NULL;
+		return -1;
+    }
+
+    p->nStreamSelected = nDefaultStreamIndex;
+    p->nStreamCount = nStreamCount;
+
+	if(p->pStreamInfo[p->nStreamSelected].eCodecFormat == SUBTITLE_CODEC_IDXSUB)
+	{
+		p->bIdxSubFlag = true;
+		logi("This subtitle is IdxSub.");
+	}
+
+    return 0;
+}
+
+int SubtitleRenderCompSwitchStream(SubtitleRenderComp* s, int nStreamIndex)
+{
+    SubtitleRenderCompContext* p;
+    p = (SubtitleRenderCompContext*)s;
+
+    if(p->eStatus != PLAYER_STATUS_STOPPED)
+    {
+        loge("can not switch status when subtitle decoder is not in stopped status.");
+        return -1;
+    }
+
+	p->bIdxSubFlag = false;
+	p->nStreamSelected = nStreamIndex;
+
+	if(p->pStreamInfo[p->nStreamSelected].eCodecFormat == SUBTITLE_CODEC_IDXSUB)
+	{
+		p->bIdxSubFlag = true;
+		logi("This subtitle is IdxSub.");
+	}
+
+    return 0;
+}
+#endif
 
 static void* SubtitleRenderThread(void* arg)
 {
@@ -639,7 +741,11 @@ process_message:
                 else
                 {
                     
+#if( CONFIG_ALI_YUNOS == OPTION_ALI_YUNOS_YES && CONFIG_OS_VERSION == OPTION_OS_VERSION_ANDROID_4_4)
+					if(p->bIdxSubFlag)
+#else
 					if(ENABLE_SUBTITLE_DISPLAY_IN_CEDARX == 1)
+#endif
 					{
 						/************************begin****************************/
 						//add something for subtilte display in cedarx
@@ -756,7 +862,12 @@ static void FlushExpiredItems(SubtitleRenderCompContext* p, SubtitleItemInfo* pI
         if(ret < 0)
         {
             pItemInfo[i].bValid = 0;
+
+#if( CONFIG_ALI_YUNOS == OPTION_ALI_YUNOS_YES && CONFIG_OS_VERSION == OPTION_OS_VERSION_ANDROID_4_4)
+			if(p->bIdxSubFlag)
+#else
 			if(ENABLE_SUBTITLE_DISPLAY_IN_CEDARX == 1)
+#endif
 			{
 				SubRenderHide(0xFFFFFFFF, NULL);
 			}
@@ -782,7 +893,12 @@ static void FlushAllItems(SubtitleRenderCompContext* p, SubtitleItemInfo* pItemI
         if(pItemInfo[i].bValid)
         {
             pItemInfo[i].bValid = 0;
+
+#if( CONFIG_ALI_YUNOS == OPTION_ALI_YUNOS_YES && CONFIG_OS_VERSION == OPTION_OS_VERSION_ANDROID_4_4)
+			if(p->bIdxSubFlag)
+#else
 			if(ENABLE_SUBTITLE_DISPLAY_IN_CEDARX == 1)
+#endif
 			{
 				SubRenderHide(0xFFFFFFFF, NULL);
 			}

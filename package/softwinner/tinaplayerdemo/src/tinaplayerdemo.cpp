@@ -9,6 +9,7 @@
 #include <pthread.h>
 #include <ctype.h>
 #include <errno.h>
+#include <sys/select.h>
 
 #include <allwinner/tinaplayer.h>
 

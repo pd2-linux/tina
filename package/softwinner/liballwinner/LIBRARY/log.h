@@ -2,7 +2,7 @@
 #ifndef LOG_H
 #define LOG_H
 
-#include "config.h"
+#include "cdx_config.h"
 
 #ifndef LOG_TAG
 #define LOG_TAG "awplayer"

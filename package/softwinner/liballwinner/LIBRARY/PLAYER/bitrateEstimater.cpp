@@ -1,5 +1,6 @@
 
 #include <string.h>
+#include <stdint.h>
 #include "bitrateEstimater.h"
 #include "log.h"
 

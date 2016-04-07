@@ -3,18 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include "vencoder.h"
-#include <time.h>
+#include <sys/time.h>
 #include "memoryAdapter.h"
 
 #define DEMO_FILE_NAME_LEN 256
 #define	USE_SVC	0
-
-#if CONFIG_CHIP == OPTION_CHIP_1639
-#define PHY_OFFSET 0x20000000
-#else
-#define PHY_OFFSET 0x40000000
-#endif
-
 
 
 typedef struct
@@ -293,6 +286,14 @@ int main(int argc, char** argv)
 	VencH264SVCSkip 		SVCSkip; // set SVC and skip_frame
 	VencH264AspectRatio		sAspectRatio;
 
+	struct ScMemOpsS* memops = MemAdapterGetOpsS();
+    if(memops == NULL)
+    {
+    	printf("MemAdapterGetOpsS failed\n");
+    	return -1;
+    }
+    CdcMemOpen(memops);
+
 	int result = 0;
 	int i = 0;
 	
@@ -437,7 +438,7 @@ int main(int argc, char** argv)
 	exifinfo.gps_longitude = 24.3244;
 	exifinfo.gps_altitude = 1234.5;
 	
-	exifinfo.gps_timestamp = (long)time(NULL);
+	exifinfo.gps_timestamp = 0; //(long)time(NULL);
 
 	strcpy((char*)exifinfo.CameraSerialNum,  "123456789");
 	strcpy((char*)exifinfo.ImageName,  "exif-name-test");
@@ -532,6 +533,7 @@ int main(int argc, char** argv)
 	int vbvSize = 4*1024*1024;
 	VideoEncSetParameter(pVideoEnc, VENC_IndexParamSetVbvSize, &vbvSize);
 
+	baseConfig.memops = memops;
 	VideoEncInit(pVideoEnc, &baseConfig);
 
 	if(encode_param.encode_format == VENC_CODEC_H264)
@@ -552,19 +554,19 @@ int main(int argc, char** argv)
 	//AllocInputBuffer(pVideoEnc, &bufferParam);
 
 
-	unsigned char* pAddrVirY = MemAdapterPalloc(bufferParam.nSizeY);
-	unsigned char* pAddrVirC = MemAdapterPalloc(bufferParam.nSizeC);
+	unsigned char* pAddrVirY = CdcMemPalloc(memops, bufferParam.nSizeY);
+	unsigned char* pAddrVirC = CdcMemPalloc(memops, bufferParam.nSizeC);
 			
 	unsigned int size1, size2;
 
 	size1 = fread(pAddrVirY, 1, baseConfig.nInputWidth*baseConfig.nInputHeight, in_file);
 	size2 = fread(pAddrVirC, 1, baseConfig.nInputWidth*baseConfig.nInputHeight/2, in_file);
-	MemAdapterFlushCache(pAddrVirY, bufferParam.nSizeY);
-	MemAdapterFlushCache(pAddrVirC, bufferParam.nSizeC);
+	CdcMemFlushCache(memops, pAddrVirY, bufferParam.nSizeY);
+	CdcMemFlushCache(memops, pAddrVirC, bufferParam.nSizeC);
 
 	inputBuffer.nID = 0;
-	inputBuffer.pAddrPhyY = MemAdapterGetPhysicAddress(pAddrVirY)+PHY_OFFSET;
-	inputBuffer.pAddrPhyC = MemAdapterGetPhysicAddress(pAddrVirC)+PHY_OFFSET;
+	inputBuffer.pAddrPhyY = CdcMemGetPhysicAddressCpu(memops, pAddrVirY);
+	inputBuffer.pAddrPhyC = CdcMemGetPhysicAddressCpu(memops, pAddrVirC);
 			
 	unsigned int testNumber = 0;
 		
@@ -627,10 +629,12 @@ out:
 	if(uv_tmp_buffer)
 		free(uv_tmp_buffer);
 
+	
 	if(pAddrVirY)
-		MemAdapterPfree(pAddrVirY);
+		CdcMemPfree(memops, pAddrVirY);
 	if(pAddrVirC)
-		MemAdapterPfree(pAddrVirC);
+		CdcMemPfree(memops, pAddrVirC);
+	if(memops) CdcMemClose(memops);
 
 	return 0;
 }

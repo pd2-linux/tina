@@ -59,9 +59,7 @@ DependFiles = $(addprefix $(DependFilePath)/, $(addsuffix .d ,$(notdir $(basenam
 ## set the include path for compile flags.
 SourceIncludePath = $(foreach dir,$(SourcePath),-I$(dir)) \
                     -I../../ \
-					-I../../VE/include  \
-					-I../../MEMORY/include \
-                    -I../../CODEC/VIDEO/DECODER/include  
+                    -I../../libcedarc/include  
 
 ## set compile flags
 CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -Wall -O2 -ldl
@@ -69,30 +67,36 @@ CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -Wall -O2 -ldl
 ## set link flags
 LoadFlags = $(CONFIG_FOR_LINK)
 
-LoadFlags += -lvdecoder -lVE -lMemAdapter -lpthread -ldl -lstdc++ -lrt
+LoadFlags += -lcdc_base -lcdc_vdecoder -lcdc_ve -lcdc_memory -lpthread -ldl -lstdc++ -lrt
 
 
-
-LoadFlags += -L../../CODEC/VIDEO/DECODER/ \
-             -L../../VE/ \
-             -L../../MEMORY/ 
-             
 ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABIHF))
 LoadFlags += -L../../EXTERNAL/lib32/lgnueabihf/
+LoadFlags += -L../../libcedarc/library/lib32/lgnueabihf
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABI))
 LoadFlags += -L../../EXTERNAL/lib32/lgnueabi/ 
+LoadFlags += -L../../libcedarc/library/lib32/lgnueabi
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_UCGNUEABI))
 LoadFlags += -L../../EXTERNAL/lib32/uclgnueabi/  
+LoadFlags += -L../../libcedarc/library/lib32/uclgnueabi
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_UCGNUEABI))
 LoadFlags +=-L../../EXTERNAL/lib32/linuxgnueabi
+LoadFlags += -L../../libcedarc/library/lib32/linuxgnueabi
 endif
 
+ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI))
+LoadFlags +=-L../../EXTERNAL/lib32/muslgnueabi
+LoadFlags += -L../../libcedarc/library/lib32/muslgnueabi
+endif
+ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI64))
+LoadFlags +=-L../../EXTERNAL/lib64/muslgnueabi
+endif
 ################################################################################
 ## make commands, all/clean/cleanall
 ################################################################################

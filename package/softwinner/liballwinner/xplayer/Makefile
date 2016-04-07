@@ -51,7 +51,6 @@ ObjectFiles = $(addprefix $(ObjectPath)/, $(addsuffix .o ,$(basename $(notdir $(
 ## set the dependency files.
 DependFiles = $(addprefix $(DependFilePath)/, $(addsuffix .d ,$(notdir $(basename $(SourceFiles)))))
 
-
 ################################################################################
 ## set flags for compile and link
 ################################################################################
@@ -62,67 +61,58 @@ SourceIncludePath = $(foreach dir,$(SourcePath),-I$(dir)) \
                     -I../LIBRARY/DEMUX/BASE/include/ \
                     -I../LIBRARY/DEMUX/STREAM/include/ \
                     -I../LIBRARY/DEMUX/PARSER/include/ \
-                    -I../LIBRARY/CODEC/VIDEO/DECODER/include  \
-                    -I../LIBRARY/CODEC/AUDIO/DECODER/include  \
-                    -I../LIBRARY/CODEC/SUBTITLE/DECODER/include  \
+                    -I../LIBRARY/libcedarc/include  \
                     -I../LIBRARY/PLAYER/include/ \
                     -I../LIBRARY/PLUGIN/include/ \
-		-I../LIBRARY/MEMORY/include/
 
 ## set compile flags
-ifeq ($(CONFIG_CHIP),$(OPTION_CHIP_1689))
-	CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath)  -O2 -fPIC -ldl -march=armv8-a 
-else
-	ifeq ($(CONFIG_CHIP),$(OPTION_CHIP_1663))
-		CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -mfpu=neon -O2 -fPIC -ldl -march=armv5te	
-	else
-		CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -mfpu=neon -O2 -fPIC -ldl -march=armv7-a
-	endif
-endif
+CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -mfpu=neon -O1 -fPIC -ldl
 
 
 ## set link flags
 LoadFlags = $(CONFIG_FOR_LINK) -ldl -shared
 
-LoadFlags +=  -lplayer -lvdecoder -ladecoder -lnormal_audio -lsdecoder \
-             -lcdx_parser -lcdx_stream -lcdx_base -lVE -lMemAdapter \
+LoadFlags +=  -lplayer -lcdc_vdecoder -lcdc_adecoder -lnormal_audio -lcdc_sdecoder \
+             -lcdx_parser -lcdx_stream -lcdx_base -lcdc_ve -lcdc_memory \
              -lpthread -ldl -lstdc++
 
 ifeq ($(CONFIG_HAVE_SSL), $(OPTION_HAVE_SSL))
 LoadFlags += -lcrypto -lssl
 endif
 
-ifeq ($(CONFIG_CHIP),$(OPTION_CHIP_1667))
-LoadFlags +=  -lasound
-endif
-			  
 LoadFlags += -L../LIBRARY/DEMUX/BASE/ \
              -L../LIBRARY/DEMUX/STREAM/ \
              -L../LIBRARY/DEMUX/PARSER/ \
-             -L../LIBRARY/CODEC/VIDEO/DECODER/ \
-             -L../LIBRARY/CODEC/AUDIO/DECODER/ \
-             -L../LIBRARY/CODEC/SUBTITLE/DECODER/ \
              -L../LIBRARY/PLAYER/ \
-             -L../LIBRARY/VE/ \
-             -L../LIBRARY/MEMORY/ \
              -L../LIBRARY/PLUGIN/manager \
              
 ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABIHF))
 LoadFlags += -L../LIBRARY/EXTERNAL/lib32/lgnueabihf
+LoadFlags +=-L../LIBRARY/libcedarc/library/lib32/lgnueabihf
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABI))
 LoadFlags += -L../LIBRARY/EXTERNAL/lib32/lgnueabi
+LoadFlags +=-L../LIBRARY/libcedarc/library/lib32/lgnueabi
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_UCGNUEABI))
 LoadFlags += -L../LIBRARY/EXTERNAL/lib32/uclgnueabi
+LoadFlags +=-L../LIBRARY/libcedarc/library/lib32/uclgnueabi
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_UCGNUEABI))
 LoadFlags +=-L../LIBRARY/EXTERNAL/lib32/linuxgnueabi
+LoadFlags +=-L../LIBRARY/libcedarc/library/lib32/linuxgnueabi
 endif
 
+ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI))
+LoadFlags +=-L../LIBRARY/EXTERNAL/lib32/muslgnueabi
+LoadFlags +=-L../LIBRARY/libcedarc/library/lib32/muslgnueabi
+endif
+ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI64))
+LoadFlags +=-L../LIBRARY/EXTERNAL/lib64/muslgnueabi
+endif
 ################################################################################
 ## make commands, all/clean/cleanall
 ################################################################################

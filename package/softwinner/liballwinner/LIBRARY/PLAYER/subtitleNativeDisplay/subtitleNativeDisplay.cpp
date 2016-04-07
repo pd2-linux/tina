@@ -7,7 +7,7 @@
 //#define LOG_NDEBUG 0
 #define LOG_TAG "subtitleNativeDisplay"
 #include "log.h"
-#include "config.h"
+#include "cdx_config.h"
 
 #include <stddef.h>
 #include <unistd.h>
@@ -31,6 +31,7 @@
 #include <EGL/egl.h>
 #include <SkCanvas.h>
 #include <SkBitmap.h>
+#include <SkImageEncoder.h>
 #include <SkXfermode.h>
 #include <SkRegion.h>
 #include <SkTypeface.h>
@@ -82,26 +83,56 @@ extern "C"
 #define  SUB_USER_SET_FONT_INFO     2
 
 #define PROP_SUBTITLE_MAXFONTSIZE_KEY  "media.stagefright.maxsubfont"
+#define SAVE_BITMAP_TO_PNG 0
+
+#if SAVE_BITMAP_TO_PNG
+static bool save(const char filename[], SkBitmap &bitmap)
+{
+	//remove(filename);
+
+	if(!SkImageEncoder::EncodeFile(filename, bitmap, SkImageEncoder::kPNG_Type, SkImageEncoder::kDefaultQuality))
+	{
+		printf("save png %s failed \n",filename);
+	}
+		printf("%s saved ok\n",filename);
+	return true;
+}
+#endif
 
 namespace android 
 {
-	static SkBitmap::Config convertPixelFormat(PixelFormat format)
+	static SkBitmap::Config convertPixelFormat(PixelFormat ePixelFormat)
 	{
-	    switch (format) 
+	    switch (ePixelFormat) 
 	    {   
             
-		    case PIXEL_FORMAT_RGBX_8888:    return SkBitmap::kARGB_8888_Config;
-		    case PIXEL_FORMAT_RGBA_8888:    return SkBitmap::kARGB_8888_Config;
-		    case PIXEL_FORMAT_RGBA_4444:    return SkBitmap::kARGB_4444_Config;
-		    case PIXEL_FORMAT_RGB_565:      return SkBitmap::kRGB_565_Config;
+		    case PIXEL_FORMAT_RGBX_8888:    
+            {
+                 return SkBitmap::kARGB_8888_Config;
+            }
+		    case PIXEL_FORMAT_RGBA_8888:
+            {
+                 return SkBitmap::kARGB_8888_Config;
+		    }
+		    case PIXEL_FORMAT_RGBA_4444:  
+            {
+                 return SkBitmap::kARGB_4444_Config;
+            }
+		    case PIXEL_FORMAT_RGB_565:   
+            {
+                 return SkBitmap::kRGB_565_Config;
+		    }
 		    //case PIXEL_FORMAT_A_8:          return SkBitmap::kA8_Config;
-		    default:                        return SkBitmap::kNo_Config;
+		    default:                        
+            {
+                 return SkBitmap::kNo_Config;
+		    }
 	    }
 	}
 	
-	static inline int is_ws(int c)
+	static inline int is_ws_(int ch)
 	{
-	    return !((c - 1) >> 5);
+	    return !((ch - 1) >> 5);
 	}
 	
 	static inline int is_break(int c1,int c2)
@@ -114,9 +145,9 @@ namespace android
 		return false;
 	}
 	
-	static size_t linebreak(const char text[], const char stop[], const SkPaint& paint, SkScalar margin,size_t *drawCount, int specialEffectFlag, SkScalar* lineWidth)
+	static size_t subLineBreak(const char cText[], const char cStop[], const SkPaint& paint, SkScalar margin,size_t *drawCount, int specialEffectFlag, SkScalar* lineWidth)
 	{
-	    const char* 		start =NULL;
+	    const char* 		pStart =NULL;
         #if(CONFIG_OS_VERSION == OPTION_OS_VERSION_ANDROID_4_2)        
 	    SkAutoGlyphCache    ac(paint, NULL);
         #else
@@ -127,43 +158,43 @@ namespace android
 	    SkFixed             limit=0;
 	    SkAutoKern          autokern;
 	    size_t				count = 0;
-	    const char* word_start = NULL;
+	    const char* pWord_start = NULL;
 	    int         prevWS 		= true;
 	    int			isbreak		= false;
         int         forbidBreakFlag = 0;
-        const char* prevText    = NULL;
+        const char* pPrevText    = NULL;
         const char* breaktext   = NULL;
         SkUnichar   uni;
         int         currWS;
         
         SkUnichar   nextuni;
         
-        start = text;
+        pStart = cText;
         cache = ac.getCache(); 
         limit = SkScalarToFixed(margin);
-        word_start = text;
+        pWord_start = cText;
         
         forbidBreakFlag = ((specialEffectFlag==SUB_RENDER_EFFECT_BANNER_LTOR)||
                            (specialEffectFlag==SUB_RENDER_EFFECT_BANNER_RTOL)||
                            (specialEffectFlag==SUB_RENDER_EFFECT_KARAOKE));
 
-	    while (text < stop)
+	    while (cText < cStop)
 	    {   
-	        prevText 	= text;
-	        uni 		= SkUTF8_NextUnichar(&text);
-	        currWS 		= is_ws(uni);
-	        const SkGlyph&  glyph = cache->getUnicharMetrics(uni);
+	        pPrevText 	= cText;
+	        uni 		= SkUTF8_NextUnichar(&cText);
+	        currWS 		= is_ws_(uni);
+	        const SkGlyph&  mGlyph = cache->getUnicharMetrics(uni);
 
             if (!currWS && prevWS)
 	        {
-	            word_start = prevText;
+	            pWord_start = pPrevText;
 	        }
 	        
 	        prevWS = currWS;
 	        
 	        if(uni == 0x0D)
 	        {
-	        	breaktext 			= text;
+	        	breaktext 			= cText;
 	        	nextuni = SkUTF8_NextUnichar(&breaktext);
 	        	if(nextuni == 0x0A)
 	        	{
@@ -171,16 +202,16 @@ namespace android
 	        	}
 	        	else
 	        	{ 
-                    count += SkUTF8_CountUTF8Bytes(prevText);
+                    count += SkUTF8_CountUTF8Bytes(pPrevText);
 	        	}
 	        }
 	        else
 	        {
-	        	count += SkUTF8_CountUTF8Bytes(prevText);
+	        	count += SkUTF8_CountUTF8Bytes(pPrevText);
 	        }
  
            
-	        w += autokern.adjust(glyph) + glyph.fAdvanceX;
+	        w += autokern.adjust(mGlyph) + mGlyph.fAdvanceX;
 
 	        //if ((w > limit) || isbreak)
 	        if(isbreak ||((w>limit)&&(forbidBreakFlag==0)))
@@ -188,26 +219,26 @@ namespace android
 	            if (currWS) // eat the rest of the whitespace
 	            {   
 	            	*drawCount = count;
-	                while (text < stop && is_ws(SkUTF8_ToUnichar(text)))
+	                while (cText < cStop && is_ws_(SkUTF8_ToUnichar(cText)))
 	                {
-	                    text += SkUTF8_CountUTF8Bytes(text);
+	                    cText += SkUTF8_CountUTF8Bytes(cText);
 	                }
 	            }
 	            else    // backup until a whitespace (or 1 char)
 	            {   
-	                if (word_start == start)
+	                if (pWord_start == pStart)
 	                {   
-	                    if (prevText > start)
+	                    if (pPrevText > pStart)
 	                    {   
-	                        text = prevText;
+	                        cText = pPrevText;
 	                    }
 	                }
 	                else
 	                {   
-	                    text = word_start;
+	                    cText = pWord_start;
 	                }
 	                
-	                *drawCount = text - start;
+	                *drawCount = cText - pStart;
 	            }
 	            
 	            break;
@@ -216,44 +247,44 @@ namespace android
 	    
         *lineWidth = (w>limit)? ((SkScalar)(limit>>16)): ((SkScalar)(w>>16));
         
-	    if(text >= stop)
+	    if(cText >= cStop)
 	    {
 	    	*drawCount = count;
 	    }
-		return text - start;
+		return cText - pStart;
 	}
     
-	int CedarXSubTextBox::countLines(const char* text, size_t len, const SkPaint& paint, SkScalar width, SkScalar* subTextWidth, int specialEffectFlag)
+	int CedarXSubTextBox::countLines(const char* pText, size_t len, const SkPaint& paint, SkScalar mWidth, SkScalar* subTextWidth, int specialEffectFlag)
 	{
-	    const char* stop = text + len;
-	    int         count = 0;
+	    const char* stop = pText + len;
+	    int         nCount = 0;
 	    size_t	    charCount;
 	    SkScalar    lineWidth = 0;
 
         *subTextWidth = 0;
         
-	    if (width > 0)
+	    if (mWidth > 0)
 	    {
 	        do 
 	        {
-	            count += 1;
-	            text += linebreak(text, stop, paint, width, &charCount, specialEffectFlag, &lineWidth);
+	            nCount += 1;
+	            pText += subLineBreak(pText, stop, paint, mWidth, &charCount, specialEffectFlag, &lineWidth);
                 if(*subTextWidth < lineWidth)
                 {
                     *subTextWidth = lineWidth;
                 }
-	        } while (text < stop);
+	        } while (pText < stop);
 	    }
-	    return count;
+	    return nCount;
 	}
 	
 	//////////////////////////////////////////////////////////////////////////////
 	
 	CedarXSubTextBox::CedarXSubTextBox()
 	{
-	    fBox.setEmpty();
-	    fSpacingMul = SK_Scalar1;
-	    fSpacingAdd = 0;
+	    mFBox.setEmpty();
+	    mFSpacingMul = SK_Scalar1;
+	    mFSpacingAdd = 0;
 	    fMode = CedarXSubTextBoxLineBreak_Mode;
 	    fSpacingAlign = CedarXSubTextBoxEnd_SpacingAlign;
         mLastDispXPos = -1;
@@ -270,40 +301,40 @@ namespace android
 	    fSpacingAlign = SkToU8(align);
 	}
 	
-	void CedarXSubTextBox::getBox(SkRect* box) const
+	void CedarXSubTextBox::subGetBox(SkRect* box) const
 	{
 	    if (box)
 	    {
-	        *box = fBox;
+	        *box = mFBox;
 	    }
 	}
 	
-	void CedarXSubTextBox::setBox(const SkRect& box)
+	void CedarXSubTextBox::subSetBox(const SkRect& box)
 	{
-	    fBox = box;
+	    mFBox = box;
 	}
 	
-	void CedarXSubTextBox::setBox(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom)
+	void CedarXSubTextBox::subSetBox(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom)
 	{
-	    fBox.set(left, top, right, bottom);
+	    mFBox.set(left, top, right, bottom);
 	}
 	
-	void CedarXSubTextBox::getSpacing(SkScalar* mul, SkScalar* add) const
+	void CedarXSubTextBox::subGetSpacing(SkScalar* mul, SkScalar* add) const
 	{
 	    if (mul)
 	    {
-	        *mul = fSpacingMul;
+	        *mul = mFSpacingMul;
 	    }
 	    if (add)
 	    {
-	        *add = fSpacingAdd;
+	        *add = mFSpacingAdd;
 	    }
 	}
 	
-	void CedarXSubTextBox::setSpacing(SkScalar mul, SkScalar add)
+	void CedarXSubTextBox::subSetSpacing(SkScalar mul, SkScalar add)
 	{
-	    fSpacingMul = mul;
-	    fSpacingAdd = add;
+	    mFSpacingMul = mul;
+	    mFSpacingAdd = add;
 	}
 
     int CedarXSubTextBox::getLastXPos()
@@ -443,7 +474,7 @@ namespace android
 		
 		//logd("******************CedarXSub::convertUniCode sub_info->encodingType = %d mCharset=%d",sub_info->encodingType,mCharset);
 		charset	= sub_info->encodingType; //mapDecToRender(sub_info->encodingType);
-		if(charset == SUB_CHARSET_UNKNOWN)
+		if(charset == SUBTITLE_TEXT_FORMAT_UNKNOWN)
 		{
 			charset = mCharset;
 		}
@@ -528,7 +559,7 @@ namespace android
             // first we need to untangle the utf8 and convert it back to the original bytes
             // since we are reducing the length of the string, we can do this in place
             const char* src = (const char*)sub_info->subTextBuf;
-            int len = strlen((char *)src);
+            int len = sub_info->subTextLen;
             // now convert from native encoding to UTF-8
             int targetLength = len * 3 + 1;
             memset(mText,0,MAX_SUBLENGTH);
@@ -614,7 +645,7 @@ namespace android
                     mStarty = 0;
                 }
                 setPosition(mStartx,mStarty);            
-	            mTextBox->setBox(0,0,SkIntToScalar(mEndx-mStartx),SkIntToScalar(mEndy-mStarty));
+	            mTextBox->subSetBox(0,0,SkIntToScalar(mEndx-mStartx),SkIntToScalar(mEndy-mStarty));
             }
 
 		return  NO_ERROR;
@@ -659,7 +690,7 @@ namespace android
                 mTextBox->getTextVerInf(mText,len,mPaint,&mTextHeight,&mTextWidth, &textBoxHeight, mStartx, mEndx, mStarty, mEndy, mDispSubInfo->subEffectFlag);
                 needModifyBoxInf(textBoxHeight);
                 setPosition(mStartx,mStarty);            
-	            mTextBox->setBox(0,0,SkIntToScalar(mEndx-mStartx),SkIntToScalar(mEndy-mStarty));
+	            mTextBox->subSetBox(0,0,SkIntToScalar(mEndx-mStartx),SkIntToScalar(mEndy-mStarty));
                 startRender();
 			    render();
 			    endRender();
@@ -1414,13 +1445,13 @@ namespace android
             case SUB_RENDER_EFFECT_BANNER_LTOR:
             {   
                 xPos = mDispSubInfo->effectStartxPos+(systemTime-mDispSubInfo->startTime)/mDispSubInfo->effectTimeDelay;
-                mTextBox->setBox(0,0,SkIntToScalar(xPos),SkIntToScalar(mEndy-mStarty));
+                mTextBox->subSetBox(0,0,SkIntToScalar(xPos),SkIntToScalar(mEndy-mStarty));
                 break;
             }
             case SUB_RENDER_EFFECT_BANNER_RTOL:
             {   
                 xPos = mDispSubInfo->effectEndxPos-(systemTime-mDispSubInfo->startTime)/mDispSubInfo->effectTimeDelay;
-                mTextBox->setBox(xPos,0,SkIntToScalar(mEndx-mStartx),SkIntToScalar(mEndy-mStarty));
+                mTextBox->subSetBox(xPos,0,SkIntToScalar(mEndx-mStartx),SkIntToScalar(mEndy-mStarty));
                 break;
             }
             case SUB_RENDER_EFFECT_MOVE:
@@ -1471,7 +1502,7 @@ namespace android
 
                  setPosition(startx, mStarty);
                  
-                 mTextBox->setBox(0,0,SkIntToScalar(endx-startx),SkIntToScalar(mEndy-mStarty));
+                 mTextBox->subSetBox(0,0,SkIntToScalar(endx-startx),SkIntToScalar(mEndy-mStarty));
                  newAlignment = mAlignment;
                  newAlignment &= SUN_RENDER_VALIGN_MASK;
                  newAlignment |= SUB_RENDER_HALIGN_LEFT;
@@ -1540,7 +1571,7 @@ namespace android
 
                  setPosition(startx, mStarty);
                  
-                 mTextBox->setBox(0,0,SkIntToScalar(endx-startx),SkIntToScalar(mEndy-mStarty));
+                 mTextBox->subSetBox(0,0,SkIntToScalar(endx-startx),SkIntToScalar(mEndy-mStarty));
                  newAlignment = mAlignment;
                  newAlignment &= SUN_RENDER_VALIGN_MASK;
                  newAlignment |= SUB_RENDER_HALIGN_LEFT;
@@ -1783,6 +1814,11 @@ namespace android
 	    
 	    if (sub_info->subPicWidth > 0 && sub_info->subPicHeight > 0) 
 	    {
+            //set R of bitmap(RGBA) to 0
+            for (int i = 0 ; i < sub_info->subPicWidth * sub_info->subPicHeight; i++ )
+            {
+                sub_info->subBitmapBuf[4*i] = 0;
+            }
 	        mBitmap.setPixels((void *)sub_info->subBitmapBuf);
 	    } 
 	    else 
@@ -1798,17 +1834,17 @@ namespace android
     //***************************************************************************************//
     //**************************************************************************************//
     
-     void CedarXSubTextBox::drawText(SkCanvas* canvas, const char *text, size_t len, const SkPaint& paint, SkScalar textHeight, int specialEffectFlag)
+     void CedarXSubTextBox::drawText(SkCanvas* canvas, const char *text, size_t len, const SkPaint& mPaint, SkScalar textHeight, int specialEffectFlag)
 	{
 		size_t		drawCount;
         SkScalar    lineWidth;
         
-	    SkASSERT(canvas && &paint && (text || len == 0));
+	    SkASSERT(canvas && &mPaint && (text || len == 0));
 	
-	    SkScalar marginWidth = fBox.width();
+	    SkScalar mMarginWidth = mFBox.width();
 	
-		logv("*************&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&CedarXSubTextBox::drawText len = %d,marginWidth = %f\n",len,marginWidth);
-	    if (marginWidth <= 0 || len == 0)
+		logv("*************&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&CedarXSubTextBox::drawText len = %d,mMarginWidth = %f\n",len,mMarginWidth);
+	    if (mMarginWidth <= 0 || len == 0)
 	    {
 	        return;
 	    }
@@ -1816,55 +1852,55 @@ namespace android
 	    const char* textStop = text + len;
         
 	
-	    SkScalar                x=0, y=0, scaledSpacing, height, fontHeight;
-	    SkPaint::FontMetrics    metrics;
+	    SkScalar                mSkScalarX=0, mSkScalarY=0, mScaledSpacing, height, mFontHeight;
+	    SkPaint::FontMetrics    mMetrics;
 	
-	    switch (paint.getTextAlign()) 
+	    switch (mPaint.getTextAlign()) 
 	    {
 		    case SkPaint::kLeft_Align:
-		        x = 0;
+		        mSkScalarX = 0;
 		        break;
 		    case SkPaint::kCenter_Align:
-		        x = SkScalarHalf(marginWidth);
+		        mSkScalarX = SkScalarHalf(mMarginWidth);
 		        break;
 		    default:
-		        x = marginWidth;
+		        mSkScalarX = mMarginWidth;
 		        break;
 	    }
-	    x += fBox.fLeft;
-	    fontHeight = paint.getFontMetrics(&metrics);
-	    scaledSpacing = SkScalarMul(fontHeight, fSpacingMul) + fSpacingAdd;
-	    height = fBox.height();
+	    mSkScalarX += mFBox.fLeft;
+	    mFontHeight = mPaint.getFontMetrics(&mMetrics);
+	    mScaledSpacing = SkScalarMul(mFontHeight, mFSpacingMul) + mFSpacingAdd;
+	    height = mFBox.height();
 	
-	    //  compute Y position for first line
+	    //  compute mSkScalarY position for first line
 	    {   
 	        switch (fSpacingAlign) 
 	        {
 		        case CedarXSubTextBoxStart_SpacingAlign:    
-		            y = 0;
+		            mSkScalarY = 0;
 		            break;
 		        case CedarXSubTextBoxCenter_SpacingAlign:
-		            y = SkScalarHalf(height - textHeight);
+		            mSkScalarY = SkScalarHalf(height - textHeight);
                     break;
 		        default:
-		            y = height - textHeight;
+		            mSkScalarY = height - textHeight;
 		            break;
 	        }
 	        
-	        y += fBox.fTop - metrics.fAscent;        
-	        //logd("CedarXSubTextBox::drawText y = %f,fBox.fTop=%f,metrics.fAscent = %f,textHeight = %f,height = %f\n",y,fBox.fTop,metrics.fAscent,textHeight,height);
+	        mSkScalarY += mFBox.fTop - mMetrics.fAscent;        
+	        //logd("CedarXSubTextBox::drawText mSkScalarY = %f,mFBox.fTop=%f,mMetrics.fAscent = %f,textHeight = %f,height = %f\n",mSkScalarY,mFBox.fTop,mMetrics.fAscent,textHeight,height);
 	    }
         
-        mLastDispXPos = (int)x;
-        mLastDispYPos = (int)(y-scaledSpacing);
+        mLastDispXPos = (int)mSkScalarX;
+        mLastDispYPos = (int)(mSkScalarY-mScaledSpacing);
 
         
 	    for (;;)
 	    {
-	        len = linebreak(text, textStop, paint, marginWidth,&drawCount,specialEffectFlag, &lineWidth);
-	        if (y + metrics.fDescent + metrics.fLeading > 0)
+	        len = subLineBreak(text, textStop, mPaint, mMarginWidth,&drawCount,specialEffectFlag, &lineWidth);
+	        if (mSkScalarY + mMetrics.fDescent + mMetrics.fLeading > 0)
 	        {
-	            canvas->drawText(text, drawCount, x, y, paint);
+	            canvas->drawText(text, drawCount, mSkScalarX, mSkScalarY, mPaint);
 	            logv("canvas->drawText!text = %s,drawCount = %d\n",text,drawCount);
 	        }
 	        text += len;
@@ -1872,8 +1908,8 @@ namespace android
 	        {
 	            break;
 	        }
-	        y += scaledSpacing;
-	        if (y + metrics.fAscent >= height)
+	        mSkScalarY += mScaledSpacing;
+	        if (mSkScalarY + mMetrics.fAscent >= height)
 	        {
 	            break;
 	        }
@@ -1911,7 +1947,14 @@ namespace android
                 posy = (mHeight - height);
                 posx = (posx<0)? 0 : posx;
                 posy = (posy<0)? 0 : posy;
+                #if SAVE_BITMAP_TO_PNG
+                save("/data/local/tmp/subBitmapS011",mBitmap);
+                #endif
 			    mCanvas->drawBitmap(mBitmap,posx,posy,&mPaint);
+                #if SAVE_BITMAP_TO_PNG
+                SkBitmap BitmapIncanvas = mCanvas->getDevice()->accessBitmap(false);
+                save("/data/local/tmp/subBitmapS011-output",BitmapIncanvas);
+                #endif
             }
             else
             {
@@ -2063,10 +2106,13 @@ namespace android
             }
 			mPaint.setTextAlign(SkPaint::kCenter_Align);
 			mBackColor = TRANSPARENT_COLOR;
-			
+#if(CONFIG_OS_VERSION >= OPTION_OS_VERSION_ANDROID_5_0)
+                        mTypeface  = SkTypeface::CreateFromFile("/system/fonts/DroidSansFallbackAndroid44.ttf");
+#else
 			mTypeface  = SkTypeface::CreateFromFile("/system/fonts/DroidSansFallback.ttf");
+#endif
 			mPaint.setTypeface(mTypeface);
-			mCharset     = SUB_CHARSET_GBK;
+			mCharset     = SUBTITLE_TEXT_FORMAT_GBK;
 			mTextBox     = NULL;
             mSubMode     = 0;
             mDispSubInfo = NULL;
@@ -2110,9 +2156,9 @@ namespace android
 #if 0  
     int CedarXSub::startRenderRegion(int startx, int starty, int endx, int endy)
 	{
-		ANativeWindow_Buffer outBuffer;
+		ANativeWindow_Buffer nativeWindowBuffer;
 		status_t 				err;
-		SkBitmap 				bitmap;
+		SkBitmap 				mBitmap;
 		sp<Surface>				mSurface;  
         Region                 dirtyRegion;
         Rect                   dirty;
@@ -2126,7 +2172,7 @@ namespace android
         
 		mSurface	= mSurfaceControl->getSurface();
 
-		err = mSurface->lock(&outBuffer, &dirty);
+		err = mSurface->lock(&nativeWindowBuffer, &dirty);
 		logd("//////////////////////////////////////////////////////1");
 	    if (err < 0) 
 	    {
@@ -2134,25 +2180,25 @@ namespace android
 	        
 	        return  -1;
 	    }
-	    ssize_t bpr = outBuffer.width * bytesPerPixel(outBuffer.format);
-	    bitmap.setConfig(convertPixelFormat(outBuffer.format), endx-startx, endy-starty, bpr);
-	    if (outBuffer.format == PIXEL_FORMAT_RGBX_8888) 
+	    ssize_t bpr = nativeWindowBuffer.width * bytesPerPixel(nativeWindowBuffer.format);
+	    mBitmap.setConfig(convertPixelFormat(nativeWindowBuffer.format), endx-startx, endy-starty, bpr);
+	    if (nativeWindowBuffer.format == PIXEL_FORMAT_RGBX_8888) 
 	    {
-	        bitmap.setIsOpaque(true);
+	        mBitmap.setIsOpaque(true);
 	    }
 	    
-	    if (outBuffer.width > 0 && outBuffer.height > 0) 
+	    if (nativeWindowBuffer.width > 0 && nativeWindowBuffer.height > 0) 
 	    {   
 	        //bitmap.setPixels(info.bits+4*(mStarty*mScreenWidth+mStartx));
-	        bitmap.setPixels(outBuffer.bits);
+	        mBitmap.setPixels(nativeWindowBuffer.bits);
 	    } 
 	    else 
 	    {
 	        // be safe with an empty bitmap.
-	        bitmap.setPixels(NULL);
+	        mBitmap.setPixels(NULL);
 	    }
 
-		mCanvas->setBitmapDevice(bitmap);
+		mCanvas->setBitmapDevice(mBitmap);
 	    //mCanvas->setDevice(SkNEW_ARGS(SkDevice, (bitmap)));
 	    //mCanvas->writePixels(bitmap,0,0,SkCanvas::Config8888::kNative_Premul_Config8888);
 
@@ -2167,7 +2213,7 @@ namespace android
 #if(CONFIG_OS_VERSION == OPTION_OS_VERSION_ANDROID_4_2)      
         Surface::SurfaceInfo 	info;
 		status_t 				err;
-		SkBitmap 				bitmap;
+		SkBitmap 				mBitmap;
 		sp<Surface>				mSurface;  
 		
 		mSurface	= mSurfaceControl->getSurface();
@@ -2180,43 +2226,45 @@ namespace android
 	    }
         
 	    ssize_t bpr = info.s * bytesPerPixel(info.format);
-	    bitmap.setConfig(convertPixelFormat(info.format), info.w, info.h, bpr);
+	    mBitmap.setConfig(convertPixelFormat(info.format), info.w, info.h, bpr);
 	    if (info.format == PIXEL_FORMAT_RGBX_8888) 
 	    {
-	        bitmap.setIsOpaque(true);
+	        mBitmap.setIsOpaque(true);
 	    }
 	    
 	    if (info.w > 0 && info.h > 0) 
 	    {   
 	        //bitmap.setPixels(info.bits+4*(mStarty*mScreenWidth+mStartx));
-	        bitmap.setPixels(info.bits);
+	        mBitmap.setPixels(info.bits);
 	    } 
 	    else 
 	    {
 	        // be safe with an empty bitmap.
-	        bitmap.setPixels(NULL);
+	        mBitmap.setPixels(NULL);
 	    }
 	    
-	    mCanvas->setBitmapDevice(bitmap);
+	    mCanvas->setBitmapDevice(mBitmap);
 
 		mSaveCount = mCanvas->save();
 		
 		return  NO_ERROR;
 #else
-        ANativeWindow_Buffer outBuffer;
+        ANativeWindow_Buffer nativeWindowBuffer;
 		status_t 				err;
-		SkBitmap 				bitmap;
+		SkBitmap 				mBitmap;
 		sp<Surface>				mSurface;  
 		mSurface	= mSurfaceControl->getSurface();
-		err = mSurface->lock(&outBuffer, NULL/*false*/);
+		err = mSurface->lock(&nativeWindowBuffer, NULL/*false*/);
 	    if (err < 0) 
 	    {
 	        logw("get surface information failed!\n");
 	        
 	        return  -1;
 	    }
-	    ssize_t bpr = outBuffer.width * bytesPerPixel(outBuffer.format);
-	    bitmap.setConfig(convertPixelFormat(outBuffer.format), outBuffer.width, outBuffer.height, bpr);
+	    ssize_t bpr = nativeWindowBuffer.width * bytesPerPixel(nativeWindowBuffer.format);
+	    mBitmap.setConfig(convertPixelFormat(nativeWindowBuffer.format), 
+                                             nativeWindowBuffer.width, 
+                                             nativeWindowBuffer.height, bpr);
 		/*
 		for(int k = 0; k < 1280 * 720; k ++)
 		{
@@ -2224,20 +2272,20 @@ namespace android
 		}
 		*/
 
-	    if (outBuffer.format == PIXEL_FORMAT_RGBX_8888) 
+	    if (nativeWindowBuffer.format == PIXEL_FORMAT_RGBX_8888) 
 	    {
-			bitmap.setIsOpaque(true);
+			mBitmap.setIsOpaque(true);
 	    }
 	    
-	    if (outBuffer.width > 0 && outBuffer.height > 0) 
+	    if (nativeWindowBuffer.width > 0 && nativeWindowBuffer.height > 0) 
 	    {   
 	        //bitmap.setPixels(info.bits+4*(mStarty*mScreenWidth+mStartx));
-	        bitmap.setPixels(outBuffer.bits);
+	        mBitmap.setPixels(nativeWindowBuffer.bits);
 	    } 
 	    else 
 	    {
 	        // be safe with an empty bitmap.
-	        bitmap.setPixels(NULL);
+	        mBitmap.setPixels(NULL);
 	    }
 /*
 		static int num = 0;
@@ -2249,7 +2297,7 @@ namespace android
 		fflush(fp);
 		fclose(fp);
 */		
-	    mCanvas->setBitmapDevice(bitmap);
+	    mCanvas->setBitmapDevice(mBitmap);
 	    //mCanvas->writePixels(bitmap,0,0,SkCanvas::kNative_Premul_Config8888);
 
 		mSaveCount = mCanvas->save();
@@ -2284,27 +2332,27 @@ namespace android
     int CedarXSubTextBox::getTextVerInf(const char *text, size_t len, const SkPaint& paint,SkScalar* subTextHeight,SkScalar* subTextWidth,SkScalar* textBoxHeight, int textBoxStartx,
                                          int textBoxEndx, int textBoxStarty, int textBoxEndy, int specialEffectFlag)
     {   
-        int count = 0;
-        SkScalar textHeight = 0;
+        int nCount = 0;
+        SkScalar mTextHeight = 0;
         const char* textStop;
-	    SkScalar scaledSpacing, height, fontHeight;
+	    SkScalar mScaledSpacing, height, mFontHeight;
 	    SkPaint::FontMetrics    metrics;
         SkScalar marginWidth;
 
         marginWidth = textBoxEndx - textBoxStartx + 1;
-        fontHeight = paint.getFontMetrics(&metrics);
-	    scaledSpacing = SkScalarMul(fontHeight, fSpacingMul) + fSpacingAdd;
+        mFontHeight = paint.getFontMetrics(&metrics);
+	    mScaledSpacing = SkScalarMul(mFontHeight, mFSpacingMul) + mFSpacingAdd;
 	    height = textBoxEndy - textBoxStarty + 1;
 	    textStop = text + len;
-	    textHeight = fontHeight;
+	    mTextHeight = mFontHeight;
         
 	    if(fMode == CedarXSubTextBoxLineBreak_Mode)
 	    {
-            count = countLines(text, textStop - text, paint, marginWidth, subTextWidth, specialEffectFlag);
-            SkASSERT(count > 0);
-	        textHeight += scaledSpacing * (count - 1);
+            nCount = countLines(text, textStop - text, paint, marginWidth, subTextWidth, specialEffectFlag);
+            SkASSERT(nCount > 0);
+	        mTextHeight += mScaledSpacing * (nCount - 1);
 	    }
-        *subTextHeight = textHeight;
+        *subTextHeight = mTextHeight;
         *textBoxHeight = (SkScalar)(textBoxEndy-textBoxStarty);
         return NO_ERROR;
     }   
@@ -2467,7 +2515,7 @@ namespace android
             mTextBox->getTextVerInf(mText,len,mPaint,&mTextHeight,&mTextWidth, &textBoxHeight, mStartx, mEndx, mStarty, mEndy, mDispSubInfo->subEffectFlag);
 			needModifyBoxInf(textBoxHeight);
             setPosition(mStartx,mStarty -50);
-	        mTextBox->setBox(0,0,SkIntToScalar(mEndx-mStartx),SkIntToScalar(mEndy-mStarty));
+	        mTextBox->subSetBox(0,0,SkIntToScalar(mEndx-mStartx),SkIntToScalar(mEndy-mStarty));
             setTextAlign(mAlignment);
         }
         else
@@ -2583,13 +2631,13 @@ extern "C"
 	
 	int SubRenderCreate()
 	{
-		logd("SubRenderCreate!===========================================\n");
+		logd("****************SubRenderCreate!****************\n");
 		
 		if(gCedarXSubRender == NULL)
 		{
 			gCedarXSubRender = new CedarXSubRender();
 			
-			logd("SubRenderCreate success!===========================================\n");
+			logd("****************SubRenderCreate success!****************\n");
 		}
 		
 		return NO_ERROR;
@@ -2597,19 +2645,19 @@ extern "C"
 	
 	int SubRenderDestory()
 	{
-		logd("SubRenderDestory!==========================================\n");
+		logd("****************SubRenderDestory!****************\n");
 		if (checkCedarXSubRenderUnitialized()) 
 		{
 			
 	        return -1;
 	    } 
-	    logd("SubRenderDestory1!===========================================\n");
+	    logd("****************SubRenderDestory1!****************\n");
 	    
 	    delete gCedarXSubRender;
 	    
 	    gCedarXSubRender = NULL;
 	    
-	    logd("SubRenderDestory2!===========================================\n");
+	    logd("****************SubRenderDestory2!****************\n");
 	    
 	    return NO_ERROR;
 	}
@@ -2620,7 +2668,7 @@ extern "C"
 		{
 	        return -1;
 	    } 
-	    logv("SubRenderDraw!===========================================\n");
+	    logv("****************SubRenderDraw!****************\n");
 	    return gCedarXSubRender->updateSubPara(sub_info);
 	}
 	
@@ -2631,7 +2679,7 @@ extern "C"
 
 	        return -1;
 	    } 
-	    logv("SubRenderShow!===========================================\n");
+	    logv("****************SubRenderShow!****************\n");
 	    return gCedarXSubRender->cedarxSubShow();
 	}
 	
@@ -2641,7 +2689,7 @@ extern "C"
 		{
 	        return -1;
 	    } 
-	    logv("SubRenderHide!===========================================\n");
+	    logv("****************SubRenderHide!****************\n");
 	    return gCedarXSubRender->cedarxSubHide(systemTime, hasSubShowFlag);
 	}
 
@@ -2651,7 +2699,7 @@ extern "C"
 		{
 	        return -1;
 	    } 
-	    logv("SubRenderSetZorderTop!===========================================\n");
+	    logv("****************SubRenderSetZorderTop!****************\n");
 	    return gCedarXSubRender->cedarxSubSetZorderTop();
 	}
 	
@@ -2661,7 +2709,7 @@ extern "C"
 		{
 	        return -1;
 	    } 
-	    logv("SubRenderSetZorderBottom!===========================================\n");
+	    logv("****************SubRenderSetZorderBottom!****************\n");
 	    return gCedarXSubRender->cedarxSubSetZorderBottom();
 	}
      

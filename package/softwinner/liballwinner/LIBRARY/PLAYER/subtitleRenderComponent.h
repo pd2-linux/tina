@@ -35,6 +35,11 @@ int SubtitleRenderGetShowTimeAdjustment(SubtitleRenderComp* s);
 
 int SubtitleRenderCompSetVideoOrAudioFirstPts(SubtitleRenderComp* s,int64_t nFirstPts);
 
+#if( CONFIG_ALI_YUNOS == OPTION_ALI_YUNOS_YES)
+int SubtitleRenderCompSetSubtitleStreamInfo(SubtitleRenderComp* s,SubtitleStreamInfo* pStreamInfo,int nStreamCount,int nDefaultStreamIndex);
+
+int SubtitleRenderCompSwitchStream(SubtitleRenderComp* s, int nStreamIndex);
 #endif
 
+#endif
 

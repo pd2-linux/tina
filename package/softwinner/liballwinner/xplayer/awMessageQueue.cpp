@@ -5,7 +5,7 @@
 #include <malloc.h>
 #include <semaphore.h>
 #include <sys/time.h>
-
+#include <stdint.h>
 #include "awMessageQueue.h"
 #include "log.h"
 

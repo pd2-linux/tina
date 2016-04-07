@@ -15,14 +15,9 @@ CONFIGURATIONS=(
     CONFIG_CC                                   nu              0
     CONFIG_OS                                   nu              0
     CONFIG_OS_VERSION                           nu              0
-    CONFIG_MEMORY_DRIVER                        nu              0
     CONFIG_PRODUCT                              nu              0
     CONFIG_CHIP                                 nu              0
-    CONFIG_DRAM_INTERFACE                       nu              0
     CONFIG_LOG_LEVEL                            nu              0
-    CONFIG_VE_IPC                               nu              0
-    CONFIG_CMCC                                 nu              0
-    CONFIG_IS_CAMERA_DECODER                    nu              0
     CONFIG_ENABLE_DEMUX_ASF                     nu              0
     CONFIG_ENABLE_DEMUX_AVI                     nu              0
     CONFIG_ENABLE_DEMUX_BLUERAYDISK             nu              0
@@ -37,28 +32,9 @@ CONFIGURATIONS=(
     CONFIG_ENABLE_DEMUX_OGG                     nu              0
     CONFIG_ENABLE_DEMUX_RX                      nu              0
     CONFIG_ENABLE_DEMUX_TS                      nu              0
-    CONFIG_ENABLE_VIDEO_DECODER_MJPEG           nu              0
-    CONFIG_ENABLE_VIDEO_DECODER_MPEG1           nu              0
-    CONFIG_ENABLE_VIDEO_DECODER_MPEG2           nu              0
-    CONFIG_ENABLE_VIDEO_DECODER_MPEG4           nu              0
-    CONFIG_ENABLE_VIDEO_DECODER_MSMPEG4V1       nu              0
-    CONFIG_ENABLE_VIDEO_DECODER_MSMPEG4V2       nu              0
-    CONFIG_ENABLE_VIDEO_DECODER_DIVX3           nu              0
-    CONFIG_ENABLE_VIDEO_DECODER_DIVX4           nu              0
-    CONFIG_ENABLE_VIDEO_DECODER_DIVX5           nu              0
-    CONFIG_ENABLE_VIDEO_DECODER_XVID            nu              0
-    CONFIG_ENABLE_VIDEO_DECODER_H263            nu              0
-    CONFIG_ENABLE_VIDEO_DECODER_SORENSSON_H263  nu              0
-    CONFIG_ENABLE_VIDEO_DECODER_RXG2            nu              0
-    CONFIG_ENABLE_VIDEO_DECODER_WMV1            nu              0
-    CONFIG_ENABLE_VIDEO_DECODER_WMV2            nu              0
-    CONFIG_ENABLE_VIDEO_DECODER_WMV3            nu              0
-    CONFIG_ENABLE_VIDEO_DECODER_VP6             nu              0
-    CONFIG_ENABLE_VIDEO_DECODER_VP8             nu              0
-    CONFIG_ENABLE_VIDEO_DECODER_VP9             nu              0
-    CONFIG_ENABLE_VIDEO_DECODER_RX              nu              0
-    CONFIG_ENABLE_VIDEO_DECODER_H264            nu              0
-    CONFIG_ENABLE_VIDEO_DECODER_H265            nu              0
+	CONFIG_HAVE_ZLIB                            nu              0
+	CONFIG_HAVE_SSL                             nu              0
+	CONFIG_CEDARX_PATH                          nu              0
 )
 
 ################################################################################
@@ -80,23 +56,23 @@ Help options:
 
 Standard options:
 
-  --tool-chain=compile_tool_set the compile tool chain, option can be [gnueabihf/gnueabi/ucgnueabi/linuxgnueabi], not used for android os.
+  --tool-chain=compile_tool_set the compile tool chain, option can be [gnueabihf/gnueabi/ucgnueabi/linuxgnueabi/muslgnueabi/muslgnueabi64], not used for android os.
+  
+  --cedarx-path=path            the absolute path of liballwinner.
 
   --os=target_os                the target os, option can be [android/linux].
   
   --os-version=version          target os version, for android os, option can be [4.2/4.4/5.0], not used for other os.
   
-  --memory-driver=driver        which driver to use for allocating physical continue memory block, option can be [sunximem/ion].
-  
   --product=product_type        the target product type, option can be [pad/tvbox/ott_cmcc/iptv/dvb/loudspeaker].
   
-  --chip=chip_code              the target chip, option can be [1623/1625/1633/1651/1650/1661/1667/1673/1639/1680/1681/1689/1701/1663].
-  
-  --dram-interface=ddr_type     DRAM interface, option can be [ddr1_16bits/ddr1_32bits/ddr2_16bits/ddr2_32bits/ddr3_16bits/ddr3_32bits/ddr3_64bits].
+  --chip=chip_code              the target chip, option can be [r8/r16/r58/r18/c500/t2].
   
   --debug-level=level           log output level for debug, option can be [close/error/warning/default/detail].
 
-  --ve-ipc=target_ipc           the ve_ipc enable or not, option can be [disable/enable].
+  --libz-enable=libz            the libz library enable or not, option can be [yes/no].
+  
+  --ssl-enable=ssl              the openssl library enable or not, option can be [yes/no].
   
   --disable-demux=demuxer       disable demux for specific file format, option can be [asf/avi/bd/dash/flv/hls/mkv/mms/mov/mpg/pmp/ogg/rx/ts].
   
@@ -107,8 +83,6 @@ Standard options:
   
   --enable-vdecoder=decoder     enable video decoder for specific codec format, 
                                 option can be [mjpeg/mpeg1/mpeg2/mpeg4/msmpeg4v1/msmpeg4v2/divx3/divx4/divx5/xvid/h263/s263/rxg2/wmv1/wmv2/wmv3/vp6/vp8/vp9/rx/h264/h265].
-  --cmcc=                       support cmcc or not [yes/no].
-  --is_camera_decoder=          [yes/no], default [no]. If setting yes, libvdecoder.so only support h264 and jpeg.
                                 
 Note: This script read configurations from files, change configuration according to user command and write back to files.
 
@@ -256,7 +230,7 @@ done
 ################################################################################
 for opt do
     optval="${opt#*=}"
-    optval=$(echo $optval | tr "[A-Z]" "[a-z]")
+    optval=$(echo $optval)
     
     key=""
     value=""
@@ -293,6 +267,10 @@ for opt do
                 value=OPTION_CC_UCGNUEABI
             elif [ $optval = "linuxgnueabi" ]; then
                 value=OPTION_CC_LINUX_UCGNUEABI
+			elif [ $optval = "muslgnueabi" ]; then
+                value=OPTION_CC_LINUX_MUSLGNUEABI
+            elif [ $optval = "muslgnueabi64" ]; then
+                value=OPTION_CC_LINUX_MUSLGNUEABI64               
             else
                 echo "invalid tool chain $optval."
                 continue
@@ -389,7 +367,7 @@ for opt do
             fi
         ;;
         
-        ## config the target chip, option can be [1623/1625/1651/1650/1661/1667/1673/1639/1680/1681/1689/1701/1663].
+        ## config the target chip, option can be [r8/r16/r58/r18/c500/t2].
         --chip=*)
             key=CONFIG_CHIP
             value=""
@@ -399,34 +377,19 @@ for opt do
                 continue
             fi
             
-            if [ $optval = "1623" ]; then
-                value=OPTION_CHIP_1623
-            elif [ $optval = "1625" ]; then
-                value=OPTION_CHIP_1625
-            elif [ $optval = "1633" ]; then
-                value=OPTION_CHIP_1633
-            elif [ $optval = "1651" ]; then
-                value=OPTION_CHIP_1651
-            elif [ $optval = "1650" ]; then
-                value=OPTION_CHIP_1650
-            elif [ $optval = "1661" ]; then
-                value=OPTION_CHIP_1661
-            elif [ $optval = "1667" ]; then
-                value=OPTION_CHIP_1667
-            elif [ $optval = "1639" ]; then
-                value=OPTION_CHIP_1639
-            elif [ $optval = "1673" ]; then
-                value=OPTION_CHIP_1673
-            elif [ $optval = "1680" ]; then
-                value=OPTION_CHIP_1680
-            elif [ $optval = "1681" ]; then
-                value=OPTION_CHIP_1681
-            elif [ $optval = "1689" ]; then
-                value=OPTION_CHIP_1689
-            elif [ $optval = "1701" ]; then
-                value=OPTION_CHIP_1701
-            elif [ $optval = "1663" ]; then
-                value=OPTION_CHIP_1663
+            if [ $optval = "r8" ]; then
+			echo "r8"
+                value=OPTION_CHIP_R8
+            elif [ $optval = "r16" ]; then
+                value=OPTION_CHIP_R16
+            elif [ $optval = "c500" ]; then
+                value=OPTION_CHIP_C500
+            elif [ $optval = "r58" ]; then
+                value=OPTION_CHIP_R58
+            elif [ $optval = "r18" ]; then
+                value=OPTION_CHIP_R18
+            elif [ $optval = "t2" ]; then
+                value=OPTION_CHIP_T2
             else
                 echo "invalid chip option $optval."
                 continue
@@ -503,6 +466,20 @@ for opt do
                 continue
             fi
         ;;
+        
+		## config cedarx path.
+        --cedarx-path=*)
+            key=CONFIG_CEDARX_PATH
+            value=""
+			
+			echo "==== $optval"
+			value=$optval
+			
+			echo "==== value: $value"
+			if [ $optval ]; then
+				value=$optval
+			fi
+        ;;		
         
         ## disable or enable demux for specific file format, 
         ## option can be [asf/avi/bd/mpegdash/flv/hls/mkv/mms/mov/mpg/pmp/ogg/ts].
@@ -637,6 +614,38 @@ for opt do
                 continue
             fi
         ;;
+		## config libz[yes/no].
+        --libz-enable=*)
+            key=CONFIG_HAVE_ZLIB
+            value=""
+            
+            if [ ${optval} = "yes" ]; then
+                echo "zlib yes"
+                value=OPTION_HAVE_ZLIB
+            elif [ ${optval} = "no" ]; then
+                echo "zlib no"
+                value=OPTION_NO_ZLIB
+            else
+                echo "invalid cmcc option $optval."
+                continue
+            fi
+        ;;
+		## config libz[yes/no].
+        --ssl-enable=*)
+            key=CONFIG_HAVE_SSL
+            value=""
+            
+            if [ ${optval} = "yes" ]; then
+                echo "ssl yes"
+                value=OPTION_HAVE_SSL
+            elif [ ${optval} = "no" ]; then
+                echo "ssl no"
+                value=OPTION_NO_SSL
+            else
+                echo "invalid cmcc option $optval."
+                continue
+            fi
+        ;;
         
         ## config is_camera_decoder[yes/no].
         --is_camera_decoder=*)
@@ -706,6 +715,11 @@ for ((j=0; j<len; j=j+3))
 do
     key=${CONFIGURATIONS[$j]}
     value=${CONFIGURATIONS[$((j+1))]}
-    sed -i "/^${key} /c${key} = \$\(${value}\)" $myFile
+
+	if [ $key = "CONFIG_CEDARX_PATH" ]; then
+		sed -i "/^${key} /c${key} = ${value}" $myFile
+	else
+		sed -i "/^${key} /c${key} = \$\(${value}\)" $myFile
+	fi
 done
 

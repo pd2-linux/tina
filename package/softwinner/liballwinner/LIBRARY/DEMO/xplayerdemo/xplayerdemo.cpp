@@ -6,8 +6,9 @@
 #include <pthread.h>
 #include <ctype.h>
 #include <errno.h>
+#include <sys/select.h>
 
-#include "config.h"
+#include "cdx_config.h"
 #include "log.h"
 #include "awplayer.h"
 #include "CdxTypes.h"
@@ -466,7 +467,6 @@ void CallbackForAwPlayer(void* pUserData, int msg, int param0, void* param1)
 	        	VideoPicData* videodata = (VideoPicData*)param1;
 				if(videodata)
 				{
-				
 					if(videodata->ePixelFormat == VIDEO_PIXEL_FORMAT_YUV_MB32_420)
 					{
 						char filename[024];
@@ -475,8 +475,6 @@ void CallbackForAwPlayer(void* pUserData, int msg, int param0, void* param1)
 			        	if(outFp != NULL)
 					    {
 					    	int height64Align = (videodata->nHeight + 63)& ~63;
-					    	MemAdapterFlushCache(videodata->pData0, videodata->nWidth*videodata->nHeight);
-					    	MemAdapterFlushCache(videodata->pData1, videodata->nWidth*height64Align/2);
 					    	
 					    	fwrite(videodata->pData0, videodata->nWidth*videodata->nHeight, 1, outFp);
 					    	fwrite(videodata->pData1, videodata->nWidth*height64Align/2, 1, outFp);

@@ -12,99 +12,94 @@ const int MESSAGE_ID_LAYER_NOTIFY_BUFFER = 0x32;
 
 const int LAYER_RESULT_USE_OUTSIDE_BUFFER = 0x2;
 
-typedef struct LayerControlOpsS LayerControlOpsT;
-
 typedef int (*LayerCtlCallback)(void* pUserData, int eMessageId, void* param);
 
-
-enum EPICTURE3DMODE
-{
-    PICTURE_3D_MODE_NONE = 0,
-    PICTURE_3D_MODE_TWO_SEPERATED_PICTURE,
-    PICTURE_3D_MODE_SIDE_BY_SIDE,
-    PICTURE_3D_MODE_TOP_TO_BOTTOM,
-    PICTURE_3D_MODE_LINE_INTERLEAVE,
-    PICTURE_3D_MODE_COLUME_INTERLEAVE
-};
-
-enum EDISPLAY3DMODE
-{
-    DISPLAY_3D_MODE_2D = 0,
-    DISPLAY_3D_MODE_3D,
-    DISPLAY_3D_MODE_HALF_PICTURE
-};
-
-
-struct LayerControlOpsS
+typedef struct NewLayerControlOpsS
 {
 
-	LayerCtrl* (*LayerInit)(void*, int);
+	LayerCtrl* (*init)(void*, int);
 
-	void (*LayerRelease)(LayerCtrl* , int );
-
-	int (*LayerSetExpectPixelFormat)(LayerCtrl* , enum EPIXELFORMAT );
-
-	enum EPIXELFORMAT (*LayerGetPixelFormat)(LayerCtrl* );
-
-	int (*LayerSetPictureSize)(LayerCtrl* , int , int );
-
-	int (*LayerSetDisplayRegion)(LayerCtrl* , int , int , int , int );
-
-	int (*LayerSetBufferTimeStamp)(LayerCtrl* , int64_t );
+	void (*release)(LayerCtrl*);
 	
-	int (*LayerDequeueBuffer)(LayerCtrl* , VideoPicture** , int);
+	int (*setDisplayBufferSize)(LayerCtrl* , int , int );
 	
-	int (*LayerQueueBuffer)(LayerCtrl* , VideoPicture* , int);
+	int (*setDisplayBufferCount)(LayerCtrl* , int );
 
-	int (*LayerCtrlHideVideo)(LayerCtrl*);
+	int (*setDisplayRegion)(LayerCtrl* , int , int , int , int );
 
-	int (*LayerCtrlShowVideo)(LayerCtrl* );
+	int (*setDisplayPixelFormat)(LayerCtrl* , enum EPIXELFORMAT );
 
-	int (*LayerCtrlIsVideoShow)(LayerCtrl* );
+	int (*setVideoWithTwoStreamFlag)(LayerCtrl* , int );
 
-	int (*LayerCtrlHoldLastPicture)(LayerCtrl* , int );
+	int (*setIsSoftDecoderFlag)(LayerCtrl* , int);
 
-	int (*LayerSetRenderToHardwareFlag)(LayerCtrl* ,int );
+	int (*setBufferTimeStamp)(LayerCtrl* , int64_t );
 
-	int (*LayerSetDeinterlaceFlag)(LayerCtrl* ,int );
+	void (*resetNativeWindow)(LayerCtrl* ,void*);
 
-	//* for old display 
-	int (*LayerSetPicture3DMode)(LayerCtrl* , enum EPICTURE3DMODE );
-
-	enum EPICTURE3DMODE (*LayerGetPicture3DMode)(LayerCtrl* );
-
-	int (*LayerSetDisplay3DMode)(LayerCtrl* , enum EDISPLAY3DMODE );
-
-	enum EDISPLAY3DMODE (*LayerGetDisplay3DMode)(LayerCtrl* );
-
-	int (*LayerDequeue3DBuffer)(LayerCtrl* , VideoPicture** , VideoPicture** );
+	VideoPicture* (*getBufferOwnedByGpu)(LayerCtrl* );
 	
-	int (*LayerQueue3DBuffer)(LayerCtrl* , VideoPicture* , VideoPicture* , int);
-
-	int (*LayerGetRotationAngle)(LayerCtrl* );
-
-	int (*LayerSetCallback)(LayerCtrl* , LayerCtlCallback , void* );
-
-	//* end 
-
-	//* for new display
-	int (*LayerSetBufferCount)(LayerCtrl* , int );
-
-	int (*LayerSetVideoWithTwoStreamFlag)(LayerCtrl* , int );
-
-	int (*LayerSetIsSoftDecoderFlag)(LayerCtrl* , int);
-
-	void (*LayerResetNativeWindow)(LayerCtrl* ,void*);
-
-	int (*LayerReleaseBuffer)(LayerCtrl* ,VideoPicture*);
-
-	VideoPicture* (*LayerGetPicNode)(LayerCtrl* );
-
-	int (*LayerGetAddedPicturesCount)(LayerCtrl* );
-
-	int (*LayerGetDisplayFPS)(LayerCtrl* );
+	int (*getDisplayFPS)(LayerCtrl* );
 	
-};
+	int (*getBufferNumHoldByGpu)(LayerCtrl* );
+
+	int (*ctrlShowVideo)(LayerCtrl* );
+
+	int (*ctrlHideVideo)(LayerCtrl*);
+
+	int (*ctrlIsVideoShow)(LayerCtrl* );
+
+	int (*ctrlHoldLastPicture)(LayerCtrl* , int );
+
+	int (*dequeueBuffer)(LayerCtrl* , VideoPicture** , int);
+
+	int (*queueBuffer)(LayerCtrl* , VideoPicture* , int);
+
+	int (*releaseBuffer)(LayerCtrl* ,VideoPicture*);
+}NewLayerControlOpsT;
+
+typedef struct LayerControlOpsS
+{
+
+	LayerCtrl* (*init)(void*);
+
+	void (*release)(LayerCtrl*);
+
+	int (*setCallback)(LayerCtrl* , LayerCtlCallback , void* );
+
+	int (*setDisplayBufferSize)(LayerCtrl* , int , int );
+
+	int (*setDisplayRegion)(LayerCtrl* , int , int , int , int );
+
+	int (*setDisplayPixelFormat)(LayerCtrl* , enum EPIXELFORMAT );
+
+	int (*setDeinterlaceFlag)(LayerCtrl* ,int );
+	
+	int (*setBufferTimeStamp)(LayerCtrl* , int64_t );
+
+	int (*getRotationAngle)(LayerCtrl* );
+
+	int (*ctrlShowVideo)(LayerCtrl* );
+
+	int (*ctrlHideVideo)(LayerCtrl*);
+
+	int (*ctrlIsVideoShow)(LayerCtrl* );
+
+	int (*ctrlHoldLastPicture)(LayerCtrl* , int );
+
+	int (*dequeueBuffer)(LayerCtrl* , VideoPicture**);
+
+	int (*dequeue3DBuffer)(LayerCtrl* , VideoPicture** , VideoPicture** );
+
+	int (*queueBuffer)(LayerCtrl* , VideoPicture* , int);
+
+	int (*queue3DBuffer)(LayerCtrl* , VideoPicture* , VideoPicture* , int);
+}LayerControlOpsT;
+
+LayerControlOpsT* __GetLayerControlOps();
+
+NewLayerControlOpsT* __GetNewLayerControlOps();
+	
 
 #endif
 

@@ -65,11 +65,7 @@ SourceIncludePath = $(foreach dir,$(SourcePath),-I$(dir)) \
                     -I../LIBRARY/DEMUX/STREAM/include/ \
                     -I../LIBRARY/DEMUX/PARSER/include/ \
                     -I../LIBRARY/DEMUX/MUXER/include/ \
-                    -I../LIBRARY/CODEC/VIDEO/DECODER/include  \
-                    -I../LIBRARY/CODEC/VIDEO/ENCODER/include  \
-                    -I../LIBRARY/CODEC/AUDIO/ENCODER/include  \
-                    -I../LIBRARY/CODEC/AUDIO/DECODER/include  \
-                    -I../LIBRARY/CODEC/SUBTITLE/DECODER/include  \
+                    -I../LIBRARY/libcedarc/include  \
                     -I../LIBRARY/PLAYER/include/ \
                     -I../LIBRARY/PLUGIN/include/ \
 
@@ -79,43 +75,47 @@ CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -Wall -O2 -ldl -fPIC
 ## set link flags
 LoadFlags = $(CONFIG_FOR_LINK) -ldl -shared
 
-LoadFlags +=   -lvencoder -laencoder   -lsdecoder  \
-               -lcdx_base -lcdx_muxer -lcdx_stream -lcdx_base -lVE \
-               -lMemAdapter  -lpthread -ldl -lstdc++ -lrt 
+LoadFlags +=   -lcdc_vencoder -lcdc_aencoder   -lcdc_sdecoder  \
+               -lcdx_base -lcdx_muxer -lcdx_stream -lcdx_base -lcdc_ve \
+               -lcdc_memory  -lpthread -ldl -lstdc++ -lrt 
                
 LoadFlags += -L../LIBRARY/DEMUX/BASE/ \
              -L../LIBRARY/DEMUX/STREAM/ \
              -L../LIBRARY/DEMUX/PARSER/ \
              -L../LIBRARY/DEMUX/MUXER/ \
-             -L../LIBRARY/CODEC/VIDEO/DECODER/ \
-             -L../LIBRARY/CODEC/AUDIO/DECODER/ \
-             -L../LIBRARY/CODEC/SUBTITLE/DECODER/ \
              -L../LIBRARY/PLAYER/ \
-             -L../LIBRARY/VE/ \
-             -L../LIBRARY/MEMORY/ \
              -L../LIBRARY/PLUGIN/manager \
              -L../LIBRARY/PLUGIN/ac3 \
              -L../LIBRARY/PLUGIN/dts \
              -L../LIBRARY/PLUGIN/rmvb \
-             -L../LIBRARY/CODEC/VIDEO/ENCODER/ \
-             -L../LIBRARY/CODEC/AUDIO/ENCODER/
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABIHF))
 LoadFlags += -L../LIBRARY/EXTERNAL/lib32/lgnueabihf
+LoadFlags +=-L../LIBRARY/libcedarc/library/lib32/lgnueabihf
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABI))
 LoadFlags += -L../LIBRARY/EXTERNAL/lib32/lgnueabi
+LoadFlags +=-L../LIBRARY/libcedarc/library/lib32/lgnueabi
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_UCGNUEABI))
 LoadFlags += -L../LIBRARY/EXTERNAL/lib32/uclgnueabi
+LoadFlags +=-L../LIBRARY/libcedarc/library/lib32/uclgnueabi
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_UCGNUEABI))
 LoadFlags +=-L../LIBRARY/EXTERNAL/lib32/linuxgnueabi
+LoadFlags +=-L../LIBRARY/libcedarc/library/lib32/linuxgnueabi
 endif
 
+ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI))
+LoadFlags +=-L../LIBRARY/EXTERNAL/lib32/muslgnueabi
+LoadFlags +=-L../LIBRARY/libcedarc/library/lib32/muslgnueabi
+endif
+ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI64))
+LoadFlags +=-L../LIBRARY/EXTERNAL/lib64/muslgnueabi
+endif
 ################################################################################
 ## make commands, all/clean/cleanall
 ################################################################################

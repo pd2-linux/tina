@@ -13,12 +13,12 @@ include $(INCLUDE_DIR)/package.mk
 define Package/tinaplayerdemo
   SECTION:=utils
   CATEGORY:=softwinner
-  TITLE:=outside : CedarX2.0 tina player utils for softwinner
+  TITLE:= CedarX2.6 tina player utils for softwinner
   DEPENDS:=+liballwinner
 endef
 
 define Package/tinaplayerdemo/description
-	CedarX2.0 tina player
+	CedarX2.6 tina player
 endef
 
 define Build/Prepare

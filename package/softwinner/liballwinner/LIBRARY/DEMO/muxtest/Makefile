@@ -63,11 +63,7 @@ SourceIncludePath = $(foreach dir,$(SourcePath),-I$(dir)) \
 		            -I../../DEMUX/MUXER/include/ \
                     -I../../DEMUX/STREAM/include/ \
                     -I../../DEMUX/PARSER/include/ \
-                    -I../../CODEC/VIDEO/DECODER/include  \
-                    -I../../CODEC/VIDEO/ENCODER/include  \
-                    -I../../CODEC/AUDIO/DECODER/include  \
-                    -I../../CODEC/AUDIO/ENCODER/include  \
-                    -I../../CODEC/SUBTITLE/DECODER/include  \
+                    -I../../libcedarc/include  \
                     -I../../PLAYER/include/ \
                     -I../../PLUGIN/include 
 
@@ -77,12 +73,16 @@ CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -Wall -ldl
 ## set link flags
 LoadFlags = $(CONFIG_FOR_LINK)
 
-LoadFlags +=   -lawrecorder -lvdecoder -lvencoder -laencoder   -lsdecoder  \
-               -lcdx_base -lcdx_muxer -lcdx_stream -lcdx_base -lVE \
-               -lMemAdapter  -lpthread -ldl -lstdc++ -lrt 
+LoadFlags +=   -lawrecorder -lcdc_vdecoder -lcdc_vencoder -lcdc_aencoder   -lcdc_sdecoder  \
+               -lcdx_base -lcdx_muxer -lcdx_stream -lcdx_base -lcdc_ve -lcdc_base\
+               -lcdc_memory  -lpthread -ldl -lstdc++ -lrt 
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_UCGNUEABI))
 LoadFlags += -laacenc -lmp3enc -lpcmenc
+endif
+
+ifeq ($(CONFIG_HAVE_ZLIB), $(OPTION_HAVE_ZLIB))
+LoadFlags += -lz
 endif
 
 #-law_plugin
@@ -90,37 +90,37 @@ LoadFlags += -L../../DEMUX/BASE/ \
              -L../../DEMUX/STREAM/ \
              -L../../DEMUX/PARSER/ \
              -L../../DEMUX/MUXER/ \
-             -L../../CODEC/VIDEO/DECODER/ \
-             -L../../CODEC/VIDEO/ENCODER/ \
-             -L../../CODEC/AUDIO/DECODER/ \
-             -L../../CODEC/AUDIO/ENCODER/ \
-             -L../../CODEC/SUBTITLE/DECODER/ \
              -L../../PLAYER/ \
-             -L../../VE/ \
-             -L../../MEMORY/ \
              -L../../PLUGIN/manager \
              -L../../../awrecorder \
              
 ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABIHF))
 LoadFlags += -L../../EXTERNAL/lib32/lgnueabihf/
+LoadFlags += -L../../libcedarc/library/lib32/lgnueabihf
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABI))
 LoadFlags += -L../../EXTERNAL/lib32/lgnueabi/ 
+LoadFlags += -L../../libcedarc/library/lib32/lgnueabi
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_UCGNUEABI))
 LoadFlags += -L../../EXTERNAL/lib32/uclgnueabi/ 
+LoadFlags += -L../../libcedarc/library/lib32/uclgnueabi
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_UCGNUEABI))
 LoadFlags +=-L../../EXTERNAL/lib32/linuxgnueabi
+LoadFlags += -L../../libcedarc/library/lib32/linuxgnueabi
 endif
 
-ifeq ($(CONFIG_HAVE_ZLIB), $(OPTION_HAVE_ZLIB))
-LoadFlags += -lz
+ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI))
+LoadFlags +=-L../../EXTERNAL/lib32/muslgnueabi
+LoadFlags += -L../../libcedarc/library/lib32/muslgnueabi
 endif
-
+ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI64))
+LoadFlags +=-L../../EXTERNAL/lib64/muslgnueabi
+endif
 ################################################################################
 ## make commands, all/clean/cleanall
 ################################################################################

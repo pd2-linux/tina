@@ -3,9 +3,7 @@
 #define VIDEO_DECODE_COMPONENT
 
 #include "player_i.h"
-
 #include "vdecoder.h"
-
 #include "avtimer.h"
 
 
@@ -63,7 +61,6 @@ int VideoDecCompSubmitStreamData(VideoDecComp*        v,
                                  VideoStreamDataInfo* pDataInfo,
                                  int                  nStreamIndex);
 
-
 int VideoDecCompStreamBufferSize(VideoDecComp* v, int nStreamIndex);
 
 int VideoDecCompStreamDataSize(VideoDecComp* v, int nStreamIndex);
@@ -109,9 +106,9 @@ int VideoDecCompRotatePicture(VideoDecComp* v,
                               int           nGpuYAlign,
                               int           nGpuCAlign);
 
-VideoPicture* VideoDecCompAllocatePictureBuffer(int nWidth, int nHeight, int nLineStride, int ePixelFormat);
+//VideoPicture* VideoDecCompAllocatePictureBuffer(int nWidth, int nHeight, int nLineStride, int ePixelFormat);
 
-int VideoDecCompFreePictureBuffer(VideoPicture* pPicture);
+//int VideoDecCompFreePictureBuffer(VideoPicture* pPicture);
 
 #if 0
 //*for new display
@@ -131,7 +128,12 @@ VideoPicture* VideoDecCompRequestReleasePicture(VideoDecComp* v);
 
 VideoPicture* VideoDecCompReturnRelasePicture(VideoDecComp* v, VideoPicture* pVpicture, int bForbidUseFlag);
 
+int VideoDecCompSetExtraScaleInfo(VideoDecComp* v, int nWidthTh, int nHeightTh,
+		                          int nHorizontalScaleRatio, int nVerticalScaleRatio);
 //********************************  END  ***********************************//
+
+void VideoDecCompFreePictureBuffer(VideoDecComp* v, VideoPicture* pPicture);
+
 
 #endif
 

@@ -8,7 +8,7 @@
 #include "player.h"             //* player library in "LIBRARY/PLAYER/"
 #include "cache.h"
 #include "log.h"
-#include "config.h"
+#include "cdx_config.h"
 
 #define CONFIG_DISABLE_VIDEO 0
 #define CONFIG_DISABLE_AUDIO 0

@@ -21,6 +21,7 @@ enum EPLAYERINTERNALNOTIFY  //* player internal notify.
     PLAYER_VIDEO_RENDER_NOTIFY_VIDEO_SIZE,
     PLAYER_VIDEO_RENDER_NOTIFY_VIDEO_CROP,
     PLAYER_VIDEO_RENDER_NOTIFY_VIDEO_BUFFER,
+	PLAYER_VIDEO_RENDER_NOTIFY_VIDEO_FRAME,
     
     PLAYER_AUDIO_DECODER_NOTIFY_STREAM_UNDERFLOW        = 96,
     PLAYER_AUDIO_DECODER_NOTIFY_CRASH,
@@ -66,6 +67,9 @@ const int MESSAGE_ID_SET_LAYER_INFO         = 0x15;     //* video render only.
 #define CONFIG_AUDIO_RENDER_TIME_DIFFERENCE_REPORT_PERIOD       (5000000)   //* report every 5 seconds.
 #define CONFIG_USE_LARGER_PTS_AS_START_TIME                     (1)         //* choose the larger pts of nFirstVideoPts and nFirstAudioPts as the player start time.
 #define CONFIG_THREASHOLD_OF_PTS_DIFFERENCE_TO_JUDGE_PTS_jUMP   (17000000)   //* if pts difference is more than 5 seconds, we judge there is a pts jump(loop back) event.
+#define CONFIG_THREASHOLD_OF_PTS_DIFFERENCE_TO_JUDGE_PTS_jUMP_DTMB   (1500000)   //* if pts difference is more than 5 seconds, we judge there is a pts jump(loop back) event.
+
+
 #define CONFIG_MAX_WAIT_TIME_FOR_SYNC                           (17000000)   //* don't wait for synchronization for too long, should not smaller than CONFIG_THREASHOLD_OF_PTS_DIFFERENCE_TO_JUDGE_PTS_jUMP.
 #define CONFIG_THREASHOLD_OF_PTS_DIFFERENCE_TO_JUDGE_PTS_jUMP_FOR_SUBTITLE (20000000) //* 20 seconds.
 

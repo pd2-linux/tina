@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "VideoEncodeComponent.h"
+#include "memoryAdapter.h"
 
 
 
@@ -23,7 +24,7 @@ static const int ENC_COMMAND_PAUSE         = 0x107;
 static const int ENC_COMMAND_RESET         = 0x108;
 static const int ENC_COMMAND_QUIT          = 0x109;
 
-#if (CONFIG_CHIP == OPTION_CHIP_1651)
+#if (CONFIG_CHIP == OPTION_CHIP_T2 || CONFIG_CHIP == OPTION_CHIP_R8)
 #define NEED_CONV_NV12 1
 #else
 #define NEED_CONV_NV12 0
@@ -77,6 +78,8 @@ typedef struct EncodeCompContex
     int                     mEos;
 
     SoftFrameRateCtrl       mFrameRateCtrl;
+
+    struct ScMemOpsS*       memops;
 #if NEED_CONV_NV12
     unsigned char *uv_tmp_buffer;
 #endif
@@ -387,11 +390,13 @@ static int setEncodeType(EncodeCompContex *p, VideoEncodeConfig* config)
     baseConfig.nDstHeight   = p->mDesOutHeight;
     baseConfig.eInputFormat = VENC_PIXEL_YUV420P;
 
+    baseConfig.memops = p->memops;
+
     memset(&bufferParam, 0 ,sizeof(VencAllocateBufferParam));
     bufferParam.nSizeY = baseConfig.nInputWidth*baseConfig.nInputHeight;
 	bufferParam.nSizeC = baseConfig.nInputWidth*baseConfig.nInputHeight/2;
 
-#if(CONFIG_CHIP == OPTION_CHIP_1663 )
+#if(CONFIG_CHIP == OPTION_CHIP_C500 )
 	bufferParam.nBufferNum = 2;
 #else
 	bufferParam.nBufferNum = 6;
@@ -503,8 +508,8 @@ static int setEncodeType(EncodeCompContex *p, VideoEncodeConfig* config)
 		//VideoEncSetParameter(pVideoEnc, VENC_IndexParamH264FastEnc, &value);
 	}
 
-	// set vbvSize in 1663
-	#if(CONFIG_CHIP == OPTION_CHIP_1663 )
+	// set vbvSize in c500
+	#if(CONFIG_CHIP == OPTION_CHIP_C500 )
 	int vbvSize = 2*1024*1024;
 	#else
 	int vbvSize = 4*1024*1024;
@@ -553,6 +558,13 @@ VideoEncodeComp* VideoEncodeCompCreate()
 
 	// use the buffer malloc in this component
 	p->mUseAllocInputBuffer = 1;	
+
+	p->memops = MemAdapterGetOpsS();
+	if(p->memops == NULL)
+	{
+		loge("MemAdapterGetOpsS failed");
+	}
+	CdcMemOpen(p->memops);
 
     if(pthread_create(&p->mThreadId, NULL, encodeThread, p) == 0)
 		p->mThreadCreated = 1;
@@ -607,6 +619,12 @@ void VideoEncodeCompDestory(VideoEncodeComp* v)
         VideoEncDestroy(p->pEncoder);
         p->pEncoder = NULL;
     }
+
+    if(p->memops)
+	{
+		CdcMemClose(p->memops);
+	}
+	
 
 #if NEED_CONV_NV12
 	if(p->uv_tmp_buffer)

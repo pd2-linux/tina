@@ -160,6 +160,16 @@ static cdx_int32 __WStreamClose(CdxStreamT *stream)
         CdxFree(impl->filePath);
     }
 
+    if(impl->tmpBuf)
+    {
+    	free(impl->tmpBuf);
+    }
+
+    if(impl->cache_buf)
+    {
+    	free(impl->cache_buf);
+    }
+
     CdxFree(impl);
     // TODO: use refence
     return CDX_SUCCESS;

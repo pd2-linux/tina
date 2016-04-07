@@ -1124,6 +1124,11 @@ static void* AudioDecodeThread(void* arg)
             if(p->eStatus == PLAYER_STATUS_STOPPED)
             {
                 loge("invalid stop operation, already in stopped status.");
+                if(p->bCrashFlag == 1)
+                {
+                    p->bCrashFlag = 0;
+                }
+                
 		        if(pReplyValue != NULL)
 			        *pReplyValue = -1;
 		        sem_post(pReplySem);
@@ -1320,6 +1325,7 @@ static void* AudioDecodeThread(void* arg)
                                     &p->pStreamInfoArr[p->nStreamSelected],
                                     pOutputBuf,
                                     &nPcmDataLen);
+            logv("DecodeAudioStream, ret = %d",ret);
             if(ret == ERR_AUDIO_DEC_NONE)
             {
                 if(p->pStreamInfoArr[p->nStreamSelected].nSampleRate != p->bsInfo.out_samplerate ||

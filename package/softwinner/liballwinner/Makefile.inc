@@ -26,8 +26,8 @@ STRIP = @echo " STRIP  $<";arm-none-linux-gnueabi-strip
 AR    = @echo " LD  $@";arm-none-linux-gnueabi-ar
 
 #CFLAGS = -isystem /arm/arm-2010.09/arm-none-linux-gnueabi/libc/usr/include
-#CFLAGS += -D_GNU_SOURCE
 endif
+CFLAGS += -D_GNU_SOURCE
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_UCGNUEABI))
 # set compile tool chains to be arm-none-linux-gnueabi- set.
@@ -47,3 +47,20 @@ CPP   = arm-linux-gnueabi-g++
 STRIP = arm-linux-gnueabi-strip
 AR    = arm-linux-gnueabi-ar
 endif
+
+ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI))
+CC    = arm-openwrt-linux-muslgnueabi-gcc
+LD    = arm-openwrt-linux-muslgnueabi-gcc
+CPP   = arm-openwrt-linux-muslgnueabi-g++
+STRIP = arm-openwrt-linux-muslgnueabi-strip
+AR    = arm-openwrt-linux-muslgnueabi-ar
+endif
+
+ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI64))
+CC    = aarch64-openwrt-linux-musl-gcc
+LD    = aarch64-openwrt-linux-musl-gcc
+CPP   = aarch64-openwrt-linux-musl-g++
+STRIP = aarch64-openwrt-linux-musl-strip
+AR    = aarch64-openwrt-linux-musl-ar
+endif
+

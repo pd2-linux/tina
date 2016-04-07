@@ -2,7 +2,7 @@
 #include "awplayer.h"
 #include "log.h"
 #include <string.h>
-#include "config.h"
+#include "cdx_config.h"
 #include "player.h"             //* player library in "LIBRARY/PLAYER/"
 #include "mediaInfo.h"
 #include "demuxComponent.h"
@@ -350,7 +350,8 @@ int AwPlayer::reset()
 int AwPlayer::isPlaying()
 {
     logv("isPlaying");
-    if((mStatus == AWPLAYER_STATUS_STARTED) || ((mStatus == AWPLAYER_STATUS_COMPLETE) && (mLoop != 0)))
+    if(mStatus == AWPLAYER_STATUS_STARTED || 
+    	(mStatus == AWPLAYER_STATUS_COMPLETE && mLoop != 0))
         return 1;
     else
         return 0;
@@ -1487,8 +1488,8 @@ static int transformPictureMb32ToRGB(VideoPicture* pPicture, unsigned char* pDat
     pClip = &pClipTable[-nClipMin];
 
     //* flush cache.
-    MemAdapterFlushCache(pPicture->pData0, pPicture->nWidth*pPicture->nHeight);
-    MemAdapterFlushCache(pPicture->pData1, pPicture->nHeight*pPicture->nHeight/2);
+//    MemAdapterFlushCache(pPicture->pData0, pPicture->nWidth*pPicture->nHeight);
+//    MemAdapterFlushCache(pPicture->pData1, pPicture->nHeight*pPicture->nHeight/2);
 
     pDst  = (unsigned short*)pData;
     pSrcY = (unsigned char*)pPicture->pData0;

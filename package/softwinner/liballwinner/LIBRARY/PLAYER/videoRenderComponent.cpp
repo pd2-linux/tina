@@ -56,7 +56,7 @@ typedef struct VideoRenderCompContext
     
     enum EPLAYERSTATUS  eStatus;
     void*               pNativeWindow;
-    LayerControlOpsT*   pLayerOps;
+    LayerControlOpsT*   mLayerOps;
     LayerCtrl*          pLayerCtrl;
     VideoDecComp*       pDecComp;
     
@@ -104,7 +104,7 @@ VideoRenderComp* VideoRenderCompCreate(void)
     }
     memset(p, 0, sizeof(*p));
 
-    p->pLayerOps = &mLayerControlOps;
+    p->mLayerOps = __GetLayerControlOps();
     p->mq = MessageQueueCreate(4, "VideoRenderMq");
     if(p->mq == NULL)
     {
@@ -157,10 +157,10 @@ VideoRenderComp* VideoRenderCompCreate(void)
         return NULL;
     }
 
-#if(CONFIG_CHIP==OPTION_CHIP_1680 || CONFIG_CHIP==OPTION_CHIP_1667)  //* on 1680, Y-Align is 16, C-Align is 16, 
+#if(GPU_Y_C_ALIGN == GPU_Y16_C16_ALIGN)  //* on 1680, Y-Align is 16, C-Align is 16, 
     p->nGpuYAlign = 16;
     p->nGpuCAlign = 16;
-#elif(CONFIG_CHIP==OPTION_CHIP_1673)//* on 1673, Y-Align is 32, C-Align is 16,
+#elif(GPU_Y_C_ALIGN == GPU_Y32_C16_ALIGN)//* on 1673, Y-Align is 32, C-Align is 16,
     p->nGpuYAlign = 32;
     p->nGpuCAlign = 16;
 #else                               //* on others, Y-Align is 16, C-Align is 8,
@@ -177,7 +177,7 @@ int VideoRenderCompSetLayerCtlOps(VideoRenderComp* v, LayerControlOpsT* ops)
 {
 	VideoRenderCompContext* p;  
     p = (VideoRenderCompContext*)v;
-    p->pLayerOps = ops;
+    p->mLayerOps = ops;
     logd("==== set layer control ops");
     return 0;
 }
@@ -564,6 +564,18 @@ int VideoRenderSetHoldLastPicture(VideoRenderComp* v, int bHold)
         return -1;
     }
     
+    if(p->pLayerCtrl != NULL && (p->eStatus == PLAYER_STATUS_STOPPED))
+    {
+        if(bHold)
+            p->mLayerOps->ctrlHoldLastPicture(p->pLayerCtrl, 1);
+        else
+        {
+            p->mLayerOps->ctrlHoldLastPicture(p->pLayerCtrl, 0);
+            if(p->mLayerOps->ctrlIsVideoShow(p->pLayerCtrl) == 1)
+                p->mLayerOps->ctrlHideVideo(p->pLayerCtrl);
+        }
+    }
+    
     return 0;
 }
 
@@ -670,6 +682,7 @@ static void* VideoRenderThread(void* arg)
         }
         
 process_message:
+
         pReplySem   = (sem_t*)msg.params[0];
         pReplyValue = (int*)msg.params[1];
         
@@ -716,9 +729,9 @@ process_message:
                 if(p->pLayerCtrl != NULL)
                 {
                     if(pSecondLayerBufferOf3DMode == NULL)
-                        p->pLayerOps->LayerQueueBuffer(p->pLayerCtrl, pLayerBuffer, 0);
+                        p->mLayerOps->queueBuffer(p->pLayerCtrl, pLayerBuffer, 0);
                     else
-                        p->pLayerOps->LayerQueue3DBuffer(p->pLayerCtrl, pLayerBuffer, pSecondLayerBufferOf3DMode, 0);
+                        p->mLayerOps->queue3DBuffer(p->pLayerCtrl, pLayerBuffer, pSecondLayerBufferOf3DMode, 0);
                 }
                 pLayerBuffer = NULL;
                 pSecondLayerBufferOf3DMode = NULL;
@@ -729,9 +742,9 @@ process_message:
 				if(p->pLayerCtrl != NULL)
 				{
 					if(pSecondLayerBufferOf3DMode == NULL)
-						p->pLayerOps->LayerQueueBuffer(p->pLayerCtrl, pPreLayerBuffer, 0);
+						p->mLayerOps->queueBuffer(p->pLayerCtrl, pPreLayerBuffer, 0);
 					else
-						p->pLayerOps->LayerQueue3DBuffer(p->pLayerCtrl, pPreLayerBuffer, pSecondLayerBufferOf3DMode, 0);
+						p->mLayerOps->queue3DBuffer(p->pLayerCtrl, pPreLayerBuffer, pSecondLayerBufferOf3DMode, 0);
 				}
 				pPreLayerBuffer = NULL;
 				pSecondLayerBufferOf3DMode = NULL;
@@ -751,12 +764,12 @@ process_message:
             if(p->pLayerCtrl != NULL)
             {
                 if(bHoldLastPicture)
-                    p->pLayerOps->LayerCtrlHoldLastPicture(p->pLayerCtrl, 1);
+                    p->mLayerOps->ctrlHoldLastPicture(p->pLayerCtrl, 1);
                 else
                 {
-                    p->pLayerOps->LayerCtrlHoldLastPicture(p->pLayerCtrl, 0);
-                    if(p->pLayerOps->LayerCtrlIsVideoShow(p->pLayerCtrl) == 1)
-                        p->pLayerOps->LayerCtrlHideVideo(p->pLayerCtrl);
+                    p->mLayerOps->ctrlHoldLastPicture(p->pLayerCtrl, 0);
+                    if(p->mLayerOps->ctrlIsVideoShow(p->pLayerCtrl) == 1)
+                        p->mLayerOps->ctrlHideVideo(p->pLayerCtrl);
                 }
             }
                
@@ -795,9 +808,9 @@ process_message:
                 if(p->pLayerCtrl != NULL)
                 {
                     if(pSecondLayerBufferOf3DMode == NULL)
-                        p->pLayerOps->LayerQueueBuffer(p->pLayerCtrl, pLayerBuffer, 0);
+                        p->mLayerOps->queueBuffer(p->pLayerCtrl, pLayerBuffer, 0);
                     else
-                        p->pLayerOps->LayerQueue3DBuffer(p->pLayerCtrl, pLayerBuffer, pSecondLayerBufferOf3DMode, 0);
+                        p->mLayerOps->queue3DBuffer(p->pLayerCtrl, pLayerBuffer, pSecondLayerBufferOf3DMode, 0);
                 }
                 pLayerBuffer = NULL;
                 pSecondLayerBufferOf3DMode = NULL;
@@ -807,9 +820,9 @@ process_message:
 				if(p->pLayerCtrl != NULL)
 				{
 					if(pSecondLayerBufferOf3DMode == NULL)
-						p->pLayerOps->LayerQueueBuffer(p->pLayerCtrl, pPreLayerBuffer, 0);
+						p->mLayerOps->queueBuffer(p->pLayerCtrl, pPreLayerBuffer, 0);
 					else
-						p->pLayerOps->LayerQueue3DBuffer(p->pLayerCtrl, pPreLayerBuffer, pSecondLayerBufferOf3DMode, 0);
+						p->mLayerOps->queue3DBuffer(p->pLayerCtrl, pPreLayerBuffer, pSecondLayerBufferOf3DMode, 0);
 				}
 				pPreLayerBuffer = NULL;
 				pSecondLayerBufferOf3DMode = NULL;
@@ -840,9 +853,9 @@ process_message:
                 if(p->pLayerCtrl != NULL)
                 {
                     if(pSecondLayerBufferOf3DMode == NULL)
-                        p->pLayerOps->LayerQueueBuffer(p->pLayerCtrl, pLayerBuffer, 0);
+                        p->mLayerOps->queueBuffer(p->pLayerCtrl, pLayerBuffer, 0);
                     else
-                        p->pLayerOps->LayerQueue3DBuffer(p->pLayerCtrl, pLayerBuffer, pSecondLayerBufferOf3DMode, 0);
+                        p->mLayerOps->queue3DBuffer(p->pLayerCtrl, pLayerBuffer, pSecondLayerBufferOf3DMode, 0);
                 }
                 pLayerBuffer = NULL;
                 pSecondLayerBufferOf3DMode = NULL;
@@ -852,9 +865,9 @@ process_message:
 				if(p->pLayerCtrl != NULL)
 				{
 					if(pSecondLayerBufferOf3DMode == NULL)
-						p->pLayerOps->LayerQueueBuffer(p->pLayerCtrl, pPreLayerBuffer, 0);
+						p->mLayerOps->queueBuffer(p->pLayerCtrl, pPreLayerBuffer, 0);
 					else
-						p->pLayerOps->LayerQueue3DBuffer(p->pLayerCtrl, pPreLayerBuffer, pSecondLayerBufferOf3DMode, 0);
+						p->mLayerOps->queue3DBuffer(p->pLayerCtrl, pPreLayerBuffer, pSecondLayerBufferOf3DMode, 0);
 				}
 				pPreLayerBuffer = NULL;
 				pSecondLayerBufferOf3DMode = NULL;
@@ -913,9 +926,9 @@ process_message:
                 if(p->pLayerCtrl != NULL)
                 {
                     if(pSecondLayerBufferOf3DMode == NULL)
-                        p->pLayerOps->LayerQueueBuffer(p->pLayerCtrl, pLayerBuffer, 0);
+                        p->mLayerOps->queueBuffer(p->pLayerCtrl, pLayerBuffer, 0);
                     else
-                        p->pLayerOps->LayerQueue3DBuffer(p->pLayerCtrl, pLayerBuffer, pSecondLayerBufferOf3DMode, 0);
+                        p->mLayerOps->queue3DBuffer(p->pLayerCtrl, pLayerBuffer, pSecondLayerBufferOf3DMode, 0);
                 }
                 pLayerBuffer = NULL;
                 pSecondLayerBufferOf3DMode = NULL;
@@ -926,16 +939,16 @@ process_message:
 				if(p->pLayerCtrl != NULL)
 				{
 					if(pSecondLayerBufferOf3DMode == NULL)
-						p->pLayerOps->LayerQueueBuffer(p->pLayerCtrl, pPreLayerBuffer, 0);
+						p->mLayerOps->queueBuffer(p->pLayerCtrl, pPreLayerBuffer, 0);
 					else
-						p->pLayerOps->LayerQueue3DBuffer(p->pLayerCtrl, pPreLayerBuffer, pSecondLayerBufferOf3DMode, 0);
+						p->mLayerOps->queue3DBuffer(p->pLayerCtrl, pPreLayerBuffer, pSecondLayerBufferOf3DMode, 0);
 				}
 				pPreLayerBuffer = NULL;
 				pSecondLayerBufferOf3DMode = NULL;
 			}
             if(p->pLayerCtrl != NULL)
             {
-                p->pLayerOps->LayerRelease(p->pLayerCtrl, 0);
+                p->mLayerOps->release(p->pLayerCtrl);
                 p->pLayerCtrl = NULL;
             }
             
@@ -947,9 +960,9 @@ process_message:
             if(p->pNativeWindow != NULL)
 #endif
             {
-                p->pLayerCtrl = p->pLayerOps->LayerInit(p->pNativeWindow, 0);
+                p->pLayerCtrl = p->mLayerOps->init(p->pNativeWindow);
                 if(p->pLayerCtrl != NULL)
-                    p->pLayerOps->LayerSetCallback(p->pLayerCtrl, (LayerCtlCallback)LayerCallback, (void*)p);
+                    p->mLayerOps->setCallback(p->pLayerCtrl, (PlayerCallback)LayerCallback, (void*)p);
                 else
                 {
                     loge("can not initialize the video layer.");
@@ -961,7 +974,10 @@ process_message:
             //* send a message to continue the thread.
             if(p->eStatus == PLAYER_STATUS_STARTED ||
                (p->eStatus == PLAYER_STATUS_PAUSED && bFirstPictureShowed == 0 && p->bSyncFirstPictureFlag == 0))
+            if(p->pLayerCtrl != NULL)
+            {
                 PostRenderMessage(p->mq);
+            }
         }
         else if(msg.messageId == MESSAGE_ID_SET_3D_MODE)
         {
@@ -998,15 +1014,15 @@ process_message:
             bHideVideo = msg.params[2];
             if(bHideVideo == 1) //* hide video.
             {
-                if(p->pLayerCtrl != NULL && p->pLayerOps->LayerCtrlIsVideoShow(p->pLayerCtrl) == 1)
-                    p->pLayerOps->LayerCtrlHideVideo(p->pLayerCtrl);
+                if(p->pLayerCtrl != NULL && p->mLayerOps->ctrlIsVideoShow(p->pLayerCtrl) == 1)
+                    p->mLayerOps->ctrlHideVideo(p->pLayerCtrl);
             }
             else
             {
                 if(p->pLayerCtrl != NULL && 
-                   p->pLayerOps->LayerCtrlIsVideoShow(p->pLayerCtrl) == 0 && 
+                   p->mLayerOps->ctrlIsVideoShow(p->pLayerCtrl) == 0 && 
                    bFirstPictureShowed == 1)
-                    p->pLayerOps->LayerCtrlShowVideo(p->pLayerCtrl);
+                    p->mLayerOps->ctrlShowVideo(p->pLayerCtrl);
             }
             sem_post(pReplySem);
             
@@ -1029,7 +1045,7 @@ process_message:
         }
         else if(msg.messageId == MESSAGE_ID_RENDER)
         {
-            logi("process MESSAGE_ID_RENDER message");
+            logv("process MESSAGE_ID_RENDER message");
             
             if(p->eStatus != PLAYER_STATUS_STARTED && 
               !(p->eStatus == PLAYER_STATUS_PAUSED && bFirstPictureShowed == 0))
@@ -1096,9 +1112,9 @@ process_message:
                 				if(p->pLayerCtrl != NULL)
                 				{
                 					if(pSecondLayerBufferOf3DMode == NULL)
-                						p->pLayerOps->LayerQueueBuffer(p->pLayerCtrl, pPreLayerBuffer, 0);
+                						p->mLayerOps->queueBuffer(p->pLayerCtrl, pPreLayerBuffer, 0);
                 					else
-                						p->pLayerOps->LayerQueue3DBuffer(p->pLayerCtrl, pPreLayerBuffer, pSecondLayerBufferOf3DMode, 0);
+                						p->mLayerOps->queue3DBuffer(p->pLayerCtrl, pPreLayerBuffer, pSecondLayerBufferOf3DMode, 0);
                 				}
                 				pPreLayerBuffer = NULL;
                 				pSecondLayerBufferOf3DMode = NULL;
@@ -1108,14 +1124,14 @@ process_message:
                             if(p->pLayerCtrl != NULL)
                             {
                                 if(bFirstPictureShowed == 1)
-                                    p->pLayerOps->LayerCtrlHoldLastPicture(p->pLayerCtrl, 1);
-                                p->pLayerOps->LayerRelease(p->pLayerCtrl, 0);
+                                    p->mLayerOps->ctrlHoldLastPicture(p->pLayerCtrl, 1);
+                                p->mLayerOps->release(p->pLayerCtrl);
                                 p->pLayerCtrl = NULL;
                                 
-                                p->pLayerCtrl = p->pLayerOps->LayerInit(p->pNativeWindow, 0);
+                                p->pLayerCtrl = p->mLayerOps->init(p->pNativeWindow);
                                 if(p->pLayerCtrl != NULL)
                                 {
-                                    p->pLayerOps->LayerSetCallback(p->pLayerCtrl, (LayerCtlCallback)LayerCallback, (void*)p);
+                                    p->mLayerOps->setCallback(p->pLayerCtrl, (PlayerCallback)LayerCallback, (void*)p);
                                     bNeedResetLayerParams = 1;
                                 }
                             }
@@ -1181,9 +1197,11 @@ process_message:
                 if(bFirstPictureShowed == 0 || bNeedResetLayerParams == 1)
                 {
 					int size[4];
+                    int display_pixel_format = PIXEL_FORMAT_DEFAULT;
+                    int deinterlace_flag     = DE_INTERLACE_NONE;
                     logv("xxxxxxxxxxxxxxxxxxxxxx pPicture width(%d) height(%d)", pPicture->nWidth, pPicture->nHeight);
                     logv("xxxxxxxxxxxxxxxxxxxxxx width=%d, height=%d", p->videoStreamInfo.nWidth, p->videoStreamInfo.nHeight);
-                    #if(CONFIG_CHIP == OPTION_CHIP_1680)
+                    #if(NOT_DROP_FRAME == 1)
                     if(p->videoStreamInfo.nWidth >= 3800 && p->videoStreamInfo.nHeight >= 2100 
                         && p->videoStreamInfo.eCodecFormat == VIDEO_CODEC_FORMAT_H264)
                     {
@@ -1225,12 +1243,13 @@ process_message:
                         //* we use rotate-transform to do video-rotation on 1673,
                         //* we set the PIXEL_FORMAT_YV12 , becase the output format of
                         //* rotate-transform is YV12
-                        #if(CONFIG_CHIP == OPTION_CHIP_1673 && CONFIG_PRODUCT == OPTION_PRODUCT_PAD)
-                            p->pLayerOps->LayerSetExpectPixelFormat(p->pLayerCtrl, PIXEL_FORMAT_YV12);
+                        #if(ROTATE_PIC_HW == 1)
+                            display_pixel_format = PIXEL_FORMAT_YV12;
                         #else
-                            p->pLayerOps->LayerSetExpectPixelFormat(p->pLayerCtrl,(enum EPIXELFORMAT)pPicture->ePixelFormat);
+                            display_pixel_format = pPicture->ePixelFormat;
                         #endif
 
+                        nDeinterlaceDispNum = 1;
                         //* if use deinterlace, decise by if DeinterlaceCreate() success
                         if (p->di
                            && pPicture->bIsProgressive == 0
@@ -1255,9 +1274,8 @@ process_message:
                                 } else {
                                     nDeinterlaceDispNum = 1;
                                 }
-                                p->pLayerOps->LayerSetRenderToHardwareFlag(p->pLayerCtrl,0);
-                                p->pLayerOps->LayerSetExpectPixelFormat(p->pLayerCtrl, p->di->expectPixelFormat());
-                                p->pLayerOps->LayerSetDeinterlaceFlag(p->pLayerCtrl, p->di->flag());
+                                display_pixel_format = p->di->expectPixelFormat();
+                                deinterlace_flag     = p->di->flag();
                             }
                             else
                             {
@@ -1265,18 +1283,15 @@ process_message:
                             }
 
                         }
-                        else
-                        {
-                            nDeinterlaceDispNum = 1;
-                        }
-                        //nDeinterlaceDispNum = 1;
                         
-                        p->pLayerOps->LayerSetPictureSize(p->pLayerCtrl, pPicture->nWidth, pPicture->nHeight);
-                        p->pLayerOps->LayerSetDisplayRegion(p->pLayerCtrl,
+                        p->mLayerOps->setDisplayBufferSize(p->pLayerCtrl, pPicture->nWidth, pPicture->nHeight);
+                        p->mLayerOps->setDisplayRegion(p->pLayerCtrl,
                         		              pPicture->nLeftOffset,
                         		              pPicture->nTopOffset,
                         		              pPicture->nRightOffset - pPicture->nLeftOffset,
                         		              pPicture->nBottomOffset - pPicture->nTopOffset);
+                        p->mLayerOps->setDisplayPixelFormat(p->pLayerCtrl, (enum EPIXELFORMAT)display_pixel_format);
+                        p->mLayerOps->setDeinterlaceFlag(p->pLayerCtrl, deinterlace_flag);
                         bNeedResetLayerParams = 0;
                     }
                 }
@@ -1321,7 +1336,7 @@ step_4:
                     }
                 }
 
-#if(CONFIG_CHIP == OPTION_CHIP_1673 && CONFIG_PRODUCT == OPTION_PRODUCT_PAD)
+#if(ROTATE_PIC_HW == 1)
                 //* 4.1 on 1673, we use rotate-transfrom to do video rotation
                 //*     so, we should check the system angle and reset the Layer
                 if(bFirstPictureShowed == 0 || bNeedResetAngleFlag == 1)
@@ -1359,7 +1374,7 @@ step_5:
                                         pPreLayerBuffer = NULL;
                                     }
                                     else
-                                        nLayerBufferMode = p->pLayerOps->LayerDequeueBuffer(p->pLayerCtrl, &pLayerBuffer, 0);
+                                        nLayerBufferMode = p->mLayerOps->dequeueBuffer(p->pLayerCtrl, &pLayerBuffer);
                                     
                                     if(nLayerBufferMode == LAYER_RESULT_USE_OUTSIDE_BUFFER)
                                     {
@@ -1472,7 +1487,7 @@ step_5:
                                         pPreLayerBuffer = NULL;
                                     }
                                     else
-                                    	nLayerBufferMode = p->pLayerOps->LayerDequeue3DBuffer(p->pLayerCtrl, &pLayerBuffer, &pSecondLayerBufferOf3DMode);
+                                    	nLayerBufferMode = p->mLayerOps->dequeue3DBuffer(p->pLayerCtrl, &pLayerBuffer, &pSecondLayerBufferOf3DMode);
 
 									if(nLayerBufferMode == LAYER_RESULT_USE_OUTSIDE_BUFFER)
                                     {
@@ -1520,10 +1535,10 @@ step_5:
                         }
                     }
 
-					logv("++++topFiledFirst:%d topfiledError: %d, pLayerBuffer->bBottomFieldError: %d", bTopFiledFirst, bTopFiledError, bBotFiledError);
+					logv("++++topFiledFirst:%d topfiledError: %d, bBottomFieldError: %d", bTopFiledFirst, bTopFiledError, bBotFiledError);
 					if(bTopFiledError && nDeinterlaceTime == 0)
 					{
-						p->pLayerOps->LayerQueueBuffer(p->pLayerCtrl, pLayerBuffer, 0);
+						p->mLayerOps->queueBuffer(p->pLayerCtrl, pLayerBuffer, 0);
                         pLayerBuffer = NULL;
                         p->di->reset();
                         continue;
@@ -1532,7 +1547,7 @@ step_5:
 					if((bTopFiledError || bBotFiledError) && nDeinterlaceTime == 1)
 					{
 						logd("+++++ bot filed error");
-						p->pLayerOps->LayerQueueBuffer(p->pLayerCtrl, pLayerBuffer, 0);
+						p->mLayerOps->queueBuffer(p->pLayerCtrl, pLayerBuffer, 0);
                         pLayerBuffer = NULL;
                         p->di->reset();
                         break;
@@ -1548,7 +1563,12 @@ step_5:
                     {
                         //* nWaitTime is in unit of ms.
                         nWaitTime = p->callback(p->pUserData, PLAYER_VIDEO_RENDER_NOTIFY_PICTURE_PTS, (void*)&pLayerBuffer->nPts);
-						if (SEND_PTS_TO_SF == 1)
+
+                        if (nWaitTime > 500)
+                        {
+                            nWaitTime  = 500;
+                        }
+                        if (SEND_PTS_TO_SF == 1)
 						{
 							if (nWaitTime > 120)
 							{
@@ -1559,33 +1579,41 @@ step_5:
 								nWaitTime = 0;
 							}
 						}
-						#if ((CONFIG_CHIP == OPTION_CHIP_1680) && (CONFIG_OS != OPTION_OS_LINUX))
+						#if ((NATIVE_WIN_DISPLAY_CMD_GETDISPFPS == 1) && (CONFIG_OS == OPTION_OS_ANDROID) && (CONFIG_ALI_YUNOS == OPTION_ALI_YUNOS_NO))
+						int dropTime;
 						ANativeWindow *pNativeWindow = (ANativeWindow *)p->pNativeWindow;
-						int dispFPS = pNativeWindow->perform(pNativeWindow, NATIVE_WINDOW_GETPARAMETER, DISPLAY_CMD_GETDISPFPS);
-						int frameRate = 0;
-						if(p->pFrameRateEstimater)
+						if(pNativeWindow == NULL)
 						{
-						 	frameRate = FramerateEstimaterGetFramerate(p->pFrameRateEstimater) / 1000;
+								dropTime = -2500;
 						}
 						else
 						{
-							frameRate = pLayerBuffer->nFrameRate;
-						}
+								int dispFPS = pNativeWindow->perform(pNativeWindow, NATIVE_WINDOW_GETPARAMETER, DISPLAY_CMD_GETDISPFPS);
+								int frameRate = 0;
+								if(p->pFrameRateEstimater)
+								{
+										frameRate = FramerateEstimaterGetFramerate(p->pFrameRateEstimater) / 1000;
+								}
+								else
+								{
+										frameRate = pLayerBuffer->nFrameRate;
+								}
+								
+								dropTime = -2500;
+								if (frameRate == 0)
+										frameRate = 25;
+								if (frameRate > 1000)
+										frameRate = (frameRate + 999) / 1000;
+								if (frameRate > dispFPS)
+										dropTime = -100;
 						
-						int dropTime = -2500;
-						if (frameRate == 0)
-							frameRate = 25;
-						if (frameRate > 1000)
-							frameRate = (frameRate + 999) / 1000;
-						if (frameRate > dispFPS)
-							dropTime = -100;
-
-						if(dispFPS == 0)
-							dropTime = -2500;
+								if(dispFPS == 0)
+										dropTime = -2500;
+						}
 						#else
 							int dropTime = -2500;
 						#endif
-						//logd("dropTime=%d", dropTime);
+						logv("dropTime=%d", dropTime);
                         if(nWaitTime > 0)
                         {
                             int nWaitTimeOnce;
@@ -1685,7 +1713,7 @@ step_5:
 							&& (SEND_PTS_TO_SF == 1))
                     	{
 	                        int64_t ptsAbs = p->pAvTimer->PtsToSystemTime(p->pAvTimer, pLayerBuffer->nPts);
-	                        p->pLayerOps->LayerSetBufferTimeStamp(p->pLayerCtrl, ptsAbs);
+	                        p->mLayerOps->setBufferTimeStamp(p->pLayerCtrl, ptsAbs);
                     	}
 #endif
                         int ptsSecs = (int)(pLayerBuffer->nPts/1000000);
@@ -1697,12 +1725,12 @@ step_5:
                     	
                         if(bVideoWithTwoStream == 0)
                         {
-                            p->pLayerOps->LayerQueueBuffer(p->pLayerCtrl, pLayerBuffer, 1);
+                            p->mLayerOps->queueBuffer(p->pLayerCtrl, pLayerBuffer, 1);
                             pLayerBuffer = NULL;
                         }
                         else
                         {
-                            p->pLayerOps->LayerQueue3DBuffer(p->pLayerCtrl, pLayerBuffer, pSecondLayerBufferOf3DMode, 1);
+                            p->mLayerOps->queue3DBuffer(p->pLayerCtrl, pLayerBuffer, pSecondLayerBufferOf3DMode, 1);
                             pLayerBuffer = NULL;
                             pSecondLayerBufferOf3DMode = NULL;
                         }
@@ -1728,14 +1756,16 @@ step_5:
                     }
     				
                     if(p->pLayerCtrl != NULL && 
-                       p->pLayerOps->LayerCtrlIsVideoShow(p->pLayerCtrl) == 0 && 
+                       p->mLayerOps->ctrlIsVideoShow(p->pLayerCtrl) == 0 && 
                        bHideVideo == 0)
-                        p->pLayerOps->LayerCtrlShowVideo(p->pLayerCtrl);
-                    
+                        p->mLayerOps->ctrlShowVideo(p->pLayerCtrl);
 
+					if(p->callback)
+					{
+						p->callback(p->pUserData, PLAYER_VIDEO_RENDER_NOTIFY_VIDEO_FRAME, NULL);
+					}
             	}
 
-				
                 if(bFirstPictureShowed == 0)
                     bFirstPictureShowed = 1;
                 
@@ -1772,7 +1802,7 @@ step_5:
     
     if(p->pLayerCtrl != NULL)
     {
-        p->pLayerOps->LayerRelease(p->pLayerCtrl, 0);
+        p->mLayerOps->release(p->pLayerCtrl);
         p->pLayerCtrl = NULL;
     }
     
@@ -1839,7 +1869,7 @@ static void CheckScreenRotateAngle(VideoRenderCompContext* p,
 {
     if(p->pLayerCtrl != NULL)
     {   
-        int nCurRotation = p->pLayerOps->LayerGetRotationAngle(p->pLayerCtrl);
+        int nCurRotation = p->mLayerOps->getRotationAngle(p->pLayerCtrl);
         logv("**nCurRotation = %d",nCurRotation);
         if(p->nRotationAngle != nCurRotation || bNeedResetAngleFlag == 1)
         {
@@ -1904,12 +1934,12 @@ static void CheckScreenRotateAngle(VideoRenderCompContext* p,
                   pPicture->nBottomOffset
                   );
             //* reset the Layer
-            p->pLayerOps->LayerSetPictureSize(p->pLayerCtrl, nRotateWidth, nRotateHeight);
+            p->mLayerOps->setDisplayBufferSize(p->pLayerCtrl, nRotateWidth, nRotateHeight);
 
             //* we should not the region when nRightOffset or nBottomOffset is 0
             if(pPicture->nRightOffset != 0 && pPicture->nBottomOffset != 0)
             {
-                p->pLayerOps->LayerSetDisplayRegion(p->pLayerCtrl,
+                p->mLayerOps->setDisplayRegion(p->pLayerCtrl,
                                       nRotateLeftOffset,
                                       nRotateTopOffset,
                                       nRotateDisplayWidth,

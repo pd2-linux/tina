@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <sys/ioctl.h>
 
-#include "config.h"
+#include "cdx_config.h"
 #include "layerControl.h"
 #include "log.h"
 #include "player_i.h"
@@ -45,19 +45,13 @@ typedef struct LayerCtrlContext
     
 }LayerCtrlContext;
 
-static int SetLayerParam(LayerCtrlContext* lc);
-static void setHwcLayerPictureInfo(LayerCtrlContext* lc,
-                                   disp_layer_info*  pLayerInfo, 
-                                   VideoPicture*     pPicture,
-                                   VideoPicture*     pSecondPictureOf3D);
 
-
-LayerCtrl* LayerInit(void* pNativeWindow, int bProtectedFlag)
+LayerCtrl* __LayerInit(void* pNativeWindow)
 {
     unsigned long     args[4];
     LayerCtrlContext* lc;
     
-    logv("LayerInit.");
+    logd("LayerInit.");
     
     lc = (LayerCtrlContext*)malloc(sizeof(LayerCtrlContext));
     if(lc == NULL)
@@ -72,7 +66,7 @@ LayerCtrl* LayerInit(void* pNativeWindow, int bProtectedFlag)
 }
 
 
-void LayerRelease(LayerCtrl* l, int bKeepPictureOnScreen)
+void __LayerRelease(LayerCtrl* l)
 {
     LayerCtrlContext* lc;
     VPictureNode*     nodePtr;
@@ -82,52 +76,18 @@ void LayerRelease(LayerCtrl* l, int bKeepPictureOnScreen)
     
     logv("Layer release");
     
-    //* return pictures.
-    while(lc->pPictureListHead != NULL)
-    {
-        nodePtr = lc->pPictureListHead;
-        lc->pPictureListHead = lc->pPictureListHead->pNext;
-        lc->callback(lc->pUserData, MESSAGE_ID_LAYER_RETURN_BUFFER, (void*)nodePtr->pPicture);
-    }
-    
-    
     free(lc);   
 }
 
-
-int LayerSetExpectPixelFormat(LayerCtrl* l, enum EPIXELFORMAT ePixelFormat)
+int __LayerSetDisplayBufferSize(LayerCtrl* l, int nWidth, int nHeight)
 {
     LayerCtrlContext* lc;
-    
-    lc = (LayerCtrlContext*)l;
     
     return 0;
 }
 
-
-enum EPIXELFORMAT LayerGetPixelFormat(LayerCtrl* l)
-{
-    LayerCtrlContext* lc;
-    
-    lc = (LayerCtrlContext*)l;
-    
-    return PIXEL_FORMAT_DEFAULT;
-}
-
-
-int LayerSetPictureSize(LayerCtrl* l, int nWidth, int nHeight)
-{
-    LayerCtrlContext* lc;
-    
-    lc = (LayerCtrlContext*)l;
-    
-    logv("Layer set picture size, width = %d, height = %d", nWidth, nHeight);
-    
-    return 0;
-}
-
-
-int LayerSetDisplayRegion(LayerCtrl* l, int nLeftOff, int nTopOff, int nDisplayWidth, int nDisplayHeight)
+//* Description: set initial param -- display region
+int __LayerSetDisplayRegion(LayerCtrl* l, int nLeftOff, int nTopOff, int nDisplayWidth, int nDisplayHeight)
 {
     LayerCtrlContext* lc;
     
@@ -135,64 +95,50 @@ int LayerSetDisplayRegion(LayerCtrl* l, int nLeftOff, int nTopOff, int nDisplayW
     
     logv("Layer set display region, leftOffset = %d, topOffset = %d, displayWidth = %d, displayHeight = %d",
         nLeftOff, nTopOff, nDisplayWidth, nDisplayHeight);
-    
-    return -1;
-}
-
-
-int LayerSetPicture3DMode(LayerCtrl* l, enum EPICTURE3DMODE ePicture3DMode)
-{
-    LayerCtrlContext* lc;
-    
-    lc = (LayerCtrlContext*)l;
-    
-    logv("Layer set picture 3d mode, mode = %d", (int)ePicture3DMode);
-      
     return 0;
 }
 
-
-enum EPICTURE3DMODE LayerGetPicture3DMode(LayerCtrl* l)
+//* Description: set initial param -- display pixelFormat
+int __LayerSetDisplayPixelFormat(LayerCtrl* l, enum EPIXELFORMAT ePixelFormat)
 {
     LayerCtrlContext* lc;
     
     lc = (LayerCtrlContext*)l;
     
-    logv("Layer get picture 3d mode, mode = %d", (int)lc->ePicture3DMode);
-    
-    return PICTURE_3D_MODE_NONE;
+    return 0;
 }
 
-
-int LayerSetDisplay3DMode(LayerCtrl* l, enum EDISPLAY3DMODE eDisplay3DMode)
-{
-    LayerCtrlContext* lc;
-    disp_layer_info   layerInfo;
-    unsigned long     args[4];
-    int               err;
-    
-    lc = (LayerCtrlContext*)l;
-    
-
-    logw("set 3d mode fail to hardware layer.");
-    return -1;
-
-}
-
-
-enum EDISPLAY3DMODE LayerGetDisplay3DMode(LayerCtrl* l)
+//* Description: set initial param -- deinterlace flag
+int __LayerSetDeinterlaceFlag(LayerCtrl* l,int bFlag)
 {
     LayerCtrlContext* lc;
     
     lc = (LayerCtrlContext*)l;
     
-    logv("Layer get display 3d mode, mode = %d", (int)lc->eDisplay3DMode);
-    
-    return DISPLAY_3D_MODE_2D;
+    return 0;
 }
 
+//* Description: set buffer timestamp -- set this param every frame
+int __LayerSetBufferTimeStamp(LayerCtrl* l, int64_t nPtsAbs)
+{
+    LayerCtrlContext* lc;
+    
+    lc = (LayerCtrlContext*)l;
+    
+	return 0;
+}
 
-int LayerSetCallback(LayerCtrl* l, LayerCtlCallback callback, void* pUserData)
+int __LayerGetRotationAngle(LayerCtrl* l)
+{
+    LayerCtrlContext* lc;
+    int nRotationAngle = 0;
+    
+    lc = (LayerCtrlContext*)l;
+    
+    return 0;
+}
+
+int __LayerSetCallback(LayerCtrl* l, LayerCtlCallback callback, void* pUserData)
 {
     LayerCtrlContext* lc;
     
@@ -202,22 +148,72 @@ int LayerSetCallback(LayerCtrl* l, LayerCtlCallback callback, void* pUserData)
     return 0;
 }
 
+int __LayerCtrlShowVideo(LayerCtrl* l)
+{
+    LayerCtrlContext* lc;
+    int               i;
+    
+    lc = (LayerCtrlContext*)l;
+    
+    return 0;
+}
 
-int LayerDequeueBuffer(LayerCtrl* l, VideoPicture** ppBuf, int bInitFlag)
+
+int __LayerCtrlHideVideo(LayerCtrl* l)
+{
+    LayerCtrlContext* lc;
+    int               i;
+    
+    lc = (LayerCtrlContext*)l;
+    
+    return 0;
+}
+
+
+int __LayerCtrlIsVideoShow(LayerCtrl* l)
 {
     LayerCtrlContext* lc;
     
     lc = (LayerCtrlContext*)l;
+    return 0;
+}
+
+
+int  __LayerCtrlHoldLastPicture(LayerCtrl* l, int bHold)
+{
+    logd("LayerCtrlHoldLastPicture, bHold = %d", bHold);
     
+    LayerCtrlContext* lc;
+    lc = (LayerCtrlContext*)l;
+    
+    return 0;
+}
+
+int __LayerDequeueBuffer(LayerCtrl* l, VideoPicture** ppBuf)
+{
+    LayerCtrlContext* lc;
+    
+    lc = (LayerCtrlContext*)l;
+    *ppBuf = NULL;
     
     return LAYER_RESULT_USE_OUTSIDE_BUFFER;
 }
 
-
-
-int LayerQueueBuffer(LayerCtrl* l, VideoPicture* pBuf, int bValid)
+int __LayerDequeue3DBuffer(LayerCtrl* l, VideoPicture** ppBuf0, VideoPicture** ppBuf1)
 {
     LayerCtrlContext* lc;
+
+    lc = (LayerCtrlContext*)l;
+    *ppBuf0 = NULL;
+    *ppBuf1 = NULL;
+    
+    return LAYER_RESULT_USE_OUTSIDE_BUFFER;  
+}
+
+int __LayerQueueBuffer(LayerCtrl* l, VideoPicture* pBuf, int bValid)
+{
+    LayerCtrlContext* lc  = NULL;
+    
     int               i;
     VPictureNode*     newNode;
     VPictureNode*     nodePtr;
@@ -295,214 +291,50 @@ int LayerQueueBuffer(LayerCtrl* l, VideoPicture* pBuf, int bValid)
 #endif
 
     return 0;
-}
-
-
-int LayerDequeue3DBuffer(LayerCtrl* l, VideoPicture** ppBuf0, VideoPicture** ppBuf1)
-{
-    LayerCtrlContext* lc;
-    
-    lc = (LayerCtrlContext*)l;
-    *ppBuf0 = NULL;
-    *ppBuf1 = NULL;
-    
-    return 0;
-}
-
-
-int LayerQueue3DBuffer(LayerCtrl* l, VideoPicture* pBuf0, VideoPicture* pBuf1, int bValid)
-{
-    LayerCtrlContext* lc;
-    int               i;
-
-
-    return 0;
-}
-
-
-static int SetLayerParam(LayerCtrlContext* lc)
-{
-    disp_layer_info   layerInfo;
-    unsigned long     args[4];
-    
-    return 0;
-}
-
-
-static void setHwcLayerPictureInfo(LayerCtrlContext* lc,
-                                   disp_layer_info*  pLayerInfo,
-                                   VideoPicture*     pPicture,
-                                   VideoPicture*     pSecondPictureOf3D)
-{
-	return ;
-}
-
-
-int LayerCtrlShowVideo(LayerCtrl* l)
-{
-    return 0;
-}
-
-
-int LayerCtrlHideVideo(LayerCtrl* l)
-{
-    LayerCtrlContext* lc;
-    int               i;
-    unsigned long     args[4];
-
-
-    return 0;
-}
-
-
-int LayerCtrlIsVideoShow(LayerCtrl* l)
-{
-    LayerCtrlContext* lc;
-
-    lc = (LayerCtrlContext*)l;
-    return 0;
-}
-
-
-int LayerCtrlHoldLastPicture(LayerCtrl* l, int bHold)
-{
-    LayerCtrlContext* lc;
-    
-    lc = (LayerCtrlContext*)l;
-
-    
-    return 0;
-}
-
-int LayerSetRenderToHardwareFlag(LayerCtrl* l,int bFlag)
-{
-    return 0;
-}
-
-int LayerSetDeinterlaceFlag(LayerCtrl* l,int bFlag)
-{
-    return 0;
-}
-
-int LayerSetFullScreenDisplay(LayerCtrl* l,int bFullScreenDisplay)
-{
-    LayerCtrlContext* lc;
-    
-    lc = (LayerCtrlContext*)l;
-    
-    logw("LayerSetFullScreenDisplay, bFullScreenDisplay = %d", bFullScreenDisplay);
-
-	
-	return 0;
-}
-
-int LayerSetBufferCount(LayerCtrl* l, int nBufferCount)
-{
-    CDX_PLAYER_UNUSE(l);
-    CDX_PLAYER_UNUSE(nBufferCount);
-    logw("not implement the function LayerSetBufferCount");
-    return -1;
-}
-
-int LayerSetVideoWithTwoStreamFlag(LayerCtrl* l, int bVideoWithTwoStreamFlag)
-{
-    CDX_PLAYER_UNUSE(l);
-    CDX_PLAYER_UNUSE(bVideoWithTwoStreamFlag);
-    logw("not implement the function LayerSetVideoWithTwoStreamFlag");
-    return -1;
-}
-
-int LayerSetIsSoftDecoderFlag(LayerCtrl* l, int bIsSoftDecoderFlag)
-{
-    CDX_PLAYER_UNUSE(l);
-    CDX_PLAYER_UNUSE(bIsSoftDecoderFlag);
-    logw("not implement the function LayerSetIsSoftDecoderFlag");
-    return -1;
-}
-
-void LayerResetNativeWindow(LayerCtrl* l,void* pNativeWindow)
-{
-    CDX_PLAYER_UNUSE(l);
-    CDX_PLAYER_UNUSE(pNativeWindow);
-    logw("not implement the function LayerResetNativeWindow");
-    return ;
-}
-
-int LayerReleaseBuffer(LayerCtrl* l,VideoPicture* pPicture)
-{
-    CDX_PLAYER_UNUSE(l);
-    CDX_PLAYER_UNUSE(pPicture);
-    logw("not implement the function LayerReleaseBuffer");
-    return -1;
-}
-
-VideoPicture* LayerGetPicNode(LayerCtrl* l)
-{
-    CDX_PLAYER_UNUSE(l);
-    logw("not implement the function LayerGetPicNode");
-    return NULL;
-}
-
-int LayerGetAddedPicturesCount(LayerCtrl* l)
-{
-    CDX_PLAYER_UNUSE(l);
-    logw("not implement the function LayerGetAddedPicturesCount");
-    return -1;
-}
-
-int LayerGetDisplayFPS(LayerCtrl* l)
-{
-    CDX_PLAYER_UNUSE(l);
-    logw("not implement the function LayerGetDisplayFPS");
-    return -1;
-}
-
-int LayerSetBufferTimeStamp(LayerCtrl* l, int64_t nPtsAbs)
-{
 
 	return 0;
 }
 
-int LayerGetRotationAngle(LayerCtrl* l)
+int __LayerQueue3DBuffer(LayerCtrl* l, VideoPicture* pBuf0, VideoPicture* pBuf1, int bValid)
 {
-	return 0;
-}
+    LayerCtrlContext* lc  = NULL;
+    int               i   = 0;
+    int               ret = -1;
+    
+    lc = (LayerCtrlContext*)l;
 
+    return 0;
+}
 
 
 LayerControlOpsT mLayerControlOps = 
 {
-    LayerInit:                       LayerInit                      ,
-    LayerRelease:                    LayerRelease                   ,
-    LayerSetExpectPixelFormat:       LayerSetExpectPixelFormat      ,
-    LayerGetPixelFormat:             LayerGetPixelFormat            ,
-    LayerSetPictureSize:             LayerSetPictureSize            ,
-    LayerSetDisplayRegion:           LayerSetDisplayRegion          ,
-    LayerSetBufferTimeStamp:         LayerSetBufferTimeStamp        ,
-    LayerDequeueBuffer:              LayerDequeueBuffer             ,
-    LayerQueueBuffer:                LayerQueueBuffer               ,
-    LayerCtrlHideVideo:              LayerCtrlHideVideo             ,
-    LayerCtrlShowVideo:              LayerCtrlShowVideo             ,
-    LayerCtrlIsVideoShow:		     LayerCtrlIsVideoShow           ,
-    LayerCtrlHoldLastPicture:        LayerCtrlHoldLastPicture       ,
-    LayerSetRenderToHardwareFlag:    LayerSetRenderToHardwareFlag   ,
-    LayerSetDeinterlaceFlag:         LayerSetDeinterlaceFlag        ,
-    LayerSetPicture3DMode:           LayerSetPicture3DMode          ,
-    LayerGetPicture3DMode:           LayerGetPicture3DMode          ,
-    LayerSetDisplay3DMode:           LayerSetDisplay3DMode          ,
-    LayerGetDisplay3DMode:           LayerGetDisplay3DMode          ,
-    LayerDequeue3DBuffer:            LayerDequeue3DBuffer           ,
-    LayerQueue3DBuffer:              LayerQueue3DBuffer             ,
-    LayerGetRotationAngle:           LayerGetRotationAngle          ,
-    LayerSetCallback:                LayerSetCallback               ,
-    LayerSetBufferCount:             LayerSetBufferCount            ,
-    LayerSetVideoWithTwoStreamFlag:  LayerSetVideoWithTwoStreamFlag ,        
-    LayerSetIsSoftDecoderFlag:       LayerSetIsSoftDecoderFlag      ,
-    LayerResetNativeWindow:          LayerResetNativeWindow         ,
-    LayerReleaseBuffer:              LayerReleaseBuffer             ,
-    LayerGetPicNode:                 LayerGetPicNode                ,
-    LayerGetAddedPicturesCount:      LayerGetAddedPicturesCount     ,
-    LayerGetDisplayFPS:              LayerGetDisplayFPS           ,  
+    init:                       __LayerInit                      ,
+    release:                    __LayerRelease                   ,
+
+    setCallback:                __LayerSetCallback               ,
+    setDisplayBufferSize:       __LayerSetDisplayBufferSize      ,
+    setDisplayRegion:           __LayerSetDisplayRegion          ,
+    setDisplayPixelFormat:      __LayerSetDisplayPixelFormat     ,
+    setDeinterlaceFlag:         __LayerSetDeinterlaceFlag        ,
+    setBufferTimeStamp:         __LayerSetBufferTimeStamp        ,
+
+    getRotationAngle:           __LayerGetRotationAngle          ,
+
+    ctrlShowVideo:              __LayerCtrlShowVideo             ,
+    ctrlHideVideo:              __LayerCtrlHideVideo             ,
+    ctrlIsVideoShow:		        __LayerCtrlIsVideoShow           ,
+    ctrlHoldLastPicture:        __LayerCtrlHoldLastPicture       ,
+
+    dequeueBuffer:              __LayerDequeueBuffer             ,
+    dequeue3DBuffer:            __LayerDequeue3DBuffer           ,
+    queueBuffer:                __LayerQueueBuffer               ,
+    queue3DBuffer:              __LayerQueue3DBuffer             
 };
 
+
+LayerControlOpsT* __GetLayerControlOps()
+{
+    return &mLayerControlOps;
+}
 

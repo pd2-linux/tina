@@ -2,7 +2,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "config.h"
+#include "cdx_config.h"
 #include "vdecoder.h"
 #include "sdecoder.h"
 #include "adecoder.h"
@@ -66,6 +66,23 @@ enum EMEDIATYPE
     MEDIA_TYPE_SUBTITLE
 };
 
+enum EPICTURE3DMODE
+{
+    PICTURE_3D_MODE_NONE = 0,
+    PICTURE_3D_MODE_TWO_SEPERATED_PICTURE,
+    PICTURE_3D_MODE_SIDE_BY_SIDE,
+    PICTURE_3D_MODE_TOP_TO_BOTTOM,
+    PICTURE_3D_MODE_LINE_INTERLEAVE,
+    PICTURE_3D_MODE_COLUME_INTERLEAVE
+};
+
+enum EDISPLAY3DMODE
+{
+    DISPLAY_3D_MODE_2D = 0,
+    DISPLAY_3D_MODE_3D,
+    DISPLAY_3D_MODE_HALF_PICTURE
+};
+
 enum EDISPLAYRATIO
 {
     DISPLAY_RATIO_FULL_SCREEN,
@@ -89,7 +106,6 @@ typedef struct MEDIASTREAMDATAINFO
 
 
 typedef int (*PlayerCallback)(void* pUserData, int eMessageId, void* param);
-
 
 typedef void* Player;
 
@@ -213,6 +229,8 @@ int PlayerSetVideoStreamInfo(Player* pl, VideoStreamInfo* pStreamInfo);
 
 int PlayerCanSupportVideoStream(Player* pl, VideoStreamInfo* pStreamInfo);
 
+int PlayerHasVideo(Player* pl);
+
 int PlayerConfigVideoScaleDownRatio(Player* pl, int nHorizonRatio, int nVerticalRatio);
 
 int PlayerConfigVideoRotateDegree(Player* pl, int nDegree);
@@ -221,8 +239,7 @@ int PlayerConfigVideoDeinterlace(Player* pl, int bOpenDeinterlace);
 int PlayerConfigDispErrorFrame(Player* pl, int bDispErrorFrame);
 int PlayerConfigDropLaytedFrame(Player* pl, int bDropLaytedFrame);
 int PlayerConfigSetMemoryThresh(Player* pl, int nMemoryThresh);
-
-int PlayerHasVideo(Player* pl);
+int PlayerConfigTvStreamFlag(Player* pl, int bFlag);
 
 //********************************  END  ***********************************//
 
@@ -297,7 +314,6 @@ int PlayerGetSubtitleShowTimeAdjustment(Player* pl);
 //*******************************  START  **********************************//
 //** Display Control APIs.
 //** 
-
 int PlayerSetWindow(Player* pl, void* pNativeWindow);
 
 int PlayerSet3DMode(Player* pl, enum EPICTURE3DMODE ePicture3DMode, enum EDISPLAY3DMODE eDisplay3DMode);
@@ -354,7 +370,7 @@ int PlayerSetVolume(Player* pl, float volume);
 
 int PlayerGetVolume(Player* pl, float *volume);
 
-
+int PlayerConfigExtraScaleInfo(Player* pl, int nWidthTh, int nHeightTh, int nHorizontalScaleRatio, int nVerticalScaleRatio);
 //********************************  END  ***********************************//
 
 #endif

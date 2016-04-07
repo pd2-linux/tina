@@ -1,7 +1,7 @@
 #ifndef DEINTERLACE_H
 #define DEINTERLACE_H
 
-#include <config.h>
+#include <cdx_config.h>
 #include <vdecoder.h>
 
 enum DE_INTERLACE_FLAG

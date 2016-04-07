@@ -125,6 +125,11 @@ static int save_bmp_rgb565(FILE* fp, int width, int height, unsigned char* pData
 	return success;
 }
 
+
+
+#endif
+
+#if 0
 static int get_rgb888_header(int w, int h, BMPHEADER * head, BITMAPINFO * info)
 {
     int size = 0;
@@ -171,9 +176,6 @@ static int save_bmp_rgb888(FILE* fp, int width, int height, unsigned char* pData
 	logd("*****success=%d\n", success);
 	return success;
 }
-
-#endif
-
 
 static int transformPictureMb32ToRGB888(VideoPicture* pPicture, unsigned char* pData, int nWidth, int nHeight)
 {
@@ -316,9 +318,9 @@ static int transformPictureMb32ToRGB888(VideoPicture* pPicture, unsigned char* p
 
     return 0;
 }
+#endif
 
-
-static int transformPictureMb32ToRGB(VideoPicture* pPicture, unsigned char* pData, int nWidth, int nHeight)
+static int transformPictureMb32ToRGB(struct ScMemOpsS* memops, VideoPicture* pPicture, unsigned char* pData, int nWidth, int nHeight)
 {
     unsigned char*   pClipTable;
     unsigned char*   pClip;
@@ -353,8 +355,8 @@ static int transformPictureMb32ToRGB(VideoPicture* pPicture, unsigned char* pDat
     pClip = &pClipTable[-nClipMin];
 
     //* flush cache.
-    MemAdapterFlushCache(pPicture->pData0, pPicture->nWidth*pPicture->nHeight);
-    MemAdapterFlushCache(pPicture->pData1, pPicture->nHeight*pPicture->nHeight/2);
+    CdcMemFlushCache(memops, pPicture->pData0, pPicture->nWidth*pPicture->nHeight);
+    CdcMemFlushCache(memops, pPicture->pData1, pPicture->nHeight*pPicture->nHeight/2);
 
     pDst  = (unsigned short*)pData;
     logd("+++++ pDst: %p", pDst);
@@ -501,16 +503,20 @@ static int dumpData(char *path, uint8_t *data, int len)
 int main(int argc, char** argv)
 {
     int ret;
-    void *dummyBuf = NULL;
     
     VConfig vConfig;
-    VideoStreamDataInfo dataInfo;
-    int picCount = 0;
     char *jpegData = NULL;
     int dataLen =0;
     char * uri= NULL;
     VideoDecoder *pVideo;
     VideoPicture *videoPicture = NULL;
+
+	struct ScMemOpsS* memops = MemAdapterGetOpsS();
+	if(memops == NULL)
+	{
+		return -1;
+	}
+	CdcMemOpen(memops);
 
     
     if (argc != 2)
@@ -646,9 +652,10 @@ int main(int argc, char** argv)
                 	return -1;
                 }
 
-                transformPictureMb32ToRGB(videoPicture, jpegData.mData, jpegData.mWidth, jpegData.mHeight);
+                transformPictureMb32ToRGB(memops, videoPicture, jpegData.mData, jpegData.mWidth, jpegData.mHeight);
                 
-                dumpData("./pic.rgb", (uint8_t *)jpegData.mData, jpegData.mWidth * jpegData.mHeight * 2);
+                char path[1024] = "./pic.rgb";
+                dumpData(path, (uint8_t *)jpegData.mData, jpegData.mWidth * jpegData.mHeight * 2);
                 sync();
             }
             else
@@ -674,6 +681,8 @@ int main(int argc, char** argv)
 		free(jpegData);
 		jpegData = NULL;
 	}
+
+	CdcMemClose(memops);
 
     return 0;
 }

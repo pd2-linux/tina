@@ -20,7 +20,7 @@ typedef struct
 
 typedef struct
 {
-#if (CONFIG_CHIP == OPTION_CHIP_1689 && CONFIG_PRODUCT == OPTION_PRODUCT_TVBOX)
+#if (DEINTERLACE_ADDR_64 == 1)
 	unsigned long long         addr[2];  // the address of frame buffer
 #else
 	uintptr_t         addr[2];  // the address of frame buffer

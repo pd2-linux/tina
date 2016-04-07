@@ -13,17 +13,16 @@
 #include "bitrateEstimater.h"
 #include "framerateEstimater.h"
 
-#if(CONFIG_PRODUCT != OPTION_PRODUCT_LOUDSPEAKER)
 #define CONFIG_DISABLE_VIDEO    (0)
 #define CONFIG_DISABLE_AUDIO    (0)
 #define CONFIG_DISABLE_SUBTITLE (0)
-#else
-#define CONFIG_DISABLE_VIDEO    (1)
-#define CONFIG_DISABLE_AUDIO    (0)
-#define CONFIG_DISABLE_SUBTITLE (1)
-#endif
 
 #define CdxAbs(a) ((a)>0 ? (a) : -(a))
+#if(CONFIG_DTV==OPTION_DTV_YES)
+#define	IS_DTMB_STREAM	(1)
+#else
+#define	IS_DTMB_STREAM	(0)
+#endif
 
 typedef struct PlayerContext
 {
@@ -189,6 +188,7 @@ Player* PlayerCreate(void)
     }
 #endif
     
+    p->sVideoConfig.bDispErrorFrame = 1;   // set the default value of the bDispErrorFrame is 1
     return (Player*)p;
 }
 
@@ -266,6 +266,7 @@ void PlayerDestroy(Player* pl)
     return;
 }
 
+
 int PlayerSetVideoStreamInfo(Player* pl, VideoStreamInfo* pStreamInfo)
 {
     PlayerContext* p;
@@ -335,6 +336,7 @@ int PlayerSetVideoStreamInfo(Player* pl, VideoStreamInfo* pStreamInfo)
     }
 #endif
 }
+
 
 int PlayerSetAudioStreamInfo(Player* pl, AudioStreamInfo* pStreamInfo, int nStreamNum, int nDefaultStream)
 {
@@ -657,18 +659,14 @@ int PlayerStart(Player* pl)
         //* resume components.
         if(p->pVideoDecComp != NULL)
             VideoDecCompStart(p->pVideoDecComp);
-
         if(p->pAudioDecComp != NULL)
             AudioDecCompStart(p->pAudioDecComp);
-
         if(p->pSubtitleDecComp != NULL)
             SubtitleDecCompStart(p->pSubtitleDecComp);
         if(p->pVideoRender != NULL)
             VideoRenderCompStart(p->pVideoRender);
-
         if(p->pAudioRender != NULL)
             AudioRenderCompStart(p->pAudioRender);
-
         if(p->pSubtitleRender != NULL)
             SubtitleRenderCompStart(p->pSubtitleRender);
     }
@@ -720,18 +718,14 @@ int PlayerStart(Player* pl)
         //* render thread crash when calling methods like AudioDecCompRequestPcmData().
         if(p->pVideoDecComp != NULL)
             VideoDecCompStart(p->pVideoDecComp);
-
         if(p->pAudioDecComp != NULL)
             AudioDecCompStart(p->pAudioDecComp);
-
         if(p->pSubtitleDecComp != NULL)
             SubtitleDecCompStart(p->pSubtitleDecComp);
         if(p->pVideoRender != NULL)
             VideoRenderCompStart(p->pVideoRender);
-
         if(p->pAudioRender != NULL)
             AudioRenderCompStart(p->pAudioRender);
-
         if(p->pSubtitleRender != NULL)
             SubtitleRenderCompStart(p->pSubtitleRender);
     }
@@ -767,15 +761,12 @@ int PlayerStop(Player* pl)      //* media stream information is still kept by th
     //* thread crash when calling methods like AudioDecCompRequestPcmData().
     if(p->pSubtitleRender != NULL)
         SubtitleRenderCompStop(p->pSubtitleRender);
-
     if(p->pAudioRender != NULL)
         AudioRenderCompStop(p->pAudioRender);
-
     if(p->pVideoRender != NULL)
         VideoRenderCompStop(p->pVideoRender);
     if(p->pSubtitleDecComp != NULL)
         SubtitleDecCompStop(p->pSubtitleDecComp);
-
     if(p->pAudioDecComp != NULL)
         AudioDecCompStop(p->pAudioDecComp);
     if(p->pVideoDecComp != NULL)
@@ -814,10 +805,8 @@ int PlayerPause(Player* pl)
     //* pause components.
     if(p->pVideoRender != NULL)
         VideoRenderCompPause(p->pVideoRender);
-
     if(p->pAudioRender != NULL)
         AudioRenderCompPause(p->pAudioRender);
-
     if(p->pSubtitleRender != NULL)
         SubtitleRenderCompPause(p->pSubtitleRender);
     if(p->pVideoDecComp != NULL)
@@ -977,11 +966,13 @@ int PlayerClear(Player* pl)     //* must be called under stopped status, all str
         VideoRenderCompDestroy(p->pVideoRender);
         p->pVideoRender = NULL;
     }
+    
     if(p->pAudioRender != NULL)
     {
         AudioRenderCompDestroy(p->pAudioRender);
         p->pAudioRender = NULL;
     }
+    
     if(p->pSubtitleRender != NULL)
     {
         SubtitleRenderCompDestroy(p->pSubtitleRender);
@@ -993,6 +984,7 @@ int PlayerClear(Player* pl)     //* must be called under stopped status, all str
         VideoDecCompDestroy(p->pVideoDecComp);
         p->pVideoDecComp = NULL;
     }
+    
     if(p->pAudioDecComp != NULL)
     {
         AudioDecCompDestroy(p->pAudioDecComp);
@@ -1095,7 +1087,6 @@ int PlayerSetEos(Player* pl)
     PlayerContext* p;
     
     p = (PlayerContext*)pl;
-
     if(p->pVideoDecComp != NULL)
         VideoDecCompSetEOS(p->pVideoDecComp);
     if(p->pAudioDecComp != NULL)
@@ -1528,13 +1519,13 @@ int64_t PlayerGetPts(Player* pl)    //* current pts in us.
     }
 }
 
+
 int PlayerSet3DMode(Player* pl, enum EPICTURE3DMODE ePicture3DMode, enum EDISPLAY3DMODE eDisplay3DMode)
 {
     PlayerContext* p;
     
     p = (PlayerContext*)pl;
     
-
     if(p->pVideoRender != NULL)
     {
         return VideoRenderSet3DMode(p->pVideoRender, ePicture3DMode, eDisplay3DMode);
@@ -1623,6 +1614,22 @@ int PlayerConfigVideoDeinterlace(Player* pl, int bDeinterlace)
     }
 
     p->sVideoConfig.bSupportMaf = bDeinterlace;
+    return 0;
+}
+
+int PlayerConfigTvStreamFlag(Player* pl, int bFlag)
+{
+    PlayerContext* p;
+	
+    p = (PlayerContext*)pl;
+
+    if(p->eStatus != PLAYER_STATUS_STOPPED)
+    {
+        loge("player not in stopped status, can not config video deinterlace flag.");
+        return -1;
+    }
+
+    p->sVideoConfig.bIsTvStream = bFlag;
     return 0;
 }
 
@@ -1756,6 +1763,7 @@ int PlayerGetValidPictureNum(Player* pl)
     else
         return 0;
 }
+
 
 int PlayerGetAudioBitrate(Player* pl)  //* estimated by pts and stream data size.
 {
@@ -2405,6 +2413,10 @@ int PlayerSwitchSubtitle(Player* pl, int nStreamIndex)
         }
     }
     
+#if( CONFIG_ALI_YUNOS == OPTION_ALI_YUNOS_YES)
+	SubtitleRenderCompSwitchStream(p->pSubtitleRender,nStreamIndex);
+#endif
+
     if(p->bStreamEosSet)
     {
         SubtitleDecCompSetEOS(p->pAudioDecComp);
@@ -2697,7 +2709,7 @@ static int CallbackProcess(void* pSelf, int eMessageId, void* param)
                 while(p->pAvTimer->GetStatus(p->pAvTimer) != TIMER_STATUS_START)
                 {
                     //* wait for audio first frame.
-                    if(p->bProcessingCommand || nWaitTime >= CONFIG_MAX_WAIT_TIME_FOR_SYNC || p->bAudioCrash || p->bAudioRenderEosReceived)
+                    if(p->bProcessingCommand || nWaitTime >= CONFIG_MAX_WAIT_TIME_FOR_SYNC || p->bAudioCrash || p->bAudioRenderEosReceived || p->bDiscardAudio)
                     {
                         //* need process new command, or wait too long.
                         logw("break audio video first sync.");
@@ -2741,6 +2753,9 @@ static int CallbackProcess(void* pSelf, int eMessageId, void* param)
         
         case PLAYER_AUDIO_RENDER_NOTIFY_FIRST_FRAME:
         {
+        	if(p->bDiscardAudio)
+                return TIMER_DROP_AUDIO_DATA;
+                
             if(p->bInFastMode)
             {
                 //* discard audio in fast mode for IPTV
@@ -3095,67 +3110,118 @@ static int CallbackProcess(void* pSelf, int eMessageId, void* param)
 				}
 			}
 
-            if(CdxAbs(nTimeDiff) <= CONFIG_THREASHOLD_OF_PTS_DIFFERENCE_TO_JUDGE_PTS_jUMP)
-            {
-                //* time difference seems to be normal, video render thread will 
-                //* wait to sync the timer if nTimeDiff>0 or hurry up to catch the 
-                //* timer if nTimeDiff<0.
-                p->nUnsyncVideoFrameCnt = 0;
-                nWaitTimeMs = (int)(nTimeDiff/1000);
-            }
-            else
-            {
-                //* time difference unnormal.
-                if(PlayerHasAudio((Player*)p) == 0)
-                {
-                    //* if no audio, just reset the timer, it should be a pts jump event.
-                    if(p->nUnsyncVideoFrameCnt > 2)
-                    {
-                        nWaitTimeMs = 0; 
-                        p->pAvTimer->SetTime(p->pAvTimer, nVideoPts);
-                    }
-                    else
-                    {
-                        nWaitTimeMs = 40;
-                        p->nUnsyncVideoFrameCnt++;
-                    }
-                }
-                else
-                {
-                    //* it maybe a pts jump event, 
-                    //* if one of the video pts or audio pts jump first and the other 
-                    //* not jump yet, the video pts will get a big difference to the timer, 
-                    //* we just go for several frames for a while to see whether the other 
-                    //* guy (video pts or audio pts) will jump also.
-                    //* here we go ahead for 30 frames at maximum.
-                    if(p->nUnsyncVideoFrameCnt > 30)
-                    {
-                        //* we have go for more than 30 frames and the pts still not synchronized,
-                        //* it seems not a pts jump event, it seem like a pts error or packet lost,
-                        //* we force the video to hurry up(nWaitTimeMs<0) or wait(nWaitTime>0) to 
-                        //* sync to the timer. 
-                        //* (but for save, don't wait too long for a frame, 2 seconds)
-                        if(nTimeDiff < -CONFIG_THREASHOLD_OF_PTS_DIFFERENCE_TO_JUDGE_PTS_jUMP)
-                            nWaitTimeMs = -2000;
-                        else
-                            nWaitTimeMs = 2000;
-                    }
-                    else
-                    {
-                        //* wait for one frame duration.
-                        if(p->pVideoFramerateEstimater != NULL)
-                            nWaitTimeMs = FramerateEstimaterGetFrameDuration(p->pVideoFramerateEstimater)/1000;
-                        else
-                            nWaitTimeMs = 40;
-                        p->nUnsyncVideoFrameCnt++;
-                    }
+			if(!IS_DTMB_STREAM || (PlayerHasAudio((Player*)p) && (p->bAudioCrash == 0)))
+			{
+	            if(CdxAbs(nTimeDiff) <= CONFIG_THREASHOLD_OF_PTS_DIFFERENCE_TO_JUDGE_PTS_jUMP)
+	            {
+	                //* time difference seems to be normal, video render thread will 
+	                //* wait to sync the timer if nTimeDiff>0 or hurry up to catch the 
+	                //* timer if nTimeDiff<0.
+	                p->nUnsyncVideoFrameCnt = 0;
+	                nWaitTimeMs = (int)(nTimeDiff/1000);
+	            }
+	            else
+	            {
+	                //* time difference unnormal.
+	                if(PlayerHasAudio((Player*)p) == 0)
+	                {
+	                    //* if no audio, just reset the timer, it should be a pts jump event.
+	                    if(p->nUnsyncVideoFrameCnt > 2)
+	                    {
+	                        nWaitTimeMs = 0; 
+	                        p->pAvTimer->SetTime(p->pAvTimer, nVideoPts);
+	                    }
+	                    else
+	                    {
+	                        nWaitTimeMs = 40;
+	                        p->nUnsyncVideoFrameCnt++;
+	                    }
+	                }
+	                else
+	                {
+	                    //* it maybe a pts jump event, 
+	                    //* if one of the video pts or audio pts jump first and the other 
+	                    //* not jump yet, the video pts will get a big difference to the timer, 
+	                    //* we just go for several frames for a while to see whether the other 
+	                    //* guy (video pts or audio pts) will jump also.
+	                    //* here we go ahead for 30 frames at maximum.
+	                    if(p->nUnsyncVideoFrameCnt > 30)
+	                    {
+	                        //* we have go for more than 30 frames and the pts still not synchronized,
+	                        //* it seems not a pts jump event, it seem like a pts error or packet lost,
+	                        //* we force the video to hurry up(nWaitTimeMs<0) or wait(nWaitTime>0) to 
+	                        //* sync to the timer. 
+	                        //* (but for save, don't wait too long for a frame, 2 seconds)
+	                        if(nTimeDiff < -CONFIG_THREASHOLD_OF_PTS_DIFFERENCE_TO_JUDGE_PTS_jUMP)
+	                            nWaitTimeMs = -2000;
+	                        else
+	                            nWaitTimeMs = 2000;
+	                    }
+	                    else
+	                    {
+	                        //* wait for one frame duration.
+	                        if(p->pVideoFramerateEstimater != NULL)
+	                            nWaitTimeMs = FramerateEstimaterGetFrameDuration(p->pVideoFramerateEstimater)/1000;
+	                        else
+	                            nWaitTimeMs = 40;
+	                        p->nUnsyncVideoFrameCnt++;
+	                    }
 
-					//add by xuqi, for IPTV
-                    nWaitTimeMs = 0;
-                }
-                logw("%d video frames not sync, force sync. vpts(%.3f) jztime(%.3f)",
-                        p->nUnsyncVideoFrameCnt, nVideoPts/1000000.0, nCurTime/1000000.0);
-            }
+						//add by xuqi, for IPTV
+	                    nWaitTimeMs = 0;
+	                }
+	                logv("%d video frames not sync, force sync. vpts(%.3f) jztime(%.3f)",
+	                        p->nUnsyncVideoFrameCnt, nVideoPts/1000000.0, nCurTime/1000000.0);
+	            }
+			}
+			else
+			{
+	            if(CdxAbs(nTimeDiff) <= CONFIG_THREASHOLD_OF_PTS_DIFFERENCE_TO_JUDGE_PTS_jUMP_DTMB)
+	            {
+	                p->nUnsyncVideoFrameCnt = 0;
+	                nWaitTimeMs = (int)(nTimeDiff/1000);
+	            }
+	            else
+	            {
+	                //* time difference unnormal.
+	                if(PlayerHasAudio((Player*)p) == 0 || (PlayerHasAudio((Player*)p) == 1 && p->bAudioCrash == 1))
+	                {
+	                    if(p->nUnsyncVideoFrameCnt > 2)
+	                    {
+	                        nWaitTimeMs = 0; 
+	                        p->pAvTimer->SetTime(p->pAvTimer, nVideoPts);
+	                    }
+	                    else
+	                    {
+	                        nWaitTimeMs = 40;
+	                        p->nUnsyncVideoFrameCnt++;
+	                    }
+	                }
+	                else
+	                {
+	                    if(p->nUnsyncVideoFrameCnt > 30)
+	                    {
+	                        if(nTimeDiff < -CONFIG_THREASHOLD_OF_PTS_DIFFERENCE_TO_JUDGE_PTS_jUMP)
+	                            nWaitTimeMs = -2000;
+	                        else
+	                            nWaitTimeMs = 2000;
+	                    }
+	                    else
+	                    {
+	                        //* wait for one frame duration.
+	                        if(p->pVideoFramerateEstimater != NULL)
+	                            nWaitTimeMs = FramerateEstimaterGetFrameDuration(p->pVideoFramerateEstimater)/1000;
+	                        else
+	                            nWaitTimeMs = 40;
+	                        p->nUnsyncVideoFrameCnt++;
+	                    }
+
+	                    nWaitTimeMs = 0;
+	                }
+	                logv("%d video frames not sync, force sync. vpts(%.3f) jztime(%.3f)",
+	                        p->nUnsyncVideoFrameCnt, nVideoPts/1000000.0, nCurTime/1000000.0);
+	            }
+			}
             
             p->nPreVideoPts = nVideoPts;
             
@@ -3178,6 +3244,12 @@ static int CallbackProcess(void* pSelf, int eMessageId, void* param)
             nCurTime = p->pAvTimer->GetTime(p->pAvTimer);
             nCurAudioTime = nAudioPts - nCachedTimeInSoundDevice;
             nTimeDiff = nCurAudioTime - nCurTime;
+            
+            if(p->bDiscardAudio)
+            {
+            	pthread_mutex_unlock(&p->timerMutex);
+                return TIMER_DROP_AUDIO_DATA;
+            }
             
             if(p->bInFastMode)
             {
@@ -3319,6 +3391,7 @@ static int CallbackProcess(void* pSelf, int eMessageId, void* param)
 
             nStreamIndex = SubtitleDecCompCurrentStreamIndex(p->pSubtitleDecComp);
             bExternal = SubtitleDecCompIsExternalSubtitle(p->pSubtitleDecComp, nStreamIndex);
+
             if(nCurTime < nPts)
             {
                 if(bHasBeenShowed)
@@ -3585,39 +3658,34 @@ static int PlayerInitialVideo(PlayerContext* p)
     
     p->pVideoDecComp = VideoDecCompCreate();
 	
-#if ((CONFIG_CHIP == OPTION_CHIP_1673) && (CONFIG_PRODUCT == OPTION_PRODUCT_TVBOX))
-    p->sVideoConfig.eOutputPixelFormat = PIXEL_FORMAT_YV12;
-#elif ((CONFIG_CHIP == OPTION_CHIP_1680) && (CONFIG_PRODUCT == OPTION_PRODUCT_TVBOX))
+#if (OUTPUT_PIXEL_FORMAT == OUTPUT_PIXEL_FORMAT_YV12)
+	p->sVideoConfig.eOutputPixelFormat = PIXEL_FORMAT_YV12;
+#elif (OUTPUT_PIXEL_FORMAT == OUTPUT_PIXEL_FORMAT_NV21)
     p->sVideoConfig.eOutputPixelFormat = PIXEL_FORMAT_NV21;
-#elif(CONFIG_CHIP == OPTION_CHIP_1667)
-    p->sVideoConfig.eOutputPixelFormat = PIXEL_FORMAT_YV12;
-#elif ((CONFIG_CHIP == OPTION_CHIP_1639) && (CONFIG_PRODUCT == OPTION_PRODUCT_TVBOX) && (CONFIG_OS_VERSION >= OPTION_OS_VERSION_ANDROID_5_0))
-    p->sVideoConfig.eOutputPixelFormat = PIXEL_FORMAT_YV12;
+#elif (OUTPUT_PIXEL_FORMAT == OUTPUT_PIXEL_FORMAT_MB32)
+    p->sVideoConfig.eOutputPixelFormat = PIXEL_FORMAT_YUV_MB32_420;
 #endif
 
     //* We should set format to nv21 if it is 3D stream except chip-1639,
     //* Because new-display-double-stream need nv21 format
-#if(CONFIG_CHIP != OPTION_CHIP_1639 && USE_NEW_DISPLAY == 1)    
+#if(NEW_DISPLAY_DOUBLE_STREAM_NEED_NV21 == 1 && USE_NEW_DISPLAY == 1)    
     if(p->pVideoStreamInfo->bIs3DStream == 1)
         p->sVideoConfig.eOutputPixelFormat = PIXEL_FORMAT_NV21;
 #endif
 
-#if((CONFIG_CHIP == OPTION_CHIP_1689) && (CONFIG_PRODUCT == OPTION_PRODUCT_TVBOX) && (CONFIG_OS_VERSION >= OPTION_OS_VERSION_ANDROID_5_0))
-    p->sVideoConfig.eOutputPixelFormat = PIXEL_FORMAT_NV21;
-#endif
     p->sVideoConfig.bSecureosEn = p->pVideoStreamInfo->bSecureStreamFlagLevel1;
 
+    p->sVideoConfig.nDisplayHoldingFrameBufferNum     = NUM_OF_PICTURES_KEEP_IN_LIST;
     p->sVideoConfig.nDeInterlaceHoldingFrameBufferNum = NUM_OF_PICTURES_KEEPPED_BY_DEINTERLACE;
-    p->sVideoConfig.nDisplayHoldingFrameBufferNum = NUM_OF_PICTURES_KEEP_IN_LIST;
     p->sVideoConfig.nRotateHoldingFrameBufferNum = NUM_OF_PICTURES_KEEPPED_BY_ROTATE;
     p->sVideoConfig.nDecodeSmoothFrameBufferNum = NUM_OF_PICTURES_FOR_EXTRA_SMOOTH;
 
-#if ((CONFIG_CHIP == OPTION_CHIP_1663) && (CONFIG_OS == OPTION_OS_LINUX))
+#if (CONFIG_OS == OPTION_OS_LINUX)
 	p->sVideoConfig.nVbvBufferSize = 2*1024*1024;
 	p->sVideoConfig.nDeInterlaceHoldingFrameBufferNum = 0;
 	p->sVideoConfig.nDisplayHoldingFrameBufferNum = 0;
 	p->sVideoConfig.nRotateHoldingFrameBufferNum = 0;
-	p->sVideoConfig.nDecodeSmoothFrameBufferNum = 0;
+	p->sVideoConfig.nDecodeSmoothFrameBufferNum = 1;
 	logd("set vbv buf [2M] in 1663");
 #endif
 
@@ -3809,6 +3877,17 @@ static int PlayerInitialSubtitle(PlayerContext* p)
     SubtitleRenderCompSetTimer(p->pSubtitleRender, p->pAvTimer);
     SubtitleRenderCompSetDecodeComp(p->pSubtitleRender, p->pSubtitleDecComp);
 
+#if( CONFIG_ALI_YUNOS == OPTION_ALI_YUNOS_YES)
+    ret = SubtitleRenderCompSetSubtitleStreamInfo(p->pSubtitleRender,
+										p->pSubtitleStreamInfo,
+										p->nSubtitleStreamNum,
+										p->nSubtitleStreamSelected);
+    if(ret != 0)
+    {
+        loge("Set Subtitle StreamInfo to RenderComp fail.");
+    }
+#endif
+
     return 0;
 }
 int PlayerSetVolume(Player* pl, float volume)
@@ -3838,3 +3917,20 @@ int PlayerGetVolume(Player* pl, float *volume)
 	return AudioRenderCompGetVolume(p->pAudioRender, volume);
 }
 
+
+//*****************************************************************************//
+//*****************************************************************************//
+//*****************************************************************************//
+
+int PlayerConfigExtraScaleInfo(Player* pl, int nWidthTh, int nHeightTh, int nHorizontalScaleRatio, int nVerticalScaleRatio)
+{
+	PlayerContext* p;
+	p = (PlayerContext*)pl;
+
+	if(p->pVideoDecComp != NULL)
+	{
+		//return VideoDecCompSetDropDelayFrames(p->pVideoDecComp, bDropLaytedFrame); //* only treat the major video stream.
+		return VideoDecCompSetExtraScaleInfo(p->pVideoDecComp,nWidthTh, nHeightTh, nHorizontalScaleRatio, nVerticalScaleRatio);
+	}
+	return 0;
+}

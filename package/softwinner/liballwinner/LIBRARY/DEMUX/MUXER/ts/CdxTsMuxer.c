@@ -92,6 +92,7 @@ static int __TsMuxerSetMediaInfo(CdxMuxerT *mux, CdxMuxerMediaInfoT *pMediaInfo)
 
     ts->sdt_packet_period = 200;
     ts->pat_packet_period = 3;
+    ts->pat_packet_count = ts->pat_packet_period;
    
     ts->services = NULL;
     if ((ts->services = (MpegTSService**)malloc(MAX_SERVERVICES_IN_FILE*sizeof(MpegTSService*))) == NULL)
@@ -130,7 +131,7 @@ static int __TsMuxerSetMediaInfo(CdxMuxerT *mux, CdxMuxerMediaInfoT *pMediaInfo)
         service->pmt.opaque = impl;
         service->pmt.cc = 15;
         service->pmt.pid = 0x0100;
-        service->pcr_pid = 0x1fff;
+        service->pcr_pid = 0x1000;
         service->sid = 0x00000001;
 		
         ts->services[i] = service;

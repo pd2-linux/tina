@@ -3,7 +3,7 @@
 #include <CdxMemory.h>
 
 #include <CdxStream.h>
-#include "config.h"
+#include "cdx_config.h"
 #include <CdxList.h>
 
 /*
@@ -26,9 +26,7 @@ extern CdxStreamCreatorT fileStreamCtor;
 #if (CONFIG_OS != OPTION_OS_LINUX)
 //extern CdxStreamCreatorT rtspStreamCtor;
 #endif
-#if (CONFIG_HAVE_ZLIB == OPTION_HAVE_ZLIB)
 extern CdxStreamCreatorT httpStreamCtor;
-#endif
 extern CdxStreamCreatorT tcpStreamCtor;
 //extern CdxStreamCreatorT rtmpStreamCtor;
 //extern CdxStreamCreatorT mmsStreamCtor;
@@ -75,9 +73,7 @@ cdx_void AwStreamInit(cdx_void)
 #if (CONFIG_OS!=OPTION_OS_LINUX)
 //    AwStreamRegister(&rtspStreamCtor,"rtsp");
 #endif
-#if (CONFIG_HAVE_ZLIB == OPTION_HAVE_ZLIB)
     AwStreamRegister(&httpStreamCtor,"http");
-#endif
 //    AwStreamRegister(&httpStreamCtor,"https");
     AwStreamRegister(&tcpStreamCtor,"tcp");
 //    AwStreamRegister(&rtmpStreamCtor,"rtmp");

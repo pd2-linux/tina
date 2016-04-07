@@ -13,15 +13,10 @@
 
 #define DI_MODULE_TIMEOUT    0x1055
 #define	DI_IOC_MAGIC		'D'
-#if (CONFIG_CHIP == OPTION_CHIP_1689 && CONFIG_PRODUCT == OPTION_PRODUCT_TVBOX)
+#if (DEINTERLACE_IOWR == 1)
 #define	DI_IOCSTART		     _IOWR(DI_IOC_MAGIC, 0, DiRectSizeT)
 #else
 #define	DI_IOCSTART		     _IOWR(DI_IOC_MAGIC, 0, DiParaT *)
-#endif
-#if CONFIG_CHIP == OPTION_CHIP_1639
-#define PHY_OFFSET 0x20000000
-#else
-#define PHY_OFFSET 0x40000000
 #endif
 
 //-----------------------------------------------------------------------------
@@ -184,9 +179,9 @@ int DeinterlaceHw::process(VideoPicture *pPrePicture,
         return -1;
     }
 
-#if (CONFIG_CHIP == OPTION_CHIP_1639)
+#if (DEINTERLACE_FORMAT == DEINTERLACE_FORMAT_MB32_12)
 	eInFormat = DI_FORMAT_MB32_12;
-#elif (CONFIG_CHIP == OPTION_CHIP_1680)
+#elif (DEINTERLACE_FORMAT == DEINTERLACE_FORMAT_NV)
 	if (pCurPicture->ePixelFormat == PIXEL_FORMAT_NV12)
 	{
 		eInFormat = DI_FORMAT_NV12;
@@ -200,7 +195,7 @@ int DeinterlaceHw::process(VideoPicture *pPrePicture,
 		loge("the inputPixelFormat is not support : %d",pCurPicture->ePixelFormat);
 		return -1;
 	}
-#elif (CONFIG_CHIP == OPTION_CHIP_1689 && CONFIG_PRODUCT == OPTION_PRODUCT_TVBOX)
+#elif (DEINTERLACE_FORMAT == DEINTERLACE_FORMAT_NV21)
 	eInFormat = DI_FORMAT_NV21;
 #else
 	eInFormat = DI_FORMAT_NV12;
@@ -222,14 +217,15 @@ int DeinterlaceHw::process(VideoPicture *pPrePicture,
 	mDiParaT.bTopFieldFirst      = pCurPicture->bTopFieldFirst;
 
     //* we can use the phy address
-    mDiParaT.mInputFb.addr[0]    = pCurPicture->phyYBufAddr + PHY_OFFSET;
-	mDiParaT.mInputFb.addr[1]    = pCurPicture->phyCBufAddr + PHY_OFFSET;
-	mDiParaT.mPreFb.addr[0]      = pPrePicture->phyYBufAddr + PHY_OFFSET;
-	mDiParaT.mPreFb.addr[1]      = pPrePicture->phyCBufAddr + PHY_OFFSET;
-	mDiParaT.mOutputFb.addr[0]   = pOutPicture->phyYBufAddr + PHY_OFFSET;
-	mDiParaT.mOutputFb.addr[1]   = pOutPicture->phyCBufAddr + PHY_OFFSET;
+    mDiParaT.mInputFb.addr[0]    = pCurPicture->phyYBufAddr + VE_PHY_OFFSET;
+	mDiParaT.mInputFb.addr[1]    = pCurPicture->phyCBufAddr + VE_PHY_OFFSET;
+	mDiParaT.mPreFb.addr[0]      = pPrePicture->phyYBufAddr + VE_PHY_OFFSET;
+	mDiParaT.mPreFb.addr[1]      = pPrePicture->phyCBufAddr + VE_PHY_OFFSET;
+	mDiParaT.mOutputFb.addr[0]   = pOutPicture->phyYBufAddr + VE_PHY_OFFSET;
+	mDiParaT.mOutputFb.addr[1]   = pOutPicture->phyCBufAddr + VE_PHY_OFFSET;
     
 	logv("VideoRender_CopyFrameToGPUBuffer aw_di_setpara start");
+
 	//dumpPara(&mDiParaT);
 
 	if (para(&mDiParaT) < 0)

@@ -62,11 +62,7 @@ SourceIncludePath = $(foreach dir,$(SourcePath),-I$(dir)) \
                     -I../STREAM/include \
                     -I../PARSER/include          \
 					-I../../          \
-                    -I../../CODEC/VIDEO/DECODER/include/ \
-					-I../../CODEC/VIDEO/ENCODER/include/ \
-                    -I../../CODEC/AUDIO/DECODER/include/ \
-					-I../../CODEC/AUDIO/ENCODER/include/ \
-                    -I../../CODEC/SUBTITLE/DECODER/include/ \
+                    -I../../libcedarc/include/ \
                     -I../../PLAYER/include/ \
                     -I../../EXTERNAL/include/zlib/ \
                     -I../../EXTERNAL/include/openssl/ \
@@ -75,15 +71,7 @@ SourceIncludePath = $(foreach dir,$(SourcePath),-I$(dir)) \
                     -I../../EXTERNAL/include
                     
 ## set compile flags
-ifeq ($(CONFIG_CHIP),$(OPTION_CHIP_1689))
-	CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath)  -O2 -fPIC -ldl -march=armv8-a 
-else
-	ifeq ($(CONFIG_CHIP),$(OPTION_CHIP_1663))
-		CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -O2 -fPIC -ldl -march=armv5te	
-	else
-		CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -O2 -fPIC -ldl -march=armv7-a
-	endif
-endif
+CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -mfpu=neon -O1 -fPIC -ldl
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABI))
 #CompileFlags += -mfloat-abi=softfp -mfpu=neon 
@@ -92,27 +80,38 @@ endif
 ## set link flags
 #LoadFlags = $(CONFIG_FOR_LINK) -lGetAudio_format -ldl -shared
 LoadFlags = $(CONFIG_FOR_LINK) -ldl -shared -lpthread
+
 ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABIHF))
-LoadFlags += -L../../EXTERNAL/lib32/lgnueabihf
+LoadFlags += -L../../EXTERNAL/lib32/lgnueabihf/
+LoadFlags += -L../../libcedarc/library/lib32/lgnueabihf
 endif
+
 ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABI))
-LoadFlags +=-L../../EXTERNAL/lib32/lgnueabi
+LoadFlags += -L../../EXTERNAL/lib32/lgnueabi/
+LoadFlags += -L../../libcedarc/library/lib32/lgnueabi
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_UCGNUEABI))
-LoadFlags +=-L../../EXTERNAL/lib32/uclgnueabi
+LoadFlags += -L../../EXTERNAL/lib32/uclgnueabi/
+LoadFlags += -L../../libcedarc/library/lib32/uclgnueabi
 endif
+
 ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_UCGNUEABI))
 LoadFlags +=-L../../EXTERNAL/lib32/linuxgnueabi
+LoadFlags += -L../../libcedarc/library/lib32/linuxgnueabi
 endif
+
+ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI))
+LoadFlags +=-L../../EXTERNAL/lib32/muslgnueabi
+LoadFlags += -L../../libcedarc/library/lib32/muslgnueabi
+endif
+ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI64))
+LoadFlags +=-L../../EXTERNAL/lib64/muslgnueabi
+endif
+
 
 LoadFlags += -L../BASE/
 LoadFlags += -lcdx_base
-
-#LoadFlags += -L../STREAM/
-#LoadFlags += -lcdx_stream
-#LoadFlags += -Wl,--no-undefined
-
 
 
 ################################################################################

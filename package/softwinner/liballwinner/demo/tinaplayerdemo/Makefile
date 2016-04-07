@@ -65,9 +65,13 @@ CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -Wall -O2 -ldl
 ## set link flags
 LoadFlags = $(CONFIG_FOR_LINK)
 
-LoadFlags +=   -ltinaplayer -lxplayer -lvdecoder -ladecoder -lsdecoder -lnormal_audio -lpostprocess \
-               -lcdx_parser  -lplayer -lcdx_stream -lcdx_base -lVE -lMemAdapter \
-               -law_plugin -lcrypto -lssl  -lpthread -ldl -lstdc++ -lrt
+#LoadFlags +=   -ltinaplayer -lxplayer -lvdecoder -ladecoder -lsdecoder -lnormal_audio -lpostprocess \
+#               -lcdx_parser  -lplayer -lcdx_stream -lcdx_base -lVE -lMemAdapter \
+#               -law_plugin -lcrypto -lssl  -lpthread -ldl -lstdc++ -lrt
+
+LoadFlags +=   -ltinaplayer -lxplayer -lcdc_vdecoder -lcdc_adecoder -lnormal_audio -lcdc_sdecoder -lcdc_base -lcdc_ve -lcdc_memory \
+               -lcdx_parser  -lplayer -lcdx_stream -lcdx_base  -lpostprocess \
+               -law_plugin  -lpthread -ldl -lstdc++ -lrt -lm -lc
 
 ifeq ($(CONFIG_HAVE_ZLIB), $(OPTION_HAVE_ZLIB))
     LoadFlags += -lz 
@@ -78,30 +82,37 @@ LoadFlags +=  -lasound
 LoadFlags += -L../../LIBRARY/DEMUX/BASE/ \
              -L../../LIBRARY/DEMUX/STREAM/ \
              -L../../LIBRARY/DEMUX/PARSER/ \
-             -L../../LIBRARY/CODEC/VIDEO/DECODER/ \
-             -L../../LIBRARY/CODEC/AUDIO/DECODER/ \
-             -L../../LIBRARY/CODEC/SUBTITLE/DECODER/ \
              -L../../LIBRARY/PLAYER/ \
-             -L../../LIBRARY/VE/ \
-             -L../../LIBRARY/MEMORY/ \
              -L../../LIBRARY/PLUGIN/manager \
              -L../../xplayer/ \
 			 -L../../tinaplayer
              
 ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABIHF))
-LoadFlags += -L../../EXTERNAL/lib32/lgnueabihf/
+LoadFlags += -L../../LIBRARY/EXTERNAL/lib32/lgnueabihf/
+LoadFlags += -L../../LIBRARY/libcedarc/library/lib32/lgnueabihf
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABI))
 LoadFlags += -L../../LIBRARY/EXTERNAL/lib32/lgnueabi/ 
+LoadFlags += -L../../LIBRARY/libcedarc/library/lib32/lgnueabi
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_UCGNUEABI))
 LoadFlags += -L../../LIBRARY/EXTERNAL/lib32/uclgnueabi/  
+LoadFlags += -L../../LIBRARY/libcedarc/library/lib32/uclgnueabi
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_UCGNUEABI))
 LoadFlags +=-L../../LIBRARY/EXTERNAL/lib32/linuxgnueabi
+LoadFlags += -L../../LIBRARY/libcedarc/library/lib32/linuxgnueabi
+endif
+
+ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI))
+LoadFlags +=-L../../LIBRARY/EXTERNAL/lib32/muslgnueabi
+LoadFlags += -L../../LIBRARY/libcedarc/library/lib32/muslgnueabi
+endif
+ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI64))
+LoadFlags +=-L../../LIBRARY/EXTERNAL/lib64/muslgnueabi
 endif
 
 ################################################################################
@@ -133,7 +144,7 @@ $(ObjectFiles):$(ObjectPath)/%.o:%.cpp
 
 ## link object files to the target share library.
 $(Target):$(ObjectFiles)
-	$(CPP) -o $@ $^ $(LoadFlags) 
+	$(CPP) -o $@ $^ $(LoadFlags) $(LDFLAGS)
 
 ## set rules to generate .d files.
 $(DependFilePath)/%.d:%.cpp

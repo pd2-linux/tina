@@ -65,5 +65,6 @@ int SubtitleDecCompIsExternalSubtitle(SubtitleDecComp* s, int nStreamIndex);
 
 int SubtitleDecCompGetExternalFlag(SubtitleDecComp* s);
 
+
 #endif
 

@@ -9,7 +9,7 @@
 #include <map>
 using namespace std;
 
-#include "config.h"             //* configuration file in "LiBRARY/"
+#include "cdx_config.h"             //* configuration file in "LiBRARY/"
 //#include "player.h"             //* player library in "LIBRARY/PLAYER/"
 //#include "mediaInfo.h"
 //#include "demuxComponent.h"

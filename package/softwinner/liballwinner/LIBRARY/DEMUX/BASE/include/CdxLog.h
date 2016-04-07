@@ -1,7 +1,7 @@
 #ifndef CDX_LOG_H
 #define CDX_LOG_H
 
-#include "config.h"
+#include "cdx_config.h"
 #include "log.h"
 
 #include <CdxTypes.h>

@@ -4,7 +4,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <pthread.h>
-#include "config.h"
+#include "cdx_config.h"
 #if ((CONFIG_OS == OPTION_OS_ANDROID) && (CONFIG_OS_VERSION < OPTION_OS_VERSION_ANDROID_5_0))
 #include <corkscrew/backtrace.h>
 #endif
