@@ -35,6 +35,12 @@ define Aw/BuildUpgradeImage/prepare
 	-mv $(1)/usr/lib/libmad.so* $(1)/lib/
 	-mv $(1)/usr/lib/libasound.so* $(1)/lib/
 
+	#ssl
+	-mv $(1)/usr/lib/libssl.so* $(1)/lib/
+
+	#curl
+	-mv $(1)/usr/lib/libcurl.so* $(1)/lib/
+
 	find $(1)/usr/lib | grep libstdc++.so | xargs -i mv  {} $(1)/lib
 
 	#for link /usr/bin /usr/sbin
