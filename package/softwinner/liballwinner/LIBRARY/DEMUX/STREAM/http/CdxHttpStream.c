@@ -2175,7 +2175,7 @@ static cdx_int32 StreamReadCompressed(CdxHttpStreamImplT *impl, cdx_int8 *buf, i
         }
         if(readSize <= 0)
         {
-            CDX_LOGW("==== size(%lld), pos(%lld), readSize(%d)", impl->totalSize, impl->bufPos, readSize);
+            CDX_LOGD("==== size(%lld), pos(%lld), readSize(%d)", impl->totalSize, impl->bufPos, readSize);
             return readSize;
         }
         impl->inflateStream.next_in = impl->inflateBuffer;

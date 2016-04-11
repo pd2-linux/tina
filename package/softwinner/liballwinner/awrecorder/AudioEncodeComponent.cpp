@@ -117,7 +117,7 @@ static void* AudioEncodeThread(void *arg)
 		else if(msg.messageId == AUDIO_ENC_COMMAND_ENCODE)
 		{
 			ret = EncodeAudioStream(p->pAudioEncode);
-			
+			logv("== audio encode ret: %d", ret);
 			if(ret == ERR_AUDIO_ENC_NONE)
 			{
 				//logd("audio encode ok");

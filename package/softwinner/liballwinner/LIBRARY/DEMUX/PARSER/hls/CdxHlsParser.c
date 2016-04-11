@@ -1486,6 +1486,7 @@ _NextSegment:
 				streamContorlTask1.cmd = STREAM_CMD_SET_ISHLS;
 				streamContorlTask1.param = NULL;
 				streamContorlTask1.next = NULL;
+                CdxStreamT *tmpStream = hlsParser->childStream[0];
 				ret = CdxStreamOpen_Retry(&hlsParser->cdxDataSource, &hlsParser->statusLock, &hlsParser->forceStop, &hlsParser->childStream[0], &streamContorlTask);
                 if(ret < 0)
                 {
@@ -1498,6 +1499,14 @@ _NextSegment:
                     else
                     {
 						ret = -1;
+                        //*******
+                        if(hlsParser->childStream[0] != NULL && hlsParser->childStream[0] != tmpStream)
+                        {
+                            logd("lbh CDX_PSR_CMD_REPLACE_STREAM");
+                            pthread_mutex_lock(&hlsParser->statusLock);
+                            ret = CdxParserControl(hlsParser->child[hlsParser->prefetchType], CDX_PSR_CMD_REPLACE_STREAM, (void *)hlsParser->childStream[0]);
+                            pthread_mutex_unlock(&hlsParser->statusLock);
+                        }
 						goto _exit;
                     }
 					if(hlsParser->mPlaylist->u.mediaPlaylistPrivate.mIsComplete)
@@ -2051,6 +2060,7 @@ cdx_int32 HlsParserSeekTo(CdxParserT *parser, cdx_int64  timeUs)
             hlsParser->u.media.baseTimeUs = item->u.mediaItemAttribute.baseTimeUs;
             hlsParser->u.media.curItemInf.item = item;
 			
+			CdxStreamT *tmpStream = hlsParser->childStream[0];
 			ret = CdxStreamOpen_Retry(&hlsParser->cdxDataSource, &hlsParser->statusLock, &hlsParser->forceStop, &hlsParser->childStream[0], &streamContorlTask);
             if(ret < 0)
             {
@@ -2058,6 +2068,16 @@ cdx_int32 HlsParserSeekTo(CdxParserT *parser, cdx_int64  timeUs)
                 {
                     CDX_LOGE(" CdxStreamOpen error!");
                     hlsParser->mErrno = PSR_IO_ERR;
+                }
+                else
+                {
+                    if(hlsParser->childStream[0] != NULL && hlsParser->childStream[0] != tmpStream)
+                    {
+                        logd("lbh CDX_PSR_CMD_REPLACE_STREAM");
+                        pthread_mutex_lock(&hlsParser->statusLock);
+                        ret = CdxParserControl(hlsParser->child[hlsParser->prefetchType], CDX_PSR_CMD_REPLACE_STREAM, (void *)hlsParser->childStream[0]);
+                        pthread_mutex_unlock(&hlsParser->statusLock);
+                    }
                 }
                 ret = -1;
                 goto _exit;

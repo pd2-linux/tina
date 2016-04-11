@@ -352,7 +352,7 @@ static cdx_int32 checkCounter(TSParser *mTSParser,cdx_uint32 PID,cdx_uint32 cont
 						{
 							if(memcmp(mTSParser->mapCounter[i].packet,data,188))
 							{
-								CDX_LOGE("DTMB FATAL,counter not same,adaptation_field_control:%d discontinuity_indicator:%d!\n",
+								CDX_LOGD("DTMB FATAL,counter not same,adaptation_field_control:%d discontinuity_indicator:%d!\n",
 									adaptation_field_control,discontinuity_indicator);
 								//CDX_BUF_DUMP(mTSParser->mapCounter[i].packet,188);
 								//CDX_BUF_DUMP(data,188);
@@ -4676,7 +4676,7 @@ _GetES:
         {
             cdx_pkt->length = 0;
         }
-        CDX_LOGE("mTSParser->currentES == NULL");
+        CDX_LOGD("mTSParser->currentES == NULL");
         ret = -1;
 	}
 _exit:

@@ -756,8 +756,25 @@ cdx_int32 CdxMpgParserGetStatus(CdxParserT *parser)
 }
 cdx_int32 CdxMpgParserInit(CdxParserT *parser)
 {
-    //*we do nothing here
-    CDX_UNUSE(parser);
+	int nResult;
+    CdxMpgParserT        *pCdxMpgParserT = NULL;
+    MpgParserContextT  *pMpgParserContextT = NULL;  
+    
+    pCdxMpgParserT = (CdxMpgParserT*)parser;   
+    pMpgParserContextT = (MpgParserContextT*)pCdxMpgParserT->pMpgParserContext;
+   
+    //open media file to parse file information
+    nResult = pCdxMpgParserT->open(pCdxMpgParserT, pMpgParserContextT->pStreamT);
+    if(nResult < 0)
+    {
+        CDX_LOGE("open fail !");
+        //CdxStreamClose(stream);
+        pCdxMpgParserT->nError = PSR_OPEN_FAIL;
+        return NULL;
+    }
+
+    pCdxMpgParserT->eStatus = CDX_PSR_IDLE;
+    pCdxMpgParserT->nError = PSR_OK;
     return 0;
 }
 
@@ -778,6 +795,7 @@ static CdxParserT *CdxMpgParserOpen(CdxStreamT *stream, cdx_uint32 flag)
 {
     int                   nResult;
     CdxMpgParserT        *pCdxMpgParserT = NULL;
+    MpgParserContextT  *pMpgParserContextT = NULL;
     CDX_UNUSE(flag);
     
     //init mpg parser lib module
@@ -794,15 +812,8 @@ static CdxParserT *CdxMpgParserOpen(CdxStreamT *stream, cdx_uint32 flag)
     }
     pCdxMpgParserT->eStatus = CDX_PSR_INITIALIZED;
 
-    //open media file to parse file information
-    nResult = pCdxMpgParserT->open(pCdxMpgParserT, stream);
-    if(nResult < 0)
-    {
-        CDX_LOGE("open fail !");
-        CdxStreamClose(stream);
-        pCdxMpgParserT->nError = PSR_OPEN_FAIL;
-        return NULL;
-    }
+    pMpgParserContextT = (MpgParserContextT*)pCdxMpgParserT->pMpgParserContext;
+    pMpgParserContextT->pStreamT = stream;
 
     //initial some global parameter
     pCdxMpgParserT->nVidPtsOffset = 0;
@@ -811,8 +822,7 @@ static CdxParserT *CdxMpgParserOpen(CdxStreamT *stream, cdx_uint32 flag)
     pCdxMpgParserT->base.ops = &mpgParserOps;
 	pCdxMpgParserT->base.type = CDX_PARSER_MPG;
 
-    pCdxMpgParserT->eStatus = CDX_PSR_IDLE;
-    pCdxMpgParserT->nError  = PSR_OK;
+    pCdxMpgParserT->nError  = PSR_INVALID;
     
     return &pCdxMpgParserT->base;
 }

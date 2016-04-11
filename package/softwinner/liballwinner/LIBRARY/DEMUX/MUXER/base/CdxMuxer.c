@@ -19,7 +19,7 @@ typedef struct CdxMuxerListS CdxMuxerListT;
 
 CdxMuxerListT muxerList;
 
-extern CdxMuxerCreatorT aacMuxerCtor;
+extern CdxMuxerCreatorT aacMuxerCtor;  // raw audio
 extern CdxMuxerCreatorT mp4MuxerCtor;
 extern CdxMuxerCreatorT tsMuxerCtor;
 
@@ -48,7 +48,7 @@ void AwMuxerInit()
 	AwMuxerRegister(&aacMuxerCtor, CDX_MUXER_AAC);
 	AwMuxerRegister(&mp4MuxerCtor, CDX_MUXER_MOV);
 	AwMuxerRegister(&tsMuxerCtor, CDX_MUXER_TS);
-
+	AwMuxerRegister(&aacMuxerCtor, CDX_MUXER_MP3);
 	CDX_LOGD("aw muxer size:%d",muxerList.size);
 	return;
 }

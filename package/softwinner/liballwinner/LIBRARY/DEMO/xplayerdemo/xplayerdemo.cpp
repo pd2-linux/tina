@@ -505,7 +505,7 @@ void CallbackForAwPlayer(void* pUserData, int msg, int param0, void* param1)
 			    }
 			    */
 		    }
-		    
+		    usleep(30*1000);
         	break;
         }
 

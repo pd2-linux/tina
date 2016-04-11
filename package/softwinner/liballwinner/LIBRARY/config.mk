@@ -3,8 +3,8 @@
 ## configurations.
 ################################################################################
 
-CONFIG_CEDARX_PATH = $(PWD)
-$(warning ***********CONFIG_CEDARX_PATH = $(CONFIG_CEDARX_PATH)********&&&&&&&&&&&&&&&&&&&&&*******)
+CONFIG_CEDARX_PATH = /home/xuqi/project/cedarx_release/liballwinner
+
 ## configure tool chain for linux makefile.
 # arm-linux-gnueabihf- or arm-none-linux-gnueabi- tool chain
 OPTION_CC_GNUEABIHF = 1

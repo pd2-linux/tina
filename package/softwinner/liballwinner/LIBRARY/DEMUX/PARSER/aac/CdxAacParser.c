@@ -518,7 +518,7 @@ static int GetFrame(AacParserImplS *impl)
             nBytes = AACFindSyncWord(readPtr,bytesLeft);
             if(nBytes<0)
             {
-                CDX_LOGE("AACFindSyncWord error");
+                CDX_LOGD("AACFindSyncWord error");
                 return -1;
             }
             nSyncLen  += nBytes; 
@@ -1297,7 +1297,7 @@ static cdx_int32 __AacParserControl(CdxParserT *parser, cdx_int32 cmd, void *par
 		
         break;
     default :
-        CDX_LOGW("not implement...(%d)", cmd);
+        CDX_LOGD("not implement...(%d)", cmd);
         break;
     }
     impl->nFlags = cmd;
@@ -1346,12 +1346,12 @@ static cdx_int32 __AacParserPrefetch(CdxParserT *parser, CdxPacketT *pkt)
         {
             if(impl->eofReached)
             {
-                CDX_LOGE("CdxStream EOS");
+                CDX_LOGD("CdxStream EOS");
                 impl->mErrno = PSR_EOS;            	
             }
             pkt->length = impl->bytesLeft;
             pkt->pts = -1;
-            CDX_LOGE("maybe sync err");            
+            CDX_LOGD("maybe sync err");            
         } 
         else
         {

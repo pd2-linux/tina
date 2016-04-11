@@ -170,7 +170,7 @@ static void* EncDataThread(void* arg)
 				}
 			}
 
-			if(!p->mGetVideoFrame && !p->mGetVideoFrame)
+			if(!p->mGetVideoFrame && !p->mGetAudioFrame)
 			{
 				//loge("cannot request video and audio frame");
 				usleep(20*1000);

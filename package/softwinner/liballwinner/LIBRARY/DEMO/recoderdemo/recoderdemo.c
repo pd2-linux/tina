@@ -25,6 +25,13 @@
 
 static const int STATUS_IDEL   = 0;
 
+FILE* inputPCM = NULL;
+FILE* inputYUV = NULL;
+
+int videoEos = 0;
+int audioEos = 0;
+
+
 typedef struct DemoRecoderContext
 {
 	AwEncoder*       mAwEncoder;
@@ -45,6 +52,8 @@ typedef struct DemoRecoderContext
     unsigned int extractDataLength;
 	
     pthread_t muxerThreadId ;
+    pthread_t audioDataThreadId ;
+    pthread_t videoDataThreadId ;
     AwPoolT *pool;
     CdxQueueT *dataQueue;
     int exitFlag ;
@@ -68,7 +77,7 @@ void NotifyCallbackForAwEncorder(void* pUserData, int msg, void* param)
 			if(id == 0)
 			{
 				pDemoRecoder->bUsed = 0;
-				printf("---- pDemoRecoder->bUsed: %d , %p, pDemoRecoder: %p\n", pDemoRecoder->bUsed, &pDemoRecoder->bUsed, pDemoRecoder);
+				//printf("---- pDemoRecoder->bUsed: %d , %p, pDemoRecoder: %p\n", pDemoRecoder->bUsed, &pDemoRecoder->bUsed, pDemoRecoder);
 			}
 			break;
 		}
@@ -192,6 +201,11 @@ void* MuxerThread(void *param)
     mediainfo.audioNum = 1;
     mediainfo.videoNum = 1;
 	
+    if(p->muxType == CDX_MUXER_AAC)
+    {
+    	mediainfo.videoNum = 0;
+    }
+	
 	mediainfo.audio.nAvgBitrate = p->audioConfig.nBitrate;
 	mediainfo.audio.nBitsPerSample = p->audioConfig.nSamplerBits;
 	mediainfo.audio.nChannelNum = p->audioConfig.nOutChan;
@@ -241,7 +255,7 @@ void* MuxerThread(void *param)
 		CdxMuxerWriteHeader(p->pMuxer);
 	}
 
-    while (i <50)
+    while ((audioEos==0) || (videoEos==0))
     {
         while (!CdxQueueEmpty(p->dataQueue))
         {
@@ -249,7 +263,6 @@ void* MuxerThread(void *param)
             i++;
             if(p->pMuxer)
             {
-                logd("write packet");
                 if(CdxMuxerWritePacket(p->pMuxer, mPacket) < 0)
                 {
                     loge("+++++++ CdxMuxerWritePacket failed");
@@ -282,24 +295,191 @@ void* MuxerThread(void *param)
 }
 
 
+void* AudioInputThread(void *param)
+{
+    int ret = 0;
+    //int i =0;
+	DemoRecoderContext *p = (DemoRecoderContext*)param;
+
+    logd("AudioInputThread");
+    int num = 0;
+    int size2 = 0;
+    int64_t audioPts = 0;
+    
+    AudioInputBuffer audioInputBuffer;
+    memset(&audioInputBuffer, 0x00, sizeof(AudioInputBuffer));
+    audioInputBuffer.nLen = 1024*4; //176400;
+    audioInputBuffer.pData = (char*)malloc(audioInputBuffer.nLen);
+
+/*
+    size2 = fread(audioInputBuffer.pData, 1, audioInputBuffer.nLen, inputPCM);
+	if(size2 < audioInputBuffer.nLen)
+	{
+		logd("read error");
+	}
+	*/
+    
+	while(num<100)
+	{
+		ret = -1;
+		if(!audioEos)
+		{
+			size2 = fread(audioInputBuffer.pData, 1, audioInputBuffer.nLen, inputPCM);
+			if(size2 < audioInputBuffer.nLen)
+			{
+				logd("read error");
+				audioEos = 1;
+			}
+
+			while(ret)
+			{
+				audioInputBuffer.nPts = audioPts;
+				ret = AwEncoderWritePCMdata(p->mAwEncoder,&audioInputBuffer);
+				//logd("=== WritePCMdata audioPts : %lld", audioPts);
+
+				usleep(10*1000);
+			}
+			usleep(20*1000);
+			audioPts += 23;
+		}
+
+		num ++;
+	}
+	audioEos = 1;
+
+    return 0;
+}
+
+void* VideoInputThread(void *param)
+{
+	DemoRecoderContext *p = (DemoRecoderContext*)param;
+
+    logd("VideoInputThread");
+    struct ScMemOpsS* memops = MemAdapterGetOpsS();
+	if(memops == NULL)
+	{
+		return NULL;
+	}
+	CdcMemOpen(memops);
+    
+    VideoInputBuffer videoInputBuffer;
+    int sizeY = p->videoConfig.nSrcHeight* p->videoConfig.nSrcWidth;
+    if(p->videoConfig.bUsePhyBuf)
+    {
+    	p->pAddrPhyY = CdcMemPalloc(memops, sizeY);
+		p->pAddrPhyC = CdcMemPalloc(memops, sizeY/2);
+		printf("==== palloc demoRecoder.pAddrPhyY: %p\n", p->pAddrPhyY);
+
+		videoInputBuffer.nID = 0;
+		fread(p->pAddrPhyY, 1, sizeY,  inputYUV);
+		fread(p->pAddrPhyC, 1, sizeY/2, inputYUV);
+		CdcMemFlushCache(memops, p->pAddrPhyY, sizeY);
+		CdcMemFlushCache(memops, p->pAddrPhyC, sizeY/2);
+
+		videoInputBuffer.nID = 0;
+		videoInputBuffer.pAddrPhyY = CdcMemGetPhysicAddressCpu(memops, p->pAddrPhyY);
+		videoInputBuffer.pAddrPhyC = CdcMemGetPhysicAddressCpu(memops, p->pAddrPhyC);
+		
+    }
+    else
+    {
+	    memset(&videoInputBuffer, 0x00, sizeof(VideoInputBuffer));
+	    videoInputBuffer.nLen = p->videoConfig.nSrcHeight* p->videoConfig.nSrcWidth *3/2;
+	    videoInputBuffer.pData = (unsigned char*)malloc(videoInputBuffer.nLen);
+    }
+    
+    unsigned int size1;
+    long long videoPts = 0;
+	
+	int ret = -1;
+	int num = 0;
+
+	while(num<100)
+	{
+		ret = -1;
+
+		if(p->videoConfig.bUsePhyBuf)
+		{
+			while(1)
+			{
+				if(p->bUsed == 0)
+				{
+					break;
+				}
+				//printf("==== wait buf return, demoRecoder.bUsed: %d \n", demoRecoder.bUsed);
+				usleep(10000);
+			}
+			
+			videoInputBuffer.nID = 0;
+			fread(p->pAddrPhyY, 1, sizeY,  inputYUV);
+			fread(p->pAddrPhyC, 1, sizeY/2, inputYUV);
+			CdcMemFlushCache(memops, p->pAddrPhyY, sizeY);
+			CdcMemFlushCache(memops, p->pAddrPhyC, sizeY/2);
+			
+
+			videoInputBuffer.nID = 0;
+			videoInputBuffer.pAddrPhyY = CdcMemGetPhysicAddressCpu(memops, p->pAddrPhyY);
+			videoInputBuffer.pAddrPhyC = CdcMemGetPhysicAddressCpu(memops, p->pAddrPhyC);
+			
+		}
+		else
+		{
+			size1 = fread(videoInputBuffer.pData, 1, videoInputBuffer.nLen, inputYUV);
+	    	if(size1 < videoInputBuffer.nLen)
+	    	{
+	    		logd("read error");
+	    		videoEos = 1;
+	    	}
+		}
+	
+    	while(ret < 0)
+		{
+		    videoInputBuffer.nPts = videoPts;
+		    p->bUsed = 1;
+		    //printf("==== writeYUV used: %d", demoRecoder.bUsed);
+			ret = AwEncoderWriteYUVdata(p->mAwEncoder,&videoInputBuffer);
+			
+			usleep(10*1000);
+		}
+		usleep(29*1000);
+		videoPts += 30;
+
+		printf("num: %d \n", num);
+		num ++;
+	}
+	
+    logd("read data finish!");
+
+	videoEos = 1;
+
+	printf("==== freee demoRecoder.pAddrPhyY: %p\n", p->pAddrPhyY);
+	if(p->pAddrPhyY)
+	{
+		CdcMemPfree(memops, p->pAddrPhyY);
+	}
+	printf("==== freee demoRecoder.pAddrPhyY  end\n");
+
+    if(p->pAddrPhyC)
+	{
+		CdcMemPfree(memops, p->pAddrPhyC);
+	}
+
+	CdcMemClose(memops);
+
+    return 0;
+}
+
+
 //* the main method.
 int main(int argc, char *argv[]) 
 {
     DemoRecoderContext demoRecoder;
-    int  bQuit;
     
     EncDataCallBackOps mEncDataCallBackOps;
     CdxMuxerPacketT *mPacket = NULL;
 
     mEncDataCallBackOps.onAudioDataEnc = onAudioDataEnc;
     mEncDataCallBackOps.onVideoDataEnc = onVideoDataEnc;
-
-    struct ScMemOpsS* memops = MemAdapterGetOpsS();
-	if(memops == NULL)
-	{
-		return -1;
-	}
-	CdcMemOpen(memops);
 
     printf("\n");
     printf("******************************************************************************************\n");
@@ -361,6 +541,17 @@ int main(int argc, char *argv[])
     	demoRecoder.audioConfig.nFrameStyle = 1;
     }
     
+    if(demoRecoder.muxType == CDX_MUXER_AAC) 
+    {
+    	demoRecoder.audioConfig.nType = AUDIO_ENCODE_AAC_TYPE;
+    	demoRecoder.audioConfig.nFrameStyle = 0;
+    }
+
+    if(demoRecoder.muxType == CDX_MUXER_MP3) 
+    {
+    	demoRecoder.audioConfig.nType = AUDIO_ENCODE_MP3_TYPE;
+    }
+    
     pthread_mutex_init(&demoRecoder.mMutex, NULL);
 
 	demoRecoder.mAwEncoder = AwEncoderCreate(&demoRecoder);
@@ -373,7 +564,15 @@ int main(int argc, char *argv[])
     //* set callback to recoder.
     AwEncoderSetNotifyCallback(demoRecoder.mAwEncoder,NotifyCallbackForAwEncorder,&(demoRecoder));
 
-    AwEncoderInit(demoRecoder.mAwEncoder, &demoRecoder.videoConfig, &demoRecoder.audioConfig,&mEncDataCallBackOps); 
+	if(demoRecoder.muxType == CDX_MUXER_AAC || demoRecoder.muxType == CDX_MUXER_MP3) 
+	{
+    	AwEncoderInit(demoRecoder.mAwEncoder, NULL, &demoRecoder.audioConfig,&mEncDataCallBackOps); 
+    	videoEos = 1;
+    }
+    else
+    {
+    	AwEncoderInit(demoRecoder.mAwEncoder, &demoRecoder.videoConfig, &demoRecoder.audioConfig,&mEncDataCallBackOps); 
+    }
     //AwEncoderInit(demoRecoder.mAwEncoder, &demoRecoder.videoConfig, NULL,&mEncDataCallBackOps);
 
 
@@ -388,149 +587,39 @@ int main(int argc, char *argv[])
     }
 
     pthread_create(&demoRecoder.muxerThreadId, NULL, MuxerThread, &demoRecoder);
+    pthread_create(&demoRecoder.audioDataThreadId, NULL, AudioInputThread, &demoRecoder);
     
-    //* read, parse and process command from user.
-    bQuit = 0;
+    if((demoRecoder.muxType != CDX_MUXER_AAC) && (demoRecoder.muxType != CDX_MUXER_MP3)) 
+    {
+    	pthread_create(&demoRecoder.videoDataThreadId, NULL, VideoInputThread, &demoRecoder);
+    }
 
-    FILE* inputYUV = fopen(argv[1], "rb");
+    inputYUV = fopen(argv[1], "rb");
     if(inputYUV == NULL)
     {
     	printf("open yuv file failed");
     	return -1;
     }
 
-    FILE* inputPCM = fopen(argv[2], "rb");
+    inputPCM = fopen(argv[2], "rb");
     if(inputPCM == NULL)
     {
     	printf("open yuv file failed");
     	return -1;
     }
 
-    AudioInputBuffer audioInputBuffer;
-    memset(&audioInputBuffer, 0x00, sizeof(AudioInputBuffer));
-    audioInputBuffer.nLen = 10240; //176400;
-    audioInputBuffer.pData = (char*)malloc(audioInputBuffer.nLen);
-
-    VideoInputBuffer videoInputBuffer;
-    int sizeY = demoRecoder.videoConfig.nSrcHeight* demoRecoder.videoConfig.nSrcWidth;
-    if(demoRecoder.videoConfig.bUsePhyBuf)
-    {
-    	demoRecoder.pAddrPhyY = CdcMemPalloc(memops, sizeY);
-		demoRecoder.pAddrPhyC = CdcMemPalloc(memops, sizeY/2);
-		printf("==== palloc demoRecoder.pAddrPhyY: %p\n", demoRecoder.pAddrPhyY);
-/*
-		videoInputBuffer.nID = 0;
-		fread(demoRecoder.pAddrPhyY, 1, sizeY,  inputYUV);
-		fread(demoRecoder.pAddrPhyC, 1, sizeY/2, inputYUV);
-		MemAdapterFlushCache(demoRecoder.pAddrPhyY, sizeY);
-		MemAdapterFlushCache(demoRecoder.pAddrPhyC, sizeY/2);
-
-		videoInputBuffer.nID = 0;
-		videoInputBuffer.pAddrPhyY = MemAdapterGetPhysicAddress(demoRecoder.pAddrPhyY)+PHY_OFFSET;
-		videoInputBuffer.pAddrPhyC = MemAdapterGetPhysicAddress(demoRecoder.pAddrPhyC)+PHY_OFFSET;
-		*/
-    }
-    else
-    {
-	    memset(&videoInputBuffer, 0x00, sizeof(VideoInputBuffer));
-	    videoInputBuffer.nLen = demoRecoder.videoConfig.nSrcHeight* demoRecoder.videoConfig.nSrcWidth *3/2;
-	    videoInputBuffer.pData = (unsigned char*)malloc(videoInputBuffer.nLen);
-    }
-    
-    unsigned int size1, size2;
-    int videoEos = 0;
-    int audioEos = 0;
-    long long audioPts = 0; 
-    long long videoPts = 0;
-	
-    while(!bQuit)
-    {
-    	int ret = -1;
-    	int num = 0;
-    	while(num<150)
-    	{
-    		ret = -1;
-    		if(!videoEos)
-    		{
-				if(demoRecoder.videoConfig.bUsePhyBuf)
-				{
-					while(1)
-					{
-						if(demoRecoder.bUsed == 0)
-						{
-							break;
-						}
-						//printf("==== wait buf return, demoRecoder.bUsed: %d \n", demoRecoder.bUsed);
-						usleep(10000);
-					}
-					
-					videoInputBuffer.nID = 0;
-					fread(demoRecoder.pAddrPhyY, 1, sizeY,  inputYUV);
-					fread(demoRecoder.pAddrPhyC, 1, sizeY/2, inputYUV);
-					CdcMemFlushCache(memops, demoRecoder.pAddrPhyY, sizeY);
-					CdcMemFlushCache(memops, demoRecoder.pAddrPhyC, sizeY/2);
-
-					videoInputBuffer.nID = 0;
-					videoInputBuffer.pAddrPhyY = CdcMemGetPhysicAddressCpu(memops, demoRecoder.pAddrPhyY);
-					videoInputBuffer.pAddrPhyC = CdcMemGetPhysicAddressCpu(memops, demoRecoder.pAddrPhyC);
-					
-				}
-				else
-				{
-					size1 = fread(videoInputBuffer.pData, 1, videoInputBuffer.nLen, inputYUV);
-			    	if(size1 < videoInputBuffer.nLen)
-			    	{
-			    		logd("read error");
-			    		videoEos = 1;
-			    	}
-				}
-	    	
-		    	while(ret < 0)
-				{
-				    videoInputBuffer.nPts = videoPts;
-				    demoRecoder.bUsed = 1;
-				    //printf("==== writeYUV used: %d", demoRecoder.bUsed);
-					ret = AwEncoderWriteYUVdata(demoRecoder.mAwEncoder,&videoInputBuffer);
-				
-					usleep(10*1000);
-				}
-				videoPts += 30;
-	    	}
-
-			ret = -1;
-	    	if(!audioEos)
-	    	{
-				size2 = fread(audioInputBuffer.pData, 1, audioInputBuffer.nLen, inputPCM);
-				if(size2 < audioInputBuffer.nLen)
-				{
-					logd("read error");
-					audioEos = 1;
-				}
-
-				{
-				    audioInputBuffer.nPts = audioPts;
-					ret = AwEncoderWritePCMdata(demoRecoder.mAwEncoder,&audioInputBuffer);
-					if(ret < 0)
-					{
-						audioEos = 1;
-					}
-				}
-				audioPts += 1000;
-			}
-
-			printf("num: %d \n", num);
-			num ++;
-		}
-        logd("read data finish!");
-		break;
-
-	}
-	
     while (demoRecoder.exitFlag == 0)
     {
         logd("wait MuxerThread finish!");
         usleep(1000*1000);
     }
+
+	if(demoRecoder.muxerThreadId)
+    	pthread_join(demoRecoder.muxerThreadId,     NULL);
+    if(demoRecoder.audioDataThreadId)
+    	pthread_join(demoRecoder.audioDataThreadId, NULL);
+    if(demoRecoder.videoDataThreadId)
+    	pthread_join(demoRecoder.videoDataThreadId, NULL);
 
 	printf("destroy AwRecorder.\n");
 	
@@ -543,20 +632,6 @@ int main(int argc, char *argv[])
     }
     CdxQueueDestroy(demoRecoder.dataQueue);
     AwPoolDestroy(demoRecoder.pool);
-    
-	printf("==== freee demoRecoder.pAddrPhyY: %p\n", demoRecoder.pAddrPhyY);
-	if(demoRecoder.pAddrPhyY)
-	{
-		CdcMemPfree(memops, demoRecoder.pAddrPhyY);
-	}
-	printf("==== freee demoRecoder.pAddrPhyY  end\n");
-
-    if(demoRecoder.pAddrPhyC)
-	{
-		CdcMemPfree(memops, demoRecoder.pAddrPhyC);
-	}
-    
-	CdcMemClose(memops);
     
 	if(demoRecoder.mAwEncoder != NULL)
 	{

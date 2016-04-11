@@ -150,17 +150,20 @@ static int __AacMuxerWritePacket(CdxMuxerT *mux, CdxMuxerPacketT *packet)
 {
 	AacMuxContext *impl = (AacMuxContext*)mux;
 	int ret;
+	/*
 	generateAdtsHeader(impl, packet->buflen);
 
 	ret = CdxStreamWrite(impl->stream, impl->adts, ADTS_HEADER_SIZE);
 	if(ret < ADTS_HEADER_SIZE)
 	{
 		return -1;
-	}
+	}*/
+	
 	
 	ret = CdxStreamWrite(impl->stream, packet->buf, packet->buflen);
 	if(ret < packet->buflen)
 	{
+		logd("=== ret: %d, packet->buflen: %d", ret, packet->buflen);
 		return -1;
 	}
 	return 0;
@@ -174,7 +177,7 @@ static int __AacMuxerSetMediaInfo(CdxMuxerT *mux, CdxMuxerMediaInfoT *pMediaInfo
 	memcpy(&impl->mediaInfo.audio, &pMediaInfo->audio, sizeof(MuxerAudioStreamInfoT));
 	
 
-	initADTSHeader(impl, impl->mediaInfo.audio.nSampleRate, impl->mediaInfo.audio.nChannelNum);
+	//initADTSHeader(impl, impl->mediaInfo.audio.nSampleRate, impl->mediaInfo.audio.nChannelNum);
 
 	return 0;
 }
@@ -196,6 +199,10 @@ static int __AacMuxerClose(CdxMuxerT *mux)
 
 	if(impl)
 	{
+		if(impl->stream)
+		{
+			CdxStreamClose(impl->stream);
+		}
 		free(impl);
 	}
 

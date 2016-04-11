@@ -454,6 +454,7 @@ static int __WStreamWrite(CdxStreamT *stream, void * buf, cdx_uint32 len)
 	{
 		memcpy(impl->cache_buf+impl->cache_size, buf, len);
 		impl->cache_size += len;
+		ret = len;
 	}
 	else
 	{		
