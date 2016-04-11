@@ -48,7 +48,6 @@ define Package/liballwinner
   TITLE:=CedarX2.6  for softwinner
   DEPENDS:=+libpthread \
   	   +libopenssl \
-  	   +libxml2 \
   	   +libstdcpp \
   	   +zlib \
   	   +alsa-lib
@@ -200,7 +199,7 @@ define Package/liballwinner/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/LIBRARY/install/lib/*.so                           $(1)/usr/lib/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/tinaplayer/libtinaplayer.so                        $(1)/usr/lib/
 
-	cd $(1)/usr/lib/; rm -rf $(SYSTEM_LIB)
+	cd $(1)/usr/lib/; rm -rf $(SYSTEM_LIB) $(VIDEO_DECODE_LIB)
 
 endef
 
