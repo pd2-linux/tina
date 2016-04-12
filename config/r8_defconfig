@@ -3345,6 +3345,7 @@ CONFIG_PACKAGE_adb=y
 # CONFIG_PACKAGE_liballwinner-audio is not set
 CONFIG_PACKAGE_liballwinner-base=y
 # CONFIG_PACKAGE_liballwinner-ipc is not set
+CONFIG_PACKAGE_misc-upgrade=y
 # CONFIG_PACKAGE_smartlinkd is not set
 
 #
