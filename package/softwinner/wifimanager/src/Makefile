@@ -3,7 +3,8 @@ target			= libwifimg.so
 INCLUDES        += -I. -I./include
 LIBS            += -lpthread -ldl
 
-SRCS =wifimanager.c wifi_event.c wifi.c udhcpc_thread.c
+SRCS =wifimanager.c wifi_event.c wifi_state_machine.c network_manager.c \
+      wifi.c wpa_supplicant_conf.c udhcpc_thread.c
 
 install:
 	-@mkdir -p $(CONFIG_PREFIX)/usr/lib

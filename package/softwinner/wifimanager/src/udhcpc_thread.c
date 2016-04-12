@@ -7,11 +7,14 @@
 #include <ifaddrs.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <sys/types.h>
 
 #include "wifi_event.h"
+#include "wifi_state_machine.h"
 
 extern int disconnecting;
-static tWifi_event_callback p_state_callback = NULL;
+extern int  connecting_ap_event_label;
+extern int  disconnect_ap_event_label;
 
 static int get_net_ip(const char *if_name, char *ip, int *len, int *vflag)
 {
@@ -59,6 +62,7 @@ void *udhcpc_thread(void *args)
 {
 	  int len = 0, vflag = 0, times = 0;
 	  char ipaddr[INET6_ADDRSTRLEN];
+    char cmd[256] = {0}, reply[8] = {0};
 	  
     /* restart udhcpc */
 	  system("/etc/wifi/udhcpc_wlan0 restart");
@@ -69,30 +73,36 @@ void *udhcpc_thread(void *args)
 	  do{
 	      usleep(100000);
 	      if(disconnecting == 1){
-	          printf("receive disconnect cmd!\n");
 	          system("/etc/wifi/udhcpc_wlan0 stop");
 	          break;
 	      }
 	      get_net_ip("wlan0", ipaddr, &len, &vflag);
-	      times++;    
-	  }while((vflag == 0) && (times < 120));
+	      times++;
+	  }while((vflag == 0) && (times < 310));
 	  
-	  if(p_state_callback != NULL){
-	      if(vflag != 0){
-	          p_state_callback(NETWORK_CONNECTED, args);
-	      }else{
-	      	  printf("udhcpc wlan0 timeout!\n");
-	          p_state_callback(CONNECT_TIMEOUT, NULL);
-	      }    
-	  }
+		printf("vflag= %d\n",vflag);
+    if(vflag != 0){
+    	  set_wifi_machine_state(CONNECTED_STATE);
+    	  send_wifi_event(AP_CONNECTED, connecting_ap_event_label);
+    }else{
+    	  printf("udhcpc wlan0 timeout, pid %d!\n",pthread_self());
+    	  /* stop dhcpc thread */
+    	  system("/etc/wifi/udhcpc_wlan0 stop");
+    	  
+    	  /* send disconnect */			
+        sprintf(cmd, "%s", "DISCONNECT");
+        wifi_command(cmd, reply, sizeof(reply));
+        
+    	  set_wifi_machine_state(DISCONNECTED_STATE);
+    	  send_wifi_event(OBTAINING_IP_TIMEOUT, connecting_ap_event_label);
+    }
 	  
 	  pthread_exit(NULL);
 }
 
 
-void start_udhcpc_thread(tWifi_event_callback pcb, void *args)
+void start_udhcpc_thread(void *args)
 {
     pthread_t thread_id;
-    p_state_callback = pcb;
-    pthread_create(&thread_id, NULL, &udhcpc_thread, args);   
+    pthread_create(&thread_id, NULL, &udhcpc_thread, args);
 }

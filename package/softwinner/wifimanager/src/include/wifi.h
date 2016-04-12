@@ -104,7 +104,7 @@ int wifi_wait_for_event(char *buf, size_t len);
  *
  * @return 0 if successful, < 0 if an error.
  */
-int wifi_command(const char *command, char *reply, size_t *reply_len);
+int wifi_command(const char *command, char *reply, size_t reply_len);
 
 /**
  * do_dhcp_request() issues a dhcp request and returns the acquired

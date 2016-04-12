@@ -596,7 +596,24 @@ void wifi_close_supplicant_connection()
     }
 }
 
-int wifi_command(const char *command, char *reply, size_t *reply_len)
+int wifi_command(char const *cmd, char *reply, size_t reply_len)
 {
-    return wifi_send_command(command, reply, reply_len);
+    if(!cmd || !cmd[0]){
+        return -1;
+    }
+    
+    printf("do cmd %s\n", cmd);
+    
+    --reply_len; // Ensure we have room to add NUL termination.
+    if (wifi_send_command(cmd, reply, &reply_len) != 0) {
+        return -1;
+    }
+    
+    // Strip off trailing newline.
+    if (reply_len > 0 && reply[reply_len-1] == '\n') {
+        reply[reply_len-1] = '\0';
+    } else {
+        reply[reply_len] = '\0';
+    }
+    return 0;
 }
