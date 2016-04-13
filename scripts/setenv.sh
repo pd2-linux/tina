@@ -219,7 +219,7 @@ function refresh_ota_env(){
 function clean_ota_env(){
     local T=$(gettop)
     local chip=sunxi
-    [ x$BOARD = x"sun5i" ] && chip=sun5i
+    [ x$CHIP = x"sun5i" ] && chip=sun5i
     local BIN_DIR=$T/bin/$chip
     local OTA_DIR=$BIN_DIR/ota
 
@@ -229,7 +229,7 @@ function clean_ota_env(){
 function make_ota_image(){
     local T=$(gettop)
     local chip=sunxi
-    [ x$BOARD = x"sun5i" ] && chip=sun5i
+    [ x$CHIP = x"sun5i" ] && chip=sun5i
     local BIN_DIR=$T/bin/$chip
     local OTA_DIR=$BIN_DIR/ota
     mkdir -p $OTA_DIR
@@ -241,7 +241,7 @@ function make_ota_image(){
     for i in $target_list; do
         if [ ! -f $i ]; then
             img=${i##*/}
-            print_red "$img is not exsit! rebuild the image."
+            print_red "$i is not exsit! rebuild the image."
             make -j
             break
         fi
