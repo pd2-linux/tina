@@ -133,7 +133,10 @@ write_nor_partition(){
 write_nand_partition(){
     # $1 img
     # $2 partition name
-    upgrade_log "write_emmc_partition???"
+    upgrade_log "write_emmc_partition $1 > /dev/by-name/$2"
+    [ -e /dev/by-name/$2 ] && {
+        write_mmc_partition $1 $2
+    }
 }
 do_write_partition(){
     # $1 img
@@ -171,6 +174,7 @@ do_upgrade_image(){
         #reboot -f #test
         set_system_flag "boot-recovery"
         #fail #1 end
+        rm -rf $UPGRADE_IMG_DIR/boot_initramfs.img
     }
 
     flag=`get_system_flag`
@@ -194,6 +198,7 @@ do_upgrade_image(){
         
         set_system_flag "upgrade_post"
         #fail #2 end
+        rm $UPGRADE_IMG_DIR/rootfs.img $UPGRADE_IMG_DIR/boot.img
     }
 
     [ -f $UPGRADE_IMG_DIR/usr.img ] && {
@@ -208,19 +213,21 @@ do_upgrade_image(){
 
         #reboot -f #test
         #fail #3 end
+        rm $UPGRADE_IMG_DIR/usr.img
     }
 
 }
 do_prepare_image(){
-    # $1 image file
+    # $1 image file path
+    # $2 image file name
     upgrade_log "unpack image start..."
     
     #copy package to dram
-    cp $1 /tmp/
+    cp $1/$2 /tmp/
 
     cd /tmp && {
-        tar -zxvf $1 && rm $1
-        [ -d $TARGET ] && list="$TARGET/boot.img $TARGET/usr.img $TARGET/rootfs.img"
+        tar -zxvf /tmp/$2 && rm /tmp/$2
+        [ -d $TARGET ] && list="$TARGET/boot.img $TARGET/rootfs.img"
         [ -d $RAMDISK ] && list="$RAMDISK/boot_initramfs.img"
         [ -d $USR ] && list="$USR/usr.img"
         echo .......... $list
@@ -243,9 +250,9 @@ do_prepare_image(){
 if [ $# -lt 1 ]; then
     show_usage
     exit $ILLEGAL_ARGS
-elif [ x$1 = x"prepare" ] && [ $# -eq 2 ] && [ -f $2 ]; then
-    upgrade_log "start to prepare -->>> $2 <<<--"
-    do_prepare_image $2
+elif [ x$1 = x"prepare" ] && [ $# -eq 3 ] && [ -f $2/$3 ]; then
+    upgrade_log "start to prepare -->>> $2/$3 <<<--"
+    do_prepare_image $2 $3
 elif [ x$1 = x"upgrade" ]; then
     upgrade_log "start to upgrade"
     do_upgrade_image

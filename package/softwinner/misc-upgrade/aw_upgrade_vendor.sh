@@ -1,6 +1,6 @@
 #!/bin/sh
 
-export DOMAIN="192.168.1.128"
+export DOMAIN="192.168.1.140"
 export ADDR=http://$DOMAIN/
 
 check_ip_timeout_vendor(){
@@ -49,5 +49,5 @@ upgrade_start_vendor(){
 upgrade_finish_vendor(){
     #set version
     write_misc -v henrisk_test_v1 -s ok
-    reboot -f
+    #reboot -f
 }
