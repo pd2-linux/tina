@@ -11,6 +11,9 @@ include $(INCLUDE_DIR)/host.mk
 FAT32_BLOCK_SIZE=1024
 FAT32_BLOCKS=$(shell echo $$(($(CONFIG_SUNXI_BOOT_PARTSIZE)*1024*1024/$(FAT32_BLOCK_SIZE))))
 
+RECOVERY_INITRAMFS_BLOCKS=$(shell echo $$(($(CONFIG_SUNXI_RECOVERY_INITRAMFS_PARTSIZE)*1024*1024/$(FAT32_BLOCK_SIZE))))
+OTA_DIR:=$(BIN_DIR)/ota
+
 BOARDS:= \
 	R8M-Evb-Board \
 	R8-Evb-Board \
@@ -44,7 +47,7 @@ define Image/BuildKernel
 	
 ifeq ($(CONFIG_TARGET_AW_OTA_INITRAMFS),y)
 	rm -f $(BIN_DIR)/boot_initramfs.img
-	mkdosfs $(BIN_DIR)/boot_initramfs.img -C $(EXTEND_BLOCKS)
+	mkdosfs $(BIN_DIR)/boot_initramfs.img -C $(RECOVERY_INITRAMFS_BLOCKS)
 	mcopy -i $(BIN_DIR)/boot_initramfs.img $(BIN_DIR)/$(IMG_PREFIX)-uImage-initramfs ::uImage
 else
 	rm -f $(BIN_DIR)/boot.img

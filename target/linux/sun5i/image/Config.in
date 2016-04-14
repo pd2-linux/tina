@@ -3,3 +3,7 @@ config SUNXI_BOOT_PARTSIZE
 	depends on TARGET_sun5i
 	default 16
 
+config SUNXI_RECOVERY_INITRAMFS_PARTSIZE
+	int "Boot-Recovery initramfs filesystem partition size (in MB)"
+	depends on TARGET_sun5i
+	default 16
