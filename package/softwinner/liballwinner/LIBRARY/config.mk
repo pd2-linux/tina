@@ -314,6 +314,8 @@ LOCAL_CFLAGS += -DCONFIG_HAVE_SSL=$(CONFIG_HAVE_SSL)
 ifeq ($(CONFIG_OS), $(OPTION_OS_LINUX))
 	ifeq ($(CONFIG_CHIP),$(OPTION_CHIP_R16))
 		include $(CONFIG_CEDARX_PATH)/LIBRARY/config/R16_linux_config.mk   # R16
+	else ifeq  ($(CONFIG_CHIP),$(OPTION_CHIP_R8))
+		include $(CONFIG_CEDARX_PATH)/LIBRARY/config/R8_linux_config.mk   # R8
 	else ifeq  ($(CONFIG_CHIP),$(OPTION_CHIP_C500))
 		include $(CONFIG_CEDARX_PATH)/LIBRARY/config/C500_linux_config.mk   # c500
 	else
