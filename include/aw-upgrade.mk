@@ -54,7 +54,7 @@ define Aw/BuildUpgradeImage/prepare
 	cp -r $(2)/bin $(1)/usr/
 	find $(1)/usr/bin -type f -exec rm {} \;
 	cp $(2)/share/libubox/jshn.sh $(1)/lib/functions/
-	cp -r $(2)/share/udhcpc $(1)/usr/share
+	cp -r $(2)/share/* $(1)/usr/share/
 
 endef
 
