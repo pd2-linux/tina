@@ -255,8 +255,8 @@ function make_ota_image(){
     cp $BIN_DIR/rootfs.img $OTA_DIR/target_sys/
     make_img_md5 $OTA_DIR/target_sys/rootfs.img
     
-    cp $BIN_DIR/usr.img $OTA_DIR/target_sys/
-    make_img_md5 $OTA_DIR/target_sys/usr.img
+    #cp $BIN_DIR/usr.img $OTA_DIR/target_sys/
+    #make_img_md5 $OTA_DIR/target_sys/usr.img
 
     rm -rf $OTA_DIR/usr_sys
     mkdir -p $OTA_DIR/usr_sys
