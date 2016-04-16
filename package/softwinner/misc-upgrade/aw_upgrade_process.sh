@@ -1,58 +1,28 @@
 #!/bin/sh
 
+. /sbin/aw_upgrade_utils.sh
 . /sbin/aw_upgrade_vendor.sh
+. /sbin/aw_upgrade_image.sh
 
-#DOMAIN="we.china-ota.com"
-#ADDR=http://$DOMAIN/WeChatSurvey/
+#UPGRADE_SH=/sbin/aw_upgrade_image.sh
+UPGRADE_SH=do_upgrade
 
-#test
-
-RAMDISK_IMG=ramdisk_sys.tar.gz
-TARGET_IMG=target_sys.tar.gz
-USR_IMG=usr_sys.tar.gz
-
-UPGRADE_SH=/sbin/aw_upgrade_image.sh
-
-IMG_PATH=/mnt/UDISK/misc-upgrade/
+LOCAL_IMG_PATH=/mnt/UDISK/misc-upgrade/
 
 UPGRADE_SETTING_PATH=/mnt/UDISK/misc-upgrade/
 
-check_ip_timeout_default(){
-    #$1 timeout(s)
-    let timeout=0
-    while [ $timeout -lt $1 ]
-    do
-        ping -c 2 $DOMAIN
-        [ $? -eq 0 ] && return 0
-        let timeout=$timeout+1
-        sleep 1
-    done
-    return 1
-}
-check_network_default(){
-    check_ip_timeout_default 5
-    if [ $? -ne 0 ];then
-        #restart the wifi
-        /etc/init.d/wifi start
-        sleep 2
-        /etc/init.d/udhcpc_wlan0 start
-        sleep 2
-        check_ip_timeout_default 10
-        [ $? -ne 0 ] && {
-            echo "the network is not available"
-            exit 1;
-        }
-    fi
-}
+IS_COMPRESS_IMAGE=no
 
 download_image(){
     # $1 image name  $2 DIR
+    image_name=$1
+    store_dir=$2
     type download_image_vendor 1>/dev/null 2>/dev/null
     [ $? -ne 0 ] && {
         echo "vendor download image is available!"
-        exit 1
+        exit $ERR_VENDOR_HOOK_NOT_SUPPORT
     }
-    download_image_vendor $1 $2
+    download_image_vendor $image_name $store_dir $URL
 }
 try_mount(){
     # $1 partition name $2 mount dir
@@ -67,12 +37,12 @@ check_network(){
     type check_network_vendor 1>/dev/null 2>/dev/null 
     [ $? -ne 0 ] && {
         echo "vendor check network is no available!"
-        exit 1
+        exit $ERR_VENDOR_HOOK_NOT_SUPPORT
     }
 
-    check_network_vendor 
+    check_network_vendor $1
     [ $? -ne 0 ] && {
-        exit 1
+        exit $ERR_NETWORK_FAILED
     }
 }
 set_version(){
@@ -96,10 +66,29 @@ upgrade_finish(){
 }
 download_prepare_image(){
     # $1 image
-    download_image $1 /tmp
-    #md5 check for the package
-    #if check ok
-    $UPGRADE_SH prepare /tmp $1
+    if [ x$IS_COMPRESS_IMAGE = x"--none-compress" ];then
+        [ x$1 = x$RAMDISK_PKG ] && {
+            file=$RAMDISK_IMG
+            download_image $file /tmp
+            $UPGRADE_SH prepare /tmp $file $IS_COMPRESS_IMAGE
+        }
+        [ x$1 = x$TARGET_PKG ] && {
+            file=$BOOT_IMG
+            download_image $file /tmp
+            $UPGRADE_SH prepare /tmp $file $IS_COMPRESS_IMAGE
+            file=$ROOTFS_IMG
+            download_image $file /tmp
+            $UPGRADE_SH prepare /tmp $file $IS_COMPRESS_IMAGE
+        }
+        [ x$1 = x$USR_PKG ] && {
+            file=$USR_IMG
+            download_image $file /tmp
+            $UPGRADE_SH prepare /tmp $file $IS_COMPRESS_IMAGE
+        }
+    else
+        download_image $1 /tmp
+        $UPGRADE_SH prepare /tmp $1 $IS_COMPRESS_IMAGE
+    fi
 }
 boot_recovery_mode(){
     # boot-reocvery mode
@@ -119,10 +108,13 @@ boot_recovery_mode(){
 
     upgrade_start boot_recovery
     
-    IMG_PATH=`cat $UPGRADE_SETTING_PATH/.image_path`
-    if [ -f $IMG_PATH/$TARGET_IMG ]; then
-        $UPGRADE_SH prepare $IMG_PATH $TARGET_IMG
-        $UPGRADE_SH prepare $IMG_PATH $USR_IMG
+    export LOCAL_IMG_PATH=`cat $UPGRADE_SETTING_PATH/.image_path`
+    export IS_COMPRESS_IMAGE=`cat $UPGRADE_SETTING_PATH/.image_compress`
+    export DOMAIN=`cat $UPGRADE_SETTING_PATH/.image_domain`
+    export URL=`cat $UPGRADE_SETTING_PATH/.image_url`
+    if [ -f $LOCAL_IMG_PATH/$TARGET_PKG ] && [ -f $IMG_PATH/$USR_PKG; then
+        $UPGRADE_SH prepare $LOCAL_IMG_PATH $TARGET_PKG $IS_COMPRESS_IMAGE
+        $UPGRADE_SH prepare $LOCAL_IMG_PATH $USR_PKG $IS_COMPRESS_IMAGE
         $UPGRADE_SH upgrade
     else
         # get current wifi wpa_supplicant.conf
@@ -135,11 +127,11 @@ boot_recovery_mode(){
             cat /etc/wifi/wpa_supplicant.conf
         }
 
-        check_network
+        check_network $DOMAIN
 
-        download_prepare_image $TARGET_IMG
+        download_prepare_image $TARGET_PKG $IS_COMPRESS_IMAGE
         $UPGRADE_SH upgrade
-        download_prepare_image $USR_IMG
+        download_prepare_image $USR_PKG $IS_COMPRESS_IMAGE
         $UPGRADE_SH upgrade
     fi
 
@@ -162,19 +154,22 @@ upgrade_pre_mode(){
 
     upgrade_start pre
     
-    IMG_PATH=`cat $UPGRADE_SETTING_PATH/.image_path`
-    if [ -f $IMG_PATH/$RAMDISK_IMG ] && [ -f $IMG_PATH/$TARGET_IMG ]; then
-        $UPGRADE_SH prepare $IMG_PATH $RAMDISK_IMG
-        $UPGRADE_SH prepare $IMG_PATH $TARGET_IMG
-        $UPGRADE_SH prepare $IMG_PATH $USR_IMG
+    export LOCAL_IMG_PATH=`cat $UPGRADE_SETTING_PATH/.image_path`
+    export IS_COMPRESS_IMAGE=`cat $UPGRADE_SETTING_PATH/.image_compress`
+    export DOMAIN=`cat $UPGRADE_SETTING_PATH/.image_domain`
+    export URL=`cat $UPGRADE_SETTING_PATH/.image_url`
+    if [ -f $LOCAL_IMG_PATH/$RAMDISK_PKG ] && [ -f $LOCAL_IMG_PATH/$TARGET_PKG ]; then
+        $UPGRADE_SH prepare $LOCAL_IMG_PATH $RAMDISK_PKG $IS_COMPRESS_IMAGE
+        $UPGRADE_SH prepare $LOCAL_IMG_PATH $TARGET_PKG $IS_COMPRESS_IMAGE
+        $UPGRADE_SH prepare $LOCAL_IMG_PATH $USR_PKG $IS_COMPRESS_IMAGE
         $UPGRADE_SH upgrade
     else
-        check_network
-        download_prepare_image $RAMDISK_IMG
+        check_network $DOMAIN
+        download_prepare_image $RAMDISK_PKG $IS_COMPRESS_IMAGE
         $UPGRADE_SH upgrade
-        download_prepare_image $TARGET_IMG
+        download_prepare_image $TARGET_PKG $IS_COMPRESS_IMAGE
         $UPGRADE_SH upgrade
-        download_prepare_image $USR_IMG
+        download_prepare_image $USR_PKG $IS_COMPRESS_IMAGE
         $UPGRADE_SH upgrade
     fi
 
@@ -196,12 +191,15 @@ upgrade_post_mode(){
 
     $UPGRADE_SH clean
     
-    IMG_PATH=`cat $UPGRADE_SETTING_PATH/.image_path`
-    if [ -f $IMG_PATH/$USR_IMG ]; then
-        $UPGRADE_SH prepare $IMG_PATH $USR_IMG
+    export LOCAL_IMG_PATH=`cat $UPGRADE_SETTING_PATH/.image_path`
+    export IS_COMPRESS_IMAGE=`cat $UPGRADE_SETTING_PATH/.image_compress`
+    export DOMAIN=`cat $UPGRADE_SETTING_PATH/.image_domain`
+    export URL=`cat $UPGRADE_SETTING_PATH/.image_url`
+    if [ -f $LOCAL_IMG_PATH/$USR_PKG ]; then
+        $UPGRADE_SH prepare $LOCAL_IMG_PATH $USR_PKG $IS_COMPRESS_IMAGE
     else
-        check_network
-        download_prepare_image $USR_IMG
+        check_network $DOMIAN
+        download_prepare_image $USR_PKG $IS_COMPRESS_IMAGE
     fi
 
     upgrade_start post
@@ -216,17 +214,20 @@ upgrade_end_mode(){
     echo "wait for next upgrade!!"
     #clear
     [ -f $UPGRADE_SETTING_PATH/.image_path ] && rm -rf $UPGRADE_SETTING_PATH/.image_path
+    [ -f $UPGRADE_SETTING_PATH/.image_compress ] && rm -rf $UPGRADE_SETTING_PATH/.image_compress
+    [ -f $UPGRADE_SETTING_PATH/.image_url ] && rm -rf $UPGRADE_SETTING_PATH/.image_url
+    [ -f $UPGRADE_SETTING_PATH/.image_domain ] && rm -rf $UPGRADE_SETTING_PATH/.image_domain
 }
 ####################################################
 modeflag=0
 check_mode(){
     [ $modeflag -eq 1 ] && {
         echo "mode conflict, must be set -p or -f"
-        exit 0
+        exit $ERR_ILLEGAL_ARGS
     }
     modeflag=1
 }
-while getopts "fpl:" opt; do
+while getopts "fpl:nu:d:" opt; do
     case $opt in
     f)
         check_mode
@@ -237,16 +238,35 @@ while getopts "fpl:" opt; do
         mode="--post"
         ;;
     l)
-        [ ! -d $OPTARG ] && echo "-l $OPTARG, the settting path is unavailable" && exit 0
+        [ ! -d $OPTARG ] && {
+            echo "-l $OPTARG, the settting path is unavailable"
+            exit $ERR_ILLEGAL_ARGS
+        }
         mkdir -p $UPGRADE_SETTING_PATH
         echo $OPTARG > $UPGRADE_SETTING_PATH/.image_path
-        ;;  
-    \?)  
+        ;;
+    n)
+        is_compress_image='--none-compress'
+        mkdir -p $UPGRADE_SETTING_PATH
+        echo $is_compress_image > $UPGRADE_SETTING_PATH/.image_compress
+        echo "using none compress image to upgrade!"
+        ;;
+    u)
+        mkdir -p $UPGRADE_SETTING_PATH
+        echo $OPTARG > $UPGRADE_SETTING_PATH/.image_url
+        echo "using setting URL: $OPTARG"
+        ;;
+    d)
+        mkdir -p $UPGRADE_SETTING_PATH
+        echo $OPTARG > $UPGRADE_SETTING_PATH/.image_domain
+        echo "using setting DOMAIN: $OPTARG"
+        ;;
+    \?)
         echo "Invalid option: -$OPTARG"
-        exit 0
-        ;;  
+        exit $ERR_ILLEGAL_ARGS
+        ;;
     esac  
-done  
+done
 # force to upgrade
 if [ -n $mode ] && [ x$mode = x"--force" ]; then
     export NORMAL_MODE=normal
