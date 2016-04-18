@@ -4,7 +4,7 @@
 
 一、分区定义：
     boot分区：存内核镜像
-    rootfs分区：基础系统镜像分区（/lib, /bin, /etc, /sbin等非/usr的路径，wifi支持环境，alsa支持环境、OTA环境）
+    rootfs分区：基础系统镜像分区（/lib, /bin, /etc, /sbin等非/usr，非挂载其他分区的路径，wifi支持环境，alsa支持环境、OTA环境）
     extend分区：扩展系统镜像分区（/usr 应用分区）
     上面三个分区为升级分区
 
@@ -26,7 +26,7 @@
             downloadfile = "boot.fex"
             user_type    = 0x8000
 
-        boot分区镜像大小的设定：
+        boot分区镜像大小需要在menuconfig中预先设定：
         make menuconfig
             Target Images  --->
                 *** Image Options ***
@@ -42,7 +42,7 @@
 
     c）extend分区的大小，需要考虑多个方面：
         1）编译后 usr.img的大小
-        2）make_ota_image后initramfs镜像的大小
+        2）make_ota_image后initramfs镜像的大小（make_ota_image见后面说明）
         如：
         \*0*/ $ ll build_dir/target-arm_cortex-xxxxxxxx/linux-sun5i（linux-sunxi）/
         -rw-r--r--  1 heweihong heweihong   479232  4月 14 16:44 usr.squashfs
@@ -56,7 +56,7 @@
                 (8) Boot-Recovery initramfs filesystem partition size (in MB)
 
     d）其他分区如private、misc等使用默认的大小即可
-    e）剩下的空间全部自动分配进入UDISK分区
+    e）剩下的空间全部自动分配进入UDISK分区（一定要留取一定空间给UDISK分区，至少可以格式化，挂载，一些OTA过程会在里面写一些中间文件，小容量flash的方案，也要保证有256K~512K的空间）
     
     特别注意：这些分区大小不能通过OTA去修改的，所以对于大容量flash的方案，应该在满足分区条件限制（如上面adc三点）的情况下留有足够的余量，满足后续OTA增加内容的需求。
     对于小容量flash的方案，需要在增加内容是调节相关分区的大小。
@@ -78,27 +78,62 @@
     -rw-rw-r-- 1 heweihong heweihong  5731339  3?? 23 15:48 ramdisk_sys.tar.gz
     -rw-rw-r-- 1 heweihong heweihong 10335244  3?? 23 15:48 target_sys.tar.gz
     -rw-rw-r-- 1 heweihong heweihong  5116895  3?? 23 15:48 usr_sys.tar.gz
-    
-    三个tar包就是OTA的镜像包
+
+    三个tar包就是OTA的压缩镜像包
     ramdisk_sys.tar.gz：ramdisk镜像（要升级内核分区、rootfs分区时使用，防止烧写过程掉电，导致机器变砖）
     target_sys.tar.gz： 系统镜像（升级内核分区、rootfs分区）
     usr_sys.tar.gz：    应用分区镜像（升级extend分区，只需要使用这个镜像）
-    
+    ----------------------------------------------------------------
+    \*0*/ $ ll bin/sunxi/ota/*_sys/
+    bin/sunxi/ota/ramdisk_sys/:
+    -rw-r--r-- 1 heweihong heweihong 7340032  4月 16 12:50 boot_initramfs.img
+
+    bin/sunxi/ota/target_sys/:
+    -rw-r--r-- 1 heweihong heweihong 3145728  4月 16 12:49 boot.img
+    -rw-r--r-- 1 heweihong heweihong 2883584  4月 16 12:49 rootfs.img
+
+    bin/sunxi/ota/usr_sys/:
+    -rw-r--r-- 1 heweihong heweihong 2752512  4月 16 12:49 usr.img
+
+    这四个镜像包为不压缩的img包。
+
 4. 小机端OTA升级命令：
     必选参数：-f -p 二选一
-    aw_upgrade_process.sh -f 升级完整系统（内核分区、rootfs分区、extend分区、使用ramdisk_sys.tar.gz target_sys.tar.gz usr_sys.tar.gz）
-    aw_upgrade_process.sh -p 升级应用分区（extend分区，使用usr_sys.tar.gz）
+    aw_upgrade_process.sh -f 升级完整系统（内核分区、rootfs分区、extend分区）
+    aw_upgrade_process.sh -p 升级应用分区（extend分区）
+
+    可选参数: -l，-d -u, -n
+
+    a）对于大容量flash方案可以使用本地镜像，如主程序下载校验好三个镜像后（ramdisk_sys.tar.gz，target_sys.tar.gz、usr_sys.tar.gz），
+       存在/mnt/UDISK/misc-upgrade中，调用上的命令，对于自动烧写分区，就算期间掉电，重启后升级程序也能自动完成烧写，不需要依赖网络。    
+    -l arg，带路径参数。
+    如：aw_upgrade_process.sh -p(-f) -l /mnt/UDISK/misc-upgrade
+    （-l参数，其他-d、-u、-n参数无效，使用压缩镜像包）
     
-    可选参数: -l
-    aw_upgrade_process.sh -p(-f) -l /mnt/UDISK/misc-upgrade
+    b）对于小容量flash方案不能使用-l参数，升级区间出错重启后，还需要根据相关的联网下载程序获取镜像（见第5点说明）
     
-    a）对于大容量flash方案可以使用本地镜像，如主程序下载好三个镜像后（ramdisk、target、usr），存在/mnt/UDISK/misc-upgrade中，调用上的命令，
-    对于自动烧写分区，就算期间掉电，重启后升级程序也能自动完成烧写，不需要依赖网络。
-    b）对于小容量flas方案不能使用-l参数，升级区间出错重启后，还需要根据相关的联网下载程序获取镜像（见第5点说明）
+    -d arg -u arg，同时使用，-d 参数为可以ping通的OTA服务器的地址、-u 参数为镜像的下载地址    
+    -n 一些小ddr的方案（如剩余可使用内存在20m以下的方案），可以使用这个参数，shell会直接请求下载不压缩的4个img文件，这样子设备下载后不需要tar解压，减少内存使用。
     
+    如：aw_upgrade_process -f -d 192.168.1.140 -u http://192.168.1.140/ 
+    升级shell会先ping -d 参数（ping 192.168.1.140），ping通过后，会根据升级命令和系统当前场景请求下载：
+        无-n参数：
+        http://192.168.1.140/ramdisk_sys.tar.gz
+        http://192.168.1.140/target_sys.tar.gz
+        http://192.168.1.140/usr_sys.tar.gz
+        有-n参数：
+        http://192.168.1.140/boot_initramfs.img
+        http://192.168.1.140/boot.img
+        http://192.168.1.140/rootfs.img
+        http://192.168.1.140/usr.img
+
+    使用-n参数的方案需要部署上服务器上的镜像是：boot_initramfs.img, boot.img, rootfs.img, usr.img
+    不使用-n参数的方案需要部署上服务器上的镜像是：ramdisk_sys.tar.gz, target_sys.tar.gz, usr_sys.tar.gz
+
 5. 脚本接口说明：
-    对于小容量flash的方案，需要实现下面钩子脚本
-    aw_upgrade_vendor.sh
+    对于小容量flash的方案，没有空间存储镜像，相关镜像只会存在ram中，断电就会丢失。
+    假如升级过程断电，需要在重启后重新下载镜像。
+    aw_upgrade_vendor.sh设计为各个厂家实现的钩子，SDK上只是个demo可以随意修改。
     
     实现联网逻辑
     check_network_vendor(){
@@ -132,20 +167,32 @@
         reboot -f
     }
 
-    -f调用顺序： 
-            check_network_vendor ->
-              upgrade_start_vendor ->             
-                download_image_vendor (ramdisk_sys.tar.gz)->
+    -f (-n)调用顺序： 
+        check_network_vendor ->
+          upgrade_start_vendor ->             
+            download_image_vendor (ramdisk_sys.tar.gz, -n 为 boot_initramfs.img)->
+              内部烧写、清除镜像逻辑（不让已经使用镜像占用内存） ->
+                download_image_vendor(target_sys.tar.gz, -n 为 boot.img rootfs.img) ->
                   内部烧写、清除镜像逻辑（不让已经使用镜像占用内存） ->
-                    download_image_vendor(target_sys.tar.gz) ->
+                    download_image_vendor(usr_sys.tar.gz, -n 为 usr.img) ->
                       内部烧写、清除镜像逻辑（不让已经使用镜像占用内存） ->
-                        download_image_vendor(usr_sys.tar.gz) ->
-                          内部烧写、清除镜像逻辑（不让已经使用镜像占用内存） ->
-                            upgrade_finish_vendor
+                        upgrade_finish_vendor
     -p调用顺序
-            check_network_vendor ->
-              download_image_vendor (usr_sys.tar.gz) ->
-                upgrade_start_vendor ->             
-                  检测返回值，烧写 ->
-                    upgrade_finish_vendor
-                    
+        check_network_vendor ->
+          download_image_vendor (usr_sys.tar.gz) ->
+            upgrade_start_vendor ->             
+              检测返回值，烧写 ->
+                upgrade_finish_vendor
+
+6. 相关系统状态读写
+   相关的信息存储在misc分区，OTA升级不会清除这个分区（重新烧写镜像会擦除）
+   
+   读 read_misc [command] [status] [version]
+   command 表示升级的系统状态（shell脚本处理使用）
+   status  自由使用，表示用户自定义状态
+   version 自由使用，表示用户自定义状态
+   
+   写 write_misc [ -c command ] [ -s status ] [ -v version ]
+   -c 不能随意修改，只能有aw-upgrade shell修改
+   -s -v 自定义使用
+   

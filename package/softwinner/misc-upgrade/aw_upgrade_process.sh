@@ -7,12 +7,6 @@
 #UPGRADE_SH=/sbin/aw_upgrade_image.sh
 UPGRADE_SH=do_upgrade
 
-LOCAL_IMG_PATH=/mnt/UDISK/misc-upgrade/
-
-UPGRADE_SETTING_PATH=/mnt/UDISK/misc-upgrade/
-
-IS_COMPRESS_IMAGE=no
-
 download_image(){
     # $1 image name  $2 DIR
     image_name=$1
