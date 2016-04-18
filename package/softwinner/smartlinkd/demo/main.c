@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
     }
     sleep(1);
     aw_stopcooee();
-    sleep(2);
+    sleep(10000);
     aw_startcooee();
     sleep(1);
     aw_stopcooee();

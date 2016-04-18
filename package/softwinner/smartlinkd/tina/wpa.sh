@@ -108,4 +108,4 @@ do_wpa_cli set_network $set_network_id priority $set_priority
 do_wpa_cli save_config
 
 do_wpa_cli enable_network $set_network_id
-do_wpa_cli scan
+#do_wpa_cli scan
