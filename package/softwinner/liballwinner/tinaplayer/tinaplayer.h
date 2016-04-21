@@ -103,6 +103,7 @@ typedef struct AudioPcmData
 
 class TinaPlayer{
 	public:
+		int mLoop;
 		TinaPlayer();
 		~TinaPlayer();
 		int initCheck();
@@ -121,11 +122,13 @@ class TinaPlayer{
 		int setLooping(int bLoop);
 		int callbackProcess(int messageId, void* param);
 		int setVolume(int volume);	
+		void callbackToApp(int msg, int param0, void* param1);
 
 	private:
-
 		void initSoundControlOpsT();
-		
+		void* mPlayer;
+		NotifyCallback		mNotifier;
+		void*				mUserData;
 	};
 }
 

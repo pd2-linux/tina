@@ -1,5 +1,5 @@
 #define TAG "TinaPlayer"
-#define CONFIG_TLOG_LEVEL OPTION_TLOG_LEVEL_CLOSE
+#define CONFIG_TLOG_LEVEL OPTION_TLOG_LEVEL_DETAIL
 #include <tina_log.h>
 
 #include "tinaplayer.h"
@@ -15,17 +15,7 @@
 
 namespace aw{
 
-	typedef struct TinaPlayerContext
-	{
-		AwPlayer*		mAwPlayer;
-		pthread_mutex_t mMutex;
-	}TinaPlayerContext;
-
-	TinaPlayerContext 	gTinaPlayerContext;
-	NotifyCallback		gNotifier;
-	void*				gUserData;
 	SoundCtrl* gSoundCtrl = NULL;
-
 	static SoundCtrl* _SoundDeviceInit(void* pAudioSink){
 		TLOGD(" _SoundDeviceInit\n");
 		gSoundCtrl = TinaSoundDeviceInit(pAudioSink);
@@ -142,37 +132,31 @@ namespace aw{
 	//* a callback for awplayer.
 	void CallbackForAwPlayer(void* pUserData, int msg, int param0, void* param1)
 	{
-	    TinaPlayerContext* tinaPlayerContext = (TinaPlayerContext*)pUserData;
-
+		int app_msg = 0;
+		TinaPlayer* p = NULL;
+		p = (TinaPlayer*)pUserData;
 	    switch(msg)
 	    {
 	        case NOTIFY_NOT_SEEKABLE:
 	        {
 				TLOGD(" NOTIFY_NOT_SEEKABLE\n");
-				if(gNotifier != NULL)
-				{
-					gNotifier(gUserData, TINA_NOTIFY_NOT_SEEKABLE, param0, param1);
-				}
+				app_msg = TINA_NOTIFY_NOT_SEEKABLE;
 	            break;
 	        }
 	        
 	        case NOTIFY_ERROR:
 	        {
 				TLOGD(" NOTIFY_ERROR\n");
-				if(gNotifier != NULL)
-				{
-					gNotifier(gUserData, TINA_NOTIFY_ERROR, param0, param1);
-				}
+				printf(" ****NOTIFY_ERROR****\n");
+				app_msg = TINA_NOTIFY_ERROR;
 	            break;
 	        }
 	            
 	        case NOTIFY_PREPARED:
 	        {
 				TLOGD(" NOTIFY_PREPARED\n");
-				if(gNotifier != NULL)
-				{
-					gNotifier(gUserData, TINA_NOTIFY_PREPARED, param0, param1);
-				}
+				printf(" ****NOTIFY_PREPARED****\n");
+				app_msg = TINA_NOTIFY_PREPARED;
 	            break;
 	        }
 	            
@@ -185,11 +169,8 @@ namespace aw{
 	            //nBufferFullness  = (param0>>16) & 0x0000ffff;
 	            //TLOGD("info: buffer %d percent of the media file, buffer fullness = %d percent.\n", 
 	            //    nBufferedFilePos, nBufferFullness);
-	            TLOGD(" NOTIFY_BUFFERRING_UPDATE\n");
-	            if(gNotifier != NULL)
-				{
-					gNotifier(gUserData, TINA_NOTIFY_BUFFERRING_UPDATE, param0, param1);
-				}
+	            //TLOGD(" NOTIFY_BUFFERRING_UPDATE\n");
+				//app_msg = TINA_NOTIFY_BUFFERRING_UPDATE;
 	            break;
 	        }
 	            
@@ -197,10 +178,12 @@ namespace aw{
 	        {
 	            TLOGD(" NOTIFY_PLAYBACK_COMPLETE\n");
 				printf(" ****NOTIFY_PLAYBACK_COMPLETE****\n");
-				_SoundDeviceStop(gSoundCtrl);
-				if(gNotifier != NULL)
-				{
-					gNotifier(gUserData, TINA_NOTIFY_PLAYBACK_COMPLETE, param0, param1);
+				if(p){
+					if(p->mLoop == 0){
+						printf(" ****NOTIFY_PLAYBACK_COMPLETE,close the sound card****\n");
+						_SoundDeviceStop(gSoundCtrl);
+						app_msg = TINA_NOTIFY_PLAYBACK_COMPLETE;
+					}
 				}
 	            break;
 	        }
@@ -208,20 +191,14 @@ namespace aw{
 	        case NOTIFY_RENDERING_START:
 	        {
 	            TLOGD(" NOTIFY_RENDERING_START\n");
-				if(gNotifier != NULL)
-				{
-					gNotifier(gUserData, TINA_NOTIFY_RENDERING_START, param0, param1);
-				}
+				app_msg = TINA_NOTIFY_RENDERING_START;
 	            break;
 	        }
 	        
 	        case NOTIFY_SEEK_COMPLETE:
 	        {
 	            TLOGD(" NOTIFY_SEEK_COMPLETE\n");
-				if(gNotifier != NULL)
-				{
-					gNotifier(gUserData, TINA_NOTIFY_SEEK_COMPLETE, param0, param1);
-				}
+				app_msg = TINA_NOTIFY_SEEK_COMPLETE;
 	            break;
 	        }
 
@@ -246,7 +223,8 @@ namespace aw{
 				//	    }
 				//	}
 			    //}	
-				TLOGD(" NOTIFY_VIDEO_FRAME\n");
+			    //app_msg = TINA_NOTIFY_VIDEO_FRAME;
+				//TLOGD(" NOTIFY_VIDEO_FRAME\n");
 	        	break;
 	        }
 
@@ -265,6 +243,7 @@ namespace aw{
 				//		}
 				//	}
 				//#endif
+				//app_msg = TINA_NOTIFY_AUDIO_FRAME;
 	        	break;
 	        }
 
@@ -288,6 +267,7 @@ namespace aw{
 		        //	frame ++;
 	        	//}
 	        	//TLOGD(" NOTIFY_VIDEO_PACKET\n");
+	        	//app_msg = TINA_NOTIFY_VIDEO_PACKET;
 	        	break;
 	        }
 
@@ -311,40 +291,43 @@ namespace aw{
 		        //	audioframe ++;
 	        	//}
 	        	//TLOGD(" NOTIFY_AUDIO_PACKET\n");
+	        	//app_msg = TINA_NOTIFY_AUDIO_PACKET;
 	        	break;
 	        	
 	        }
 	        
 	        default:
 	        {
-	            //TLOGD("warning: unknown callback from AwPlayer.\n");
-	            //TLOGD(" warning: unknown callback from AwPlayer\n");
+	            TLOGE(" warning: unknown callback from AwPlayer\n");
 	            break;
 	        }
 	    }
-	    
-	    return;
+		if(app_msg != 0){
+			if(p){
+				p->callbackToApp(app_msg, param0, param1);
+			}
+		}
 	}
 	TinaPlayer::TinaPlayer()
 	{
 		TLOGD(" TinaPlayer()\n");
-		gNotifier = NULL;
-		gUserData = NULL;
-		memset(&gTinaPlayerContext, 0, sizeof(TinaPlayerContext));
-		pthread_mutex_init(&gTinaPlayerContext.mMutex, NULL);
-		gTinaPlayerContext.mAwPlayer = new AwPlayer();
+		printf(" TinaPlayer() contructor begin\n");
+		mLoop = 0;
+		mPlayer = (void*)new AwPlayer();
 		initSoundControlOpsT();
-		gTinaPlayerContext.mAwPlayer->setControlOps(NULL, &gSoundControl);
+		((AwPlayer*)mPlayer)->setControlOps(NULL, &gSoundControl);
+		printf(" TinaPlayer() contructor finish\n");
 	}
 	
 	TinaPlayer::~TinaPlayer()
 	{
 		TLOGD(" ~TinaPlayer()\n");
-		if(gTinaPlayerContext.mAwPlayer != NULL){
-			delete gTinaPlayerContext.mAwPlayer;
-    		gTinaPlayerContext.mAwPlayer = NULL;
+		printf(" ~TinaPlayer() contructor begin\n");
+		if(((AwPlayer*)mPlayer) != NULL){
+			delete ((AwPlayer*)mPlayer);
+    		mPlayer = NULL;
 		}
-		pthread_mutex_destroy(&gTinaPlayerContext.mMutex);
+		printf(" ~TinaPlayer() contructor finish\n");
 	}
 
 	void TinaPlayer::initSoundControlOpsT(){
@@ -373,30 +356,30 @@ namespace aw{
 	
 	int TinaPlayer::initCheck()
 	{
-		return gTinaPlayerContext.mAwPlayer->initCheck();
+		return ((AwPlayer*)mPlayer)->initCheck();
 	}
 	
 	int TinaPlayer::setNotifyCallback(NotifyCallback notifier, void* pUserData)
 	{
-		gNotifier = notifier;
-		gUserData = pUserData;
-		return gTinaPlayerContext.mAwPlayer->setNotifyCallback(CallbackForAwPlayer, (void*)&gTinaPlayerContext);
+		mNotifier = notifier;
+		mUserData = pUserData;
+		return ((AwPlayer*)mPlayer)->setNotifyCallback(CallbackForAwPlayer, (void*)this);
 	}
 	
 	int TinaPlayer::setDataSource(const char* pUrl, const map<string, string>* pHeaders)
 	{
-		return gTinaPlayerContext.mAwPlayer->setDataSource(pUrl, pHeaders);
+		return ((AwPlayer*)mPlayer)->setDataSource(pUrl, pHeaders);
 	}
 	
 	
 	int TinaPlayer::prepareAsync()
 	{
-		return gTinaPlayerContext.mAwPlayer->prepareAsync();
+		return ((AwPlayer*)mPlayer)->prepareAsync();
 	}
 	
 	int TinaPlayer::prepare()
 	{
-		return gTinaPlayerContext.mAwPlayer->prepare();
+		return ((AwPlayer*)mPlayer)->prepare();
 	}
 	
 	int TinaPlayer::start()
@@ -411,7 +394,7 @@ namespace aw{
 			}
 		#endif
 		
-		return gTinaPlayerContext.mAwPlayer->start();
+		return ((AwPlayer*)mPlayer)->start();
 	}
 	
 	int TinaPlayer::stop()
@@ -421,52 +404,61 @@ namespace aw{
 				fclose(savaPcmFd);
 			}
 		#endif
-		return gTinaPlayerContext.mAwPlayer->stop();
+		return ((AwPlayer*)mPlayer)->stop();
 	}
 	
 	int TinaPlayer::pause()
 	{
-		return gTinaPlayerContext.mAwPlayer->pause();
+		return ((AwPlayer*)mPlayer)->pause();
 	}
 	
 	int TinaPlayer::seekTo(int msec)
 	{
-		return gTinaPlayerContext.mAwPlayer->seekTo(msec);
+		return ((AwPlayer*)mPlayer)->seekTo(msec);
 	}
 	
 	int TinaPlayer::reset()
 	{
-		return gTinaPlayerContext.mAwPlayer->reset();
+		return ((AwPlayer*)mPlayer)->reset();
 	}
 	
 	
 	int TinaPlayer::isPlaying()
 	{
-		return gTinaPlayerContext.mAwPlayer->isPlaying();
+		return ((AwPlayer*)mPlayer)->isPlaying();
 	}
 	
 	
 	int TinaPlayer::getCurrentPosition(int* msec)
 	{
-		return gTinaPlayerContext.mAwPlayer->getCurrentPosition(msec);
+		return ((AwPlayer*)mPlayer)->getCurrentPosition(msec);
 	}
 	
 	
 	int TinaPlayer::getDuration(int *msec)
 	{
-		return gTinaPlayerContext.mAwPlayer->getDuration(msec);
+		return ((AwPlayer*)mPlayer)->getDuration(msec);
 	}
 	
 	
 	int TinaPlayer::setLooping(int loop)
 	{
-		return gTinaPlayerContext.mAwPlayer->setLooping(loop);
+		mLoop = loop;
+		return ((AwPlayer*)mPlayer)->setLooping(loop);
 	}
 
 	/*now,this function do not do */
 	int TinaPlayer::setVolume(int volume)
 	{
-		return gTinaPlayerContext.mAwPlayer->setVolume(volume);
+		return ((AwPlayer*)mPlayer)->setVolume(volume);
+	}
+
+	void TinaPlayer::callbackToApp(int msg, int param0, void* param1){
+		if(mNotifier){
+			mNotifier(mUserData,msg,param0,param1);
+		}else{
+			TLOGE("mNotifier is null \n");
+		}
 	}
 
 }

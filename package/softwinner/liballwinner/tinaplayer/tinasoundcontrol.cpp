@@ -111,7 +111,7 @@ namespace aw{
 		sc->bytes_per_sample = snd_pcm_format_physical_width(sc->alsa_format) / 8;
 	    sc->bytes_per_sample *= sc->nChannelNum;
 		sc->alsa_fragcount = 8;
-        sc->chunk_size = 2048;
+        sc->chunk_size = 1024;
 		
 		if ((ret = snd_pcm_hw_params_set_period_size_near(sc->alsa_handler,
 				sc->alsa_hwparams, &sc->chunk_size, NULL)) < 0) {
@@ -182,9 +182,11 @@ namespace aw{
 	void TinaSoundDeviceSetFormat(SoundCtrl* s, unsigned int nSampleRate, unsigned int nChannelNum){
 		SoundCtrlContext* sc;
 	sc = (SoundCtrlContext*)s;
-		pthread_mutex_lock(&sc->mutex);
-		TLOGD("TinaSoundDeviceSetFormat(),sc->sound_status == %d\n",sc->sound_status);
-		if(sc){
+		if (sc == NULL) {
+			TLOGE("error:sc is null !!!\n");
+		}else{
+			pthread_mutex_lock(&sc->mutex);
+			TLOGD("TinaSoundDeviceSetFormat(),sc->sound_status == %d\n",sc->sound_status);
 			if(sc->sound_status == STATUS_STOP){
 				TLOGD("TinaSoundDeviceSetFormat()\n");
 				sc->nSampleRate = nSampleRate;
@@ -195,11 +197,8 @@ namespace aw{
 				TLOGD("TinaSoundDeviceSetFormat()>>>sample_rate:%d,channel_num:%d,sc->bytes_per_sample:%d\n",
 					nSampleRate,nChannelNum,sc->bytes_per_sample);
 			}
+			pthread_mutex_unlock(&sc->mutex);
 		}
-		else{
-			TLOGE("error:sc is null !!!\n");
-		}
-		pthread_mutex_unlock(&sc->mutex);
 	}
 
 	int TinaSoundDeviceStart(SoundCtrl* s){
@@ -238,7 +237,7 @@ namespace aw{
 		}
 		else if(sc->sound_status == STATUS_STOP){
 			sc->alsa_fragcount = 8;
-            sc->chunk_size = 2048;//1024;
+            sc->chunk_size = 1024;//1024;
 			ret = openSoundDevice(sc, true, BLOCK_MODE);
 			TLOGD("after openSoundDevice() ret = %d\n",ret);
 			if(ret >= 0){
@@ -314,7 +313,7 @@ namespace aw{
 	}
 
 	int TinaSoundDeviceWrite(SoundCtrl* s, void* pData, int nDataSize){
-		int ret;
+		int ret = 0;
 	SoundCtrlContext* sc;
 	sc = (SoundCtrlContext*)s;
 		//TLOGD("TinaSoundDeviceWrite:sc->bytes_per_sample = %d\n",sc->bytes_per_sample);
