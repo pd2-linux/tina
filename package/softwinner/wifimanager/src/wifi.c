@@ -10,8 +10,6 @@
 #include <poll.h>
 #include "wpa_ctrl.h"
 #include "wifi.h"
-
-#define __USE_GNU
 #include <unistd.h>
 
 #define IFACE_VALUE_MAX 32
@@ -99,10 +97,10 @@ static int rmmod(const char *modname)
 #define TIME_COUNT 20 // 200ms*20 = 4 seconds for completion
 int wifi_load_driver(const char *path, const char *args)
 {
-	  int  count = 0;
-	  int  i=0, name_len = 0;
-	  int  ret        = 0;
-	  char name[256] = {0}, tmp_buf[512] = {0};
+	int  count = 0;
+	int  i=0, name_len = 0;
+	int  ret        = 0;
+	char name[256] = {0}, tmp_buf[512] = {0};
     char * p_s = NULL, * p_e = NULL;
     char *p_strstr_wlan  = NULL;
     FILE *fp        = NULL;
@@ -128,7 +126,7 @@ int wifi_load_driver(const char *path, const char *args)
     printf("driver name %s\n", name);
     
     if (insmod(path, args) < 0) {
-        printf("insmod %s %s firmware failed!", path, args);
+        printf("insmod %s %s firmware failed!\n", path, args);
         rmmod(name);//it may be load driver already,try remove it.
         return -1;
     }
@@ -142,11 +140,11 @@ int wifi_load_driver(const char *path, const char *args)
         }
         ret = fread(tmp_buf, sizeof(tmp_buf), 1, fp);
         if (ret==0){
-            printf("faied to read proc/net/wireless");
+            printf("faied to read proc/net/wireless\n");
         }
         fclose(fp);
     
-        printf("loading wifi driver...");
+        printf("loading wifi driver...\n");
         p_strstr_wlan = strstr(tmp_buf, "wlan0");
         if (p_strstr_wlan != NULL) {
             break;
@@ -156,7 +154,7 @@ int wifi_load_driver(const char *path, const char *args)
     } while (count++ <= TIME_COUNT);
   
     if(count > TIME_COUNT) {
-        printf("timeout, register netdevice wlan0 failed.");
+        printf("timeout, register netdevice wlan0 failed.\n");
         rmmod(name);
         return -1;
     }
@@ -165,10 +163,10 @@ int wifi_load_driver(const char *path, const char *args)
 
 int wifi_unload_driver(const char *name)
 {
-  if (rmmod(name) == 0){
-    	usleep(2000000);
+    if (rmmod(name) == 0){
+        usleep(2000000);
     	return 0;
-  }else
+    }else
   	  return -1;
 }
 
@@ -181,19 +179,19 @@ int ensure_entropy_file_exists()
     if ((ret == 0) || (errno == EACCES)) {
         if ((ret != 0) &&
             (chmod(SUPP_ENTROPY_FILE, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) != 0)) {
-            printf("Cannot set RW to \"%s\": %s", SUPP_ENTROPY_FILE, strerror(errno));
+            printf("Cannot set RW to \"%s\": %s\n", SUPP_ENTROPY_FILE, strerror(errno));
             return -1;
         }
         return 0;
     }
     destfd = TEMP_FAILURE_RETRY(open(SUPP_ENTROPY_FILE, O_CREAT|O_RDWR, 0660));
     if (destfd < 0) {
-        printf("Cannot create \"%s\": %s", SUPP_ENTROPY_FILE, strerror(errno));
+        printf("Cannot create \"%s\": %s\n", SUPP_ENTROPY_FILE, strerror(errno));
         return -1;
     }
 
     if (TEMP_FAILURE_RETRY(write(destfd, dummy_key, sizeof(dummy_key))) != sizeof(dummy_key)) {
-        printf("Error writing \"%s\": %s", SUPP_ENTROPY_FILE, strerror(errno));
+        printf("Error writing \"%s\": %s\n", SUPP_ENTROPY_FILE, strerror(errno));
         close(destfd);
         return -1;
     }
@@ -201,7 +199,7 @@ int ensure_entropy_file_exists()
 
     /* chmod is needed because open() didn't set permisions properly */
     if (chmod(SUPP_ENTROPY_FILE, 0660) < 0) {
-        printf("Error changing permissions of %s to 0660: %s",
+        printf("Error changing permissions of %s to 0660: %s\n",
              SUPP_ENTROPY_FILE, strerror(errno));
         unlink(SUPP_ENTROPY_FILE);
         return -1;
@@ -228,14 +226,14 @@ int update_ctrl_interface(const char *config_file) {
         return 0;
     srcfd = TEMP_FAILURE_RETRY(open(config_file, O_RDONLY));
     if (srcfd < 0) {
-        printf("Cannot open \"%s\": %s", config_file, strerror(errno));
+        printf("Cannot open \"%s\": %s\n", config_file, strerror(errno));
         free(pbuf);
         return 0;
     }
     nread = TEMP_FAILURE_RETRY(read(srcfd, pbuf, sb.st_size));
     close(srcfd);
     if (nread < 0) {
-        printf("Cannot read \"%s\": %s", config_file, strerror(errno));
+        printf("Cannot read \"%s\": %s\n", config_file, strerror(errno));
         free(pbuf);
         return 0;
     }
@@ -263,7 +261,7 @@ int update_ctrl_interface(const char *config_file) {
             int mlen = strlen(ifc);
             int nwrite;
             if (strncmp(ifc, iptr, mlen) != 0) {
-                printf("ctrl_interface != %s", ifc);
+                printf("ctrl_interface != %s\n", ifc);
                 while (((ilen + (iptr - pbuf)) < nread) && (iptr[ilen] != '\n'))
                     ilen++;
                 mlen = ((ilen >= mlen) ? ilen : mlen) + 1;
@@ -272,7 +270,7 @@ int update_ctrl_interface(const char *config_file) {
                 memcpy(iptr, ifc, strlen(ifc));
                 destfd = TEMP_FAILURE_RETRY(open(config_file, O_RDWR, 0660));
                 if (destfd < 0) {
-                    printf("Cannot update \"%s\": %s", config_file, strerror(errno));
+                    printf("Cannot update \"%s\": %s\n", config_file, strerror(errno));
                     free(pbuf);
                     return -1;
                 }
@@ -297,7 +295,7 @@ int ensure_config_file_exists(const char *config_file)
     if ((ret == 0) || (errno == EACCES)) {
         if ((ret != 0) &&
             (chmod(config_file, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) != 0)) {
-            printf("Cannot set RW to \"%s\": %s", config_file, strerror(errno));
+            printf("Cannot set RW to \"%s\": %s\n", config_file, strerror(errno));
             return -1;
         }
         /* return if we were able to update control interface properly */
@@ -309,26 +307,26 @@ int ensure_config_file_exists(const char *config_file)
              */
         }
     } else if (errno != ENOENT) {
-        printf("Cannot access \"%s\": %s", config_file, strerror(errno));
+        printf("Cannot access \"%s\": %s\n", config_file, strerror(errno));
         return -1;
     }
 
     srcfd = TEMP_FAILURE_RETRY(open(SUPP_CONFIG_TEMPLATE, O_RDONLY));
     if (srcfd < 0) {
-        printf("Cannot open \"%s\": %s", SUPP_CONFIG_TEMPLATE, strerror(errno));
+        printf("Cannot open \"%s\": %s\n", SUPP_CONFIG_TEMPLATE, strerror(errno));
         return -1;
     }
 
     destfd = TEMP_FAILURE_RETRY(open(config_file, O_CREAT|O_RDWR, 0660));
     if (destfd < 0) {
         close(srcfd);
-        printf("Cannot create \"%s\": %s", config_file, strerror(errno));
+        printf("Cannot create \"%s\": %s\n", config_file, strerror(errno));
         return -1;
     }
 
     while ((nread = TEMP_FAILURE_RETRY(read(srcfd, buf, sizeof(buf)))) != 0) {
         if (nread < 0) {
-            printf("Error reading \"%s\": %s", SUPP_CONFIG_TEMPLATE, strerror(errno));
+            printf("Error reading \"%s\": %s\n", SUPP_CONFIG_TEMPLATE, strerror(errno));
             close(srcfd);
             close(destfd);
             unlink(config_file);
@@ -342,7 +340,7 @@ int ensure_config_file_exists(const char *config_file)
 
     /* chmod is needed because open() didn't set permisions properly */
     if (chmod(config_file, 0660) < 0) {
-        printf("Error changing permissions of %s to 0660: %s",
+        printf("Error changing permissions of %s to 0660: %s\n",
              config_file, strerror(errno));
         unlink(config_file);
         return -1;
@@ -357,12 +355,12 @@ int wifi_start_supplicant(int p2p_supported)
     	
     /* Before starting the daemon, make sure its config file exists */
     if (ensure_config_file_exists(SUPP_CONFIG_FILE) < 0) {
-        printf("Wi-Fi will not be enabled");
+        printf("Wi-Fi will not be enabled\n");
         return -1;
     }
 
     if (ensure_entropy_file_exists() < 0) {
-        printf("Wi-Fi entropy file was not created");
+        printf("Wi-Fi entropy file was not created\n");
     }
 
     /* Clear out any stale socket files that might be left over. */
@@ -398,7 +396,7 @@ int wifi_connect_on_socket_path(const char *path)
         ctrl_conn = wpa_ctrl_open(path);
     }
     if (ctrl_conn == NULL) {
-        printf("Unable to open connection to supplicant on \"%s\": %s",
+        printf("Unable to open connection to supplicant on \"%s\": %s\n",
              path, strerror(errno));
         return -1;
     }
@@ -475,7 +473,7 @@ int wifi_ctrl_recv(char *reply, size_t *reply_len)
     rfds[1].events |= POLLIN;
     res = TEMP_FAILURE_RETRY(poll(rfds, 2, -1));
     if (res < 0) {
-        printf("Error poll = %d", res);
+        printf("Error poll = %d\n", res);
         return res;
     }
     if (rfds[0].revents & POLLIN) {

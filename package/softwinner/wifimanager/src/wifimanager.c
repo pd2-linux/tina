@@ -16,36 +16,14 @@ char netid_connecting[NET_ID_LEN+1] = {0};
 int  disconnecting = 0;
 int  connecting_ap_event_label = 0;
 int  disconnect_ap_event_label = 0;
+tWIFI_STATE  gwifi_state = WIFIMG_WIFI_DISABLED;
 
-static tWIFI_STATE  gwifi_state = WIFIMG_WIFI_DISABLED;
 static tWIFI_EVENT  event_code = WIFIMG_NO_NETWORK_CONNECTING;
 static int aw_wifi_disconnect_ap(int event_label);
 
 static int aw_wifi_add_event_callback(tWifi_event_callback pcb)
 {
       return add_wifi_event_callback_inner(pcb);
-}
-
-static int aw_wifi_get_state()
-{
-    tWIFI_MACHINE_STATE machine_state;
-    
-    if(gwifi_state == WIFIMG_WIFI_DISABLED){
-        return gwifi_state;
-    }
-
-    machine_state = get_wifi_machine_state();
-    if(machine_state == DISCONNECTED_STATE){
-        gwifi_state = WIFIMG_WIFI_DISCONNECTED;
-    }else if(machine_state == CONNECTING_STATE
-        || machine_state == DISCONNECTING_STATE
-        || machine_state == L2CONNECTED_STATE){
-        gwifi_state = WIFIMG_WIFI_BUSING;
-    }else if(machine_state == CONNECTED_STATE){
-        gwifi_state = WIFIMG_WIFI_CONNECTED;
-    }
-
-    return gwifi_state;
 }
 
 static int aw_wifi_is_ap_connected(char *ssid, int *len)
@@ -62,8 +40,8 @@ static int aw_wifi_scan()
     if(gwifi_state == WIFIMG_WIFI_DISABLED){
         return -1;
     }
-    	
-	  update_scan_results();
+
+    update_scan_results();
     return 0;
 }
 
@@ -80,24 +58,24 @@ static int aw_wifi_get_scan_results(char *result, int *len)
 /* connect visiable network */
 static int aw_wifi_add_network(const char *ssid, tKEY_MGMT key_mgmt, const char *passwd, int event_label)
 {
-	  int i=0, ret = -1, len = 0, max_prio = -1;
-	  char cmd[CMD_LEN+1] = {0};
-	  char reply[REPLY_BUF_SIZE] = {0}, netid[NET_ID_LEN+1]={0};
-	  tWIFI_MACHINE_STATE wifi_machine_state;
+    int i=0, ret = -1, len = 0, max_prio = -1;
+    char cmd[CMD_LEN+1] = {0};
+    char reply[REPLY_BUF_SIZE] = {0}, netid[NET_ID_LEN+1]={0};
+    tWIFI_MACHINE_STATE wifi_machine_state;
 	  
-	  if(gwifi_state == WIFIMG_WIFI_DISABLED){
+    if(gwifi_state == WIFIMG_WIFI_DISABLED){
         return -1;
     }
 	  
-	  if(!ssid || !ssid[0]){
-	      printf("Error: ssid is NULL!\n");
-	      ret = -1;
-	      event_code = WIFIMG_CMD_OR_PARAMS_ERROR;
-	      goto end;
-	  }
+    if(!ssid || !ssid[0]){
+        printf("Error: ssid is NULL!\n");
+        ret = -1;
+        event_code = WIFIMG_CMD_OR_PARAMS_ERROR;
+        goto end;
+    }
 	  
-	  wifi_machine_state = get_wifi_machine_state();
-	  if(wifi_machine_state != CONNECTED_STATE && wifi_machine_state != DISCONNECTED_STATE){
+    wifi_machine_state = get_wifi_machine_state();
+    if(wifi_machine_state != CONNECTED_STATE && wifi_machine_state != DISCONNECTED_STATE){
         ret = -1;
         event_code = WIFIMG_DEV_BUSING_EVENT;
         goto end;
@@ -109,45 +87,45 @@ static int aw_wifi_add_network(const char *ssid, tKEY_MGMT key_mgmt, const char 
         aw_wifi_disconnect_ap(0x7fffffff);
     }
     
-	  /* connecting */
-	  set_wifi_machine_state(CONNECTING_STATE);
+    /* connecting */
+    set_wifi_machine_state(CONNECTING_STATE);
 	  
-	  /* set connecting event label */
-	  connecting_ap_event_label = event_label;
+    /* set connecting event label */
+    connecting_ap_event_label = event_label;
 	  
-	  /* remove disconnecting flag */
-	  disconnecting = 0;
+    /* remove disconnecting flag */
+    disconnecting = 0;
 	  
-	  /* check already exist or connected */
-	  len = 3;
-	  ret = wpa_conf_is_ap_exist(ssid, key_mgmt, netid, &len);
-	  if(ret == 1 || ret == 3){
-	      //network is exist or connected
-	      ;
-	  } else { /* network is not exist */
-	      /* add network */
-    	  strncpy(cmd, "ADD_NETWORK", CMD_LEN);
-    	  cmd[CMD_LEN] = '\0';
-    	  ret = wifi_command(cmd, reply, sizeof(reply));
+    /* check already exist or connected */
+    len = 3;
+    ret = wpa_conf_is_ap_exist(ssid, key_mgmt, netid, &len);
+    if(ret == 1 || ret == 3){
+        //network is exist or connected
+        ;
+    } else { /* network is not exist */
+	    /* add network */
+    	strncpy(cmd, "ADD_NETWORK", CMD_LEN);
+    	cmd[CMD_LEN] = '\0';
+    	ret = wifi_command(cmd, reply, sizeof(reply));
         if(ret){
             printf("do add network results error!\n");
             ret = -1;
             event_code = WIFIMG_CMD_OR_PARAMS_ERROR;
             goto end;
         }
-    	  strncpy(netid, reply, NET_ID_LEN);
-    	  netid[NET_ID_LEN] = '\0';
+    	strncpy(netid, reply, NET_ID_LEN);
+    	netid[NET_ID_LEN] = '\0';
     	  
-    	  /* set network ssid */
-    	  sprintf(cmd, "SET_NETWORK %s ssid \"%s\"", netid, ssid);
-    	  ret = wifi_command(cmd, reply, sizeof(reply));
+    	/* set network ssid */
+    	sprintf(cmd, "SET_NETWORK %s ssid \"%s\"", netid, ssid);
+    	ret = wifi_command(cmd, reply, sizeof(reply));
         if(ret){
             printf("do set network ssid error!\n");
             ret = -1;
             event_code = WIFIMG_CMD_OR_PARAMS_ERROR;
             goto end;
         }
-	  }
+	}
 
 	  /* no passwd */
 	  if (key_mgmt == WIFIMG_NONE){
@@ -191,14 +169,25 @@ static int aw_wifi_add_network(const char *ssid, tKEY_MGMT key_mgmt, const char 
         }
         
         /* set network wep_key0 */
-    	  sprintf(cmd, "SET_NETWORK %s wep_key1 %s", netid, passwd);
+    	  sprintf(cmd, "SET_NETWORK %s wep_key0 %s", netid, passwd);
     	  ret = wifi_command(cmd, reply, sizeof(reply));
         if(ret){
-            printf("do set network wep_key1 error!\n");
+            printf("do set network wep_key0 error!\n");
             ret = -1;
             event_code = WIFIMG_CMD_OR_PARAMS_ERROR;
             goto end;
-        }  	      
+        }
+
+        /* set network auth_alg */
+    	  sprintf(cmd, "SET_NETWORK %s auth_alg OPEN SHARED", netid);
+    	  ret = wifi_command(cmd, reply, sizeof(reply));
+        if(ret){
+            printf("do set network auth_alg error!\n");
+            ret = -1;
+            event_code = WIFIMG_CMD_OR_PARAMS_ERROR;
+            goto end;
+        }
+  	      
 	  } else {
 	      printf("Error: key mgmt not support!\n");
 	      ret = -1;
@@ -362,14 +351,25 @@ static int wifi_connect_ap_inner(const char *ssid, tKEY_MGMT key_mgmt, const cha
         }
         
         /* set network wep_key0 */
-    	  sprintf(cmd, "SET_NETWORK %s wep_key1 %s", netid2, passwd);
+    	  sprintf(cmd, "SET_NETWORK %s wep_key0 %s", netid2, passwd);
     	  ret = wifi_command(cmd, reply, sizeof(reply));
         if(ret){
-            printf("do set network wep_key1 error!\n");
+            printf("do set network wep_key0 error!\n");
             ret = -1;
             event_code = WIFIMG_CMD_OR_PARAMS_ERROR;
             goto end;
         }
+
+        /* set network auth_alg */
+    	  sprintf(cmd, "SET_NETWORK %s auth_alg OPEN SHARED", netid2);
+    	  ret = wifi_command(cmd, reply, sizeof(reply));
+        if(ret){
+            printf("do set network auth_alg error!\n");
+            ret = -1;
+            event_code = WIFIMG_CMD_OR_PARAMS_ERROR;
+            goto end;
+        }
+
 	  } else {
 	      printf("Error: key mgmt is not support!\n");
 	      ret = -1;
@@ -440,7 +440,7 @@ static int wifi_connect_ap_inner(const char *ssid, tKEY_MGMT key_mgmt, const cha
         }
 
         i++;
-    } while((state != L2CONNECTED_STATE) && (state != CONNECTED_STATE) && (i < 32));
+    } while((state != L2CONNECTED_STATE) && (state != CONNECTED_STATE) && (i < 45));
     
     if(state == DISCONNECTED_STATE){
         if(event == PASSWORD_INCORRECT || event == CONNECT_AP_TIMEOUT){
@@ -603,6 +603,7 @@ static int aw_wifi_connect_ap(const char *ssid, const char *passwd, int event_la
 	  tWIFI_EVENT_INNER    event;
 
     if(gwifi_state == WIFIMG_WIFI_DISABLED){
+        printf("aw wifi connect ap wifi disabled\n");
         return -1;
     }
 
@@ -614,8 +615,10 @@ static int aw_wifi_connect_ap(const char *ssid, const char *passwd, int event_la
 	  }
 
 	  state = get_wifi_machine_state();
+          printf("aw wifi connect state 0x%x\n", state);
 	  if(state != CONNECTED_STATE && state != DISCONNECTED_STATE){
         ret = -1;
+        printf("aw wifi connect ap dev busing\n");
         event_code = WIFIMG_DEV_BUSING_EVENT;
         goto end;
     }
@@ -853,7 +856,6 @@ end:
 
 static const aw_wifi_interface_t aw_wifi_interface = {
     aw_wifi_add_event_callback,
-    aw_wifi_get_state,
     aw_wifi_is_ap_connected,
     aw_wifi_scan,
     aw_wifi_get_scan_results,
@@ -934,7 +936,7 @@ const aw_wifi_interface_t * aw_wifi_on(tWifi_event_callback pcb, int event_label
 
 int aw_wifi_off(const aw_wifi_interface_t *p_wifi_interface)
 {
-    aw_wifi_interface_t *p_aw_wifi_intf = &aw_wifi_interface;
+    const aw_wifi_interface_t *p_aw_wifi_intf = &aw_wifi_interface;
     
     if(p_aw_wifi_intf != p_wifi_interface){
     	  call_event_callback_function(WIFIMG_WIFI_OFF_FAILED, NULL, 0);
@@ -951,4 +953,48 @@ int aw_wifi_off(const aw_wifi_interface_t *p_wifi_interface)
     call_event_callback_function(WIFIMG_WIFI_OFF_SUCCESS, NULL, 0);
     gwifi_state = WIFIMG_WIFI_DISABLED;
     return 0;
+}
+
+int aw_wifi_get_wifi_state()
+{
+    int ret = -1, len = 0;
+    char netid[4] = {0};
+    tWIFI_MACHINE_STATE machine_state;
+    int tmp_state;
+    
+    /* wpa_supplicant already running not by self process */
+    if(gwifi_state == WIFIMG_WIFI_DISABLED){
+    	  /* check wifi already on by self process or other process */
+        ret = wifi_connect_to_supplicant();
+        if(ret){
+            printf("WiFi not on\n");
+            return WIFIMG_WIFI_DISABLED;
+        }
+        
+    	  /* sync wifi state by wpa_supplicant */
+    	  len = 3;
+        ret = aw_wifi_is_ap_connected(netid, &len);
+        if(ret == 1){
+            tmp_state = WIFIMG_WIFI_CONNECTED;
+        }else{
+            tmp_state = WIFIMG_WIFI_DISCONNECTED;
+        }
+        
+        /*close connect */
+        wifi_close_supplicant_connection();
+        return tmp_state;
+    }
+
+    machine_state = get_wifi_machine_state();
+    if(machine_state == DISCONNECTED_STATE){
+        gwifi_state = WIFIMG_WIFI_DISCONNECTED;
+    }else if(machine_state == CONNECTING_STATE
+        || machine_state == DISCONNECTING_STATE
+        || machine_state == L2CONNECTED_STATE){
+        gwifi_state = WIFIMG_WIFI_BUSING;
+    }else if(machine_state == CONNECTED_STATE){
+        gwifi_state = WIFIMG_WIFI_CONNECTED;
+    }
+
+    return gwifi_state;
 }

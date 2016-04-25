@@ -136,15 +136,40 @@ int main(int argv, char *argc[]){
     event_label = rand();
     p_wifi_interface = aw_wifi_on(wifi_event_handle, event_label);
     if(p_wifi_interface == NULL){
-    	  printf("wifi on failed event 0x%s\n", event);
+    	  printf("wifi on failed event 0x%x\n", event);
         return -1;
     }
 
     printf("wait wifi on event!\n");
-    while(p_wifi_interface->get_wifi_state() == WIFIMG_WIFI_BUSING){
+    while(aw_wifi_get_wifi_state() == WIFIMG_WIFI_BUSING){
         printf("wifi state busing,waiting\n");
         usleep(2000000);
     }
+    
+    event_label++;
+    p_wifi_interface->disconnect_ap(event_label);
+    while(aw_wifi_get_wifi_state() == WIFIMG_WIFI_BUSING){
+        printf("wifi state busing,waiting\n");
+        usleep(2000000);
+    }
+    
+    event_label++;
+    p_wifi_interface->connect_ap_auto(event_label);
+    while(aw_wifi_get_wifi_state() == WIFIMG_WIFI_BUSING){
+        printf("wifi state busing,waiting\n");
+        usleep(2000000);
+    }
+    
+    event_label++;
+    p_wifi_interface->disconnect_ap(event_label);
+    while(aw_wifi_get_wifi_state() == WIFIMG_WIFI_BUSING){
+        printf("wifi state busing,waiting\n");
+        usleep(2000000);
+    }
+    
+    event_label++;
+    p_wifi_interface->connect_ap(argc[1], argc[2], event_label);
+    
 /*    
     aw_wifi_off(p_wifi_interface);
      
@@ -153,10 +178,10 @@ int main(int argv, char *argc[]){
     p_wifi_interface->get_scan_results(scan_results, &len);
     printf("received scan results:\n");
     printf("%s\n", scan_results);
-*/
+
 
     printf("connect ap %s\n", argc[1]);
-    wifi_state = p_wifi_interface->get_wifi_state();
+    wifi_state = aw_wifi_get_wifi_state();
     if((wifi_state == WIFIMG_WIFI_DISCONNECTED)
         || (wifi_state == WIFIMG_WIFI_CONNECTED)){
         event_label++;
@@ -176,7 +201,7 @@ int main(int argv, char *argc[]){
                 }
             }while(1);
             
-            wifi_state = p_wifi_interface->get_wifi_state();
+            wifi_state = aw_wifi_get_wifi_state();
             if(wifi_state == WIFIMG_WIFI_CONNECTED){
             	  len = 256;
                 ret = p_wifi_interface->is_ap_connected(ssid, &len);
@@ -184,13 +209,16 @@ int main(int argv, char *argc[]){
                     printf("Connected ap %s\n", ssid);
                 }
                 
+                /* 
                 ret = p_wifi_interface->disconnect_ap(event_label);
                 if(ret < 0)
                 {
                     printf("call error! check event\n");
                 }else{
                     printf("disconnect ap ok!");
-                }    
+                } 
+                */
+/*   
             }         
         }else{
             printf("call error! check event\n");
@@ -199,10 +227,11 @@ int main(int argv, char *argc[]){
             	
         printf("WiFi isn't ready, waiting\n");
     }
+*/
 
 /*
     printf("connect ap xxxxxxx\n");
-    wifi_state = p_wifi_interface->get_wifi_state();
+    wifi_state = aw_wifi_get_wifi_state();
     if((wifi_state == WIFIMG_WIFI_DISCONNECTED)
         || (wifi_state == WIFIMG_WIFI_CONNECTED)){
         event_label++;
@@ -222,7 +251,7 @@ int main(int argv, char *argc[]){
                 }
             }while(1);
             
-            wifi_state = p_wifi_interface->get_wifi_state();
+            wifi_state = aw_wifi_get_wifi_state();
             if(wifi_state == WIFIMG_WIFI_CONNECTED){
             	  len = 256;
                 ret = p_wifi_interface->is_ap_connected(ssid, &len);
@@ -247,7 +276,7 @@ int main(int argv, char *argc[]){
     }
     
     printf("connect ap AW2\n");
-    wifi_state = p_wifi_interface->get_wifi_state();
+    wifi_state = aw_wifi_get_wifi_state();
     if((wifi_state == WIFIMG_WIFI_DISCONNECTED)
         || (wifi_state == WIFIMG_WIFI_CONNECTED)){
         event_label++;
@@ -267,7 +296,7 @@ int main(int argv, char *argc[]){
                 }
             }while(1);
             
-            wifi_state = p_wifi_interface->get_wifi_state();
+            wifi_state = aw_wifi_get_wifi_state();
             if(wifi_state == WIFIMG_WIFI_CONNECTED){
             	  len = 256;
                 ret = p_wifi_interface->is_ap_connected(ssid, &len);

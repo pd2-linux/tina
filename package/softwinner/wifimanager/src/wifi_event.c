@@ -8,7 +8,12 @@
 #include "wifi_event.h"
 #include "wifi_state_machine.h"
 #include "wifi_intf.h"
+#include "wpa_supplicant_conf.h"
 
+#define MAX_ASSOC_REJECT_COUNT  3
+#define MAX_RETRIES_ON_AUTHENTICATION_FAILURE 2
+
+tWIFI_STATE  gwifi_state;
 extern char netid_connecting[];
 extern int  connecting_ap_event_label;
 extern int  disconnect_ap_event_label;
@@ -20,8 +25,7 @@ int wifi_event_callback_index = 0;
 static int wifi_event_inner = AP_DISCONNECTED;
 static int scan_complete = 0;
 static int assoc_reject_count = 0;
-
-#define MAX_ASSOC_REJECT_COUNT  3
+static int authentication_fail_count = 0;
 
 static void handle_event(int event, char * remainder) {
     char netid_connected[4] = {0};
@@ -86,12 +90,15 @@ static int dispatch_event(const char *event_str, int nread)
     if(strncmp(event_str, "CTRL-EVENT-", 11)){
         if (!strncmp(event_str, "WPA:", 4)){
             if (strstr(event_str, "pre-shared key may be incorrect")){
-                /* send disconnect */			
-                sprintf(cmd, "%s", "DISCONNECT");
-                wifi_command(cmd, reply, sizeof(reply));
+                authentication_fail_count++;
+                if(authentication_fail_count >= MAX_RETRIES_ON_AUTHENTICATION_FAILURE){
+                    /* send disconnect */			
+                    sprintf(cmd, "%s", "DISCONNECT");
+                    wifi_command(cmd, reply, sizeof(reply));
                 
-                set_wifi_machine_state(DISCONNECTED_STATE);
-                send_wifi_event(PASSWORD_INCORRECT, connecting_ap_event_label);
+                    set_wifi_machine_state(DISCONNECTED_STATE);
+                    send_wifi_event(PASSWORD_INCORRECT, connecting_ap_event_label);
+                }
                 return 0;
             }
         }
@@ -165,6 +172,8 @@ static int dispatch_event(const char *event_str, int nread)
         return 0;
     }else if(event == TERMINATING){
         printf("Wpa supplicant terminated!\n");
+        gwifi_state = WIFIMG_WIFI_DISABLED;
+        call_event_callback_function(WIFIMG_WIFI_OFF_SUCCESS, NULL, 0);
         return 1;
     }else if(event == EAP_FAILURE){
         printf("EAP FAILURE!\n");
@@ -288,7 +297,7 @@ void *check_connect_timeout(void *args)
         }
         
         i++;
-    } while((state != L2CONNECTED_STATE) && (state != CONNECTED_STATE) && (i < 150));
+    } while((state != L2CONNECTED_STATE) && (state != CONNECTED_STATE) && (i < 200));
 		
     /* wifi not exist or can't connect */
 		if (get_wifi_machine_state() == CONNECTING_STATE){

@@ -11,6 +11,7 @@
 
 #include "wifi_event.h"
 #include "wifi_state_machine.h"
+#include "wifi.h"
 
 extern int disconnecting;
 extern int  connecting_ap_event_label;
@@ -60,44 +61,44 @@ int is_ip_exist()
 
 void *udhcpc_thread(void *args)
 {
-	  int len = 0, vflag = 0, times = 0;
-	  char ipaddr[INET6_ADDRSTRLEN];
+    int len = 0, vflag = 0, times = 0;
+    char ipaddr[INET6_ADDRSTRLEN];
     char cmd[256] = {0}, reply[8] = {0};
 	  
     /* restart udhcpc */
-	  system("/etc/wifi/udhcpc_wlan0 restart");
+    system("/etc/wifi/udhcpc_wlan0 restart");
 	  
-	  /* check ip exist */
-	  len = INET6_ADDRSTRLEN;
-	  times = 0;
-	  do{
-	      usleep(100000);
-	      if(disconnecting == 1){
-	          system("/etc/wifi/udhcpc_wlan0 stop");
-	          break;
-	      }
-	      get_net_ip("wlan0", ipaddr, &len, &vflag);
-	      times++;
-	  }while((vflag == 0) && (times < 310));
+    /* check ip exist */
+    len = INET6_ADDRSTRLEN;
+    times = 0;
+    do{
+        usleep(100000);
+        if(disconnecting == 1){
+            system("/etc/wifi/udhcpc_wlan0 stop");
+            break;
+        }
+        get_net_ip("wlan0", ipaddr, &len, &vflag);
+        times++;
+    }while((vflag == 0) && (times < 310));
 	  
-		printf("vflag= %d\n",vflag);
+    printf("vflag= %d\n",vflag);
     if(vflag != 0){
-    	  set_wifi_machine_state(CONNECTED_STATE);
-    	  send_wifi_event(AP_CONNECTED, connecting_ap_event_label);
+        set_wifi_machine_state(CONNECTED_STATE);
+        send_wifi_event(AP_CONNECTED, connecting_ap_event_label);
     }else{
-    	  printf("udhcpc wlan0 timeout, pid %d!\n",pthread_self());
-    	  /* stop dhcpc thread */
-    	  system("/etc/wifi/udhcpc_wlan0 stop");
+        printf("udhcpc wlan0 timeout, pid %d!\n",pthread_self());
+        /* stop dhcpc thread */
+        system("/etc/wifi/udhcpc_wlan0 stop");
     	  
-    	  /* send disconnect */			
+    	/* send disconnect */			
         sprintf(cmd, "%s", "DISCONNECT");
         wifi_command(cmd, reply, sizeof(reply));
         
-    	  set_wifi_machine_state(DISCONNECTED_STATE);
-    	  send_wifi_event(OBTAINING_IP_TIMEOUT, connecting_ap_event_label);
+        set_wifi_machine_state(DISCONNECTED_STATE);
+        send_wifi_event(OBTAINING_IP_TIMEOUT, connecting_ap_event_label);
     }
 	  
-	  pthread_exit(NULL);
+    pthread_exit(NULL);
 }
 
 

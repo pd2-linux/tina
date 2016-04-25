@@ -48,7 +48,6 @@ typedef void (*tWifi_event_callback)(tWIFI_EVENT wifi_event, void *buf, int even
 
 typedef struct{
     int (*add_event_callback)(tWifi_event_callback pcb);
-    int (*get_wifi_state)(void);
     int (*is_ap_connected)(char *ssid, int *len);
     int (*start_scan)(void);
     int (*get_scan_results)(char *result, int *len);
@@ -61,6 +60,7 @@ typedef struct{
 }aw_wifi_interface_t;
 
 const aw_wifi_interface_t * aw_wifi_on(tWifi_event_callback pcb, int event_label);
+int aw_wifi_get_wifi_state();
 int aw_wifi_off(const aw_wifi_interface_t *p_wifi_interface_t);
 
 #if __cplusplus

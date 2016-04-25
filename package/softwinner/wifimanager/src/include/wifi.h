@@ -149,6 +149,24 @@ int wifi_change_fw_path(const char *fwpath);
 #define WIFI_ENTROPY_FILE	"/data/misc/wifi/entropy.bin"
 int ensure_entropy_file_exists();
 
+/**
+ * PATH_MAX
+ */
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
+
+/* Evaluate EXPRESSION, and repeat as long as it returns -1 with `errno'
+    set to EINTR.  */
+#ifndef TEMP_FAILURE_RETRY    
+#define TEMP_FAILURE_RETRY(expression) \
+   (__extension__                                                              \
+     ({ long int __result;                                                     \
+        do __result = (long int) (expression);                                 \
+        while (__result == -1L && errno == EINTR);                             \
+        __result; }))
+#endif
+
 #if __cplusplus
 };  // extern "C"
 #endif

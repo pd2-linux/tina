@@ -5,6 +5,8 @@
 #include "wpa_supplicant_conf.h"
 #include "wifi.h"
 
+extern int is_ip_exist();
+
 int wpa_conf_network_info_exist()
 {
     int ret = -1;
@@ -33,7 +35,7 @@ int wpa_conf_is_ap_exist(const char *ssid, tKEY_MGMT key_mgmt, char *net_id, int
     int ret = -1;
     char cmd[256] = {0};
     char reply[REPLY_BUF_SIZE] = {0}, key_type[128], key_reply[128];
-    char *p_c=NULL, *ptr=NULL;
+    char *pssid_start=NULL, *pssid_end = NULL, *ptr=NULL;
     int flag = 0;
     
     if(!ssid || !ssid[0]){
@@ -57,12 +59,24 @@ int wpa_conf_is_ap_exist(const char *ssid, tKEY_MGMT key_mgmt, char *net_id, int
     }
     
     ptr = reply;
-    while((p_c=strstr(ptr, ssid)) != NULL){
+    while((pssid_start=strstr(ptr, ssid)) != NULL){
         char *p_s=NULL, *p_e=NULL, *p=NULL;
         
-        flag = 0;
-   
-        p_e = strchr(p_c, '\n');
+        pssid_end = pssid_start + strlen(ssid);
+        /* ssid is presuffix of searched network */
+        if(*pssid_end != '\t'){
+            p_e = strchr(pssid_start, '\n');
+            if(p_e != NULL){
+                ptr = p_e;
+                continue;
+            }else{
+                break;
+            }   
+        }
+
+        flag = 0;   
+
+        p_e = strchr(pssid_start, '\n');
         if(p_e){
             *p_e = '\0';
         }
@@ -118,7 +132,7 @@ int wpa_conf_ssid2netid(char *ssid, tKEY_MGMT key_mgmt, char *net_id, int *len)
     int ret = -1;
     char cmd[CMD_LEN + 1] = {0};
     char reply[REPLY_BUF_SIZE] = {0}, key_type[128], key_reply[128];
-    char *p_c=NULL, *ptr=NULL;
+    char *pssid_start=NULL, *pssid_end=NULL, *ptr=NULL;
     int flag = 0;
 
     /* parse key_type */
@@ -138,12 +152,24 @@ int wpa_conf_ssid2netid(char *ssid, tKEY_MGMT key_mgmt, char *net_id, int *len)
     }
     
     ptr = reply;
-    while((p_c=strstr(ptr, ssid)) != NULL){
+    while((pssid_start=strstr(ptr, ssid)) != NULL){
         char *p_s=NULL, *p_e=NULL, *p_t=NULL;
         
+        pssid_end = pssid_start + strlen(ssid);
+        /* ssid is presuffix of searched network */
+        if(*pssid_end != '\t'){
+            p_e = strchr(pssid_start, '\n');
+            if(p_e != NULL){
+                ptr = p_e;
+                continue;
+            }else{
+                break;
+            }   
+        }
+
         flag = 0;
    
-        p_e = strchr(p_c, '\n');
+        p_e = strchr(pssid_start, '\n');
         if(p_e){
             *p_e = '\0';
         }
