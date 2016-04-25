@@ -49,6 +49,7 @@ static void handle_event(int event, char * remainder) {
             if(netid_connecting[0] != '\0'){
                 /* get already connected netid */
                 wpa_conf_get_ap_connected(netid_connected, &len);
+                printf("connecting id %s, connected id %s\n", netid_connected, netid_connecting);
                 if(strcmp(netid_connected,netid_connecting) != 0){
                     /* send disconnect */			
                     sprintf(cmd, "%s", "DISCONNECT");

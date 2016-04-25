@@ -169,13 +169,17 @@ static int aw_wifi_add_network(const char *ssid, tKEY_MGMT key_mgmt, const char 
         }
         
         /* set network wep_key0 */
-    	  sprintf(cmd, "SET_NETWORK %s wep_key0 %s", netid, passwd);
-    	  ret = wifi_command(cmd, reply, sizeof(reply));
+    	sprintf(cmd, "SET_NETWORK %s wep_key0 %s", netid, passwd);
+    	ret = wifi_command(cmd, reply, sizeof(reply));
         if(ret){
-            printf("do set network wep_key0 error!\n");
-            ret = -1;
-            event_code = WIFIMG_CMD_OR_PARAMS_ERROR;
-            goto end;
+            sprintf(cmd, "SET_NETWORK %s wep_key0 \"%s\"", netid, passwd);
+            ret = wifi_command(cmd, reply, sizeof(reply));
+            if(ret){
+                printf("do set network wep_key0 error!\n");
+                ret = -1;
+                event_code = WIFIMG_CMD_OR_PARAMS_ERROR;
+                goto end;
+            }
         }
 
         /* set network auth_alg */
@@ -351,13 +355,17 @@ static int wifi_connect_ap_inner(const char *ssid, tKEY_MGMT key_mgmt, const cha
         }
         
         /* set network wep_key0 */
-    	  sprintf(cmd, "SET_NETWORK %s wep_key0 %s", netid2, passwd);
-    	  ret = wifi_command(cmd, reply, sizeof(reply));
+    	sprintf(cmd, "SET_NETWORK %s wep_key0 %s", netid2, passwd);
+    	ret = wifi_command(cmd, reply, sizeof(reply));
         if(ret){
-            printf("do set network wep_key0 error!\n");
-            ret = -1;
-            event_code = WIFIMG_CMD_OR_PARAMS_ERROR;
-            goto end;
+            sprintf(cmd, "SET_NETWORK %s wep_key0 \"%s\"", netid2, passwd);
+            ret = wifi_command(cmd, reply, sizeof(reply));
+            if(ret){
+                printf("do set network wep_key0 error!\n");
+                ret = -1;
+                event_code = WIFIMG_CMD_OR_PARAMS_ERROR;
+                goto end;
+            }
         }
 
         /* set network auth_alg */
