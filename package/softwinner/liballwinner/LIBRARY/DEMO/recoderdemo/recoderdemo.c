@@ -19,14 +19,19 @@
 #include "memoryAdapter.h"
 #include "awencoder.h"
 
+#include "RecoderWriter.h"
+
 #define SAVE_VIDEO_FRAME (0)
-
-
+#define AUDIO_INPUT (1)
+#define VIDEO_INPUT (1)
 
 static const int STATUS_IDEL   = 0;
 
 FILE* inputPCM = NULL;
 FILE* inputYUV = NULL;
+
+char pcm_path[128] = {0};
+char yuv_path[128] = {0};
 
 int videoEos = 0;
 int audioEos = 0;
@@ -45,7 +50,7 @@ typedef struct DemoRecoderContext
 	CdxMuxerT* pMuxer;
 	int muxType;
 	char pUrl[1024];
-	CdxStreamT* pStream;
+	CdxWriterT* pStream;
 	char*       pOutUrl;
 
     unsigned char* extractDataBuff;
@@ -140,34 +145,30 @@ int onAudioDataEnc(void *app,CdxMuxerPacketT *buff)
 
 void* MuxerThread(void *param)
 {
-    int ret = 0;
+    //int ret = 0;
     int i =0;
     CdxMuxerPacketT *mPacket = NULL;
 	DemoRecoderContext *p = (DemoRecoderContext*)param;
-
+	RecoderWriterT *rw = NULL;
+#if FS_WRITER
+	CdxFsCacheMemInfo fs_cache_mem;
+	int fs_mode = FSWRITEMODE_DIRECT;
+//    int fs_cache_size = 1024 * 1024;
+#endif
     logd("MuxerThread");
 
     
 	if(p->pUrl)
 	{
-		CdxDataSourceT dataSource;
-		dataSource.uri = strdup(p->pUrl);
-
-		p->pStream = CdxStreamCreate(&dataSource);
-		if(p->pStream == NULL)
-		{
-			loge("CdxStreamCreate failed");
-			return 0;
-		}
-		
-		ret = CdxStreamConnect(p->pStream);
-		if(ret < 0)
-		{
-			loge("CdxStreamConnect failed(%s)", p->pUrl);
-			return 0;
-		}
-		free(dataSource.uri);
-
+        if ((p->pStream = CdxWriterCreat()) == NULL)
+        {
+            loge("CdxWriterCreat() failed");
+            return 0;
+        }
+        rw = (RecoderWriterT*)p->pStream;
+        rw->file_mode = FD_FILE_MODE;
+        strcpy(rw->file_path, p->pUrl);
+        RWOpen(p->pStream);
 		p->pMuxer = CdxMuxerCreate(p->muxType, p->pStream);
 		if(p->pMuxer == NULL)
 		{
@@ -178,7 +179,7 @@ void* MuxerThread(void *param)
 	}
 
 	CdxMuxerMediaInfoT mediainfo;
-
+    memset(&mediainfo, 0, sizeof(CdxMuxerMediaInfoT));
 	switch (p->audioConfig.nType)
 	{
 		case AUDIO_ENCODE_PCM_TYPE:
@@ -197,10 +198,12 @@ void* MuxerThread(void *param)
 			loge("unlown audio type(%d)", p->audioConfig.nType);
 			break;
 	}
-
+#if AUDIO_INPUT
     mediainfo.audioNum = 1;
+#endif
+#if VIDEO_INPUT
     mediainfo.videoNum = 1;
-	
+#endif
     if(p->muxType == CDX_MUXER_AAC)
     {
     	mediainfo.videoNum = 0;
@@ -239,7 +242,28 @@ void* MuxerThread(void *param)
 	if(p->pMuxer)
 	{
 		CdxMuxerSetMediaInfo(p->pMuxer, &mediainfo);	
-	}
+#if FS_WRITER
+        memset(&fs_cache_mem, 0, sizeof(CdxFsCacheMemInfo));
+
+        fs_cache_mem.m_cache_size = 512 * 1024;
+        fs_cache_mem.mp_cache = (cdx_int8*)malloc(fs_cache_mem.m_cache_size);
+        if (fs_cache_mem.mp_cache == NULL)
+        {
+            loge("fs_cache_mem.mp_cache malloc failed\n");
+            return NULL;
+        }
+        CdxMuxerControl(p->pMuxer, SET_CACHE_MEM, &fs_cache_mem);
+        fs_mode = FSWRITEMODE_CACHETHREAD;
+
+        /*
+        fs_cache_size = 1024 * 1024;
+        CdxMuxerControl(p->pMuxer, SET_FS_SIMPLE_CACHE_SIZE, &fs_cache_size);
+        fs_mode = FSWRITEMODE_SIMPLECACHE;
+        */
+        //fs_mode = FSWRITEMODE_DIRECT;
+        CdxMuxerControl(p->pMuxer, SET_FS_WRITE_MODE, &fs_mode);
+#endif
+    }
 
     logd("extractDataLength %d",p->extractDataLength);
     if(p->extractDataLength > 0 && p->pMuxer)
@@ -249,13 +273,19 @@ void* MuxerThread(void *param)
             CdxMuxerWriteExtraData(p->pMuxer, p->extractDataBuff, p->extractDataLength, 0);
     }
     
-	if(p->pMuxer)
+    if(p->pMuxer)
 	{
 	    logd("write head");
 		CdxMuxerWriteHeader(p->pMuxer);
 	}
 
+#if AUDIO_INPUT && VIDEO_INPUT
     while ((audioEos==0) || (videoEos==0))
+#elif VIDEO_INPUT
+    while(videoEos==0)
+#elif AUDIO_INPUT
+    while(audioEos==0)
+#endif
     {
         while (!CdxQueueEmpty(p->dataQueue))
         {
@@ -285,10 +315,26 @@ void* MuxerThread(void *param)
 
     logd("CdxMuxerClose");
     if(p->pMuxer)
+    {
 		CdxMuxerClose(p->pMuxer);
-    p->pMuxer = NULL;
+        p->pMuxer = NULL;
+    }
+    if(p->pStream)
+    {
+        RWClose(p->pStream);
+        CdxWriterDestroy(p->pStream);
+        p->pStream = NULL;
+        rw = NULL;
+    }
 
-
+#if FS_WRITER
+    if(fs_cache_mem.mp_cache)
+    {
+        free(fs_cache_mem.mp_cache);
+        fs_cache_mem.mp_cache = NULL;
+    }
+#endif
+    logd("MuxerThread has finish!");
 	p->exitFlag  = 1;
 
     return 0;
@@ -311,19 +357,16 @@ void* AudioInputThread(void *param)
     audioInputBuffer.nLen = 1024*4; //176400;
     audioInputBuffer.pData = (char*)malloc(audioInputBuffer.nLen);
 
-/*
-    size2 = fread(audioInputBuffer.pData, 1, audioInputBuffer.nLen, inputPCM);
-	if(size2 < audioInputBuffer.nLen)
-	{
-		logd("read error");
-	}
-	*/
-    
-	while(num<100)
+	while(num<1024)
 	{
 		ret = -1;
 		if(!audioEos)
 		{
+		    if (inputPCM == NULL)
+		    {
+		        printf("before fread, inputPCM is NULL\n");
+                break;
+		    }
 			size2 = fread(audioInputBuffer.pData, 1, audioInputBuffer.nLen, inputPCM);
 			if(size2 < audioInputBuffer.nLen)
 			{
@@ -342,9 +385,9 @@ void* AudioInputThread(void *param)
 			usleep(20*1000);
 			audioPts += 23;
 		}
-
 		num ++;
 	}
+	logd("audio read data finish!");
 	audioEos = 1;
 
     return 0;
@@ -355,17 +398,20 @@ void* VideoInputThread(void *param)
 	DemoRecoderContext *p = (DemoRecoderContext*)param;
 
     logd("VideoInputThread");
-    struct ScMemOpsS* memops = MemAdapterGetOpsS();
-	if(memops == NULL)
-	{
-		return NULL;
-	}
-	CdcMemOpen(memops);
+    struct ScMemOpsS* memops = NULL;
     
     VideoInputBuffer videoInputBuffer;
     int sizeY = p->videoConfig.nSrcHeight* p->videoConfig.nSrcWidth;
+
     if(p->videoConfig.bUsePhyBuf)
     {
+        memops = MemAdapterGetOpsS();
+	    if(memops == NULL)
+	    {
+	        loge("memops is NULL");
+		    return NULL;
+	    }
+	    CdcMemOpen(memops);
     	p->pAddrPhyY = CdcMemPalloc(memops, sizeY);
 		p->pAddrPhyC = CdcMemPalloc(memops, sizeY/2);
 		printf("==== palloc demoRecoder.pAddrPhyY: %p\n", p->pAddrPhyY);
@@ -443,12 +489,10 @@ void* VideoInputThread(void *param)
 		}
 		usleep(29*1000);
 		videoPts += 30;
-
-		printf("num: %d \n", num);
 		num ++;
 	}
 	
-    logd("read data finish!");
+    logd("video read data finish!");
 
 	videoEos = 1;
 
@@ -463,9 +507,17 @@ void* VideoInputThread(void *param)
 	{
 		CdcMemPfree(memops, p->pAddrPhyC);
 	}
+    if (memops)
+    {
+	    CdcMemClose(memops);
+	    memops = NULL;
+    }
 
-	CdcMemClose(memops);
-
+    if (inputYUV)
+    {
+        fclose(inputYUV);
+        inputYUV = NULL;
+    }
     return 0;
 }
 
@@ -495,19 +547,37 @@ int main(int argc, char *argv[])
     	printf(" argv[2]: audio pcm file \n");
     	return -1;
     }
+#if VIDEO_INPUT
+    inputYUV = fopen(argv[1], "rb");
+    logd("fopen inputYUV == %p\n", inputYUV);
+    if(inputYUV == NULL)
+    {
+    	printf("open yuv file failed");
+    	return -1;
+    }
+#endif
+#if AUDIO_INPUT
+    inputPCM = fopen(argv[2], "rb");
+    logd("fopen inputPCM == %p\n", inputPCM);
+    if(inputPCM == NULL)
+    {
+    	printf("open pcm file failed");
+    	return -1;
+    }
+#endif
     
     //* create a demoRecoder.
     memset(&demoRecoder, 0, sizeof(DemoRecoderContext));
 
     demoRecoder.pool = AwPoolCreate(NULL);
     demoRecoder.dataQueue = CdxQueueCreate(demoRecoder.pool);
-
+#if SAVE_VIDEO_FRAME
     demoRecoder.fpSaveVideoFrame = fopen("/mnt/UDISK/video.dat", "wb");
     if(demoRecoder.fpSaveVideoFrame == NULL)
     {
     	printf("open file /mnt/UDISK/video.dat failed, errno(%d)\n", errno);
     }
-
+#endif
 	//VideoEncodeConfig videoConfig;
 	memset(&demoRecoder.videoConfig, 0x00, sizeof(VideoEncodeConfig));
 	demoRecoder.videoConfig.nType       = VIDEO_ENCODE_JPEG;
@@ -535,8 +605,7 @@ int main(int argc, char *argv[])
     	demoRecoder.audioConfig.nFrameStyle = 2;
     }
 
-    if((demoRecoder.muxType == CDX_MUXER_TS) 
-    	&& demoRecoder.audioConfig.nType == AUDIO_ENCODE_AAC_TYPE)
+    if(demoRecoder.muxType == CDX_MUXER_TS && demoRecoder.audioConfig.nType == AUDIO_ENCODE_AAC_TYPE)
     {
     	demoRecoder.audioConfig.nFrameStyle = 1;
     }
@@ -575,38 +644,44 @@ int main(int argc, char *argv[])
     }
     //AwEncoderInit(demoRecoder.mAwEncoder, &demoRecoder.videoConfig, NULL,&mEncDataCallBackOps);
 
-
-    sprintf(demoRecoder.pUrl,  "write:///mnt/UDISK/save.mp4");
+    switch(demoRecoder.muxType)
+    {
+        case CDX_MUXER_AAC:
+            sprintf(demoRecoder.pUrl,  "/mnt/UDISK/save.aac");
+            break;
+        case CDX_MUXER_MP3:
+            sprintf(demoRecoder.pUrl,  "/mnt/UDISK/save.mp3");
+            break;
+        case CDX_MUXER_TS:
+            sprintf(demoRecoder.pUrl,  "/mnt/UDISK/save.ts");
+            break;
+        default:
+            sprintf(demoRecoder.pUrl,  "/mnt/UDISK/save.mp4");
+            break;
+     }
 
     AwEncoderStart(demoRecoder.mAwEncoder);
 
     AwEncoderGetExtradata(demoRecoder.mAwEncoder,&demoRecoder.extractDataBuff,&demoRecoder.extractDataLength);
+#if SAVE_VIDEO_FRAME
     if(demoRecoder.fpSaveVideoFrame)
     {
     	fwrite(demoRecoder.extractDataBuff, 1, demoRecoder.extractDataLength, demoRecoder.fpSaveVideoFrame);
     }
+#endif
 
-    pthread_create(&demoRecoder.muxerThreadId, NULL, MuxerThread, &demoRecoder);
+#if AUDIO_INPUT
     pthread_create(&demoRecoder.audioDataThreadId, NULL, AudioInputThread, &demoRecoder);
-    
+#endif
+#if VIDEO_INPUT
     if((demoRecoder.muxType != CDX_MUXER_AAC) && (demoRecoder.muxType != CDX_MUXER_MP3)) 
     {
     	pthread_create(&demoRecoder.videoDataThreadId, NULL, VideoInputThread, &demoRecoder);
     }
+#endif
 
-    inputYUV = fopen(argv[1], "rb");
-    if(inputYUV == NULL)
-    {
-    	printf("open yuv file failed");
-    	return -1;
-    }
+    pthread_create(&demoRecoder.muxerThreadId, NULL, MuxerThread, &demoRecoder);
 
-    inputPCM = fopen(argv[2], "rb");
-    if(inputPCM == NULL)
-    {
-    	printf("open yuv file failed");
-    	return -1;
-    }
 
     while (demoRecoder.exitFlag == 0)
     {
@@ -616,13 +691,16 @@ int main(int argc, char *argv[])
 
 	if(demoRecoder.muxerThreadId)
     	pthread_join(demoRecoder.muxerThreadId,     NULL);
+#if AUDIO_INPUT
     if(demoRecoder.audioDataThreadId)
     	pthread_join(demoRecoder.audioDataThreadId, NULL);
+#endif
+#if VIDEO_INPUT
     if(demoRecoder.videoDataThreadId)
     	pthread_join(demoRecoder.videoDataThreadId, NULL);
+#endif
 
 	printf("destroy AwRecorder.\n");
-	
     while (!CdxQueueEmpty(demoRecoder.dataQueue))
     {
         logd("free a packet");
@@ -641,12 +719,25 @@ int main(int argc, char *argv[])
 	}
 	
     pthread_mutex_destroy(&demoRecoder.mMutex);
-
+#if SAVE_VIDEO_FRAME
     if(demoRecoder.fpSaveVideoFrame)
     	fclose(demoRecoder.fpSaveVideoFrame);
+#endif
 
-    fclose(inputYUV);
-    fclose(inputPCM);
+#if VIDEO_INPUT
+    if (inputYUV)
+    {
+        fclose(inputYUV);
+        inputYUV = NULL;
+    }
+#endif
+#if AUDIO_INPUT
+    if (inputPCM)
+    {
+         fclose(inputPCM);
+         inputPCM = NULL;
+    }
+#endif
     
     printf("\n");
     printf("******************************************************************************************\n");

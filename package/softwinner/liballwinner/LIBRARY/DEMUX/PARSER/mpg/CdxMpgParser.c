@@ -1,3 +1,16 @@
+/*
+* Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+* All rights reserved.
+*
+* File : mpgPrser.c
+* Description : parse mpg file
+* History :
+*   Author  : xyliu <xyliu@allwinnertech.com>
+*   Date    : 2015/05/05
+*   Comment : parse mpg file
+*
+*
+*/
 
 //#define LOG_NDEBUG 0
 #define LOG_TAG "CdxMpgParser"
@@ -12,13 +25,15 @@ cdx_int16 SendVidFrmData(CdxMpgParserT  *pCdxMpgParserT, CdxPacketT *pkt)
 {   
     MpgVideoFrmItemT  *mVidFrmItemT       = NULL;
     MpgParserContextT *pMpgParserContextT = NULL;
+    cdx_uint32 nVidFrmSendItemIdx = 0;
     
     pMpgParserContextT = (MpgParserContextT *)pCdxMpgParserT->pMpgParserContext;
     if(pCdxMpgParserT->mMpgVidFrmInfT.nVidFrmValidItemNums > 0)
     {
         pkt->type = CDX_MEDIA_VIDEO;
         //pkt->video_type = VIDEO_TYPE_MAJOR;
-        mVidFrmItemT = &(pCdxMpgParserT->mMpgVidFrmInfT.mVidFrmItemT[pCdxMpgParserT->mMpgVidFrmInfT.nVidFrmSendItemIdx]);
+        nVidFrmSendItemIdx = pCdxMpgParserT->mMpgVidFrmInfT.nVidFrmSendItemIdx;
+        mVidFrmItemT = &(pCdxMpgParserT->mMpgVidFrmInfT.mVidFrmItemT[nVidFrmSendItemIdx]);
         mVidFrmItemT->nParsePicCodeMode = MPG_PARSE_PIC_CODE_NONE;
         pMpgParserContextT->mDataChunkT.nPts = mVidFrmItemT->nPtsValue;
         pMpgParserContextT->mDataChunkT.bHasPtsFlag = mVidFrmItemT->nPtsValid;
@@ -32,10 +47,13 @@ cdx_int16 SendVidFrmData(CdxMpgParserT  *pCdxMpgParserT, CdxPacketT *pkt)
         else
         {
             pMpgParserContextT->mDataChunkT.nSegmentNum = 2;
-            pMpgParserContextT->mDataChunkT.nSegmentLength[0] = pCdxMpgParserT->mMpgVidFrmInfT.pVidFrmDataBufEnd-mVidFrmItemT->pStartAddr;
+            pMpgParserContextT->mDataChunkT.nSegmentLength[0]
+                    = pCdxMpgParserT->mMpgVidFrmInfT.pVidFrmDataBufEnd-mVidFrmItemT->pStartAddr;
             pMpgParserContextT->mDataChunkT.pSegmentAddr[0] = mVidFrmItemT->pStartAddr;
-            pMpgParserContextT->mDataChunkT.nSegmentLength[1] = mVidFrmItemT->nDataSize-pMpgParserContextT->mDataChunkT.nSegmentLength[0];
-            pMpgParserContextT->mDataChunkT.pSegmentAddr[1] = pCdxMpgParserT->mMpgVidFrmInfT.pVidFrmDataBuf;
+            pMpgParserContextT->mDataChunkT.nSegmentLength[1]
+                    = mVidFrmItemT->nDataSize-pMpgParserContextT->mDataChunkT.nSegmentLength[0];
+            pMpgParserContextT->mDataChunkT.pSegmentAddr[1]
+                    = pCdxMpgParserT->mMpgVidFrmInfT.pVidFrmDataBuf;
         }
         pCdxMpgParserT->mMpgVidFrmInfT.nVidFrmValidItemNums -= 1;
         pCdxMpgParserT->mMpgVidFrmInfT.nVidFrmSendItemIdx += 1;
@@ -71,9 +89,9 @@ static cdx_int32 CdxMpgParserClose(CdxParserT *parser)
 static cdx_int32 CdxMpgParserPrefetch(CdxParserT *parser, CdxPacketT * pkt)
 {
     CdxMpgParserT          *pCdxMpgParserT = NULL;
-    MpgParserContextT	   *mMpgParserCxt  = NULL;
+    MpgParserContextT       *mMpgParserCxt  = NULL;
     MpgCheckH264NulT       *pMpgCheckNulT  = NULL;
-	int	                    nResult;
+    int                        nResult;
     
     pCdxMpgParserT = (CdxMpgParserT *)parser;
     mMpgParserCxt = (MpgParserContextT*)pCdxMpgParserT->pMpgParserContext;
@@ -82,8 +100,8 @@ static cdx_int32 CdxMpgParserPrefetch(CdxParserT *parser, CdxPacketT * pkt)
 
     if(pCdxMpgParserT->nError == PSR_EOS)
     {
-    	CDX_LOGD("---eos");
-    	return -1;
+        CDX_LOGD("---eos");
+        return -1;
     }
 
     if(pCdxMpgParserT->eStatus != CDX_PSR_IDLE && pCdxMpgParserT->eStatus != CDX_PSR_PREFETCHED)
@@ -182,9 +200,8 @@ prefetchData:
                         if(pMpgCheckNulT->pStartReadAddr<pMpgCheckNulT->pDataBuf)
                         {
                             pMpgCheckNulT->pStartReadAddr = pMpgCheckNulT->pEndAddr -
-                                                           (pMpgCheckNulT->pDataBuf-pMpgCheckNulT->pStartReadAddr-1);
+                                    (pMpgCheckNulT->pDataBuf-pMpgCheckNulT->pStartReadAddr-1);
                         }
-                            
                     }
                     else
                     {
@@ -193,7 +210,7 @@ prefetchData:
                         if(pMpgCheckNulT->pEndReadAddr<pMpgCheckNulT->pDataBuf)
                         {
                             pMpgCheckNulT->pEndReadAddr = pMpgCheckNulT->pEndAddr -
-                                                                          (pMpgCheckNulT->pDataBuf-pMpgCheckNulT->pEndReadAddr-1);
+                                    (pMpgCheckNulT->pDataBuf-pMpgCheckNulT->pEndReadAddr-1);
                         }
                         
                     }
@@ -251,7 +268,8 @@ prefetchData:
         }
         else if(mMpgParserCxt->mDataChunkT.bHasPtsFlag == 1)
         {
-            if((mMpgParserCxt->nFstVideoPts==mMpgParserCxt->mDataChunkT.nPts)||(mMpgParserCxt->mDataChunkT.nPts==0))
+            if((mMpgParserCxt->nFstVideoPts==mMpgParserCxt->mDataChunkT.nPts)
+                    ||(mMpgParserCxt->mDataChunkT.nPts==0))
             {
                mMpgParserCxt->mDataChunkT.bHasPtsFlag = 0;
             }
@@ -262,16 +280,20 @@ prefetchData:
         }
         
     }
-    else if((mMpgParserCxt->mDataChunkT.nId==0x01BD)&&(mMpgParserCxt->mDataChunkT.nSubId==mMpgParserCxt->nSubpicStreamId)&&(pCdxMpgParserT->bIsVOB==1))
+    else if((mMpgParserCxt->mDataChunkT.nId==0x01BD)&&
+            (mMpgParserCxt->mDataChunkT.nSubId==mMpgParserCxt->nSubpicStreamId)&&
+            (pCdxMpgParserT->bIsVOB==1))
     {
         //*just for one subtitle track, we should motify here when surpport multi subtitle tracks
         pkt->streamIndex = 0;
         pkt->type = CDX_MEDIA_SUBTITLE;
         //pkt->video_type = VIDEO_TYPE_NOT_VIDEO;
     }
-    else if((mMpgParserCxt->mDataChunkT.nId==mMpgParserCxt->nAudioId) ||((mMpgParserCxt->mDataChunkT.nId&0xe0)==MPG_AUDIO_ID))
+    else if((mMpgParserCxt->mDataChunkT.nId==mMpgParserCxt->nAudioId)
+            ||((mMpgParserCxt->mDataChunkT.nId&0xe0)==MPG_AUDIO_ID))
     {   
-        pkt->streamIndex = mMpgParserCxt->nSendAudioIndex;           // send the audio pStartAddr nIndex
+        pkt->streamIndex = mMpgParserCxt->nSendAudioIndex;
+        // send the audio pStartAddr nIndex
         
         pkt->type = CDX_MEDIA_AUDIO;
         //pkt->video_type = VIDEO_TYPE_NOT_VIDEO;
@@ -306,7 +328,8 @@ prefetchData:
         pkt->pts = mMpgParserCxt->mDataChunkT.nPts;
         pkt->pts *= 1000;
     }   
-    //CDX_LOGD("prefetch end, pts=%lld, type=%d, streamIndex=%d, cdx_pkt->length=%d", pkt->pts, pkt->type, pkt->streamIndex, pkt->length); 
+    //CDX_LOGD("prefetch end, pts=%lld, type=%d, streamIndex=%d, cdx_pkt->length=%d",
+    //pkt->pts, pkt->type, pkt->streamIndex, pkt->length);
     return CDX_SUCCESS;
 }
 
@@ -317,15 +340,16 @@ static cdx_int32 CdxMpgParserRead(CdxParserT *parser, CdxPacketT *pkt)
     MpgParserContextT      *mMpgParserCxt  = NULL;
     MpgCheckH264NulT       *pMpgCheckNulT  = NULL;
     cdx_uint8              *pBufPtr        = NULL;
-    cdx_uint8              *pDataBuf1	   = NULL;
+    cdx_uint8              *pDataBuf1       = NULL;
     cdx_uint8              *pDataBuf2      = NULL;
-    cdx_uint32              nRemainSize	   = 0;
+    cdx_uint32              nRemainSize       = 0;
     cdx_uint8               i = 0;
     pCdxMpgParserT = (CdxMpgParserT *)parser;
     mMpgParserCxt = (MpgParserContextT*)pCdxMpgParserT->pMpgParserContext;
     pMpgCheckNulT = &(mMpgParserCxt->mMpgCheckNulT);
     
-    if((mMpgParserCxt->bIsPsFlag == 0)&&(mMpgParserCxt->mDataChunkT.nSegmentNum==0))// only has video stream
+    if((mMpgParserCxt->bIsPsFlag == 0)
+        &&(mMpgParserCxt->mDataChunkT.nSegmentNum==0))// only has video stream
     {
          if(pkt->length <= pkt->buflen)
          {
@@ -343,8 +367,8 @@ static cdx_int32 CdxMpgParserRead(CdxParserT *parser, CdxPacketT *pkt)
          pkt->flags |= (FIRST_PART|LAST_PART);
          if(pCdxMpgParserT->nSeekTime != 0)
          {
-        	 pkt->pts  = pCdxMpgParserT->nSeekTime*1000;
-        	 pCdxMpgParserT->nSeekTime = 0;
+             pkt->pts  = pCdxMpgParserT->nSeekTime*1000;
+             pCdxMpgParserT->nSeekTime = 0;
          }
     }
     else
@@ -383,7 +407,8 @@ static cdx_int32 CdxMpgParserRead(CdxParserT *parser, CdxPacketT *pkt)
                             pBufPtr = pkt->buf;
                             memcpy(pBufPtr,pMpgCheckNulT->pStartReadAddr,pkt->buflen);
                             pBufPtr = pkt->ringBuf;
-                            memcpy(pBufPtr,pMpgCheckNulT->pStartReadAddr+pkt->buflen,pkt->ringBufLen);
+                            memcpy(pBufPtr,pMpgCheckNulT->pStartReadAddr+pkt->buflen,
+                                    pkt->ringBufLen);
                         }
                         else
                         {
@@ -396,7 +421,8 @@ static cdx_int32 CdxMpgParserRead(CdxParserT *parser, CdxPacketT *pkt)
                                 pBufPtr = pkt->buf;
                                 memcpy(pBufPtr,pMpgCheckNulT->pStartReadAddr,dstLen1);
                                 pBufPtr = pkt->ringBuf;
-                                memcpy(pBufPtr,pMpgCheckNulT->pStartReadAddr + dstLen1,srcLen1 - dstLen1);
+                                memcpy(pBufPtr,pMpgCheckNulT->pStartReadAddr + dstLen1,
+                                        srcLen1 - dstLen1);
                                 memcpy(pBufPtr+(srcLen1-dstLen1),pMpgCheckNulT->pDataBuf,srcLen2);
                             }
                             else
@@ -424,7 +450,8 @@ static cdx_int32 CdxMpgParserRead(CdxParserT *parser, CdxPacketT *pkt)
             {   
                 if(mMpgParserCxt->mDataChunkT.nSegmentLength[i] <= nRemainSize)
                 {
-                    memcpy(pBufPtr,mMpgParserCxt->mDataChunkT.pSegmentAddr[i],mMpgParserCxt->mDataChunkT.nSegmentLength[i]);
+                    memcpy(pBufPtr,mMpgParserCxt->mDataChunkT.pSegmentAddr[i],
+                            mMpgParserCxt->mDataChunkT.nSegmentLength[i]);
                     nRemainSize -= mMpgParserCxt->mDataChunkT.nSegmentLength[i];
                     pBufPtr += mMpgParserCxt->mDataChunkT.nSegmentLength[i];
                 }
@@ -432,9 +459,11 @@ static cdx_int32 CdxMpgParserRead(CdxParserT *parser, CdxPacketT *pkt)
                 {
                     memcpy(pBufPtr,mMpgParserCxt->mDataChunkT.pSegmentAddr[i],nRemainSize);
                     pBufPtr = pkt->ringBuf;
-                    memcpy(pBufPtr, mMpgParserCxt->mDataChunkT.pSegmentAddr[i]+nRemainSize,mMpgParserCxt->mDataChunkT.nSegmentLength[i]-nRemainSize);
+                    memcpy(pBufPtr, mMpgParserCxt->mDataChunkT.pSegmentAddr[i]+nRemainSize,
+                            mMpgParserCxt->mDataChunkT.nSegmentLength[i]-nRemainSize);
                     pBufPtr += mMpgParserCxt->mDataChunkT.nSegmentLength[i]-nRemainSize;
-                    nRemainSize = pkt->length-pkt->buflen - (mMpgParserCxt->mDataChunkT.nSegmentLength[i]-nRemainSize);
+                    nRemainSize = pkt->length-pkt->buflen -
+                        (mMpgParserCxt->mDataChunkT.nSegmentLength[i]-nRemainSize);
                 }
             }
         }
@@ -453,9 +482,9 @@ static cdx_int32 CdxMpgParserGetMediaInfo(CdxParserT *parser, CdxMediaInfoT * pM
     CdxMpgParserT         *pCdxMpgParserT = NULL;
     DvdIfoT     *pDvdIfoS       = NULL;
     MpgParserContextT     *mMpgParserCxt  = NULL;
-	struct CdxProgramS    *pProgramS      = NULL;
+    struct CdxProgramS    *pProgramS      = NULL;
     cdx_uint8              i = 0;
-	cdx_uint8 			   j = 0;
+    cdx_uint8                j = 0;
     
     pCdxMpgParserT = (CdxMpgParserT *)parser;
     if(!pCdxMpgParserT)
@@ -523,12 +552,14 @@ static cdx_int32 CdxMpgParserGetMediaInfo(CdxParserT *parser, CdxMediaInfoT * pM
                    pProgramS->subtitle[i].sPaletteInfo.entry[j] = pDvdIfoS->subpicIfo.palette[j];
                 }
 
-                memcpy(pProgramS->subtitle[i].strLang, pDvdIfoS->subpicIfo.subpicLang[i], MAX_LANG_LEN);
+                memcpy(pProgramS->subtitle[i].strLang,
+                        pDvdIfoS->subpicIfo.subpicLang[i], MAX_LANG_LEN);
             }
             else
             {  
                 pProgramS->subtitle[i].sPaletteInfo.bValid = 0;
-                //memcpy(pMediaInfo->SubtitleStrmList[i].strLang, "unknown language", sizeof("unknown language"));
+                //memcpy(pMediaInfo->SubtitleStrmList[i].strLang, "unknown language",
+                //sizeof("unknown language"));
                 strcpy((char*)pProgramS->subtitle[i].strLang, "Unknown subtitle");  
             }
         }
@@ -548,7 +579,8 @@ static cdx_int32 CdxMpgParserGetMediaInfo(CdxParserT *parser, CdxMediaInfoT * pM
             pProgramS->audio[i].nAvgBitrate = 0;
             pProgramS->audio[i].nMaxBitRate = 0;
             pProgramS->audio[i].nSampleRate = pCdxMpgParserT->mAudioFormatTArry[i].nSampleRate;
-            pProgramS->audio[i].nBitsPerSample = pCdxMpgParserT->mAudioFormatTArry[i].nBitsPerSample;
+            pProgramS->audio[i].nBitsPerSample =
+                    pCdxMpgParserT->mAudioFormatTArry[i].nBitsPerSample;
             //memcpy(pProgramS->audio[i].strLang, "unknown language", sizeof("unknown language"));
             strcpy((char*)pProgramS->audio[i].strLang, "Unknown language");  
             pProgramS->audio[i].eDataEncodeType = SUBTITLE_TEXT_FORMAT_UTF8;
@@ -557,21 +589,20 @@ static cdx_int32 CdxMpgParserGetMediaInfo(CdxParserT *parser, CdxMediaInfoT * pM
     else
     {   
         j = 0;
-    	for(i=0; i<pProgramS->audioNum; i++)
-    	{  
-           for(; j<pDvdIfoS->audioIfo.audioNum; j++)
-           {
-              if(pDvdIfoS->audioIfo.audioCheckFlag[j]==1)
-              {
-                break;
-              }
+        for(i=0; i<pProgramS->audioNum; i++)
+        {
+            for(; j<pDvdIfoS->audioIfo.audioNum; j++)
+            {
+                if(pDvdIfoS->audioIfo.audioCheckFlag[j]==1)
+                {
+                    break;
+                }
            }
            memcpy(pProgramS->audio[i].strLang, 
-                  pDvdIfoS->audioIfo.audioLang[j], MAX_LANG_LEN);
-           
+                   pDvdIfoS->audioIfo.audioLang[j], MAX_LANG_LEN);
            pProgramS->audio[i].eDataEncodeType = SUBTITLE_TEXT_FORMAT_UTF8;
            pProgramS->audio[i].eCodecFormat =  pDvdIfoS->audioIfo.audioCodeMode[j];
-           pProgramS->audio[i].nChannelNum 	 = pDvdIfoS->audioIfo.nChannelNum[j];
+           pProgramS->audio[i].nChannelNum      = pDvdIfoS->audioIfo.nChannelNum[j];
            pProgramS->audio[i].nBitsPerSample = pDvdIfoS->audioIfo.bitsPerSample[j];
            pProgramS->audio[i].nSampleRate = pDvdIfoS->audioIfo.samplePerSecond[j];
            pProgramS->audio[i].nAvgBitrate = 0;
@@ -587,67 +618,69 @@ static cdx_int32 CdxMpgParserGetMediaInfo(CdxParserT *parser, CdxMediaInfoT * pM
     //5.set total time
     pProgramS->duration= pCdxMpgParserT->nTotalTimeLength;
 
-	return 0;
+    return 0;
 
 }
 
 static int CdxMpgParserControl(CdxParserT *parser, int cmd, void *param)
 {
-	CdxMpgParserT          *pCdxMpgParserT     = NULL;
+    CdxMpgParserT          *pCdxMpgParserT     = NULL;
     MpgParserContextT      *pMpgParserContextT = NULL;
     DvdIfoT                *pDvdInfoT          = NULL;
-    cdx_int32 				nAudIdx = 0;
-    cdx_int32 				nSubIdx = 0;
-    cdx_uint32 				i = 0;
+    cdx_int32                 nAudIdx = 0;
+    cdx_int32                 nSubIdx = 0;
+    cdx_uint32                 i = 0;
     
-	pCdxMpgParserT = (CdxMpgParserT *)parser;
+    pCdxMpgParserT = (CdxMpgParserT *)parser;
 
     switch(cmd)
     {
         case CDX_PSR_CMD_SWITCH_AUDIO:
         {
-		    nAudIdx = *(int*)param;
+            nAudIdx = *(int*)param;
             
-		    if (nAudIdx >= pCdxMpgParserT->nhasAudioNum || nAudIdx < 0) 
+            if(nAudIdx >= pCdxMpgParserT->nhasAudioNum || nAudIdx < 0)
             {
-			    return CDX_SUCCESS;
-		    }
-		    else 
+                return CDX_SUCCESS;
+            }
+            else
             {  
-               pMpgParserContextT = (MpgParserContextT *)pCdxMpgParserT->pMpgParserContext;
-               pDvdInfoT = (DvdIfoT*)pCdxMpgParserT->pDvdInfo;
-               if(pMpgParserContextT->bSeamlessAudioSwitchFlag == 0)
-               {
-                
+                pMpgParserContextT = (MpgParserContextT *)pCdxMpgParserT->pMpgParserContext;
+                pDvdInfoT = (DvdIfoT*)pCdxMpgParserT->pDvdInfo;
+                if(pMpgParserContextT->bSeamlessAudioSwitchFlag == 0)
+                {
                     if(pDvdInfoT->titleIfoFlag == 1)
-        		    {
+                    {
                         pMpgParserContextT->nAudioId = pDvdInfoT->audioIfo.audioPackId[nAudIdx];
-                        pMpgParserContextT->nAudioStreamId = pDvdInfoT->audioIfo.audioStreamId[nAudIdx];
+                        pMpgParserContextT->nAudioStreamId
+                            = pDvdInfoT->audioIfo.audioStreamId[nAudIdx];
                     }
                     else
                     {
                         pMpgParserContextT->nAudioId = pMpgParserContextT->nAudioIdArray[nAudIdx];
-                        pMpgParserContextT->nAudioStreamId = pMpgParserContextT->bAudioStreamIdCode[nAudIdx];
+                        pMpgParserContextT->nAudioStreamId
+                            = pMpgParserContextT->bAudioStreamIdCode[nAudIdx];
                     }
                     pCdxMpgParserT->bChangeAudioFlag = 1;
-                }
-                else
-                {
-                    pCdxMpgParserT->bChangeAudioFlag = 0;
-                }
-	           pCdxMpgParserT->bHasSyncAudioFlag = 0;
-               pCdxMpgParserT->bDiscardAud = 0;
-               pMpgParserContextT->bFstAudDataFlag = 0;
-		    }
+                 }
+                 else
+                 {
+                     pCdxMpgParserT->bChangeAudioFlag = 0;
+                 }
+                 pCdxMpgParserT->bHasSyncAudioFlag = 0;
+                 pCdxMpgParserT->bDiscardAud = 0;
+                 pMpgParserContextT->bFstAudDataFlag = 0;
+            }
             return CDX_SUCCESS;
-		}
+        }
         case CDX_PSR_CMD_SWITCH_SUBTITLE:
         {
                nSubIdx = *(int*)param;
                pMpgParserContextT = (MpgParserContextT *)pCdxMpgParserT->pMpgParserContext;
                pDvdInfoT = (DvdIfoT*)pCdxMpgParserT->pDvdInfo;
                
-               if((pDvdInfoT->titleIfoFlag==0)||(nSubIdx>=pCdxMpgParserT->nhasSubTitleNum)||(nSubIdx<0))
+               if((pDvdInfoT->titleIfoFlag==0)||
+                    (nSubIdx>=pCdxMpgParserT->nhasSubTitleNum)||(nSubIdx<0))
                {
                     return CDX_SUCCESS;
                }
@@ -662,8 +695,10 @@ static int CdxMpgParserControl(CdxParserT *parser, int cmd, void *param)
                     {
                         if(pDvdInfoT->subpicIfo.subpicId[i]== pCdxMpgParserT->nUserSelSubStreamIdx)
                         {
-                            pCdxMpgParserT->nSubTitleStreamIndex = pCdxMpgParserT->nUserSelSubStreamIdx;
-                            pMpgParserContextT->nSubpicStreamId = pCdxMpgParserT->nUserSelSubStreamIdx;
+                            pCdxMpgParserT->nSubTitleStreamIndex
+                                    = pCdxMpgParserT->nUserSelSubStreamIdx;
+                            pMpgParserContextT->nSubpicStreamId =
+                                    pCdxMpgParserT->nUserSelSubStreamIdx;
                             pCdxMpgParserT->bSubStreamSyncFlag = 1;
                             break;
                         }
@@ -688,10 +723,10 @@ static int CdxMpgParserControl(CdxParserT *parser, int cmd, void *param)
              //TODO
              break;
         default:
-        	break;
+            break;
     }
 
-	return CDX_SUCCESS;
+    return CDX_SUCCESS;
     
 }
 
@@ -699,7 +734,7 @@ cdx_int32 CdxMpgParserSeekTo(CdxParserT *parser, cdx_int64  timeUs )
 {
     CdxMpgParserT          *pCdxMpgParserT = NULL; 
     MpgParserContextT      *mMpgParserCxt  = NULL;
-	pCdxMpgParserT = (CdxMpgParserT *)parser;
+    pCdxMpgParserT = (CdxMpgParserT *)parser;
     mMpgParserCxt = pCdxMpgParserT->pMpgParserContext;
 
     if(mMpgParserCxt->bSeekDisableFlag == 1)
@@ -712,10 +747,11 @@ cdx_int32 CdxMpgParserSeekTo(CdxParserT *parser, cdx_int64  timeUs )
     pCdxMpgParserT->seekTo(pCdxMpgParserT,(cdx_uint32)(timeUs/1000));
     pCdxMpgParserT->eStatus = CDX_PSR_IDLE;
     pCdxMpgParserT->nSeekTime = (cdx_uint32)(timeUs/1000);
-	return 0;
+    return 0;
 }
 
-cdx_uint32 CdxMpgParserAttribute(CdxParserT *parser) /*return falgs define as open'mMpgParserCxt falgs*/
+cdx_uint32 CdxMpgParserAttribute(CdxParserT *parser)
+    /*return falgs define as open'mMpgParserCxt falgs*/
 {
     CdxMpgParserT      *pCdxMpgParserT;
     pCdxMpgParserT = (CdxMpgParserT*)parser;
@@ -725,8 +761,8 @@ cdx_uint32 CdxMpgParserAttribute(CdxParserT *parser) /*return falgs define as op
 cdx_int32 CdxMpgParserForceStop(CdxParserT *parser)
 {
     CdxMpgParserT      *pCdxMpgParserT;
-	MpgParserContextT  *pMpgParserContextT = NULL;
-	int nRet;
+    MpgParserContextT  *pMpgParserContextT = NULL;
+    int nRet;
 
     pCdxMpgParserT = (CdxMpgParserT*)parser;
     if(!pCdxMpgParserT || !pCdxMpgParserT->pMpgParserContext)
@@ -739,55 +775,39 @@ cdx_int32 CdxMpgParserForceStop(CdxParserT *parser)
     pCdxMpgParserT->nError = PSR_USER_CANCEL;
     CdxStreamT* pStreamT = pMpgParserContextT->pStreamT;
     nRet = CdxStreamForceStop(pStreamT);
-    while(pCdxMpgParserT->eStatus != CDX_PSR_IDLE && pCdxMpgParserT->eStatus != CDX_PSR_PREFETCHED)
+    while(pCdxMpgParserT->eStatus != CDX_PSR_IDLE
+            && pCdxMpgParserT->eStatus != CDX_PSR_PREFETCHED)
     {
         usleep(2000);
     }
     
     pCdxMpgParserT->nError = PSR_OK;
-	return 0;
+    return 0;
 }
 
 cdx_int32 CdxMpgParserGetStatus(CdxParserT *parser)
 {
     CdxMpgParserT      *pCdxMpgParserT;
     pCdxMpgParserT = (CdxMpgParserT*)parser;
-	return pCdxMpgParserT->nError;
+    return pCdxMpgParserT->nError;
 }
 cdx_int32 CdxMpgParserInit(CdxParserT *parser)
 {
-	int nResult;
-    CdxMpgParserT        *pCdxMpgParserT = NULL;
-    MpgParserContextT  *pMpgParserContextT = NULL;  
-    
-    pCdxMpgParserT = (CdxMpgParserT*)parser;   
-    pMpgParserContextT = (MpgParserContextT*)pCdxMpgParserT->pMpgParserContext;
-   
-    //open media file to parse file information
-    nResult = pCdxMpgParserT->open(pCdxMpgParserT, pMpgParserContextT->pStreamT);
-    if(nResult < 0)
-    {
-        CDX_LOGE("open fail !");
-        //CdxStreamClose(stream);
-        pCdxMpgParserT->nError = PSR_OPEN_FAIL;
-        return NULL;
-    }
-
-    pCdxMpgParserT->eStatus = CDX_PSR_IDLE;
-    pCdxMpgParserT->nError = PSR_OK;
+    //*we do nothing here
+    CDX_UNUSE(parser);
     return 0;
 }
 
 static struct CdxParserOpsS mpgParserOps = 
 {
-    .control 		= CdxMpgParserControl,
-    .prefetch 		= CdxMpgParserPrefetch,
-    .read 			= CdxMpgParserRead,
-    .getMediaInfo 	= CdxMpgParserGetMediaInfo,
-    .close 			= CdxMpgParserClose, 
-    .seekTo 		= CdxMpgParserSeekTo,
-    .attribute		= CdxMpgParserAttribute,
-    .getStatus		= CdxMpgParserGetStatus,
+    .control         = CdxMpgParserControl,
+    .prefetch         = CdxMpgParserPrefetch,
+    .read             = CdxMpgParserRead,
+    .getMediaInfo     = CdxMpgParserGetMediaInfo,
+    .close             = CdxMpgParserClose,
+    .seekTo         = CdxMpgParserSeekTo,
+    .attribute        = CdxMpgParserAttribute,
+    .getStatus        = CdxMpgParserGetStatus,
     .init           = CdxMpgParserInit
 };
 
@@ -795,7 +815,6 @@ static CdxParserT *CdxMpgParserOpen(CdxStreamT *stream, cdx_uint32 flag)
 {
     int                   nResult;
     CdxMpgParserT        *pCdxMpgParserT = NULL;
-    MpgParserContextT  *pMpgParserContextT = NULL;
     CDX_UNUSE(flag);
     
     //init mpg parser lib module
@@ -812,64 +831,34 @@ static CdxParserT *CdxMpgParserOpen(CdxStreamT *stream, cdx_uint32 flag)
     }
     pCdxMpgParserT->eStatus = CDX_PSR_INITIALIZED;
 
-    pMpgParserContextT = (MpgParserContextT*)pCdxMpgParserT->pMpgParserContext;
-    pMpgParserContextT->pStreamT = stream;
+    //open media file to parse file information
+    nResult = pCdxMpgParserT->open(pCdxMpgParserT, stream);
+    if(nResult < 0)
+    {
+        CDX_LOGE("open fail !");
+        CdxStreamClose(stream);
+        pCdxMpgParserT->nError = PSR_OPEN_FAIL;
+        return NULL;
+    }
 
     //initial some global parameter
     pCdxMpgParserT->nVidPtsOffset = 0;
     pCdxMpgParserT->nAudPtsOffset = 0;
     pCdxMpgParserT->nSubPtsOffset = 0;
     pCdxMpgParserT->base.ops = &mpgParserOps;
-	pCdxMpgParserT->base.type = CDX_PARSER_MPG;
+    pCdxMpgParserT->base.type = CDX_PARSER_MPG;
 
-    pCdxMpgParserT->nError  = PSR_INVALID;
+    pCdxMpgParserT->eStatus = CDX_PSR_IDLE;
+    pCdxMpgParserT->nError  = PSR_OK;
     
     return &pCdxMpgParserT->base;
 }
 
-#if 0
-static cdx_uint32 CdxMpgParserProbe(CdxStreamProbeDataT *probeData)
-{
-    cdx_char 		    *pBufEnd   = NULL;
-    cdx_char 			*pBuf      = NULL;
-    
-    if(probeData->len < 4)
-    {
-        CDX_LOGE("error: Probe data is not enough.");
-        return 0;
-    }
-
-    //detect pack_header_startCode 0x000001BA
-    pBufEnd = probeData->buf + probeData->len;
-    pBuf    = probeData->buf;
-    
-    while(pBuf <= (pBufEnd - 4))
-    {
-        
-        if(pBuf[0] == 0x00 && pBuf[1] == 0x00 && pBuf[2] == 0x01 
-           && (pBuf[3] == 0xba || pBuf[3] == 0xb3 || pBuf[3] == 0xb8))
-        {
-            if(pBuf[3]== 0xba)
-                return 100;
-            break;
-        }
-        pBuf++;
-    }
-    
-    if(pBuf == (pBufEnd-3))
-    {
-        CDX_LOGW("error: can't find mpg_pack_header_startCode 0x000001BA,B3,B8 in probe_data");
-        return 0;
-    }
-    
-    return (pBufEnd - pBuf)*100/probeData->len;
-}
-#endif
 
 static cdx_uint32 CdxMpgParserProbe(CdxStreamProbeDataT *probeData)
 {
-    cdx_char 		    *pBufEnd   = NULL;
-    cdx_char 			*pBuf      = NULL;
+    cdx_char             *pBufEnd   = NULL;
+    cdx_char             *pBuf      = NULL;
     unsigned int        nextCode = 0xffffffff;
     int                 nSysPackNum = 0;
     int                 nMpgPackNum = 0;
@@ -881,6 +870,7 @@ static cdx_uint32 CdxMpgParserProbe(CdxStreamProbeDataT *probeData)
     int                 num = 0;
     int                 score = 0;
     int                 i = 0;
+    int                 nRealVideoPackNum = 0;
 
     if(probeData->len < 4)
     {
@@ -897,84 +887,93 @@ static cdx_uint32 CdxMpgParserProbe(CdxStreamProbeDataT *probeData)
     score = 0;
     while(pBuf <= pBufEnd)
     {
-    	nextCode <<= 8;
-    	nextCode |= pBuf[0];
+        nextCode <<= 8;
+        nextCode |= pBuf[0];
 
-    	if(i==3 && nextCode==0x2E524D46)   //it is rx
-    	{
-    		return 0;
-    	}
-    	i++;
-    	if((nextCode&0xffffff00) == 0x00000100)
-    	{
-    		if(nextCode == MPG_SYSTEM_HEADER_START_CODE)           // 0x000001BB
-    		{
-    			nSysPackNum++;
-    		}
-    		else if(nextCode == MPG_PACK_START_CODE)               // 0x000001BA
-    		{
-    			nMpgPackNum++;
-    		}
-    		else if(nextCode == MPG_PROGRAM_STREAM_MAP)            // 0x000001BC
-    		{
-    			nStreamMapNum++;
-    		}
-    		else if((nextCode == MPG_PADDING_STREAM) || (nextCode == MPG_PRIVATE_STREAM_2) || (nextCode == MPG_PRIVATE_STREAM_1))       // 0x000001BE 0x000001BF
-    		{
-    			nStreamPrivateNum++;
-    		}
-    		else if((nextCode&0xf0) == MPG_VIDEO_ID)
-    		{
-    			nVidPackNum++;
-    		}
-    		else if((nextCode&0xff) == 0xfd)
-    		{
-    			nVidPackNum++;
-    		}
-    		else if((nextCode>=0x01c0) && (nextCode<=0x01df))
-    		{
-    			nAudPackNum++;
-    		}
-    		else if(nextCode == MPG_SEQUENCE_HEADER_CODE)
-    		{
-    			nSeqNum++;
-    		    num = nSysPackNum+nMpgPackNum+nStreamMapNum+nStreamPrivateNum+nVidPackNum+nAudPackNum;
-    		    if(num == 0)
-    		    {
-    		    	score = 100;
-    		    	break;
-    		    }
-    		}
-    	}
-    	pBuf++;
+        if(i==3 && nextCode==0x2E524D46)   //it is rx
+        {
+            return 0;
+        }
+        i++;
+
+        if((nextCode&0xffffff00) == 0x00000100)
+        {
+            if(nextCode == MPG_SYSTEM_HEADER_START_CODE)           // 0x000001BB
+            {
+                nSysPackNum++;
+            }
+            else if(nextCode == MPG_PACK_START_CODE)               // 0x000001BA
+            {
+                nMpgPackNum++;
+            }
+            else if(nextCode == MPG_PROGRAM_STREAM_MAP)            // 0x000001BC
+            {
+                nStreamMapNum++;
+            }
+            else if((nextCode == MPG_PADDING_STREAM) || (nextCode == MPG_PRIVATE_STREAM_2)
+                    || (nextCode == MPG_PRIVATE_STREAM_1))       // 0x000001BE 0x000001BF
+            {
+                nStreamPrivateNum++;
+            }
+            else if((nextCode&0xf0) == MPG_VIDEO_ID)
+            {
+                nVidPackNum++;
+                if(nextCode==0x000001e0)
+                {
+                    nRealVideoPackNum++;
+                }
+            }
+            else if((nextCode&0xff) == 0xfd)
+            {
+                nVidPackNum++;
+            }
+            else if((nextCode>=0x01c0) && (nextCode<=0x01df))
+            {
+                nAudPackNum++;
+            }
+            else if(nextCode == MPG_SEQUENCE_HEADER_CODE)
+            {
+                nSeqNum++;
+                num = nSysPackNum+nMpgPackNum+nStreamMapNum+
+                    nStreamPrivateNum+nVidPackNum+nAudPackNum;
+                if(num == 0)
+                {
+                    score = 100;
+                    break;
+                }
+            }
+        }
+        pBuf++;
     }
 
     if(score == 0)
     {
-    	num = nSysPackNum+nMpgPackNum+nStreamMapNum+nStreamPrivateNum+nVidPackNum+nAudPackNum+nSeqNum;
-    	if(num == 0)
-    	{
-    		score = 0;
-    	}
-    	else if((nMpgPackNum ==0)||((nStreamPrivateNum+nVidPackNum+nAudPackNum)==0))
-    	{
-    		score = 0;
-    	}
-    	else if(num < 5)
-    	{
-    		score = 0;
-    	}
-    	else
-    	{
-    		score = 100;
-    	}
+        num = nSysPackNum+nMpgPackNum+nStreamMapNum+nStreamPrivateNum+
+                nVidPackNum+nAudPackNum+nSeqNum;
+        if(num == 0)
+        {
+            score = 0;
+        }
+        else if((nRealVideoPackNum==0)||(nMpgPackNum ==0)||
+            ((nStreamPrivateNum+nVidPackNum+nAudPackNum)==0))
+        {
+            score = 0;
+        }
+        else if(num < 5)
+        {
+            score = 0;
+        }
+        else
+        {
+            score = 100;
+        }
     }
     return score;
 }
 
 CdxParserCreatorT mpgParserCtor =
 {
-    .create	= CdxMpgParserOpen,
-    .probe 	= CdxMpgParserProbe
+    .create    = CdxMpgParserOpen,
+    .probe     = CdxMpgParserProbe
 };
 

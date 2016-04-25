@@ -63,9 +63,10 @@ int main(int argc, char** argv)
 
     printf("get metadata: w(%d), h(%d), duration(%d)\n", width, height, duration);
 
-	VideoFrame* videoFrame;
+	VideoFrame* videoFrame = NULL;
     videoFrame = AwRetrieverGetFrameAtTime(demoRetriver, 0);
 
+    (void)videoFrame;
     AwRetrieverDestory(demoRetriver);
     
     printf("\n");

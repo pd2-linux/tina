@@ -34,6 +34,7 @@ CONFIGURATIONS=(
     CONFIG_ENABLE_DEMUX_TS                      nu              0
 	CONFIG_HAVE_ZLIB                            nu              0
 	CONFIG_HAVE_SSL                             nu              0
+	CONFIG_HAVE_LIVE555                         nu              0
 	CONFIG_CEDARX_PATH                          nu              0
 )
 
@@ -73,6 +74,8 @@ Standard options:
   --libz-enable=libz            the libz library enable or not, option can be [yes/no].
   
   --ssl-enable=ssl              the openssl library enable or not, option can be [yes/no].
+  
+  --live555-enable=live555      the live555 library enable or not, option can be [yes/no].
   
   --disable-demux=demuxer       disable demux for specific file format, option can be [asf/avi/bd/dash/flv/hls/mkv/mms/mov/mpg/pmp/ogg/rx/ts].
   
@@ -630,7 +633,7 @@ for opt do
                 continue
             fi
         ;;
-		## config libz[yes/no].
+		## config openssl[yes/no].
         --ssl-enable=*)
             key=CONFIG_HAVE_SSL
             value=""
@@ -641,6 +644,20 @@ for opt do
             elif [ ${optval} = "no" ]; then
                 echo "ssl no"
                 value=OPTION_NO_SSL
+            else
+                echo "invalid cmcc option $optval."
+                continue
+            fi
+        ;;
+        ## config live555[yes/no].
+        --live555-enable=*)
+            key=CONFIG_HAVE_LIVE555
+            value=""
+            
+            if [ ${optval} = "yes" ]; then
+                value=OPTION_HAVE_LIVE555
+            elif [ ${optval} = "no" ]; then
+                value=OPTION_NO_LIVE555
             else
                 echo "invalid cmcc option $optval."
                 continue

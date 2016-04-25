@@ -1,13 +1,42 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxMuxer.h
+ * Description : Allwinner Muxer Definition
+ * History :
+ *
+ */
+
 #ifndef CDX_MUXER_H
 #define CDX_MUXER_H
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "CdxStream.h"
 #include "vencoder.h"
 #include "aencoder.h"
+#include "CdxLog.h"
+#include "CdxWriter.h"
 
-#define ADECODER_MAX_LANG_CHAR_SIZE  (64)
+typedef enum {
+    UNKNOWN_CMD = 0,
+    SET_CACHE_MEM,
+    SET_FS_WRITE_MODE,
+    SET_FS_SIMPLE_CACHE_SIZE,
+    SET_MP4_TMP_PATH
+} MuxCtrlCommads;
+
+typedef enum tag_FSWRITEMODE {
+    FSWRITEMODE_CACHETHREAD = 0,
+    FSWRITEMODE_SIMPLECACHE,
+    FSWRITEMODE_DIRECT,
+}FSWRITEMODE;
+
+typedef struct CdxFsCacheMemInfo
+{
+    cdx_int8              *mp_cache;
+    cdx_uint32            m_cache_size;
+}CdxFsCacheMemInfo;
 
 enum CdxMuxerTypeE
 {
@@ -19,6 +48,8 @@ enum CdxMuxerTypeE
     CDX_MUXER_MP3,
 };
 
+#define FS_WRITER (1)
+
 typedef struct CdxMuxerCreatorS CdxMuxerCreatorT;
 typedef struct CdxMuxerS CdxMuxerT;
 typedef enum CdxMuxerTypeE CdxMuxerTypeT;
@@ -29,14 +60,14 @@ typedef struct CdxMuxerPacketS CdxMuxerPacketT;
 
 struct CdxMuxerCreatorS
 {
-	CdxMuxerT *(*create)(CdxStreamT* /* stream */);
+    CdxMuxerT *(*create)(CdxWriterT* /* stream */);
 };
 
 struct CdxMuxerPacketS
 {
     cdx_void *buf;
     cdx_int32 buflen;
-    int64_t   pts;   
+    cdx_int64 pts;
     cdx_int64 duration;
     cdx_int32 type;
     cdx_int32 length;
@@ -45,18 +76,13 @@ struct CdxMuxerPacketS
 
 struct CdxMuxerOpsS
 {
-	cdx_int32 (*writeExtraData)(CdxMuxerT *, unsigned char* /* extradata */, int /* extradataLen */, int idx);
-	
-	cdx_int32 (*writeHeader)(CdxMuxerT *);
-	
-	cdx_int32 (*writePacket)(CdxMuxerT *, CdxMuxerPacketT * /* pkt */);
-	
-	cdx_int32 (*writeTrailer)(CdxMuxerT *);
-
-	cdx_int32 (*control)(CdxMuxerT *, int /* uCmd */, void * /* pParam*/);
-  
-	cdx_int32 (*close)(CdxMuxerT *);
-
+    cdx_int32 (*writeExtraData)(CdxMuxerT *, unsigned char* /* extradata */,
+                                int /* extradataLen */, int idx);
+    cdx_int32 (*writeHeader)(CdxMuxerT *);
+    cdx_int32 (*writePacket)(CdxMuxerT *, CdxMuxerPacketT * /* pkt */);
+    cdx_int32 (*writeTrailer)(CdxMuxerT *);
+    cdx_int32 (*control)(CdxMuxerT *, int /* uCmd */, void * /* pParam*/);
+    cdx_int32 (*close)(CdxMuxerT *);
     cdx_int32 (*setMediaInfo)(CdxMuxerT *, CdxMuxerMediaInfoT *);
 };
 
@@ -68,20 +94,21 @@ struct CdxMuxerS
 
 struct MuxerVideoStreamInfoS
 {
-	VENC_CODEC_TYPE  eCodeType;
-	int   			 nWidth;
-    int   			 nHeight;
-    int   			 nFrameRate;
-    int              nCreatTime;
-    int              nRotateDegree;
+    VENC_CODEC_TYPE    eCodeType;
+    int                nWidth;
+    int                nHeight;
+    int                nFrameRate;
+    int                nCreatTime;
+    int                nRotateDegree;
 };
 
+#define ADECODER_MAX_LANG_CHAR_SIZE  (64)
 struct MuxerAudioStreamInfoS
 {
-	AUDIO_ENCODER_TYPE		eCodecFormat;
+    AUDIO_ENCODER_TYPE      eCodecFormat;
     int                     nChannelNum;
     int                     nBitsPerSample;
-    int                     nSampleCntPerFrame;  //
+    int                     nSampleCntPerFrame;
     int                     nSampleRate;
     int                     nAvgBitrate;
     int                     nMaxBitRate;
@@ -92,76 +119,84 @@ struct MuxerAudioStreamInfoS
 #define MAX_AUDIO_NUM 2
 struct CdxMuxerMediaInfoS
 {
-	int                    videoNum;
-	int                    audioNum;
-	MuxerVideoStreamInfoT  video;
-	MuxerAudioStreamInfoT  audio;
-	int                   geo_available;
-    int                   latitudex;
-    int                   longitudex;
+    int                    videoNum;
+    int                    audioNum;
+    MuxerVideoStreamInfoT  video;
+    MuxerAudioStreamInfoT  audio;
+    int                    geo_available;
+    int                    latitudex;
+    int                    longitudex;
+    FSWRITEMODE            writer_mode;
 };
+
+#if FS_WRITER
+#define ByteIOContext CdxFsWriter
+#else
+#define ByteIOContext CdxWriterT
+#endif
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-CdxMuxerT *CdxMuxerCreate(CdxMuxerTypeT type, CdxStreamT *stream);
+CdxMuxerT *CdxMuxerCreate(CdxMuxerTypeT type, CdxWriterT *stream);
 
 static inline int CdxMuxerSetMediaInfo(CdxMuxerT *mux, CdxMuxerMediaInfoT *mediaInfo)
 {
-	CDX_CHECK(mux);
-	CDX_CHECK(mux->ops);
-	CDX_CHECK(mux->ops->setMediaInfo);
-	return mux->ops->setMediaInfo(mux, mediaInfo);
+    CDX_CHECK(mux);
+    CDX_CHECK(mux->ops);
+    CDX_CHECK(mux->ops->setMediaInfo);
+    return mux->ops->setMediaInfo(mux, mediaInfo);
 }
 
-static int CdxMuxerWriteExtraData(CdxMuxerT *mux, unsigned char* pdata, int data_len, int index)
+static inline int CdxMuxerWriteExtraData(CdxMuxerT *mux, unsigned char* pdata,
+                                         int data_len, int index)
 {
-	CDX_CHECK(mux);
-	CDX_CHECK(mux->ops);
-	CDX_CHECK(mux->ops->writeHeader);
-	return mux->ops->writeExtraData(mux, pdata, data_len, index);
+    CDX_CHECK(mux);
+    CDX_CHECK(mux->ops);
+    CDX_CHECK(mux->ops->writeHeader);
+    return mux->ops->writeExtraData(mux, pdata, data_len, index);
 }
 
-static int CdxMuxerWriteHeader(CdxMuxerT *mux)
+static inline int CdxMuxerWriteHeader(CdxMuxerT *mux)
 {
-	CDX_CHECK(mux);
-	CDX_CHECK(mux->ops);
-	CDX_CHECK(mux->ops->writeHeader);
-	return mux->ops->writeHeader(mux);
+    CDX_CHECK(mux);
+    CDX_CHECK(mux->ops);
+    CDX_CHECK(mux->ops->writeHeader);
+    return mux->ops->writeHeader(mux);
 }
 
 static inline int CdxMuxerWritePacket(CdxMuxerT *mux, CdxMuxerPacketT *pkt)
 {
-	CDX_CHECK(mux);
-	CDX_CHECK(mux->ops);
-	CDX_CHECK(mux->ops->writePacket);
-	return mux->ops->writePacket(mux, pkt);
+    CDX_CHECK(mux);
+    CDX_CHECK(mux->ops);
+    CDX_CHECK(mux->ops->writePacket);
+    return mux->ops->writePacket(mux, pkt);
 }
 
 static inline int CdxMuxerWriteTrailer(CdxMuxerT *mux)
 {
-	CDX_CHECK(mux);
-	CDX_CHECK(mux->ops);
-	CDX_CHECK(mux->ops->writeTrailer);
-	return mux->ops->writeTrailer(mux);
+    CDX_CHECK(mux);
+    CDX_CHECK(mux->ops);
+    CDX_CHECK(mux->ops->writeTrailer);
+    return mux->ops->writeTrailer(mux);
 }
 
 static inline int CdxMuxerControl(CdxMuxerT *mux, int uCmd, void * pParam)
 {
-	CDX_CHECK(mux);
-	CDX_CHECK(mux->ops);
-	CDX_CHECK(mux->ops->control);
-	return mux->ops->control(mux, uCmd, pParam);
+    CDX_CHECK(mux);
+    CDX_CHECK(mux->ops);
+    CDX_CHECK(mux->ops->control);
+    return mux->ops->control(mux, uCmd, pParam);
 }
 
 static inline int CdxMuxerClose(CdxMuxerT *mux)
 {
-	CDX_CHECK(mux);
-	CDX_CHECK(mux->ops);
-	CDX_CHECK(mux->ops->close);
-	return mux->ops->close(mux);
+    CDX_CHECK(mux);
+    CDX_CHECK(mux->ops);
+    CDX_CHECK(mux->ops->close);
+    return mux->ops->close(mux);
 }
 
 #ifdef __cplusplus

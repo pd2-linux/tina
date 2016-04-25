@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <CdxLog.h>
+#include <unistd.h>
 
 #include <CdxDebug.h>
 #ifdef LOG_TAG
@@ -81,10 +82,10 @@ void CdxCallStack(void)
     
     for (i = 0; i < threadNum; i++)
     {
-        pthread_t pid= atol(namelist[i]->d_name);
-        CDX_LOGD("------------tid(%lu)------------", pid);
+        pthread_t pid= (pthread_t)atol(namelist[i]->d_name);
+        CDX_LOGD("------------tid(%ld)------------", (unsigned long)pid);
         CdxDumpThreadStack(pid);
-        CDX_LOGD("------------tid(%lu) end------------\n\n", pid);
+        CDX_LOGD("------------tid(%ld) end------------\n\n", (unsigned long)pid);
     }   
     
     free(namelist);

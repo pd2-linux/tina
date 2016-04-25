@@ -86,6 +86,10 @@ else
 SourcePath := $(filter-out $(SvnPath) $(EnvPath) $(SstrPath) $(DashPath) $(BuildPath), $(SourcePath))             
 endif
 
+ifeq ($(CONFIG_HAVE_LIVE555), $(OPTION_HAVE_LIVE555))
+SourcePath +=       ./remux
+endif
+                       
 VPATH := $(SourcePath)
 
 ## set the source files.

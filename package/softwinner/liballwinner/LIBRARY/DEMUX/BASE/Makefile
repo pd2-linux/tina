@@ -6,7 +6,7 @@ include ../../../Makefile.inc
 ## set flags for golobal compile and link setting.
 ################################################################################
 
-CONFIG_FOR_COMPILE = $(CFLAGS) $(LOCAL_CFLAGS)
+CONFIG_FOR_COMPILE = $(CFLAGS) $(LOCAL_CFLAGS) -Werror
 CONFIG_FOR_LINK = 
 
 
@@ -88,15 +88,17 @@ cleanall: clean
 #$(ObjectPath)/%.o:%.c
 #	$(CC) $(CompileFlags) -o $@ -c $<
 $(ObjectFiles):$(ObjectPath)/%.o:%.c
-	$(CC) $(CompileFlags) -o $@ -c $<
+	@$(CC) $(CompileFlags) -o $@ -c $<
+	@echo "CC    $<"
 
 ## link object files to the target share library.
 $(Target):$(ObjectFiles)
-	$(LD) -o $@ $^ $(LoadFlags)
+	@$(LD) -o $@ $^ $(LoadFlags)
+	@echo "LD    $@"
 
 ## set rules to generate .d files.
 $(DependFilePath)/%.d:%.c
-	set -e; rm -f $@; \
+	@set -e; rm -f $@; \
 	$(CC) -MM $(CompileFlags) $< > $@.$$$$; \
 	sed 's,\($*\)\.o[:]*,$(ObjectPath)/\1.o $@: ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$

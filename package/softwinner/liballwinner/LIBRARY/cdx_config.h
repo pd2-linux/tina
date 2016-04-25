@@ -27,7 +27,7 @@
 // reconnection is also timeout and (CONFIG_HLS_TRY_NEXT_TS == 1), we try to
 // request next ts slice. (for yst icntv)
 // If CONFIG_HLS_TRY_NEXT_TS == 0, after 30s timeout, we will return IO ERROR.
-#define CONFIG_HLS_TRY_NEXT_TS     0
+//#define CONFIG_HLS_TRY_NEXT_TS     0
 
 #define CONFIG_ENABLE_DEMUX_ASF         1
 #define CONFIG_ENABLE_DEMUX_AVI         1

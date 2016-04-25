@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : mediaInfo.h
+ * Description : mediaInfo
+ * History :
+ *
+ */
+
 
 #ifndef MEDIA_INFO_H
 #define MEDIA_INFO_H
@@ -19,7 +29,9 @@ enum ECONTAINER
     CONTAINER_TYPE_HLS     = CDX_PARSER_HLS,
     CONTAINER_TYPE_DASH    = CDX_PARSER_DASH,
     CONTAINER_TYPE_MMS     = CDX_PARSER_MMS,
-    CONTAINER_TYPE_RTSP    = CDX_PARSER_REMUX, //* multiple stream source of media es stream, such as rtsp.
+
+    //* multiple stream source of media es stream, such as rtsp.
+    CONTAINER_TYPE_RTSP    = CDX_PARSER_REMUX,
     
     CONTAINER_TYPE_UNKNOWN = 0x100,
     CONTAINER_TYPE_RAW     = 0x101,

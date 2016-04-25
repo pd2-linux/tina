@@ -25,8 +25,7 @@ Target         = $(OutputPath)/libcdx_muxer.so   ## output target.
 ## set the source path to VPATH.
 SourcePath = $(shell find ./ -type d)
 SvnPath = $(shell find ./ -type d | grep ".svn")
-testPath = $(shell find ./ -type d | grep "test")
-SourcePath := $(filter-out $(SvnPath) $(testPath) , $(SourcePath))             
+SourcePath := $(filter-out $(SvnPath) , $(SourcePath))             
 
                        
 VPATH := $(SourcePath)
@@ -59,11 +58,8 @@ endif
 ## set the include path for compile flags.
 SourceIncludePath = $(foreach dir,$(SourcePath),-I$(dir)) \
                     -I../BASE/include \
-                    -I../STREAM/include \
-                    -I../PARSER/include          \
-					-I../../          \
+					          -I../../          \
                     -I../../libcedarc/include/ \
-                    -I../../PLAYER/include/ \
                     -I../../EXTERNAL/include/zlib/ \
                     -I../../EXTERNAL/include/openssl/ \
                     -I../../EXTERNAL/include/libxml \

@@ -1,3 +1,18 @@
+/*
+* Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+* All rights reserved.
+*
+* File : dvdTitleInfo.h
+* Description :
+* History :
+*   Author  : xyliu <xyliu@allwinnertech.com>
+*   Date    : 2015/05/05
+*   Comment :
+*
+*
+*/
+
+
 #ifndef _DVD_IFO_H_
 #define _DVD_IFO_H_
 
@@ -50,7 +65,7 @@ struct CellPlayback
 
 struct PgcPgMap
 {
-	cdx_uint8 entryCellNum;
+    cdx_uint8 entryCellNum;
 };
 
 struct Command
@@ -83,8 +98,8 @@ struct PgcIfo
   cdx_uint8  prevPgc[2];
   cdx_uint8  goUpPgc[2];
 
-  cdx_uint8	stillTime;
-  cdx_uint8	pgPlaybackMode;
+  cdx_uint8    stillTime;
+  cdx_uint8    pgPlaybackMode;
   cdx_uint8  subpicPlt[16][4];
 
   cdx_uint8 cmdTabSa[2];
@@ -92,8 +107,8 @@ struct PgcIfo
   cdx_uint8 cellPbiTabSa[2];
   cdx_uint8 cellPosTabSa[2];
 
-  struct  PgcCmdTable *cmdTable;
-  struct  PgcPgMap *programMap[PGMAP_NS];
+  struct PgcCmdTable *cmdTable;
+  struct PgcPgMap *programMap[PGMAP_NS];
 
   struct CellPlayback *cellPlayback[CELLPB_NS];
   struct CellPosition *cellPosition[CELLPOS_NS];
@@ -108,31 +123,29 @@ struct PgciPtr
   struct PgcIfo  *pgcIfo;
 };
 
-
-
 struct PGCIT
 {
   cdx_uint8   pgciNs[2];
-  cdx_uint8	 reserved[2];
+  cdx_uint8     reserved[2];
   cdx_uint8   pgciTabEa[4];
   struct PgciPtr *pgciPtr[PGCIPTR_NS];
 };
 
 struct PgciLangUnit
 {
-  cdx_uint8		langCode[2];
-  cdx_uint8		langExtension;
-  cdx_uint8		exists;
-  cdx_uint8		langSa[4];
+  cdx_uint8        langCode[2];
+  cdx_uint8        langExtension;
+  cdx_uint8        exists;
+  cdx_uint8        langSa[4];
   struct PGCIT *pgcit;
 };
 
 struct MPGCIUT
 {
-	cdx_uint8   langUnitNs[2];
-	cdx_uint8   reserved[2];
-	cdx_uint8   mpgciutEa[4];
-	struct PgciLangUnit *langUnit;
+    cdx_uint8   langUnitNs[2];
+    cdx_uint8   reserved[2];
+    cdx_uint8   mpgciutEa[4];
+    struct PgciLangUnit *langUnit;
 };
 
 
@@ -140,73 +153,73 @@ struct MPGCIUT
 /************************************/
 struct tAuAttr
 {
-	cdx_uint8 data[8];
+    cdx_uint8 data[8];
 };
 
 struct tSubpicAttr
 {
-	cdx_uint8 data[6];
+    cdx_uint8 data[6];
 };
 
 
 struct CellAdEntry
 {
-	cdx_uint8 vobId[2];
-	cdx_uint8  cellId;
-	cdx_uint8  reserved;
-	cdx_uint8 cpSa[4];
-	cdx_uint8 cpEa[4];
+    cdx_uint8 vobId[2];
+    cdx_uint8  cellId;
+    cdx_uint8  reserved;
+    cdx_uint8 cpSa[4];
+    cdx_uint8 cpEa[4];
 };
 
 
 struct VTSI
 {
-	cdx_uint8	identifier[12];
-	cdx_uint8	vtsEa[4];
-	cdx_uint8	padding1[12];
+    cdx_uint8    identifier[12];
+    cdx_uint8    vtsEa[4];
+    cdx_uint8    padding1[12];
 	
-	cdx_uint8	vtsiEa[4];
-	cdx_uint8    reserved1;
-	cdx_uint8	vern;	
-	cdx_uint8	category[4];
+    cdx_uint8    vtsiEa[4];
+    cdx_uint8    reserved1;
+    cdx_uint8    vern;
+    cdx_uint8    category[4];
 	
-	cdx_uint8	padding2[90];
+    cdx_uint8    padding2[90];
 	
-	cdx_uint8	vtsiMatEA[4];	
-	cdx_uint8	padding3[60];
+    cdx_uint8    vtsiMatEA[4];
+    cdx_uint8    padding3[60];
 	
-	cdx_uint8	menuVobSa[4];
-	cdx_uint8    titleVobSa[4];
+    cdx_uint8    menuVobSa[4];
+    cdx_uint8    titleVobSa[4];
 	
-	cdx_uint8	chapterTaPtrSa[4];
+    cdx_uint8    chapterTaPtrSa[4];
 	
-	cdx_uint8	titlePgcitSa[4];
-	cdx_uint8	menuPgciutSa[4];
+    cdx_uint8    titlePgcitSa[4];
+    cdx_uint8    menuPgciutSa[4];
 	
-	cdx_uint8	timeMapSa[4];
+    cdx_uint8    timeMapSa[4];
 	
-	cdx_uint8	menuCellAdtSa[4];
-	cdx_uint8   menuVobuAdmapSa[4];
+    cdx_uint8    menuCellAdtSa[4];
+    cdx_uint8   menuVobuAdmapSa[4];
 	
-	cdx_uint8	titleCellAdSa[4];
-	cdx_uint8	titleVobuAdmapSa[4];
+    cdx_uint8    titleCellAdSa[4];
+    cdx_uint8    titleVobuAdmapSa[4];
 	
-	cdx_uint8	padding5[24];
+    cdx_uint8    padding5[24];
 	
-	cdx_uint8   menuVideoAttr[2];
-	cdx_uint8   menuAudioStreamNs[2];
-	cdx_uint8   menuAudioAttr[2];
-	cdx_uint8   padding4[79];
-	cdx_uint8   menuSubpicStreamNs;
-	cdx_uint8   menuSubpicAttr;
-	cdx_uint8   padding6[169];
+    cdx_uint8   menuVideoAttr[2];
+    cdx_uint8   menuAudioStreamNs[2];
+    cdx_uint8   menuAudioAttr[2];
+    cdx_uint8   padding4[79];
+    cdx_uint8   menuSubpicStreamNs;
+    cdx_uint8   menuSubpicAttr;
+    cdx_uint8   padding6[169];
     
-	cdx_uint8   titleVideoAttr[2];
-	cdx_uint8   titleAudioStreamNs[2];
+    cdx_uint8   titleVideoAttr[2];
+    cdx_uint8   titleAudioStreamNs[2];
     struct tAuAttr titleAudioAttr[8];
-	cdx_uint8   padding7[16];
-	cdx_uint8   titleSubpicStreamNs[2];
-	struct tSubpicAttr titleSubpicAttr[32];
+    cdx_uint8   padding7[16];
+    cdx_uint8   titleSubpicStreamNs[2];
+    struct tSubpicAttr titleSubpicAttr[32];
 };
 
 struct TITLEAUDIO
@@ -245,7 +258,7 @@ typedef struct DvdIfoS
     cdx_uint8   *inputPath;
     cdx_uint8   *vtsBuffer;
          
-	struct VTSI         *vtsIfo;
+    struct VTSI         *vtsIfo;
     struct PGCIT        *titlePgcit;      // program chain information table
     struct TITLEAUDIO   audioIfo;
     struct TITLESUBPIC  subpicIfo;

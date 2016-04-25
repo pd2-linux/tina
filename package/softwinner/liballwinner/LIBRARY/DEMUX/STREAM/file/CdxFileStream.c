@@ -12,24 +12,25 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
+//#include <stdio.h>
 
 #define FILE_STREAM_SCHEME "file://"
 #define FD_STREAM_SCHEME "fd://"
 #define DEFAULT_PROBE_DATA_LEN (1024 * 128)
 
-#define fopen64(uri) open(uri, O_LARGEFILE)
+#define cdxfopen64(uri) open(uri, O_LARGEFILE)
 
-#define fseek64(fd, offset, whence) lseek64(fd, offset, whence)
+#define cdxfseek64(fd, offset, whence) lseek64(fd, offset, whence)
 
-#define ftell64(fd) lseek64(fd, 0, SEEK_CUR)
+#define cdxftell64(fd) lseek64(fd, 0, SEEK_CUR)
 
-#define fread64(fd, buf, len) read(fd, buf, len)
+#define cdxfread64(fd, buf, len) read(fd, buf, len)
 
-#define fwrite64(fd, buf, len) write(fd, buf, len)
+#define cdxfwrite64(fd, buf, len) write(fd, buf, len)
 
 //#define feof64(fd) lseek64(fd, 0, SEEK_CUR)
 
-#define fclose64(fd) close(fd)
+#define cdxfclose64(fd) close(fd)
 
 enum FileStreamStateE
 {
@@ -114,7 +115,7 @@ static int __FileStreamWrite(CdxStreamT *stream, void * buf, cdx_uint32 len)
 		return -1;
 	}
 
-    ret = fwrite64(impl->fd, buf, len);
+    ret = cdxfwrite64(impl->fd, buf, len);
     if(ret < len)
     {
     	loge("wrie err(%d)", errno);
@@ -136,7 +137,7 @@ static cdx_int32 __FileStreamRead(CdxStreamT *stream, cdx_void *buf, cdx_uint32 
     
 	//* we must limit the HadReadLen within impl->size,
     //* or in some case will be wrong, such as cts
-    nHadReadLen = ftell64(impl->fd) - impl->offset;
+    nHadReadLen = cdxftell64(impl->fd) - impl->offset;
     if(nHadReadLen >= impl->size)
     {
         CDX_LOGD("eos, pos(%lld)",impl->size);
@@ -154,11 +155,11 @@ static cdx_int32 __FileStreamRead(CdxStreamT *stream, cdx_void *buf, cdx_uint32 
         len = impl->size - nHadReadLen;
     }
 
-    ret = fread64(impl->fd, buf, len);
+    ret = cdxfread64(impl->fd, buf, len);
 
     if (ret < (cdx_int32)len)
     {
-        if ((ftell64(impl->fd) - impl->offset) == impl->size) /*end of file*/
+        if ((cdxftell64(impl->fd) - impl->offset) == impl->size) /*end of file*/
         {
             CDX_LOGD("eos, ret(%d), pos(%lld)...", ret, impl->size);
             impl->ioErr = CDX_IO_STATE_EOS;
@@ -167,7 +168,7 @@ static cdx_int32 __FileStreamRead(CdxStreamT *stream, cdx_void *buf, cdx_uint32 
         {
             impl->ioErr = errno;
             CDX_LOGE("ret(%d), errno(%d), cur pos:(%lld), impl->size(%lld)", 
-                    ret, impl->ioErr, ftell64(impl->fd) - impl->offset, impl->size);
+                    ret, impl->ioErr, cdxftell64(impl->fd) - impl->offset, impl->size);
         }
     }
 
@@ -188,7 +189,7 @@ static cdx_int32 __FileStreamClose(CdxStreamT *stream)
     CDX_FORCE_CHECK(CDX_SUCCESS == ret);
 
     //* the fd may be invalid when close, such as in TF-card test
-    ret = fclose64(impl->fd);
+    ret = cdxfclose64(impl->fd);
     if(ret != 0)
     {
         logw(" close fd may be not normal, ret = %d, errno = %d",ret,errno);
@@ -268,24 +269,24 @@ static cdx_int32 __FileStreamSeek(CdxStreamT *stream, cdx_int64 offset, cdx_int3
         if (offset < 0 || offset > impl->size)
         {
             CDX_LOGE("invalid arguments, offset(%lld), size(%lld)", offset, impl->size);
-            CdxDumpThreadStack(gettid());
+            CdxDumpThreadStack((pthread_t)gettid());
             CdxAtomicSet(&impl->state, FILE_STREAM_IDLE);
             return -1;
         }
-        ret = fseek64(impl->fd, impl->offset + offset, SEEK_SET);
+        ret = cdxfseek64(impl->fd, impl->offset + offset, SEEK_SET);
         break;
     }
     case STREAM_SEEK_CUR:
     {
-        cdx_int64 curPos = ftell64(impl->fd) - impl->offset;
+        cdx_int64 curPos = cdxftell64(impl->fd) - impl->offset;
         if (curPos + offset < 0 || curPos + offset > impl->size)
         {
             CDX_LOGE("invalid arguments, offset(%lld), size(%lld), curPos(%lld)", offset, impl->size, curPos);
-            CdxDumpThreadStack(gettid());
+            CdxDumpThreadStack((pthread_t)gettid());
             CdxAtomicSet(&impl->state, FILE_STREAM_IDLE);
             return -1;
         }
-        ret = fseek64(impl->fd, offset, SEEK_CUR);
+        ret = cdxfseek64(impl->fd, offset, SEEK_CUR);
         break;
     }
     case STREAM_SEEK_END:
@@ -294,11 +295,11 @@ static cdx_int32 __FileStreamSeek(CdxStreamT *stream, cdx_int64 offset, cdx_int3
         if (absOffset < impl->offset || absOffset > impl->offset + impl->size)
         {
             CDX_LOGE("invalid arguments, offset(%lld), size(%lld)", absOffset, impl->offset + impl->size);
-            CdxDumpThreadStack(gettid());
+            CdxDumpThreadStack((pthread_t)gettid());
             CdxAtomicSet(&impl->state, FILE_STREAM_IDLE);
             return -1;
         }
-        ret = fseek64(impl->fd, absOffset, SEEK_SET);
+        ret = cdxfseek64(impl->fd, absOffset, SEEK_SET);
         break;
     }
     default :
@@ -324,7 +325,7 @@ static cdx_int64 __FileStreamTell(CdxStreamT *stream)
     
     CDX_CHECK(stream);
     impl = CdxContainerOf(stream, struct CdxFileStreamImplS, base);
-    pos = ftell64(impl->fd) - impl->offset;
+    pos = cdxftell64(impl->fd) - impl->offset;
     if (-1 == pos)
     {
         impl->ioErr = errno;
@@ -340,7 +341,7 @@ static cdx_bool __FileStreamEos(CdxStreamT *stream)
     
     CDX_CHECK(stream);
     impl = CdxContainerOf(stream, struct CdxFileStreamImplS, base);
-    pos = ftell64(impl->fd) - impl->offset;
+    pos = cdxftell64(impl->fd) - impl->offset;
     CDX_LOGD("(%lld / %lld / %lld)", pos, impl->offset, impl->size);
     return (pos == impl->size);
 }
@@ -388,7 +389,7 @@ cdx_int32 __FileStreamConnect(CdxStreamT *stream)
 
 	if (strncmp(impl->filePath, FILE_STREAM_SCHEME, 7) == 0) /*file://... */
 	{
-		impl->fd = fopen64(impl->filePath + 7);
+		impl->fd = cdxfopen64(impl->filePath + 7);
 		if (impl->fd <= 0)
 		{
 			CDX_LOGE("open file failure, errno(%d)", errno);
@@ -397,8 +398,8 @@ cdx_int32 __FileStreamConnect(CdxStreamT *stream)
 		}
 		
 		impl->offset = 0;
-		impl->size = fseek64(impl->fd, 0, SEEK_END);
-		ret = (cdx_int32)fseek64(impl->fd, 0, SEEK_SET);
+		impl->size = cdxfseek64(impl->fd, 0, SEEK_END);
+		ret = (cdx_int32)cdxfseek64(impl->fd, 0, SEEK_SET);
 		CDX_LOG_CHECK(ret == 0, "errno(%d)", errno);
 
 		if(impl->filePath)
@@ -450,13 +451,13 @@ cdx_int32 __FileStreamConnect(CdxStreamT *stream)
 			cdx_int64 size;
 			CDX_LOGW("invalid size(%lld), try to get it myself...", impl->size);
 
-			size = fseek64(impl->fd, 0, SEEK_END);
+			size = cdxfseek64(impl->fd, 0, SEEK_END);
 			impl->size = size - impl->offset;
 			
 			CDX_LOGW("got it, size(%lld)", impl->size);
 		}
 
-		ret = fseek64(impl->fd, impl->offset, SEEK_SET);
+		ret = cdxfseek64(impl->fd, impl->offset, SEEK_SET);
 		if (ret < 0)
 		{
 			CDX_LOGE("seek to offset(%lld) failure, errno(%d)", impl->offset, errno);
@@ -482,7 +483,7 @@ cdx_int32 __FileStreamConnect(CdxStreamT *stream)
 		CDX_LOGW("File too small, size(%lld), will read all for probe...", impl->size);
 		impl->probeData.len = impl->size;
 	}
-	ret = fread64(impl->fd, impl->probeData.buf, impl->probeData.len);
+	ret = cdxfread64(impl->fd, impl->probeData.buf, impl->probeData.len);
 	if (ret < (int)impl->probeData.len)
 	{
 		CDX_LOGW("io fail, errno=%d", errno);
@@ -492,7 +493,7 @@ cdx_int32 __FileStreamConnect(CdxStreamT *stream)
 
 	CDX_BUF_DUMP(impl->probeData.buf, 16);
 	
-	ret = (cdx_int32)fseek64(impl->fd, impl->offset, SEEK_SET);
+	ret = (cdx_int32)cdxfseek64(impl->fd, impl->offset, SEEK_SET);
 	if (-1 == ret)
 	{
 		CDX_LOGW("io fail errno(%d)", errno);

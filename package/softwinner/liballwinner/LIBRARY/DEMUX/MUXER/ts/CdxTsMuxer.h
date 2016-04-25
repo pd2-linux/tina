@@ -1,9 +1,26 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxTsMuxer.h
+ * Description : Allwinner TS Muxer Definition
+ * History :
+ *   Author  : Q Wang <eric_wang@allwinnertech.com>
+ *   Date    : 2014/12/17
+ *   Comment : 创建初始版本，用于V3 CedarX_1.0
+ *
+ *   Author  : GJ Wu <wuguanjian@allwinnertech.com>
+ *   Date    : 2016/04/18
+ *   Comment_: 修改移植用于CedarX_2.0
+ */
+
 #ifndef CDX_TS_MUXER_H
 #define CDX_TS_MUXER_H
 
 #include "log.h"
 #include "CdxMuxer.h"
 #include "CdxMuxerBaseDef.h"
+#include "CdxFsWriter.h"
 
 #define RSHIFT(a,b) ((a) > 0 ? ((a) + ((1<<(b))>>1))>>(b) : ((a) + ((1<<(b))>>1)-1)>>(b))
 /* assume b>0 */
@@ -73,9 +90,9 @@ typedef enum {
 } AAC_PROFILE_TYPE;
 
 typedef enum {
-	OUTPUT_TS_FILE,
-	OUTPUT_M3U8_FILE,
-	OUTPUT_CALLBACK_BUFFER,
+    OUTPUT_TS_FILE,
+    OUTPUT_M3U8_FILE,
+    OUTPUT_CALLBACK_BUFFER,
 }OUTPUT_BUFFER_MODE;
 
 #define PKT_FLAG_KEY 1
@@ -180,37 +197,37 @@ typedef struct AVStream {
     cdx_int64 duration;
 
     cdx_int64 cur_dts;
-	void *vosData;
-	cdx_uint32 vosLen;
-	int   firstframeflag;
+    void *vos_data;
+    cdx_uint32 vos_len;
+    int   firstframeflag;
 } AVStream;
 
 typedef struct TsPacketHeader
 {
-	int  stream_type;
-	int  size;
-	long long pts;
+    int  stream_type;
+    int  size;
+    long long pts;
 }TsPacketHeader;
 
 typedef struct TsMuxContext {
     CdxMuxerT               muxInfo;
-    CdxStreamT              *stream_writer;
+    CdxWriterT              *stream_writer;
     void                    *priv_data;
-        
+    CdxFsWriterInfo         fs_writer_info;
     cdx_int32               nb_streams;
     AVStream                *streams[MAX_TS_STREAMS];
 
     cdx_uint32              max_delay;
     cdx_uint8               *cache_in_ts_stream;
-	unsigned char           *pes_buffer;
+    unsigned char           *pes_buffer;
     int                     pes_bufsize;
-	long long               audio_frame_num;
-	long long               pat_pmt_counter;
-	int                     pat_pmt_flag;
-	int                     output_buffer_mode;
-	int                     first_video_pts;
-	long long               base_video_pts;
-	unsigned int            pcr_counter;
+    long long               audio_frame_num;
+    long long               pat_pmt_counter;
+    int                     pat_pmt_flag;
+    int                     output_buffer_mode;
+    int                     first_video_pts;
+    long long               base_video_pts;
+    unsigned int            pcr_counter;
 } TsMuxContext;
 
 extern int TsWritePacket(TsMuxContext *s, CdxMuxerPacketT *pkt);

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : demuxComponent.h
+ * Description : demuxComponent
+ * History :
+ *
+ */
+
 
 #ifndef DEMUX_COMPONENT_H
 #define DEMUX_COMPONENT_H
@@ -51,11 +61,8 @@ void DemuxCompDestroy(DemuxComp* d);
 
 void DemuxCompClear(DemuxComp* d);  //* clear the data source, like just created.
 
-#if CONFIG_OS == OPTION_OS_ANDROID
-int DemuxCompSetUrlSource(DemuxComp* d, const char* pUrl, const KeyedVector<String8, String8>* pHeaders);
-#else
 int DemuxCompSetUrlSource(DemuxComp* d, const char* pUrl, const map<string, string>* pHeaders);
-#endif
+
 int DemuxCompSetFdSource(DemuxComp* d, int fd, int64_t nOffset, int64_t nLength);
 
 int DemuxCompSetPlayer(DemuxComp* d, Player* player);

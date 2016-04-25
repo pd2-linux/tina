@@ -789,7 +789,7 @@ int VideoEncodeCompInputBuffer(VideoEncodeComp* v, VideoInputBuffer *buf)
 	
 	if(p->mUseAllocInputBuffer)
 	{
-		if(buf->nLen!= sizeY*3/2)
+		if(buf->nLen!= (int)sizeY*3/2)
 		{
 			loge("input buf length not right");
 			return -1;

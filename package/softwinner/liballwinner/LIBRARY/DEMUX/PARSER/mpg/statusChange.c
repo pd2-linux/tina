@@ -1,21 +1,16 @@
-/*******************************************************************************
---                                                                            --
---                    CedarX Multimedia Framework                             --
---                                                                            --
---          the Multimedia Framework for Linux/Android System                 --
---                                                                            --
---       This software is confidential and proprietary and may be used        --
---        only as expressly authorized by a licensing agreement from          --
---                         Softwinner Products.                               --
---                                                                            --
---                   (C) COPYRIGHT 2011 SOFTWINNER PRODUCTS                   --
---                            ALL RIGHTS RESERVED                             --
---                                                                            --
---                 The entire notice above must be reproduced                 --
---                  on all copies and should not be removed.                  --
---                                                                            --
-*******************************************************************************/
-
+/*
+* Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+* All rights reserved.
+*
+* File : statusChange.c
+* Description :
+* History :
+*   Author  : xyliu <xyliu@allwinnertech.com>
+*   Date    : 2015/05/05
+*   Comment :
+*
+*
+*/
 //#define LOG_NDEBUG 0
 #define LOG_TAG "mpgStatusChange"
 #include <CdxLog.h>
@@ -31,60 +26,65 @@ cdx_uint8  CalculatePosIndex(cdx_uint32 value)
 {
     cdx_uint8 posIndex = 0;
 
-     value/=500;
-     if(value < 15)
-     {
+    value/=500;
+    if(value < 15)
+    {
         posIndex = 19 - value;
-     }
-     else
-     {
-         if(value >= 240)
-            posIndex = 0;
-         else if(value >= 120)
-            posIndex = 1;
-         else if(value >= 60)
-            posIndex = 2;
+    }
+    else
+    {
+        if(value >= 240)
+           posIndex = 0;
+        else if(value >= 120)
+           posIndex = 1;
+        else if(value >= 60)
+           posIndex = 2;
         else if(value >= 20)
-            posIndex = 3;
+           posIndex = 3;
         else
-            posIndex = 4;
-     }
+           posIndex = 4;
+    }
 
-     return posIndex;
+    return posIndex;
 }
 
 
 cdx_int16 VobCheckTitleEdge(CdxMpgParserT *MpgParser, cdx_int64 *curFpPos)
 {
-     MpgParserContextT *mMpgParserCxt = NULL;
-     mMpgParserCxt = (MpgParserContextT *)MpgParser->pMpgParserContext;
+    cdx_uint32  nTitleNum = 0;
+    MpgParserContextT *mMpgParserCxt = NULL;
+    mMpgParserCxt = (MpgParserContextT *)MpgParser->pMpgParserContext;
 
-     if((mMpgParserCxt->bNextVobuPosFlag==CDX_TRUE) &&((*curFpPos)>=mMpgParserCxt->mFileTitleIfoT.nVobEndPosArray[mMpgParserCxt->nCurTitleNum]))
+    if((mMpgParserCxt->bNextVobuPosFlag==CDX_TRUE) &&
+        ((*curFpPos)>=mMpgParserCxt->mFileTitleIfoT.nVobEndPosArray[mMpgParserCxt->nCurTitleNum]))
     {
-       mMpgParserCxt->nCurTitleNum ++;
-       if(mMpgParserCxt->nCurTitleNum == mMpgParserCxt->nFileTitleNs)
-       {
-          return 0;
-       }
-       else
-       {
-          *curFpPos = mMpgParserCxt->mFileTitleIfoT.nVobStartPosArray[mMpgParserCxt->nCurTitleNum];
-          mMpgParserCxt->nBaseTime = mMpgParserCxt->mFileTitleIfoT.nVobBaseTimeArray[mMpgParserCxt->nCurTitleNum];
-          return 1;
-       }
-    }
-    else if((mMpgParserCxt->bPrevVobuPosFlag==CDX_TRUE) &&((*curFpPos)<=mMpgParserCxt->mFileTitleIfoT.nVobStartPosArray[mMpgParserCxt->nCurTitleNum]))
-    {
-        if(mMpgParserCxt->nCurTitleNum == 0)
+        mMpgParserCxt->nCurTitleNum ++;
+        if(mMpgParserCxt->nCurTitleNum == mMpgParserCxt->nFileTitleNs)
         {
-           return 0;
+            return 0;
         }
         else
         {
-           mMpgParserCxt->nCurTitleNum --;
-           *curFpPos = mMpgParserCxt->mFileTitleIfoT.nVobEndPosArray[mMpgParserCxt->nCurTitleNum];
-           mMpgParserCxt->nBaseTime = mMpgParserCxt->mFileTitleIfoT.nVobBaseTimeArray[mMpgParserCxt->nCurTitleNum];
-           return 1;
+            nTitleNum = mMpgParserCxt->nCurTitleNum;
+            *curFpPos = mMpgParserCxt->mFileTitleIfoT.nVobStartPosArray[nTitleNum];
+            mMpgParserCxt->nBaseTime = mMpgParserCxt->mFileTitleIfoT.nVobBaseTimeArray[nTitleNum];
+            return 1;
+        }
+    }
+    else if((mMpgParserCxt->bPrevVobuPosFlag==CDX_TRUE) &&
+        ((*curFpPos)<=mMpgParserCxt->mFileTitleIfoT.nVobStartPosArray[mMpgParserCxt->nCurTitleNum]))
+    {
+        if(mMpgParserCxt->nCurTitleNum == 0)
+        {
+            return 0;
+        }
+        else
+        {
+            mMpgParserCxt->nCurTitleNum --;
+            nTitleNum = mMpgParserCxt->nCurTitleNum;
+            *curFpPos = mMpgParserCxt->mFileTitleIfoT.nVobEndPosArray[nTitleNum];
+            mMpgParserCxt->nBaseTime = mMpgParserCxt->mFileTitleIfoT.nVobBaseTimeArray[nTitleNum];
+            return 1;
         }
     }
 
@@ -95,7 +95,7 @@ cdx_uint8 VobJudgePosValid(CdxMpgParserT *MpgParser, cdx_int64 *startFpPos, cdx_
 {
     cdx_int64 curFpPos = 0;
     cdx_uint8 posIndex = 0;
-	cdx_int16 nRet     = 0;
+    cdx_int16 nRet     = 0;
     cdx_uint8 i        = 0;
     
     MpgParserContextT *mMpgParserCxt = NULL;
@@ -111,36 +111,38 @@ cdx_uint8 VobJudgePosValid(CdxMpgParserT *MpgParser, cdx_int64 *startFpPos, cdx_
     }
     else
     {
-       posIndex = CalculatePosIndex(absDiffTime);
-       i = posIndex;
-       if((mMpgParserCxt->nRecordVobuPosArray[posIndex]==0xffffff)||(mMpgParserCxt->nRecordVobuPosArray[posIndex]==0))
-      {
-        i = posIndex + 1;
-        while(i<20)
+        posIndex = CalculatePosIndex(absDiffTime);
+        i = posIndex;
+        if((mMpgParserCxt->nRecordVobuPosArray[posIndex]==0xffffff)
+            ||(mMpgParserCxt->nRecordVobuPosArray[posIndex]==0))
         {
-          if((mMpgParserCxt->nRecordVobuPosArray[i]!=0xffffff)&&(mMpgParserCxt->nRecordVobuPosArray[i]!=0))
-               break;
-          i++;
+            i = posIndex + 1;
+            while(i<20)
+            {
+                if((mMpgParserCxt->nRecordVobuPosArray[i]!=0xffffff)
+                    &&(mMpgParserCxt->nRecordVobuPosArray[i]!=0))
+                    break;
+                i++;
+            }
         }
-      }
 
-      if(i < 20)
-      {
-        if(mMpgParserCxt->bNextVobuPosFlag==CDX_TRUE)
+        if(i < 20)
         {
-           curFpPos += mMpgParserCxt->nRecordVobuPosArray[i] * VOB_VIDEO_LB_LEN;
+            if(mMpgParserCxt->bNextVobuPosFlag==CDX_TRUE)
+            {
+                curFpPos += mMpgParserCxt->nRecordVobuPosArray[i] * VOB_VIDEO_LB_LEN;
+            }
+            else if(mMpgParserCxt->bPrevVobuPosFlag==CDX_TRUE)
+            {
+                curFpPos -= mMpgParserCxt->nRecordVobuPosArray[i] * VOB_VIDEO_LB_LEN;
+            }
         }
-        else if(mMpgParserCxt->bPrevVobuPosFlag==CDX_TRUE)
-        {
-            curFpPos -= mMpgParserCxt->nRecordVobuPosArray[i] * VOB_VIDEO_LB_LEN;
-        }
-      }
 
-      nRet = VobCheckTitleEdge(MpgParser, &curFpPos);
-      *startFpPos = curFpPos;
-      if(nRet != 0)
-        nRet = 1;
-      return nRet;
+        nRet = VobCheckTitleEdge(MpgParser, &curFpPos);
+        *startFpPos = curFpPos;
+        if(nRet != 0)
+          nRet = 1;
+        return nRet;
     }
 }
 
@@ -149,25 +151,26 @@ cdx_int16 VobSelectRightPts(CdxMpgParserT *MpgParser, cdx_int64 *startFpPos)
 {
     MpgParserContextT *mMpgParserCxt = NULL;
     cdx_uint32 diffTime1      = 0;
-	cdx_uint32 diffTime2      = 0;
+    cdx_uint32 diffTime2      = 0;
     cdx_uint32 absDiffTime    = 0;
-    cdx_int64  curPts 		  = 0;
-    cdx_int64  curFpPos 	  = 0;
-    cdx_int64  startPTM 	  = 0;
+    cdx_int64  curPts           = 0;
+    cdx_int64  curFpPos       = 0;
+    cdx_int64  startPTM       = 0;
     cdx_int64  minAbsDiffTime = 0;
     cdx_int64  minDiffFpPos   = 0;
-    cdx_uint8  nRet 		  = 0;
+    cdx_uint8  nRet           = 0;
     cdx_uint8  findPosNum     = 0;
     //__s64 base_scr_time = 0;
     
     mMpgParserCxt = (MpgParserContextT *)MpgParser->pMpgParserContext;
 
-    diffTime1 = mMpgParserCxt->nDisplayTime - mMpgParserCxt->mFileTitleIfoT.nVobTimeLenArray[mMpgParserCxt->nCurTitleNum];
-    diffTime2 = mMpgParserCxt->mFileTitleIfoT.nVobTimeLenArray[mMpgParserCxt->nCurTitleNum+1] - mMpgParserCxt->nDisplayTime;
+    diffTime1 = mMpgParserCxt->nDisplayTime -
+            mMpgParserCxt->mFileTitleIfoT.nVobTimeLenArray[mMpgParserCxt->nCurTitleNum];
+    diffTime2 = mMpgParserCxt->mFileTitleIfoT.nVobTimeLenArray[mMpgParserCxt->nCurTitleNum+1]
+            - mMpgParserCxt->nDisplayTime;
 
     if(diffTime1 <= diffTime2)
     {
-  
         curFpPos = mMpgParserCxt->mFileTitleIfoT.nVobStartPosArray[mMpgParserCxt->nCurTitleNum];
         minAbsDiffTime = diffTime1;
         minDiffFpPos   = curFpPos;
@@ -181,66 +184,57 @@ cdx_int16 VobSelectRightPts(CdxMpgParserT *MpgParser, cdx_int64 *startFpPos)
     
     while(1)
     { 
-      findPosNum++;
-      if(findPosNum >= 100)
-      {
-          *startFpPos = minDiffFpPos;
-          break;
-      }
-      startPTM = VobCheckStartPts(MpgParser,curFpPos+VOB_VIDEO_LB_LEN);
-     // base_scr_time = mMpgParserCxt->nBaseSCR/45;
-      //if(startPTM > base_scr_time)
-      //{
-        //startPTM -= base_scr_time;
-      //}
-     // else
-      //{
-        //startPTM = base_scr_time - startPTM;
-      //}
-      curPts = startPTM + mMpgParserCxt->nBaseTime - mMpgParserCxt->nBasePts;
+        findPosNum++;
+        if(findPosNum >= 100)
+        {
+            *startFpPos = minDiffFpPos;
+            break;
+        }
+        startPTM = VobCheckStartPts(MpgParser,curFpPos+VOB_VIDEO_LB_LEN);
+        curPts = startPTM + mMpgParserCxt->nBaseTime - mMpgParserCxt->nBasePts;
 
-      if(curPts >= mMpgParserCxt->nDisplayTime)
-      {
-         absDiffTime = curPts - mMpgParserCxt->nDisplayTime;
-         mMpgParserCxt->bNextVobuPosFlag = CDX_FALSE;
-         mMpgParserCxt->bPrevVobuPosFlag = CDX_TRUE;
-      
-      }
-      else
-      {
-        absDiffTime = mMpgParserCxt->nDisplayTime - curPts;
-        mMpgParserCxt->bNextVobuPosFlag = CDX_TRUE;
-        mMpgParserCxt->bPrevVobuPosFlag = CDX_FALSE;
-      }
-      
-      if(absDiffTime <= VOB_JUMP_TIME_THRESH)
-      {
-         *startFpPos = curFpPos;
-         break;
-      }
-      
-      if(absDiffTime < minAbsDiffTime)
-      {
-        minAbsDiffTime = absDiffTime;
-        minDiffFpPos   = curFpPos;
-       // CDX_LOGW("********minAbsDiffTime=%d,findPosNum=%d\n",(cdx_uint32)minAbsDiffTime,findPosNum);
-      }
-        
-      CdxStreamSeek(mMpgParserCxt->pStreamT,curFpPos,STREAM_SEEK_SET);
-      if(CdxStreamRead(mMpgParserCxt->pStreamT,mMpgParserCxt->mDataChunkT.pStartAddr,VOB_VIDEO_LB_LEN) < VOB_VIDEO_LB_LEN)
-      {
-          return -1;
-      }
-      VobCheckUseInfo(MpgParser,mMpgParserCxt->mDataChunkT.pStartAddr);
-      nRet = VobJudgePosValid(MpgParser, &curFpPos, absDiffTime);
-      if(nRet == 0)
-      {
-        *startFpPos = curFpPos;
-        break;
-      }
-   }
-  return 0;
+        if(curPts >= mMpgParserCxt->nDisplayTime)
+        {
+            absDiffTime = curPts - mMpgParserCxt->nDisplayTime;
+            mMpgParserCxt->bNextVobuPosFlag = CDX_FALSE;
+            mMpgParserCxt->bPrevVobuPosFlag = CDX_TRUE;
+        }
+        else
+        {
+            absDiffTime = mMpgParserCxt->nDisplayTime - curPts;
+            mMpgParserCxt->bNextVobuPosFlag = CDX_TRUE;
+            mMpgParserCxt->bPrevVobuPosFlag = CDX_FALSE;
+        }
+
+        if(absDiffTime <= VOB_JUMP_TIME_THRESH)
+        {
+            *startFpPos = curFpPos;
+            break;
+        }
+
+        if(absDiffTime < minAbsDiffTime)
+        {
+            minAbsDiffTime = absDiffTime;
+            minDiffFpPos   = curFpPos;
+        }
+
+        CdxStreamSeek(mMpgParserCxt->pStreamT,curFpPos,STREAM_SEEK_SET);
+        if(CdxStreamRead(mMpgParserCxt->pStreamT,mMpgParserCxt->mDataChunkT.pStartAddr,
+                    VOB_VIDEO_LB_LEN) < VOB_VIDEO_LB_LEN)
+        {
+            return -1;
+        }
+        VobCheckUseInfo(MpgParser,mMpgParserCxt->mDataChunkT.pStartAddr);
+        nRet = VobJudgePosValid(MpgParser, &curFpPos, absDiffTime);
+        if(nRet == 0)
+        {
+          *startFpPos = curFpPos;
+          break;
+        }
+    }
+    return 0;
 }
+
 cdx_int16 VobSelectRightPos(CdxMpgParserT *MpgParser, cdx_uint32 dispTime)
 {
     cdx_uint32 timeInterval = 0;
@@ -249,7 +243,7 @@ cdx_int16 VobSelectRightPos(CdxMpgParserT *MpgParser, cdx_uint32 dispTime)
 
     MpgParserContextT *mMpgParserCxt = NULL;
 
-	mMpgParserCxt = (MpgParserContextT *)MpgParser->pMpgParserContext;
+    mMpgParserCxt = (MpgParserContextT *)MpgParser->pMpgParserContext;
 
      if(mMpgParserCxt->nLastNvTime != 0)
          timeInterval = mMpgParserCxt->nLastNvTime;
@@ -294,85 +288,82 @@ void MpgStatusInitStatusTitleChange(CdxMpgParserT *MpgParser)
     MpgParserContextT *mMpgParserCxt = NULL;
     cdx_int64  startFpPos = 0;
     cdx_uint32 time1      = 0;
-	cdx_uint32 time2      = 0;
+    cdx_uint32 time2      = 0;
     cdx_uint8  j          = 0;
+    cdx_uint32 nTitleNum  = 0;
 
     mMpgParserCxt = (MpgParserContextT *)MpgParser->pMpgParserContext;
 
     if(mMpgParserCxt->nDisplayTime <= mMpgParserCxt->mFileTitleIfoT.nVobTimeLenArray[0])
     {
-       mMpgParserCxt->nCurTitleNum = 0;
-       startFpPos = mMpgParserCxt->mFileTitleIfoT.nVobStartPosArray[mMpgParserCxt->nCurTitleNum];
-     }
-     else if(mMpgParserCxt->nDisplayTime >= mMpgParserCxt->mFileTitleIfoT.nVobTimeLenArray[mMpgParserCxt->nFileTitleNs])
-     {
+        mMpgParserCxt->nCurTitleNum = 0;
+        startFpPos = mMpgParserCxt->mFileTitleIfoT.nVobStartPosArray[mMpgParserCxt->nCurTitleNum];
+    }
+    else if(mMpgParserCxt->nDisplayTime
+            >= mMpgParserCxt->mFileTitleIfoT.nVobTimeLenArray[mMpgParserCxt->nFileTitleNs])
+    {
         mMpgParserCxt->nCurTitleNum = mMpgParserCxt->nFileTitleNs-1;
         startFpPos = mMpgParserCxt->mFileTitleIfoT.nVobEndPosArray[mMpgParserCxt->nCurTitleNum ];
-     }
-     else
-     {
-       while(j<mMpgParserCxt->nFileTitleNs)
-      {
-        time1 = mMpgParserCxt->mFileTitleIfoT.nVobTimeLenArray[j];
-        time2 = mMpgParserCxt->mFileTitleIfoT.nVobTimeLenArray[j+1];
-        if((mMpgParserCxt->nDisplayTime >= time1) && (mMpgParserCxt->nDisplayTime <= time2))
+    }
+    else
+    {
+        while(j<mMpgParserCxt->nFileTitleNs)
         {
-          mMpgParserCxt->nCurTitleNum = j;
-          mMpgParserCxt->nBaseTime = mMpgParserCxt->mFileTitleIfoT.nVobBaseTimeArray[mMpgParserCxt->nCurTitleNum];
-         // CDX_LOGW("********mMpgParserCxt->nCurTitleNum=%d,time1=%d,time2=%d\n",mMpgParserCxt->nCurTitleNum,time1,time2);
-          break;
-       }
-        j++;
-      }
-      //if(mMpgParserCxt->nCurTitleNum == 0)
-      //{
-        //mMpgParserCxt->nBaseSCR = mMpgParserCxt->mFileTitleIfoT.bVobPreScrArray[mMpgParserCxt->nCurTitleNum];
-      //}
-      VobSelectRightPts(MpgParser, &startFpPos);
-     }
+            time1 = mMpgParserCxt->mFileTitleIfoT.nVobTimeLenArray[j];
+            time2 = mMpgParserCxt->mFileTitleIfoT.nVobTimeLenArray[j+1];
+            if((mMpgParserCxt->nDisplayTime >= time1) && (mMpgParserCxt->nDisplayTime <= time2))
+            {
+                mMpgParserCxt->nCurTitleNum = j;
+                mMpgParserCxt->nBaseTime = mMpgParserCxt->mFileTitleIfoT.nVobBaseTimeArray[j];
+                break;
+            }
+            j++;
+        }
+        VobSelectRightPts(MpgParser, &startFpPos);
+    }
 
     mMpgParserCxt->nBaseSCR = 0;
-    mMpgParserCxt->nPreSCR = mMpgParserCxt->mFileTitleIfoT.bVobPreScrArray[mMpgParserCxt->nCurTitleNum];
-    mMpgParserCxt->nBaseTime = mMpgParserCxt->mFileTitleIfoT.nVobBaseTimeArray[mMpgParserCxt->nCurTitleNum];
+    nTitleNum  = mMpgParserCxt->nCurTitleNum;
+    mMpgParserCxt->nPreSCR = mMpgParserCxt->mFileTitleIfoT.bVobPreScrArray[nTitleNum];
+    mMpgParserCxt->nBaseTime = mMpgParserCxt->mFileTitleIfoT.nVobBaseTimeArray[nTitleNum];
     mMpgParserCxt->bGetRightPtsFlag = CDX_TRUE;
     CdxStreamSeek(mMpgParserCxt->pStreamT,startFpPos, STREAM_SEEK_SET);
 }
 
 
- void MpgStatusInitStatusChange(CdxMpgParserT *MpgParser)
+void MpgStatusInitStatusChange(CdxMpgParserT *MpgParser)
 {
-	MpgParserContextT *mMpgParserCxt = NULL;
+    MpgParserContextT *mMpgParserCxt = NULL;
 
     mMpgParserCxt = (MpgParserContextT *)MpgParser->pMpgParserContext;
 
-//    mMpgParserCxt->nDisplayTime  = GetAudVidTime(0, DRV_AVS_TIME_TOTAL);
-
     if(mMpgParserCxt->nFileTimeLength!=0)
-	{
-       if(mMpgParserCxt->nDisplayTime <= mMpgParserCxt->nFileTimeLength)
-	      mMpgParserCxt->nStartFpPos = (mMpgParserCxt->nFileLength /mMpgParserCxt->nFileTimeLength) *mMpgParserCxt->nDisplayTime;
-       else
-          mMpgParserCxt->nStartFpPos = CdxStreamTell(mMpgParserCxt->pStreamT) - UPDATE_SIZE_TH;
-	}
-	else
-	{
-		mMpgParserCxt->nStartFpPos = CdxStreamTell(mMpgParserCxt->pStreamT) - UPDATE_SIZE_TH;
-	}
+    {
+        if(mMpgParserCxt->nDisplayTime <= mMpgParserCxt->nFileTimeLength)
+           mMpgParserCxt->nStartFpPos = (mMpgParserCxt->nFileLength /mMpgParserCxt->nFileTimeLength)
+                                        *mMpgParserCxt->nDisplayTime;
+        else
+           mMpgParserCxt->nStartFpPos = CdxStreamTell(mMpgParserCxt->pStreamT) - UPDATE_SIZE_TH;
+    }
+    else
+    {
+        mMpgParserCxt->nStartFpPos = CdxStreamTell(mMpgParserCxt->pStreamT) - UPDATE_SIZE_TH;
+    }
 
-	CdxStreamSeek(mMpgParserCxt->pStreamT, mMpgParserCxt->nStartFpPos, STREAM_SEEK_SET);
+    CdxStreamSeek(mMpgParserCxt->pStreamT, mMpgParserCxt->nStartFpPos, STREAM_SEEK_SET);
 }
 
 
 void MpgStatusInitParamsProcess(CdxMpgParserT *MpgParser)
 {
-	MpgParserContextT *mMpgParserCxt = NULL;
-	mMpgParserCxt = (MpgParserContextT *)MpgParser->pMpgParserContext;
+    MpgParserContextT *mMpgParserCxt = NULL;
+    mMpgParserCxt = (MpgParserContextT *)MpgParser->pMpgParserContext;
 
-	mMpgParserCxt->mDataChunkT.bWaitingUpdateFlag = CDX_FALSE;
-	mMpgParserCxt->mDataChunkT.pReadPtr = mMpgParserCxt->mDataChunkT.pStartAddr;
-	mMpgParserCxt->mDataChunkT.pEndPtr = mMpgParserCxt->mDataChunkT.pStartAddr;
-	mMpgParserCxt->mDataChunkT.nSegmentNum = 0;
-	mMpgParserCxt->mDataChunkT.nId = 0;
+    mMpgParserCxt->mDataChunkT.bWaitingUpdateFlag = CDX_FALSE;
+    mMpgParserCxt->mDataChunkT.pReadPtr = mMpgParserCxt->mDataChunkT.pStartAddr;
+    mMpgParserCxt->mDataChunkT.pEndPtr = mMpgParserCxt->mDataChunkT.pStartAddr;
+    mMpgParserCxt->mDataChunkT.nSegmentNum = 0;
+    mMpgParserCxt->mDataChunkT.nId = 0;
     mMpgParserCxt->nPreVideoMaxPts  = 0;
     MpgParser->bForbidSwitchScr = 0;
     mMpgParserCxt->bSwitchScrOverFlag = 0;
@@ -380,89 +371,92 @@ void MpgStatusInitParamsProcess(CdxMpgParserT *MpgParser)
 
 cdx_uint8 MpgStatusSelectSuitPts(CdxMpgParserT *MpgParser)
 {
-	MpgParserContextT *mMpgParserCxt = NULL;
+    MpgParserContextT *mMpgParserCxt = NULL;
 
-	cdx_int32  diff_pts     = 0;
-	cdx_uint32 abs_diff_pts = 0;
-	cdx_int64  seek_pos     = 0;
-	cdx_uint8  result;
+    cdx_int32  diff_pts     = 0;
+    cdx_uint32 abs_diff_pts = 0;
+    cdx_int64  seek_pos     = 0;
+    cdx_uint8  result;
 
     mMpgParserCxt = (MpgParserContextT *)MpgParser->pMpgParserContext;
 
-	diff_pts = mMpgParserCxt->mDataChunkT.nPts - mMpgParserCxt->nDisplayTime;
-	abs_diff_pts = (diff_pts >= 0)? diff_pts : - diff_pts;
+    diff_pts = mMpgParserCxt->mDataChunkT.nPts - mMpgParserCxt->nDisplayTime;
+    abs_diff_pts = (diff_pts >= 0)? diff_pts : - diff_pts;
 
-	if(mMpgParserCxt->nFindPtsNum >= 30)          // cannot find the right nPts
-	{
-		mMpgParserCxt->bGetRightPtsFlag = CDX_TRUE;
-		result = 0;
+    if(mMpgParserCxt->nFindPtsNum >= 30)          // cannot find the right nPts
+    {
+        mMpgParserCxt->bGetRightPtsFlag = CDX_TRUE;
+        result = 0;
         return result;
-	}
-	if(abs_diff_pts <= 1000)
-	{
-		mMpgParserCxt->bGetRightPtsFlag = CDX_TRUE;
-		result = 0;
-	}
-	else
-	{
-		if(mMpgParserCxt->nFileTimeLength)
-			seek_pos = (mMpgParserCxt->nFileLength/mMpgParserCxt->nFileTimeLength)*abs_diff_pts;
-		else
-			seek_pos = UPDATE_SIZE_TH;
+    }
+    if(abs_diff_pts <= 1000)
+    {
+        mMpgParserCxt->bGetRightPtsFlag = CDX_TRUE;
+        result = 0;
+    }
+    else
+    {
+        if(mMpgParserCxt->nFileTimeLength)
+            seek_pos = (mMpgParserCxt->nFileLength/mMpgParserCxt->nFileTimeLength)*abs_diff_pts;
+        else
+            seek_pos = UPDATE_SIZE_TH;
 
-		if(diff_pts > 0)
-		{
-			mMpgParserCxt->nLargestFpPos = mMpgParserCxt->nStartFpPos;
+        if(diff_pts > 0)
+        {
+            mMpgParserCxt->nLargestFpPos = mMpgParserCxt->nStartFpPos;
             if(mMpgParserCxt->mDataChunkT.nPts == mMpgParserCxt->nFirstPts)
-			{
-				mMpgParserCxt->bGetRightPtsFlag = CDX_TRUE;
-				return 0;
-			}
-			if(mMpgParserCxt->nStartFpPos <= seek_pos)
-				mMpgParserCxt->nStartFpPos /= 2;
-			else
-				mMpgParserCxt->nStartFpPos -= seek_pos;
-		}
-		else
-		{
-			mMpgParserCxt->nSmallestFpPos = mMpgParserCxt->nStartFpPos;
-			if(mMpgParserCxt->mDataChunkT.nPts == mMpgParserCxt->nEndPts)
-			{
-				mMpgParserCxt->bGetRightPtsFlag = CDX_TRUE;
-				return 0;
-			}
-			if((mMpgParserCxt->nStartFpPos +seek_pos) >= mMpgParserCxt->nFileLength)
-				mMpgParserCxt->nStartFpPos += (mMpgParserCxt->nFileLength-mMpgParserCxt->nStartFpPos)/2;
-			else
-				mMpgParserCxt->nStartFpPos += seek_pos;
-		}
+            {
+                mMpgParserCxt->bGetRightPtsFlag = CDX_TRUE;
+                return 0;
+            }
+            if(mMpgParserCxt->nStartFpPos <= seek_pos)
+                mMpgParserCxt->nStartFpPos /= 2;
+            else
+                mMpgParserCxt->nStartFpPos -= seek_pos;
+        }
+        else
+        {
+            mMpgParserCxt->nSmallestFpPos = mMpgParserCxt->nStartFpPos;
+            if(mMpgParserCxt->mDataChunkT.nPts == mMpgParserCxt->nEndPts)
+            {
+                mMpgParserCxt->bGetRightPtsFlag = CDX_TRUE;
+                return 0;
+            }
+            if((mMpgParserCxt->nStartFpPos +seek_pos) >= mMpgParserCxt->nFileLength)
+                mMpgParserCxt->nStartFpPos +=
+                            (mMpgParserCxt->nFileLength-mMpgParserCxt->nStartFpPos)/2;
+            else
+                mMpgParserCxt->nStartFpPos += seek_pos;
+        }
 
-		if(mMpgParserCxt->nStartFpPos<=0 || mMpgParserCxt->nStartFpPos>= mMpgParserCxt->nFileLength)
-		{
-			result =2;
-		}
-		else if((mMpgParserCxt->nLastDiffPts>0 && diff_pts <0) ||(mMpgParserCxt->nLastDiffPts<0 && diff_pts >0))
-		{
-			if(diff_pts < 0)
-				mMpgParserCxt->nSmallestFpPos = mMpgParserCxt->nStartFpPos;
-			else
+        if(mMpgParserCxt->nStartFpPos<=0 || mMpgParserCxt->nStartFpPos>= mMpgParserCxt->nFileLength)
+        {
+            result =2;
+        }
+        else if((mMpgParserCxt->nLastDiffPts>0 && diff_pts <0)
+                ||(mMpgParserCxt->nLastDiffPts<0 && diff_pts >0))
+        {
+            if(diff_pts < 0)
+                mMpgParserCxt->nSmallestFpPos = mMpgParserCxt->nStartFpPos;
+            else
                 mMpgParserCxt->nLargestFpPos = mMpgParserCxt->nStartFpPos;
-            mMpgParserCxt->nStartFpPos = (mMpgParserCxt->nSmallestFpPos + mMpgParserCxt->nLargestFpPos)/2;
-			CdxStreamSeek(mMpgParserCxt->pStreamT, mMpgParserCxt->nStartFpPos, STREAM_SEEK_SET);
-			MpgStatusInitParamsProcess(MpgParser);
-			mMpgParserCxt->nLastDiffPts = diff_pts;
-			result = 1;
-			mMpgParserCxt->nFindPtsNum ++;
-		}
-		else
-		{
-			CdxStreamSeek(mMpgParserCxt->pStreamT, mMpgParserCxt->nStartFpPos, STREAM_SEEK_SET);
-			MpgStatusInitParamsProcess(MpgParser);
-			mMpgParserCxt->nLastDiffPts = diff_pts;
-			result = 1;
-			mMpgParserCxt->nFindPtsNum ++;
-		}
-	}
-	return result;
+            mMpgParserCxt->nStartFpPos = (mMpgParserCxt->nSmallestFpPos
+                                + mMpgParserCxt->nLargestFpPos)/2;
+            CdxStreamSeek(mMpgParserCxt->pStreamT, mMpgParserCxt->nStartFpPos, STREAM_SEEK_SET);
+            MpgStatusInitParamsProcess(MpgParser);
+            mMpgParserCxt->nLastDiffPts = diff_pts;
+            result = 1;
+            mMpgParserCxt->nFindPtsNum ++;
+        }
+        else
+        {
+            CdxStreamSeek(mMpgParserCxt->pStreamT, mMpgParserCxt->nStartFpPos, STREAM_SEEK_SET);
+            MpgStatusInitParamsProcess(MpgParser);
+            mMpgParserCxt->nLastDiffPts = diff_pts;
+            result = 1;
+            mMpgParserCxt->nFindPtsNum ++;
+        }
+    }
+    return result;
 }
 

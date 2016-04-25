@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : demuxComponent.cpp
+ * Description : demuxComponent
+ * History :
+ *
+ */
+
 
 #include <semaphore.h>
 #include <pthread.h>
@@ -44,11 +54,7 @@ static const int CACHE_MAX_BUFFER_SIZE = 20*1024*1024;
 
 static void* DemuxThread(void* arg);
 static void* CacheThread(void* arg);
-#if CONFIG_OS == OPTION_OS_ANDROID
-static int setDataSourceFields(CdxDataSourceT* source, char* uri, KeyedVector<String8,String8>* pHeader);
-#else
 static int setDataSourceFields(CdxDataSourceT* source, char* uri, map<string,string>* pHeader);
-#endif
 static void clearDataSourceFields(CdxDataSourceT* source);
 static int setMediaInfo(MediaInfo* pMediaInfo, CdxMediaInfoT* pInfoFromParser);
 static void clearMediaInfo(MediaInfo* pMediaInfo);
@@ -71,28 +77,28 @@ typedef struct DemuxCompContext_t
     AwMessageQueue*     mq;
     
     CdxParserT*         pParser;
-    CdxStreamT*			pStream;
+    CdxStreamT*            pStream;
     Player*             pPlayer;
     DemuxCallback       callback;
     void*               pUserData;
     int                 nCacheStatReportIntervalMs;
     
     pthread_mutex_t     mutex;
-	sem_t               semSetDataSource;
-	sem_t               semStart;
-	sem_t               semStop;
-	sem_t               semQuit;
-	sem_t               semClear;
-	sem_t               semCancelPrepare;
-	sem_t               semCancelSeek;
-	
-	int                 nSetDataSourceReply;
+    sem_t               semSetDataSource;
+    sem_t               semStart;
+    sem_t               semStop;
+    sem_t               semQuit;
+    sem_t               semClear;
+    sem_t               semCancelPrepare;
+    sem_t               semCancelSeek;
+
+    int                 nSetDataSourceReply;
     int                 nStartReply;
     int                 nStopReply;
     
     pthread_t           cacheThreadId;
     AwMessageQueue*     mqCache;
-	sem_t               semCache;
+    sem_t               semCache;
     int                 nCacheReply;
     StreamCache*        pCache;
     int                 bBufferring;
@@ -246,11 +252,7 @@ void DemuxCompClear(DemuxComp* d)  //* clear the data source, like just created.
     return;
 }
 
-#if CONFIG_OS == OPTION_OS_ANDROID
-int DemuxCompSetUrlSource(DemuxComp* d, const char* pUrl, const KeyedVector<String8, String8>* pHeaders)
-#else
 int DemuxCompSetUrlSource(DemuxComp* d, const char* pUrl, const map<string, string>* pHeaders)
-#endif
 {
     AwMessage msg;
     DemuxCompContext* demux;
@@ -263,8 +265,8 @@ int DemuxCompSetUrlSource(DemuxComp* d, const char* pUrl, const map<string, stri
                (unsigned int)&demux->semSetDataSource,      //* params[0] = &semSetDataSource.
                (unsigned int)&demux->nSetDataSourceReply,   //* params[1] = &nSetDataSourceReply.
                SOURCE_TYPE_URL,                             //* params[2] = SOURCE_TYPE_URL.
-               (unsigned int)pUrl,                          //* params[3] = pUrl.
-               (unsigned int)pHeaders);                     //* params[4] = KeyedVector<String8, String8>* pHeaders;
+               (unsigned int)pUrl,           //* params[3] = pUrl.
+               (unsigned int)pHeaders);     //* params[4] = KeyedVector<String8, String8>* pHeaders;
     AwMessageQueuePostMessage(demux->mq, &msg);
     SemTimedWait(&demux->semSetDataSource, -1);
     
@@ -323,7 +325,7 @@ int DemuxCompPrepareAsync(DemuxComp* d)
     
     demux = (DemuxCompContext*)d;
     
-    demux->bCancelPrepare = 0;      //* clear this flag, you can set this flag to make the parser quit preparing.
+    demux->bCancelPrepare = 0;
     demux->eStatus = DEMUX_STATUS_PREPARING;
     
     //* send a prepare message.
@@ -342,6 +344,17 @@ int DemuxCompCancelPrepare(DemuxComp* d)   //* should call back DEMUX_PREPARE_FI
     
     demux->bCancelPrepare = 1;      //* set this flag to make the parser quit preparing.
     
+    pthread_mutex_lock(&demux->mutex);
+	if(demux->pParser)
+	{
+		CdxParserForceStop(demux->pParser);
+	}
+	else if(demux->pStream)
+	{
+		CdxStreamForceStop(demux->pStream);
+	}
+	pthread_mutex_unlock(&demux->mutex);
+
     //* send a prepare.
     setMessage(&msg, 
                DEMUX_COMMAND_CANCEL_PREPARE,            //* message id.
@@ -380,11 +393,13 @@ MediaInfo* DemuxCompGetMediaInfo(DemuxComp* d)
     mi->eContainerType = myMediaInfo->eContainerType;
     mi->bSeekable      = myMediaInfo->bSeekable;
     
-    logv("video stream num = %d, video stream info = %p", myMediaInfo->nVideoStreamNum, myMediaInfo->pVideoStreamInfo);
+    logv("video stream num = %d, video stream info = %p",
+            myMediaInfo->nVideoStreamNum, myMediaInfo->pVideoStreamInfo);
     
     if(myMediaInfo->nVideoStreamNum > 0)
     {
-        pVideoStreamInfo = (VideoStreamInfo*)malloc(sizeof(VideoStreamInfo)*myMediaInfo->nVideoStreamNum);
+        pVideoStreamInfo = (VideoStreamInfo*)malloc(
+                sizeof(VideoStreamInfo)*myMediaInfo->nVideoStreamNum);
         if(pVideoStreamInfo == NULL)
         {
             loge("can not alloc memory for media info.");
@@ -414,7 +429,8 @@ MediaInfo* DemuxCompGetMediaInfo(DemuxComp* d)
                     return NULL;
                 }
                 
-                memcpy(pVideoStreamInfo->pCodecSpecificData, pCodecSpecificData, nCodecSpecificDataLen);
+                memcpy(pVideoStreamInfo->pCodecSpecificData,
+                        pCodecSpecificData, nCodecSpecificDataLen);
                 pVideoStreamInfo->nCodecSpecificDataLen = nCodecSpecificDataLen;
             }
         }
@@ -422,11 +438,13 @@ MediaInfo* DemuxCompGetMediaInfo(DemuxComp* d)
         mi->nVideoStreamNum = myMediaInfo->nVideoStreamNum;
     }
     
-    logv("video stream num = %d, video stream info = %p", mi->nVideoStreamNum, mi->pVideoStreamInfo);
+    logv("video stream num = %d, video stream info = %p",
+            mi->nVideoStreamNum, mi->pVideoStreamInfo);
     
     if(myMediaInfo->nAudioStreamNum > 0)
     {
-        pAudioStreamInfo = (AudioStreamInfo*)malloc(sizeof(AudioStreamInfo)*myMediaInfo->nAudioStreamNum);
+        pAudioStreamInfo = (AudioStreamInfo*)malloc(
+                sizeof(AudioStreamInfo)*myMediaInfo->nAudioStreamNum);
         if(pAudioStreamInfo == NULL)
         {
             loge("can not alloc memory for media info.");
@@ -456,7 +474,8 @@ MediaInfo* DemuxCompGetMediaInfo(DemuxComp* d)
                     return NULL;
                 }
                 
-                memcpy(pAudioStreamInfo->pCodecSpecificData, pCodecSpecificData, nCodecSpecificDataLen);
+                memcpy(pAudioStreamInfo->pCodecSpecificData, pCodecSpecificData,
+                                nCodecSpecificDataLen);
                 pAudioStreamInfo->nCodecSpecificDataLen = nCodecSpecificDataLen;
             }
         }
@@ -466,7 +485,8 @@ MediaInfo* DemuxCompGetMediaInfo(DemuxComp* d)
     
     if(myMediaInfo->nSubtitleStreamNum > 0)
     {
-        pSubtitleStreamInfo = (SubtitleStreamInfo*)malloc(sizeof(SubtitleStreamInfo)*myMediaInfo->nSubtitleStreamNum);
+        pSubtitleStreamInfo = (SubtitleStreamInfo*)malloc(
+                sizeof(SubtitleStreamInfo)*myMediaInfo->nSubtitleStreamNum);
         if(pSubtitleStreamInfo == NULL)
         {
             loge("can not alloc memory for media info.");
@@ -479,7 +499,8 @@ MediaInfo* DemuxCompGetMediaInfo(DemuxComp* d)
         for(i=0; i<myMediaInfo->nSubtitleStreamNum; i++)
         {
             pSubtitleStreamInfo = &mi->pSubtitleStreamInfo[i];
-            memcpy(pSubtitleStreamInfo, &myMediaInfo->pSubtitleStreamInfo[i], sizeof(SubtitleStreamInfo));
+            memcpy(pSubtitleStreamInfo, &myMediaInfo->pSubtitleStreamInfo[i],
+                        sizeof(SubtitleStreamInfo));
             
             //* parser only process imbedded subtitle stream in media file.
             pSubtitleStreamInfo->pUrl  = NULL;
@@ -606,7 +627,8 @@ int DemuxCompCancelSeek(DemuxComp* d)  //* should not call back DEMUX_SEEK_FINIS
         CdxParserForceStop(demux->pParser);
     
     //* send a prepare.
-    setMessage(&msg, DEMUX_COMMAND_CANCEL_SEEK, (unsigned int)&demux->semCancelSeek);                                       //* no reply.
+    setMessage(&msg, DEMUX_COMMAND_CANCEL_SEEK,
+                (unsigned int)&demux->semCancelSeek);
     AwMessageQueuePostMessage(demux->mq, &msg);
     SemTimedWait(&demux->semCancelSeek, -1);
     return 0;
@@ -691,8 +713,8 @@ process_message:
                 }
                 
                 if(pReplySem != NULL)
-		            sem_post(pReplySem);
-		        continue;
+                    sem_post(pReplySem);
+                continue;
             }
             else if(demux->nSourceType == SOURCE_TYPE_FD)
             {
@@ -729,8 +751,8 @@ process_message:
                 }
                 
                 if(pReplySem != NULL)
-		            sem_post(pReplySem);
-		        continue;
+                    sem_post(pReplySem);
+                continue;
             }
             else
             {
@@ -766,7 +788,7 @@ process_message:
 #if DEMO_CONFIG_DISALBE_MULTI_AUDIO
             flags |= MUTIL_AUDIO;
 #endif
-			ret = CdxParserPrepare(&demux->source, flags, &demux->mutex, &demux->bCancelPrepare,
+            ret = CdxParserPrepare(&demux->source, flags, &demux->mutex, &demux->bCancelPrepare,
                                       &demux->pParser, &demux->pStream, NULL, NULL );
             if(demux->pParser != NULL && ret >= 0)
             {
@@ -783,7 +805,7 @@ process_message:
                 {
                     if(strncasecmp(demux->source.uri, "file://", 7) == 0)
                         demux->bFileStream = 1;
-                    else if(demux->mediaInfo.nDurationMs == 0) //* also demux->mediaInfo.nFileSize == 0.
+                    else if(demux->mediaInfo.nDurationMs == 0)
                         demux->bLiveStream = 1;
                     else
                         demux->bVodStream = 1;
@@ -807,24 +829,28 @@ process_message:
                 
                 demux->eStatus = DEMUX_STATUS_PREPARED;
                 if(demux->bFileStream == 0)
-				{
-					logd("+++++++++++++++++++++ demux->mediaInfo.nVideoStreamNum: %d", demux->mediaInfo.nVideoStreamNum);
-					if(demux->mediaInfo.nVideoStreamNum == 0)
-	                {
-	                    StreamCacheSetSize(demux->pCache, CACHE_START_PLAY_SIZE_WITHOUT_VIDEO, CACHE_MAX_BUFFER_SIZE);
-	                }
-	                else
-	                {
-	                    StreamCacheSetSize(demux->pCache, CACHE_START_PLAY_SIZE, CACHE_MAX_BUFFER_SIZE);
-	                }
-				}
+                {
+                    logd("+++++++++++++++++++++ demux->mediaInfo.nVideoStreamNum: %d",
+                                demux->mediaInfo.nVideoStreamNum);
+                    if(demux->mediaInfo.nVideoStreamNum == 0)
+                    {
+                        StreamCacheSetSize(demux->pCache, CACHE_START_PLAY_SIZE_WITHOUT_VIDEO,
+                                    CACHE_MAX_BUFFER_SIZE);
+                    }
+                    else
+                    {
+                        StreamCacheSetSize(demux->pCache, CACHE_START_PLAY_SIZE,
+                                        CACHE_MAX_BUFFER_SIZE);
+                    }
+                }
                 demux->callback(demux->pUserData, DEMUX_NOTIFY_PREPARED, 0);
             }
             else
             {
                 demux->eStatus = DEMUX_STATUS_INITIALIZED;
                 if(demux->bCancelPrepare)
-                    demux->callback(demux->pUserData, DEMUX_NOTIFY_PREPARED, (void*)DEMUX_ERROR_USER_CANCEL);
+                    demux->callback(demux->pUserData, DEMUX_NOTIFY_PREPARED,
+                                (void*)DEMUX_ERROR_USER_CANCEL);
                 else
                     demux->callback(demux->pUserData, DEMUX_NOTIFY_PREPARED, (void*)DEMUX_ERROR_IO);
             }
@@ -837,12 +863,13 @@ process_message:
             
             if(demux->eStatus != DEMUX_STATUS_PREPARED)
             {
-                loge("demux not in prepared or paused status when DEMUX_COMMAND_START message received.");
+                loge("demux not in prepared or paused \
+                        status when DEMUX_COMMAND_START message received.");
                 if(pReplyValue != NULL)
                     *pReplyValue = -1;
                 if(pReplySem != NULL)
-		            sem_post(pReplySem);
-		        continue;
+                    sem_post(pReplySem);
+                continue;
             }
             
             demux->eStatus = DEMUX_STATUS_STARTED;
@@ -852,7 +879,7 @@ process_message:
             if(pReplyValue != NULL)
                 *pReplyValue = 0;
             if(pReplySem != NULL)
-		        sem_post(pReplySem);
+                sem_post(pReplySem);
             continue;
         } //* end DEMUX_COMMAND_START
         else if(msg.messageId == DEMUX_COMMAND_STOP)
@@ -881,7 +908,7 @@ process_message:
             if(pReplyValue != NULL)
                 *pReplyValue = 0;
             if(pReplySem != NULL)
-		        sem_post(pReplySem);
+                sem_post(pReplySem);
             continue;
         } //* end DEMUX_COMMAND_STOP.
         else if(msg.messageId == DEMUX_COMMAND_QUIT || msg.messageId == DEMUX_COMMAND_CLEAR)
@@ -912,7 +939,7 @@ process_message:
             if(pReplyValue != NULL)
                 *pReplyValue = 0;
             if(pReplySem != NULL)
-		        sem_post(pReplySem);
+                sem_post(pReplySem);
             if(msg.messageId == DEMUX_COMMAND_QUIT)
                 break;  //* quit the thread.
             
@@ -939,14 +966,14 @@ process_message:
                     SemTimedWait(&demux->semCache, -1);
                 }
 				
-				if(demux->bCancelSeek == 0 && demux->bStopping == 0)
-				{
-					ret = CdxParserClrForceStop(demux->pParser);
-					if(ret < 0)
-					{
-						logw("CdxParserClrForceStop fail, ret(%d)", ret);
-					}
-				}
+                if(demux->bCancelSeek == 0 && demux->bStopping == 0)
+                {
+                    ret = CdxParserClrForceStop(demux->pParser);
+                    if(ret < 0)
+                    {
+                        logw("CdxParserClrForceStop fail, ret(%d)", ret);
+                    }
+                }
                 ret = CdxParserSeekTo(demux->pParser, ((int64_t)mSeekTimeMs) * 1000);
                 if(ret == 0)
                 {
@@ -965,27 +992,27 @@ process_message:
                         AwMessageQueuePostMessage(demux->mqCache, &newMsg);
                         SemTimedWait(&demux->semCache, -1);
                     }
-					if(demux->eStatus == DEMUX_STATUS_COMPLETE)
-					{
-						demux->eStatus = DEMUX_STATUS_STARTED;
-					}
+                    if(demux->eStatus == DEMUX_STATUS_COMPLETE)
+                    {
+                        demux->eStatus = DEMUX_STATUS_STARTED;
+                    }
                     
                     if(demux->eStatus == DEMUX_STATUS_STARTED)
                     {
-                        setMessage(&newMsg, DEMUX_COMMAND_READ);   //* send read message to start reading loop.
+                        setMessage(&newMsg, DEMUX_COMMAND_READ);
                         AwMessageQueuePostMessage(demux->mq, &newMsg);
                     }
                     
                     if(pReplyValue != NULL)
                         *pReplyValue = 0;
                     if(pReplySem != NULL)
-		                sem_post(pReplySem);
-		            continue;
+                        sem_post(pReplySem);
+                    continue;
                 }
                 else
                 {
                     loge("CdxParserSeekTo() return fail");
-                    demux->eStatus = DEMUX_STATUS_COMPLETE; //* set to complete status to stop reading.
+                    demux->eStatus = DEMUX_STATUS_COMPLETE;
                     demux->bSeeking = 0;
                     if(demux->bCancelSeek == 1 || demux->bStopping == 1)
                         params[0] = DEMUX_ERROR_USER_CANCEL;
@@ -997,8 +1024,8 @@ process_message:
                     if(pReplyValue != NULL)
                         *pReplyValue = -1;
                     if(pReplySem != NULL)
-		                sem_post(pReplySem);
-		            continue;
+                        sem_post(pReplySem);
+                    continue;
                 }
             }
             else
@@ -1011,8 +1038,8 @@ process_message:
                 if(pReplyValue != NULL)
                     *pReplyValue = -1;
                 if(pReplySem != NULL)
-		            sem_post(pReplySem);
-		        continue;
+                    sem_post(pReplySem);
+                continue;
             }
         }
         else if(msg.messageId == DEMUX_COMMAND_CANCEL_PREPARE)
@@ -1023,8 +1050,8 @@ process_message:
             if(pReplyValue != NULL)
                 *pReplyValue = 0;
             if(pReplySem != NULL)
-		        sem_post(pReplySem);
-		    continue;
+                sem_post(pReplySem);
+            continue;
         }
         else if(msg.messageId == DEMUX_COMMAND_CANCEL_SEEK)
         {
@@ -1033,8 +1060,8 @@ process_message:
             if(pReplyValue != NULL)
                 *pReplyValue = 0;
             if(pReplySem != NULL)
-		        sem_post(pReplySem);
-		    continue;
+                sem_post(pReplySem);
+            continue;
         }
         else if(msg.messageId == DEMUX_COMMAND_READ)
         {
@@ -1058,7 +1085,7 @@ process_message:
                     
                     logv("buffering, wait...");
                     //* wait some time for caching.
-                    ret = AwMessageQueueTryGetMessage(demux->mq, &msg, 100); //* wait for 100ms if no message come.
+                    ret = AwMessageQueueTryGetMessage(demux->mq, &msg, 100);
                     if(ret == 0)    //* new message come, quit loop to process.
                         goto process_message;
                     
@@ -1112,7 +1139,7 @@ process_message:
                             else
                             {
                                 //* wait some time for caching.
-                                ret = AwMessageQueueTryGetMessage(demux->mq, &msg, 50); //* wait for 50ms if no message come.
+                                ret = AwMessageQueueTryGetMessage(demux->mq, &msg, 50);
                                 if(ret == 0)    //* new message come, quit loop to process.
                                     goto process_message;
                             }
@@ -1132,7 +1159,7 @@ process_message:
                         {
                             logv("detect player data overflow.");
                             //* too much data in player, wait some time.
-                            ret = AwMessageQueueTryGetMessage(demux->mq, &msg, 200); //* wait for 200ms if no message come.
+                            ret = AwMessageQueueTryGetMessage(demux->mq, &msg, 200);
                             if(ret == 0)    //* new message come, quit loop to process.
                                 goto process_message;
                                 
@@ -1161,7 +1188,7 @@ process_message:
                             node = StreamCacheNextFrame(demux->pCache);
                             if(node == NULL)
                             {
-                                loge("Cache not underflow but cannot get stream frame, shouldn't run here.");
+                                loge("Cache not underflow but cannot get stream frame,.");
                                 abort();
                             }
                             
@@ -1185,11 +1212,12 @@ process_message:
                             }
                             else
                             {
-                                loge("media type from parser not valid, should not run here, abort().");
+                                loge("media type from parser not valid, abort().");
                                 abort();
                             }
                 
-                            if(ePlayerMediaType == MEDIA_TYPE_VIDEO || ePlayerMediaType == MEDIA_TYPE_AUDIO)
+                            if(ePlayerMediaType == MEDIA_TYPE_VIDEO ||
+                                ePlayerMediaType == MEDIA_TYPE_AUDIO)
                             {
                                 while(1)
                                 {
@@ -1205,7 +1233,7 @@ process_message:
                                     {
                                         logi("waiting for stream buffer.");
                                         //* no buffer, try to wait sometime.
-                                        ret = AwMessageQueueTryGetMessage(demux->mq, &msg, 200); //* wait for 200ms if no message come.
+                                        ret = AwMessageQueueTryGetMessage(demux->mq, &msg, 200);
                                         if(ret == 0)    //* new message come, quit loop to process.
                                             goto process_message;
                                     }
@@ -1239,7 +1267,8 @@ process_message:
                             streamDataInfo.bIsFirstPart = 1;
                             streamDataInfo.bIsLastPart  = 1;
                     
-                            PlayerSubmitStreamData(demux->pPlayer, &streamDataInfo, ePlayerMediaType, nStreamIndex);
+                            PlayerSubmitStreamData(demux->pPlayer, &streamDataInfo,
+                                            ePlayerMediaType, nStreamIndex);
                             
                             StreamCacheFlushOneFrame(demux->pCache);
                             
@@ -1268,7 +1297,7 @@ process_message:
                 if(PlayerBufferOverflow(demux->pPlayer))
                 {
                     //* too much data in player, wait some time.
-                    ret = AwMessageQueueTryGetMessage(demux->mq, &msg, 200); //* wait for 200ms if no message come.
+                    ret = AwMessageQueueTryGetMessage(demux->mq, &msg, 200);
                     if(ret == 0)    //* new message come, quit loop to process.
                         goto process_message;
                         
@@ -1323,7 +1352,9 @@ process_message:
                     abort();
                 }
                 
-                if(ePlayerMediaType == MEDIA_TYPE_VIDEO || ePlayerMediaType == MEDIA_TYPE_AUDIO || ePlayerMediaType == MEDIA_TYPE_SUBTITLE)
+                if(ePlayerMediaType == MEDIA_TYPE_VIDEO ||
+                    ePlayerMediaType == MEDIA_TYPE_AUDIO ||
+                    ePlayerMediaType == MEDIA_TYPE_SUBTITLE)
                 {
                     while(1)
                     {
@@ -1363,7 +1394,7 @@ process_message:
                         {
                             logi("waiting for stream buffer.");
                             //* no buffer, try to wait sometime.
-                            ret = AwMessageQueueTryGetMessage(demux->mq, &msg, 200); //* wait for 200ms if no message come.
+                            ret = AwMessageQueueTryGetMessage(demux->mq, &msg, 200);
                             if(ret == 0)    //* new message come, quit loop to process.
                                 goto process_message;
                         }
@@ -1383,7 +1414,7 @@ process_message:
                 ret = CdxParserRead(demux->pParser, &packet);
                 if(ret == 0)
                 {
-                	demux->callback(demux->pUserData, DEMUX_NOTIFY_DATA_PACKET, &packet);
+                    demux->callback(demux->pUserData, DEMUX_NOTIFY_DATA_PACKET, &packet);
                 	
                     if((!CONFIG_DISABLE_VIDEO && ePlayerMediaType == MEDIA_TYPE_VIDEO) ||
                        (!CONFIG_DISABLE_AUDIO && ePlayerMediaType == MEDIA_TYPE_AUDIO) ||
@@ -1395,7 +1426,8 @@ process_message:
                         streamDataInfo.nPcr         = -1;
                         streamDataInfo.bIsFirstPart = 1;
                         streamDataInfo.bIsLastPart  = 1;
-                        PlayerSubmitStreamData(demux->pPlayer, &streamDataInfo, ePlayerMediaType, nStreamIndex);
+                        PlayerSubmitStreamData(demux->pPlayer, &streamDataInfo,
+                                                ePlayerMediaType, nStreamIndex);
                     }
                     else
                     {
@@ -1475,7 +1507,7 @@ cache_process_message:
             if(pReplyValue != NULL)
                 *pReplyValue = 0;
             if(pReplySem != NULL)
-		        sem_post(pReplySem);
+                sem_post(pReplySem);
             continue;
         } //* end DEMUX_COMMAND_START
         else if(msg.messageId == DEMUX_COMMAND_PAUSE || msg.messageId == DEMUX_COMMAND_STOP)
@@ -1486,7 +1518,7 @@ cache_process_message:
             if(pReplyValue != NULL)
                 *pReplyValue = 0;
             if(pReplySem != NULL)
-		        sem_post(pReplySem);
+                sem_post(pReplySem);
             continue;
         } //* end DEMUX_COMMAND_STOP.
         else if(msg.messageId == DEMUX_COMMAND_QUIT)
@@ -1496,7 +1528,7 @@ cache_process_message:
             if(pReplyValue != NULL)
                 *pReplyValue = 0;
             if(pReplySem != NULL)
-		        sem_post(pReplySem);
+                sem_post(pReplySem);
             
             break;  //* quit the thread.
             
@@ -1510,8 +1542,8 @@ cache_process_message:
             if(pReplyValue != NULL)
                 *pReplyValue = 0;
             if(pReplySem != NULL)
-		        sem_post(pReplySem);
-		    continue;
+                sem_post(pReplySem);
+            continue;
         }
         else if(msg.messageId == DEMUX_COMMAND_READ)
         {
@@ -1523,7 +1555,7 @@ cache_process_message:
             if(StreamCacheOverflow(demux->pCache))
             {
                 //* wait some time for cache buffer.
-                ret = AwMessageQueueTryGetMessage(demux->mqCache, &msg, 200); //* wait for 200ms if no message come.
+                ret = AwMessageQueueTryGetMessage(demux->mqCache, &msg, 200);
                 if(ret == 0)    //* new message come, quit loop to process.
                     goto cache_process_message;
                 
@@ -1568,7 +1600,7 @@ cache_process_message:
                     {
                         logw("allocate memory for cache node fail, waiting for memory.");
                         //* no free memory, try to wait sometime.
-                        ret = AwMessageQueueTryGetMessage(demux->mqCache, &msg, 200); //* wait for 200ms if no message come.
+                        ret = AwMessageQueueTryGetMessage(demux->mqCache, &msg, 200);
                         if(ret == 0)    //* new message come, quit loop to process.
                             goto cache_process_message;
                     }
@@ -1663,11 +1695,7 @@ static void clearDataSourceFields(CdxDataSourceT* source)
 }
 
 
-#if CONFIG_OS == OPTION_OS_ANDROID
-static int setDataSourceFields(CdxDataSourceT* source, char* uri, KeyedVector<String8,String8>* pHeaders)
-#else
 static int setDataSourceFields(CdxDataSourceT* source, char* uri, map<string,string>* pHeaders)
-#endif
 {
     CdxHttpHeaderFieldsT* pHttpHeaders;
     int                   i;
@@ -1698,7 +1726,8 @@ static int setDataSourceFields(CdxDataSourceT* source, char* uri, map<string,str
             sprintf(source->uri, "file://%s", uri);
         }
         
-        if(pHeaders != NULL && (!strncasecmp("http://", uri, 7) || !strncasecmp("https://", uri, 8)))
+        if(pHeaders != NULL && (!strncasecmp("http://", uri, 7) ||
+            !strncasecmp("https://", uri, 8)))
         {
 #if CONFIG_OS == OPTION_OS_ANDROID
             String8 key;
@@ -1731,7 +1760,8 @@ static int setDataSourceFields(CdxDataSourceT* source, char* uri, map<string,str
                 memset(pHttpHeaders, 0, sizeof(CdxHttpHeaderFieldsT));
                 pHttpHeaders->num = nHeaderSize;
                 
-                pHttpHeaders->pHttpHeader = (CdxHttpHeaderFieldT*)malloc(sizeof(CdxHttpHeaderFieldT)*nHeaderSize);
+                pHttpHeaders->pHttpHeader = (CdxHttpHeaderFieldT*)malloc(
+                            sizeof(CdxHttpHeaderFieldT)*nHeaderSize);
                 if(pHttpHeaders->pHttpHeader == NULL)
                 {
                     loge("can not malloc memory for http header.");
@@ -1807,7 +1837,7 @@ static int setMediaInfo(MediaInfo* pMediaInfo, CdxMediaInfoT* pInfoFromParser)
     int                 i;
     int                 nStreamCount;
     VideoStreamInfo*    pVideoStreamInfo;
-	AudioStreamInfo*    pAudioStreamInfo;
+    AudioStreamInfo*    pAudioStreamInfo;
     SubtitleStreamInfo* pSubtitleStreamInfo;
     int                 nCodecSpecificDataLen;
     char*               pCodecSpecificData;
@@ -1830,12 +1860,13 @@ static int setMediaInfo(MediaInfo* pMediaInfo, CdxMediaInfoT* pInfoFromParser)
         }
         memset(pVideoStreamInfo, 0, sizeof(VideoStreamInfo)*nStreamCount);
        
-	    pMediaInfo->pVideoStreamInfo = pVideoStreamInfo;
+        pMediaInfo->pVideoStreamInfo = pVideoStreamInfo;
         
         for(i=0; i<nStreamCount; i++)
         {
             pVideoStreamInfo = &pMediaInfo->pVideoStreamInfo[i];
-            memcpy(pVideoStreamInfo, &pInfoFromParser->program[0].video[i], sizeof(VideoStreamInfo));
+            memcpy(pVideoStreamInfo, &pInfoFromParser->program[0].video[i],
+                        sizeof(VideoStreamInfo));
             
             pCodecSpecificData    = pVideoStreamInfo->pCodecSpecificData;
             nCodecSpecificDataLen = pVideoStreamInfo->nCodecSpecificDataLen;
@@ -1852,7 +1883,8 @@ static int setMediaInfo(MediaInfo* pMediaInfo, CdxMediaInfoT* pInfoFromParser)
                     return -1;
                 }
                 
-                memcpy(pVideoStreamInfo->pCodecSpecificData, pCodecSpecificData, nCodecSpecificDataLen);
+                memcpy(pVideoStreamInfo->pCodecSpecificData, pCodecSpecificData,
+                            nCodecSpecificDataLen);
                 pVideoStreamInfo->nCodecSpecificDataLen = nCodecSpecificDataLen;
             }
             
@@ -1886,7 +1918,8 @@ static int setMediaInfo(MediaInfo* pMediaInfo, CdxMediaInfoT* pInfoFromParser)
         for(i=0; i<nStreamCount; i++)
         {
             pAudioStreamInfo = &pMediaInfo->pAudioStreamInfo[i];
-            memcpy(pAudioStreamInfo, &pInfoFromParser->program[0].audio[i], sizeof(AudioStreamInfo));
+            memcpy(pAudioStreamInfo, &pInfoFromParser->program[0].audio[i],
+                        sizeof(AudioStreamInfo));
             
             pCodecSpecificData    = pAudioStreamInfo->pCodecSpecificData;
             nCodecSpecificDataLen = pAudioStreamInfo->nCodecSpecificDataLen;
@@ -1903,7 +1936,8 @@ static int setMediaInfo(MediaInfo* pMediaInfo, CdxMediaInfoT* pInfoFromParser)
                     return -1;
                 }
                 
-                memcpy(pAudioStreamInfo->pCodecSpecificData, pCodecSpecificData, nCodecSpecificDataLen);
+                memcpy(pAudioStreamInfo->pCodecSpecificData, pCodecSpecificData,
+                                nCodecSpecificDataLen);
                 pAudioStreamInfo->nCodecSpecificDataLen = nCodecSpecificDataLen;
             }
         }
@@ -1928,7 +1962,8 @@ static int setMediaInfo(MediaInfo* pMediaInfo, CdxMediaInfoT* pInfoFromParser)
         for(i=0; i<nStreamCount; i++)
         {
             pSubtitleStreamInfo = &pMediaInfo->pSubtitleStreamInfo[i];
-            memcpy(pSubtitleStreamInfo, &pInfoFromParser->program[0].subtitle[i], sizeof(SubtitleStreamInfo));
+            memcpy(pSubtitleStreamInfo, &pInfoFromParser->program[0].subtitle[i],
+                        sizeof(SubtitleStreamInfo));
             pSubtitleStreamInfo->bExternal = 0;
             pSubtitleStreamInfo->pUrl      = NULL;
             pSubtitleStreamInfo->fd        = -1;
@@ -2053,7 +2088,8 @@ static int PlayerBufferOverflow(Player* p)
         
         if(nSampleRate != 0 && nChannelCount != 0 && nBitsPerSample != 0)
         {
-            nAudioCacheTime += ((int64_t)nPcmDataSize)*8*1000*1000/(nSampleRate*nChannelCount*nBitsPerSample);
+            nAudioCacheTime +=
+                ((int64_t)nPcmDataSize)*8*1000*1000/(nSampleRate*nChannelCount*nBitsPerSample);
         }
         
         if(nBitrate > 0)
@@ -2062,7 +2098,8 @@ static int PlayerBufferOverflow(Player* p)
         if(nAudioCacheTime <= 2000000)   //* cache more than 2 seconds of data.
             bAudioOverflow = 0;
         
-        logi("nPcmDataSize = %d, nStreamDataSize = %d, nBitrate = %d, nAudioCacheTime = %lld, bAudioOverflow = %d",
+        logi("nPcmDataSize = %d, nStreamDataSize = %d, nBitrate = %d, \
+                nAudioCacheTime = %lld, bAudioOverflow = %d",
             nPcmDataSize, nStreamDataSize, nBitrate, nAudioCacheTime, bAudioOverflow);
     }
     

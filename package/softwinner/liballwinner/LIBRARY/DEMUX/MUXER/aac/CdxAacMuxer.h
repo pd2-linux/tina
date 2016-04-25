@@ -1,14 +1,18 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxAacMuxer.h
+ * Description : Allwinner AAC Muxer Definition
+ * History :
+ *
+ */
+ 
 #ifndef CDX_AAC_MUXER_H
 #define CDX_AAC_MUXER_H
 
 #include "log.h"
 #include "CdxMuxer.h"
-
-typedef enum tag_FSWRITEMODE 
-{
-    FSWRITEMODE_CACHETHREAD = 0,
-    FSWRITEMODE_SIMPLECACHE,
-    FSWRITEMODE_DIRECT,
-}FSWRITEMODE;
+#include "CdxMuxerBaseDef.h"
 
 #endif /* CDX_AAC_MUXER_H */

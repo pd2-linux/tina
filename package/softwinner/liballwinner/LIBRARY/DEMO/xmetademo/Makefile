@@ -7,7 +7,7 @@ include ../../../Makefile.inc
 ## set flags for golobal compile and link setting.
 ################################################################################
 
-CONFIG_FOR_COMPILE = $(CFLAGS) $(LOCAL_CFLAGS)
+CONFIG_FOR_COMPILE = $(CFLAGS) $(LOCAL_CFLAGS) -Werror
 CONFIG_FOR_LINK = -Wl,--no-undefined
 
 
@@ -75,7 +75,7 @@ CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -Wall -O2 -ldl
 LoadFlags = $(CONFIG_FOR_LINK)
 
 LoadFlags +=   -lcdc_vdecoder -lcdc_adecoder -lcdc_sdecoder -lnormal_audio -lxmetaretriever \
-               -lcdx_parser  -lcdx_stream -lcdx_base -lcdc_ve -lcdc_memory -lpostprocess\
+               -lcdx_parser  -lcdx_stream -lcdx_base -lcdc_ve -lcdc_memory -lpostprocess -lcdc_base\
                -law_plugin -lpthread -ldl -lstdc++ -lrt
 ifeq ($(CONFIG_HAVE_ZLIB), $(OPTION_HAVE_ZLIB))
     LoadFlags += -lz 
@@ -85,6 +85,9 @@ ifeq ($(CONFIG_HAVE_SSL), $(OPTION_HAVE_SSL))
 LoadFlags += -lcrypto -lssl
 endif
 
+ifeq ($(CONFIG_HAVE_LIVE555), $(OPTION_HAVE_LIVE555))
+LoadFlags += -llive555
+endif
 
 LoadFlags += -L../../DEMUX/BASE/ \
              -L../../DEMUX/STREAM/ \
@@ -145,15 +148,17 @@ cleanall: clean
 #$(ObjectPath)/%.o:%.cpp
 #	$(CPP) $(CompileFlags) -o $@ -c $<
 $(ObjectFiles):$(ObjectPath)/%.o:%.c
-	$(CC) $(CompileFlags) -o $@ -c $<
+	@$(CC) $(CompileFlags) -o $@ -c $<
+	@echo "CC    $<"
 
 ## link object files to the target share library.
 $(Target):$(ObjectFiles)
-	$(CPP) -o $@ $^ $(LoadFlags) 
+	@$(CPP) -o $@ $^ $(LoadFlags)
+	@echo "LD    $@"
 
 ## set rules to generate .d files.
 $(DependFilePath)/%.d:%.c
-	set -e; rm -f $@; \
+	@set -e; rm -f $@; \
 	$(CC) -MM $(CompileFlags) $< > $@.$$$$; \
 	sed 's,\($*\)\.o[:]*,$(ObjectPath)/\1.o $@: ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$

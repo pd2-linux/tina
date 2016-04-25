@@ -62,12 +62,9 @@ DependFiles = $(addprefix $(DependFilePath)/, $(addsuffix .d ,$(notdir $(basenam
 SourceIncludePath = $(foreach dir,$(SourcePath),-I$(dir)) \
                     -I../LIBRARY/ \
                     -I../LIBRARY/DEMUX/BASE/include/ \
-                    -I../LIBRARY/DEMUX/STREAM/include/ \
-                    -I../LIBRARY/DEMUX/PARSER/include/ \
                     -I../LIBRARY/DEMUX/MUXER/include/ \
                     -I../LIBRARY/libcedarc/include  \
                     -I../LIBRARY/PLAYER/include/ \
-                    -I../LIBRARY/PLUGIN/include/ \
 
 ## set compile flags
 CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -Wall -O2 -ldl -fPIC
@@ -75,19 +72,12 @@ CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -Wall -O2 -ldl -fPIC
 ## set link flags
 LoadFlags = $(CONFIG_FOR_LINK) -ldl -shared
 
-LoadFlags +=   -lcdc_vencoder -lcdc_aencoder   -lcdc_sdecoder  \
-               -lcdx_base -lcdx_muxer -lcdx_stream -lcdx_base -lcdc_ve \
+LoadFlags +=   -lcdc_vencoder -lcdc_aencoder  \
+               -lcdx_base -lcdx_muxer -lcdx_base -lcdc_ve \
                -lcdc_memory  -lpthread -ldl -lstdc++ -lrt 
                
 LoadFlags += -L../LIBRARY/DEMUX/BASE/ \
-             -L../LIBRARY/DEMUX/STREAM/ \
-             -L../LIBRARY/DEMUX/PARSER/ \
              -L../LIBRARY/DEMUX/MUXER/ \
-             -L../LIBRARY/PLAYER/ \
-             -L../LIBRARY/PLUGIN/manager \
-             -L../LIBRARY/PLUGIN/ac3 \
-             -L../LIBRARY/PLUGIN/dts \
-             -L../LIBRARY/PLUGIN/rmvb \
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABIHF))
 LoadFlags += -L../LIBRARY/EXTERNAL/lib32/lgnueabihf
@@ -141,15 +131,17 @@ cleanall: clean
 #$(ObjectPath)/%.o:%.cpp
 #	$(CPP) $(CompileFlags) -o $@ -c $<
 $(ObjectFiles):$(ObjectPath)/%.o:%.cpp
-	$(CPP) $(CompileFlags) -o $@ -c $<
+	@$(CPP) $(CompileFlags) -o $@ -c $<
+	@echo "CC    $<"
 
 ## link object files to the target share library.
 $(Target):$(ObjectFiles)
-	$(LD) -o $@ $^ $(LoadFlags) 
+	@$(LD) -o $@ $^ $(LoadFlags) 
+	@echo "LD    $@"
 
 ## set rules to generate .d files.
 $(DependFilePath)/%.d:%.cpp
-	set -e; rm -f $@; \
+	@set -e; rm -f $@; \
 	$(CPP) -MM $(CompileFlags) $< > $@.$$$$; \
 	sed 's,\($*\)\.o[:]*,$(ObjectPath)/\1.o $@: ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$

@@ -491,6 +491,11 @@ int LayerQueueBuffer(LayerCtrl* l, VideoPicture* pBuf, int bValid)
 	disp_video_fb	  videoInfo;
     
     lc = (LayerCtrlContext*)l;
+    if(pBuf == NULL)
+    {
+        loge("pBuf == NULL");
+        return -1;
+    }
 
 #if (SAVE_PIC)
 static int dump = 0;
@@ -517,8 +522,7 @@ static int dump = 0;
         
     if(bValid == 0)
     {
-        if(pBuf != NULL)
-            lc->callback(lc->pUserData, MESSAGE_ID_LAYER_RETURN_BUFFER, (void*)pBuf);
+        lc->callback(lc->pUserData, MESSAGE_ID_LAYER_RETURN_BUFFER, (void*)pBuf);
         return 0;
     }
     

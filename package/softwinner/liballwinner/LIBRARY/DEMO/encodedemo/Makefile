@@ -135,15 +135,17 @@ cleanall: clean
 #$(ObjectPath)/%.o:%.cpp
 #	$(CPP) $(CompileFlags) -o $@ -c $<
 $(ObjectFiles):$(ObjectPath)/%.o:%.c
-	$(CC) $(CompileFlags) -o $@ -c $<
+	@$(CC) $(CompileFlags) -o $@ -c $<
+	@echo "CC    $<"
 
 ## link object files to the target share library.
 $(Target):$(ObjectFiles)
-	$(CC) -o $@ $^ $(LoadFlags) 
+	@$(CC) -o $@ $^ $(LoadFlags) 
+	@echo "LD    $@"
 
 ## set rules to generate .d files.
 $(DependFilePath)/%.d:%.c
-	set -e; rm -f $@; \
+	@set -e; rm -f $@; \
 	$(CC) -MM $(CompileFlags) $< > $@.$$$$; \
 	sed 's,\($*\)\.o[:]*,$(ObjectPath)/\1.o $@: ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$

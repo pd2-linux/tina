@@ -229,7 +229,7 @@ CdxDeliverT *CdxDeliverCreate(AwPoolT *pool)
     impl->threadExit = CDX_FALSE;
     
     ret = pthread_create(&impl->pid, NULL, DeliverProcess, impl);
-    CDX_LOGD("deliver process, pid(%ld)", impl->pid);
+    CDX_LOGD("deliver process, pid(%ld)", (unsigned long)impl->pid);
     CDX_FORCE_CHECK(ret == 0);
     
     return &impl->base;
@@ -273,7 +273,7 @@ cdx_void CdxDeliverDestroy(CdxDeliverT *deliver)
     CdxCondBroadcast(&impl->cond);
 	CdxMutexUnlock(&impl->mutex); /*unlock*/
 
-    CDX_LOGD("wait thread, pid(%ld)", impl->pid);
+    CDX_LOGD("wait thread, pid(%ld)", (unsigned long)impl->pid);
     pthread_join(impl->pid, NULL);
 
     CdxDeliverClearMsg(deliver);

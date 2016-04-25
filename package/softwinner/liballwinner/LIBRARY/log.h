@@ -36,7 +36,7 @@
     #error "invalid configuration of os."
 #endif
 
-#define logd(fmt, arg...)// AWLOG(LOG_LEVEL_DEBUG, fmt, ##arg)
+#define logd(fmt, arg...) AWLOG(LOG_LEVEL_DEBUG, fmt, ##arg)
 
 #if CONFIG_LOG_LEVEL == OPTION_LOG_LEVEL_CLOSE
 

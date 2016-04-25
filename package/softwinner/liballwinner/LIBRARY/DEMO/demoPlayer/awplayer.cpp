@@ -512,6 +512,8 @@ int AwPlayer::initializePlayer()
             logw("PlayerSetSubtitleStreamInfo() fail, subtitle stream not supported.");
         }
     }
+#else
+    (void)nDefaultSubtitleIndex;
 #endif
     
     //* report not seekable.

@@ -1,3 +1,18 @@
+
+/*
+* Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+* All rights reserved.
+*
+* File : mpgPrser.h
+* Description :
+* History :
+*   Author  : xyliu <xyliu@allwinnertech.com>
+*   Date    : 2015/05/05
+*   Comment :
+*
+*
+*/
+
 #ifndef _CDX_MPG_PARSER_H
 #define _CDX_MPG_PARSER_H
 
@@ -28,26 +43,26 @@ enum CdxParserStatus
 };
 
 typedef enum __FILE_PARSER_RETURN_VAL {
-	FILE_PARSER_RETURN_ERROR = -1,
-	FILE_PARSER_RETURN_OK = 0,
+    FILE_PARSER_RETURN_ERROR = -1,
+    FILE_PARSER_RETURN_OK = 0,
 
-	FILE_PARSER_READ_END,
-	FILE_PARSER_BUF_LACK,
-	FILE_PARSER_GET_NONE,
-	FILE_PARSER_ERROR_IGNORE,
-	FILE_PARSER_PAUSE_GET_DATA,
-	FILE_PARSER_ERR_VIDEO_BUF_FULL,
-	FILE_PARSER_ERR_AUDIO_BUF_FULL,
+    FILE_PARSER_READ_END,
+    FILE_PARSER_BUF_LACK,
+    FILE_PARSER_GET_NONE,
+    FILE_PARSER_ERROR_IGNORE,
+    FILE_PARSER_PAUSE_GET_DATA,
+    FILE_PARSER_ERR_VIDEO_BUF_FULL,
+    FILE_PARSER_ERR_AUDIO_BUF_FULL,
 
-	FILE_PARSER_PARA_ERR			= -2,
-	FILE_PARSER_OPEN_FILE_FAIL		= -3,
-	FILE_PARSER_READ_FILE_FAIL		= -4,
-	FILE_PARSER_FILE_FMT_ERR		= -5,
-	FILE_PARSER_NO_AV				= -6,
-	FILE_PARSER_END_OF_MOVI			= -7,
-	FILE_PARSER_REQMEM_FAIL			= -8,
-	FILE_PARSER_EXCEPTION			= -9,
-	FILE_PARSER_,
+    FILE_PARSER_PARA_ERR            = -2,
+    FILE_PARSER_OPEN_FILE_FAIL        = -3,
+    FILE_PARSER_READ_FILE_FAIL        = -4,
+    FILE_PARSER_FILE_FMT_ERR        = -5,
+    FILE_PARSER_NO_AV                = -6,
+    FILE_PARSER_END_OF_MOVI            = -7,
+    FILE_PARSER_REQMEM_FAIL            = -8,
+    FILE_PARSER_EXCEPTION            = -9,
+    FILE_PARSER_,
 } __file_parser_return_val_t;
 
 typedef struct MpgChunkInfoS
@@ -58,7 +73,7 @@ typedef struct MpgChunkInfoS
     cdx_uint32  nTimeStamp;     //time stamp for current video chunk
 } MpgChunkInfoT;
 
-typedef struct
+typedef struct MPG_VIDEO_FRM_ITEM
 {   
     cdx_int16   nParsePicCodeMode;
     cdx_uint8*  pStartAddr;
@@ -68,7 +83,7 @@ typedef struct
     cdx_uint8   bBufRepeatFlag;
 }MpgVideoFrmItemT;
 
-typedef struct 
+typedef struct MPG_VIDEO_FRM_INF
 {     
     cdx_int32        nVidFrmValidItemNums;
     cdx_int32        nVidFrmRcdItemIdx;
@@ -90,54 +105,71 @@ typedef struct CdxMpgParserS
     cdx_int16    bDiscardAud;
     cdx_uint8    bChangeAudioFlag;
     
-	cdx_bool     bFfrrStatusFlag;
-	cdx_bool     bHasChangedStatus;
-	cdx_bool     bFindFirstPts;
-	cdx_bool     bForbidSwitchScr;
+    cdx_bool     bFfrrStatusFlag;
+    cdx_bool     bHasChangedStatus;
+    cdx_bool     bFindFirstPts;
+    cdx_bool     bForbidSwitchScr;
     cdx_bool     bHasVideoFlag;
     cdx_bool     bHasAudioFlag;
     cdx_bool     bHasSubTitleFlag;
     
-    cdx_int16    nhasVideoNum;               //video flag, =0:no video bitstream; >0:video bitstream count
-    cdx_int16    nhasAudioNum;               //audio flag, =0:no audio bitstream; >0:audio bitstream count
-    cdx_int16    nhasSubTitleNum;            //lyric flag, =0:no lyric bitstream; >0:lyric bitstream count
+    cdx_int16    nhasVideoNum;
+    //video flag, =0:no video bitstream; >0:video bitstream count
+    cdx_int16    nhasAudioNum;
+    //audio flag, =0:no audio bitstream; >0:audio bitstream count
+    cdx_int16    nhasSubTitleNum;
+    //lyric flag, =0:no lyric bitstream; >0:lyric bitstream count
 
     cdx_int16    nVideoStreamIndex;
     cdx_int16    nAudioStreamIndex;
-    cdx_int16    nSubTitleStreamIndex;    //lyric stream nIndex
-    cdx_int16    nUserSelSubStreamIdx;    //the lyric stream nIndex which user select.
-    cdx_int16    bSubStreamSyncFlag;       //When user change subtitle,psr need sync.when sync over, set to 0.
+    cdx_int16    nSubTitleStreamIndex;
+    //lyric stream nIndex
+    cdx_int16    nUserSelSubStreamIdx;
+    //the lyric stream nIndex which user select.
+    cdx_int16    bSubStreamSyncFlag;
+    //When user change subtitle,psr need sync.when sync over, set to 0.
 
     cdx_uint32   nTotalFrames;
     cdx_uint32   nPictureNum;
 
     cdx_bool     bJumpPointChangeFlag;
 
-    cdx_uint32   nPreFRSpeed;            //previous ff/rr speed, for dynamic adjust
-    cdx_uint32   nFRSpeed;               //fast forward and fast backward speed, multiple of normal speed
+    cdx_uint32   nPreFRSpeed;
+    //previous ff/rr speed, for dynamic adjust
+    cdx_uint32   nFRSpeed;
+    //fast forward and fast backward speed, multiple of normal speed
     cdx_uint32   nPreFRPicShowTime;
-    cdx_uint32   nFRPicShowTime;         //picture show time under fast forward and backward
-    cdx_uint32   nFRPicCnt;              //picture count under ff/rr, for check if need delay
+    cdx_uint32   nFRPicShowTime;
+    //picture show time under fast forward and backward
+    cdx_uint32   nFRPicCnt;
+    //picture count under ff/rr, for check if need delay
 
-    cdx_uint32   nVidPtsOffset;          //video time offset
-    cdx_uint32   nAudPtsOffset;          //audio time offset
-    cdx_uint32   nSubPtsOffset;          //subtitle time offset
+    cdx_uint32   nVidPtsOffset;
+    //video time offset
+    cdx_uint32   nAudPtsOffset;
+    //audio time offset
+    cdx_uint32   nSubPtsOffset;
+    //subtitle time offset
 
-    cdx_int16    bHasSyncVideoFlag;           //flag, mark that if has sync video
-    cdx_int16    bHasSyncAudioFlag;           //flag, mark that if has sync audio
-	cdx_uint32   nCurDispTime;
-	cdx_uint32   nTotalTimeLength;
-	cdx_bool     bAudioHasAc3Flag;
-	cdx_uint8    eCurStatus;
-	cdx_uint8    ePreStatus;
+    cdx_int16    bHasSyncVideoFlag;
+    //flag, mark that if has sync video
+    cdx_int16    bHasSyncAudioFlag;
+    //flag, mark that if has sync audio
+    cdx_uint32   nCurDispTime;
+    cdx_uint32   nTotalTimeLength;
+    cdx_bool     bAudioHasAc3Flag;
+    cdx_uint8    eCurStatus;
+    cdx_uint8    ePreStatus;
     cdx_uint32   nFstSeqAddr;
     cdx_uint8    bForbidContinuePlayFlag;
     cdx_uint8    bForceReturnFlag;
 
     VideoStreamInfo      mVideoFormatT;
     AudioStreamInfo      mAudioFormatT;
-    AudioStreamInfo      mAudioFormatTArry[AUDIO_STREAM_LIMIT];    //audio format, AUDIO_STREAM_LIMIT
-    SubtitleStreamInfo   mSubFormatT;    //subtitle format
+    AudioStreamInfo      mAudioFormatTArry[AUDIO_STREAM_LIMIT];
+    //audio format, AUDIO_STREAM_LIMIT
+    SubtitleStreamInfo   mSubFormatT;
+    //subtitle format
     
     MpgChunkInfoT        mCurChunkInfT;
     cdx_int32            bFirstVideoFlag;

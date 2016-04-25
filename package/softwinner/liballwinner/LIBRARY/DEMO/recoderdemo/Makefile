@@ -60,12 +60,8 @@ DependFiles = $(addprefix $(DependFilePath)/, $(addsuffix .d ,$(notdir $(basenam
 SourceIncludePath = $(foreach dir,$(SourcePath),-I$(dir)) \
                     -I../../ \
                     -I../../DEMUX/BASE/include/ \
-		            -I../../DEMUX/MUXER/include/ \
-                    -I../../DEMUX/STREAM/include/ \
-                    -I../../DEMUX/PARSER/include/ \
+		                -I../../DEMUX/MUXER/include/ \
                     -I../../libcedarc/include  \
-                    -I../../PLAYER/include/ \
-                    -I../../PLUGIN/include/ \
                     -I../../../awrecorder
 
 ## set compile flags
@@ -74,8 +70,8 @@ CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -Wall -ldl
 ## set link flags
 LoadFlags = $(CONFIG_FOR_LINK)
 
-LoadFlags +=   -lawrecorder -lcdc_vencoder -lcdc_aencoder  -lcdc_sdecoder\
-               -lcdx_base -lcdx_muxer -lcdx_stream -lcdc_base -lcdc_ve \
+LoadFlags +=   -lawrecorder -lcdc_vencoder -lcdc_aencoder \
+               -lcdx_base -lcdx_muxer -lcdc_base -lcdc_ve \
                -lcdc_memory -lpthread -ldl -lstdc++ -lrt 
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_UCGNUEABI))
@@ -86,13 +82,13 @@ ifeq ($(CONFIG_HAVE_ZLIB), $(OPTION_HAVE_ZLIB))
 LoadFlags += -lz
 endif
 
+ifeq ($(CONFIG_HAVE_LIVE555), $(OPTION_HAVE_LIVE555))
+LoadFlags += -llive555
+endif
+
 #-law_plugin
 LoadFlags += -L../../DEMUX/BASE/ \
-             -L../../DEMUX/STREAM/ \
-             -L../../DEMUX/PARSER/ \
              -L../../DEMUX/MUXER/ \
-             -L../../PLAYER/ \
-             -L../../PLUGIN/manager \
              -L../../../awrecorder \
              
 ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABIHF))
@@ -148,15 +144,17 @@ cleanall: clean
 #$(ObjectPath)/%.o:%.c
 #	$(CC) $(CompileFlags) -o $@ -c $<
 $(ObjectFiles):$(ObjectPath)/%.o:%.c
-	$(CC) $(CompileFlags) -o $@ -c $<
+	@$(CC) $(CompileFlags) -o $@ -c $<
+	@echo "CC    $<"
 
 ## link object files to the target share library.
 $(Target):$(ObjectFiles)
-	$(CC) -o $@ $^ $(LoadFlags) 
+	@$(CC) -o $@ $^ $(LoadFlags) 
+	@echo "LD    $@"
 
 ## set rules to generate .d files.
 $(DependFilePath)/%.d:%.c
-	set -e; rm -f $@; \
+	@set -e; rm -f $@; \
 	$(CC) -MM $(CompileFlags) $< > $@.$$$$; \
 	sed 's,\($*\)\.o[:]*,$(ObjectPath)/\1.o $@: ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$

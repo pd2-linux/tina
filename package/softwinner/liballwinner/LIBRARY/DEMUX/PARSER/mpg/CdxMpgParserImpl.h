@@ -1,3 +1,17 @@
+/*
+* Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+* All rights reserved.
+*
+* File : CdxMpgParserImpl.h
+* Description :
+* History :
+*   Author  : xyliu <xyliu@allwinnertech.com>
+*   Date    : 2015/05/05
+*   Comment :
+*
+*
+*/
+
 #ifndef _CDX_MPG_PARSER_IMPL_H_
 #define _CDX_MPG_PARSER_IMPL_H_
 
@@ -50,20 +64,21 @@
 #define AV_RB16(x)                  ((((cdx_uint8*)(x))[0] << 8) | ((cdx_uint8*)(x))[1])
 
 #define MAX_VOB_NS          1024
-#define AAC_NUM_PROFILES	3
-#define NUM_SAMPLE_RATES	12
-#define NUM_DEF_CHAN_MAPS	8
+#define AAC_NUM_PROFILES    3
+#define NUM_SAMPLE_RATES    12
+#define NUM_DEF_CHAN_MAPS    8
  
 #define   NOT_FIND_NV_PACK     -1
 #define   NOT_FIND_PREV_PACK   -2
 #define   MPG_SEQUENCE_LEN     240
 
-typedef enum MPG_PACK{mpgPack, sysPack, vidPack, audPack, subPack, vidSeq,vc1VidPack, avcVidPack}mpg_pack_type;
+typedef enum MPG_PACK{mpgPack, sysPack, vidPack, audPack,
+        subPack, vidSeq,vc1VidPack, avcVidPack}mpg_pack_type;
 
 typedef struct MpgChunkS
 {
     cdx_uint32        nId;
-	cdx_uint8         nSubId;
+    cdx_uint8         nSubId;
     cdx_uint32        nStcId;
     cdx_uint8        *pStartAddr;
     cdx_uint8        *pEndAddr;
@@ -73,17 +88,17 @@ typedef struct MpgChunkS
     cdx_uint32        nSegmentNum;
     cdx_uint8        *pSegmentAddr[MAX_DATA_SEG];
     cdx_uint32        nSegmentLength[MAX_DATA_SEG];
-	cdx_bool       bFileEndFlag;
+    cdx_bool       bFileEndFlag;
     cdx_bool       bWaitingUpdateFlag;
     cdx_bool       bHasPtsFlag;
-	cdx_uint8         nChunkNum;
+    cdx_uint8         nChunkNum;
     cdx_uint32        nPts;
 
 } MpgChunkT;
 
 typedef struct MpgCheckH264NulS
 {
-	cdx_uint8         bFirstNulFlag;
+    cdx_uint8         bFirstNulFlag;
     cdx_uint8         bSecodNulFlag;
     cdx_uint8        *pStartReadAddr;
     cdx_uint8        *pEndReadAddr;
@@ -112,12 +127,12 @@ typedef struct MpgParserContextS
     cdx_uint32       nAudioIdArray[AUDIO_STREAM_LIMIT];
     cdx_uint8        bAudioStreamIdCode[AUDIO_STREAM_LIMIT];
     
-    CdxStreamT	 *pStreamT;
+    CdxStreamT     *pStreamT;
     cdx_int64       nFileLength;
     cdx_int64       nStartFpPos;
-	cdx_int64       nLastFpPos;
+    cdx_int64       nLastFpPos;
     cdx_int64       nLargestFpPos;
-	cdx_int64       nSmallestFpPos;
+    cdx_int64       nSmallestFpPos;
     cdx_int64       nLastNvPackPos;
     cdx_int32       nLastDiffPts;
     
@@ -133,34 +148,34 @@ typedef struct MpgParserContextS
     cdx_uint32       nCurStcId;
     cdx_uint32       nFrmStep;
     cdx_uint32       nCheckStatus;
-    cdx_uint32		  nPreVideoMaxPts;
-	cdx_uint32		  nBaseSCR;
-	cdx_uint32		  nPreSCR;
-	cdx_uint32		  nBaseTime;
+    cdx_uint32          nPreVideoMaxPts;
+    cdx_uint32          nBaseSCR;
+    cdx_uint32          nPreSCR;
+    cdx_uint32          nBaseTime;
     cdx_uint32       nDisplayTime;
     cdx_uint32       nBasePts;
-	cdx_uint32       nEndPts;
-	cdx_uint32       nFirstPts;
+    cdx_uint32       nEndPts;
+    cdx_uint32       nFirstPts;
     cdx_uint32       nRecordVobuPosArray[20];
     cdx_uint32       nLastNvTime;
 
     cdx_uint8       *pPsmEsType;
-	cdx_uint8        nAudioPackNum;
+    cdx_uint8        nAudioPackNum;
     cdx_uint8        nFindPtsNum;
     cdx_uint8        nFileTitleNs;
     cdx_uint8        nCurTitleNum;
     
     cdx_bool      bIsISO11172Flag;
     cdx_bool      bHasInitAVSFlag;
-    cdx_bool	  bSwitchScrOverFlag;
-	cdx_bool      bSecondPlayFlag;
+    cdx_bool      bSwitchScrOverFlag;
+    cdx_bool      bSecondPlayFlag;
     cdx_bool      bNoEnoughDataFlag;
     cdx_bool      bFindFstPackFlag;
-	cdx_bool      bReleaseAudioFlag;
-	cdx_bool      bAudioIdFlag;
-	cdx_bool      bGetRightPtsFlag;
+    cdx_bool      bReleaseAudioFlag;
+    cdx_bool      bAudioIdFlag;
+    cdx_bool      bGetRightPtsFlag;
     cdx_bool      bHasNvpackFlag;
-	cdx_bool      bFindNvpackFlag;
+    cdx_bool      bFindNvpackFlag;
     cdx_bool      bNextVobuPosFlag;
     cdx_bool      bPrevVobuPosFlag;
     cdx_bool      bFstAudDataFlag;
@@ -200,4 +215,6 @@ cdx_int16 MpgRead(CdxMpgParserT *MpgParser);
 cdx_int16 MPG_IoCtrl(CdxMpgParserT *MpgParser, cdx_uint32 uCmd, cdx_uint32 uParam);
 cdx_int16 MpgSeekTo(CdxMpgParserT *P, cdx_uint32  timeMs );
 */
-#endif //_CDX_MPG_PARSER_IMPL_H_
+#endif
+
+

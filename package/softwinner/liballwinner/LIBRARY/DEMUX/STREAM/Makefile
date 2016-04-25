@@ -8,7 +8,7 @@ include ../../../Makefile.inc
 ## set flags for golobal compile and link setting.
 ################################################################################
 
-CONFIG_FOR_COMPILE = $(CFLAGS) $(LOCAL_CFLAGS)
+CONFIG_FOR_COMPILE = $(CFLAGS) $(LOCAL_CFLAGS) -Werror
 CONFIG_FOR_LINK = -Wl,--no-undefined 
 
 
@@ -41,20 +41,26 @@ SourcePath =       \
             ./tcp  \
             ./file \
             ./udp  \
-            ./writeStream \
-            ./http
+            ./http \
+
+ifeq ($(CONFIG_HAVE_LIVE555), $(OPTION_HAVE_LIVE555))
+SourcePath +=       ./rtsp
+endif
 
             
 VPATH := $(SourcePath)
 
 ## set the source files.
 SourceFiles  = $(foreach dir,$(SourcePath),$(shell find $(dir) -maxdepth 1 -name "*.c"))
+CppSourceFiles  = $(foreach dir,$(SourcePath),$(shell find $(dir) -maxdepth 1 -name "*.cpp"))
 
 ## set the object files.
 ObjectFiles = $(addprefix $(ObjectPath)/, $(addsuffix .o ,$(basename $(notdir $(SourceFiles)))))
+CppObjectFiles = $(addprefix $(ObjectPath)/, $(addsuffix .o ,$(basename $(notdir $(CppSourceFiles)))))
 
 ## set the dependency files.
 DependFiles = $(addprefix $(DependFilePath)/, $(addsuffix .d ,$(notdir $(basename $(SourceFiles)))))
+CppDependFiles = $(addprefix $(DependFilePath)/, $(addsuffix .d ,$(notdir $(basename $(CppSourceFiles)))))
 
 
 ################################################################################
@@ -92,7 +98,7 @@ ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABI))
 endif
 
 ## set link flags
-LoadFlags = $(CONFIG_FOR_LINK) -ldl -shared -lpthread
+LoadFlags = $(CONFIG_FOR_LINK) -ldl -shared -lpthread -lrt
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABIHF))
 LoadFlags += -L../../EXTERNAL/lib32/lgnueabihf
@@ -133,6 +139,10 @@ ifeq ($(CONFIG_HAVE_ZLIB), $(OPTION_HAVE_ZLIB))
 LoadFlags += -lz
 endif
 
+ifeq ($(CONFIG_HAVE_LIVE555), $(OPTION_HAVE_LIVE555))
+LoadFlags += -llive555
+endif
+
 ################################################################################
 ## make commands, all/clean/cleanall
 ################################################################################
@@ -156,19 +166,23 @@ cleanall: clean
 ################################################################################
 
 ## compile source files to object files.
-#$(ObjectPath)/%.o:%.c
-#	$(CC) $(CompileFlags) -o $@ -c $<
 $(ObjectFiles):$(ObjectPath)/%.o:%.c
-	$(CC) $(CompileFlags) -o $@ -c $<
+	@$(CC) $(CompileFlags) -o $@ -c $<
+	@echo "CC    $<"
+
+$(CppObjectFiles):$(ObjectPath)/%.o:%.cpp
+	@$(CPP) $(CompileFlags) -o $@ -c $<
+	@echo "CC    $<"
 
 ## link object files to the target share library.
-$(Target):$(ObjectFiles)
-	$(LD) -o $@ $^ $(LoadFlags)
+$(Target):$(ObjectFiles) $(CppObjectFiles)
+	@$(CPP) -o $@ $^ $(LoadFlags)
+	@echo "LD    $@"
 
 ## set rules to generate .d files.
 $(DependFilePath)/%.d:%.c
-	set -e; rm -f $@; \
-	$(GCC) -MM $(CompileFlags) $< > $@.$$$$; \
+	@set -e; rm -f $@; \
+	$(CC) -MM $(CompileFlags) $< > $@.$$$$; \
 	sed 's,\($*\)\.o[:]*,$(ObjectPath)/\1.o $@: ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
 

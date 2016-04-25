@@ -116,7 +116,11 @@ static int save_bmp_rgb565(FILE* fp, int width, int height, unsigned char* pData
 	size = get_rgb565_header(width, height, &head, &info);
 	if(size > 0)
 	{
-		fwrite(head.bfType,1,14,fp);
+        fwrite(head.bfType,1,2,fp);
+        fwrite(&head.bfSize,1,4,fp);
+        fwrite(&head.bfReserved1,1,4,fp);
+        fwrite(&head.bfOffBits,1,4,fp);
+
 		fwrite(&info,1,sizeof(info), fp);
 		fwrite(pData,1,size, fp);
 		success = 1;
@@ -443,12 +447,11 @@ static int transformPictureMb32ToRGB(struct ScMemOpsS* memops, VideoPicture* pPi
 
 static char * readJpegData(char *path, int *pLen)
 {
-    FILE *fp;
-    fp = fopen(path, "rb");
-
+    FILE *fp = NULL;
     int ret = 0;
     char *data = NULL;
 
+    fp = fopen(path, "rb");
     if(fp == NULL)
     {
         loge("read jpeg file error, errno(%d)", errno);
@@ -463,6 +466,7 @@ static char * readJpegData(char *path, int *pLen)
     if(data == NULL)
       {
           loge("malloc memory fail");
+          fclose(fp);
           return NULL;
       }
 
@@ -470,6 +474,8 @@ static char * readJpegData(char *path, int *pLen)
     if (ret != *pLen)
     {
         loge("read file fail");
+        fclose(fp);
+        free(data);
         return NULL;
     }
      
@@ -548,6 +554,7 @@ int main(int argc, char** argv)
     vConfig.nDecodeSmoothFrameBufferNum = 0;
     vConfig.nVbvBufferSize = 2*1024*1024;
     vConfig.bThumbnailMode = 1;
+    vConfig.memops = memops;
     VideoStreamInfo videoInfo;
     memset(&videoInfo, 0x00, sizeof(VideoStreamInfo));
     videoInfo.eCodecFormat = VIDEO_CODEC_FORMAT_MJPEG;

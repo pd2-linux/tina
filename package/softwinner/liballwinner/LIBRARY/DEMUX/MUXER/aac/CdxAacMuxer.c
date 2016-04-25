@@ -1,13 +1,23 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxAacMuxer.c
+ * Description : Allwinner AAC Muxer Definition
+ * History :
+ *
+ */
+
 #include "CdxAacMuxer.h"
 
 #define ADTS_HEADER_SIZE 7
 
 typedef struct AacMuxContext 
 {
-	CdxMuxerT   muxInfo;
-	CdxStreamT  *stream;
+    CdxMuxerT   muxInfo;
+    CdxWriterT  *stream_writer;
 
-	CdxMuxerMediaInfoT mediaInfo;
+    CdxMuxerMediaInfoT mediaInfo;
 
     char        adts[ADTS_HEADER_SIZE];
     void        *priv_data;
@@ -42,7 +52,7 @@ typedef struct adts_header
 
 static int generateAdtsHeader(AacMuxContext *s, unsigned int length)
 {
-	int frame_len = length + ADTS_HEADER_SIZE;
+    int frame_len = length + ADTS_HEADER_SIZE;
 
     s->adts[3] &= 0xFC;
     s->adts[3] |= (char)(frame_len >> 11)& 0x03;
@@ -136,112 +146,103 @@ static int initADTSHeader(AacMuxContext *s, unsigned int sampleRate, unsigned in
 
 static int __AacMuxerWriteExtraData(CdxMuxerT* mux, unsigned char* data, int len, int idx)
 {
-	return 0;
+    return 0;
 }
 
 static int __AacMuxerWriteHeader(CdxMuxerT* mux)
 {
-	AacMuxContext *impl = (AacMuxContext*)mux;
+    AacMuxContext *impl = (AacMuxContext*)mux;
 
-	return 0;
+    return 0;
 }
 
 static int __AacMuxerWritePacket(CdxMuxerT *mux, CdxMuxerPacketT *packet)
 {
-	AacMuxContext *impl = (AacMuxContext*)mux;
-	int ret;
-	/*
-	generateAdtsHeader(impl, packet->buflen);
-
-	ret = CdxStreamWrite(impl->stream, impl->adts, ADTS_HEADER_SIZE);
-	if(ret < ADTS_HEADER_SIZE)
-	{
-		return -1;
-	}*/
-	
-	
-	ret = CdxStreamWrite(impl->stream, packet->buf, packet->buflen);
-	if(ret < packet->buflen)
-	{
-		logd("=== ret: %d, packet->buflen: %d", ret, packet->buflen);
-		return -1;
-	}
-	return 0;
+    AacMuxContext *impl = (AacMuxContext*)mux;
+    int ret;
+    
+    ret = impl->stream_writer->cdxWrite(impl->stream_writer, packet->buf, packet->buflen);
+    if(ret < packet->buflen)
+    {
+        logd("=== ret: %d, packet->buflen: %d", ret, packet->buflen);
+        return -1;
+    }
+    return 0;
 }
 
 static int __AacMuxerSetMediaInfo(CdxMuxerT *mux, CdxMuxerMediaInfoT *pMediaInfo)
 {
-	AacMuxContext *impl = (AacMuxContext*)mux;
+    AacMuxContext *impl = (AacMuxContext*)mux;
 
-	memcpy(&impl->mediaInfo.video, &pMediaInfo->video, sizeof(MuxerVideoStreamInfoT));
-	memcpy(&impl->mediaInfo.audio, &pMediaInfo->audio, sizeof(MuxerAudioStreamInfoT));
+    memcpy(&impl->mediaInfo.video, &pMediaInfo->video, sizeof(MuxerVideoStreamInfoT));
+    memcpy(&impl->mediaInfo.audio, &pMediaInfo->audio, sizeof(MuxerAudioStreamInfoT));
 	
 
-	//initADTSHeader(impl, impl->mediaInfo.audio.nSampleRate, impl->mediaInfo.audio.nChannelNum);
+    //initADTSHeader(impl, impl->mediaInfo.audio.nSampleRate, impl->mediaInfo.audio.nChannelNum);
 
-	return 0;
+    return 0;
 }
 
 static int __AacMuxerWriteTrailer(CdxMuxerT *mux)
 {
-	return 0;
+    return 0;
 }
 
 static int __AacMuxerControl(CdxMuxerT *mux, int uCmd, void *pParam)
 {
-	AacMuxContext *impl = (AacMuxContext*)mux;
-	return 0;
+    AacMuxContext *impl = (AacMuxContext*)mux;
+    return 0;
 }
 
 static int __AacMuxerClose(CdxMuxerT *mux)
 {
-	AacMuxContext *impl = (AacMuxContext*)mux;
+    AacMuxContext *impl = (AacMuxContext*)mux;
 
-	if(impl)
-	{
-		if(impl->stream)
-		{
-			CdxStreamClose(impl->stream);
-		}
-		free(impl);
-	}
+    if(impl)
+    {
+        if(impl->stream_writer)
+        {
+            impl->stream_writer = NULL;
+        }
+        free(impl);
+    }
 
-	return 0;
+    return 0;
 }
 
 static struct CdxMuxerOpsS aacMuxerOps = 
 {
     .writeExtraData =  __AacMuxerWriteExtraData,
-	.writeHeader     = __AacMuxerWriteHeader,
-	.writePacket     = __AacMuxerWritePacket,
-	.writeTrailer    = __AacMuxerWriteTrailer,
-	.control         = __AacMuxerControl,
-	.setMediaInfo    = __AacMuxerSetMediaInfo,
-	.close           = __AacMuxerClose
+    .writeHeader     = __AacMuxerWriteHeader,
+    .writePacket     = __AacMuxerWritePacket,
+    .writeTrailer    = __AacMuxerWriteTrailer,
+    .control         = __AacMuxerControl,
+    .setMediaInfo    = __AacMuxerSetMediaInfo,
+    .close           = __AacMuxerClose
 };
 
 
-CdxMuxerT* __CdxAacMuxerOpen(CdxStreamT *stream)
+CdxMuxerT* __CdxAacMuxerOpen(CdxWriterT *stream)
 {
-	AacMuxContext *aacMux;
-	logd("__CdxAacMuxerOpen");
+    AacMuxContext *aacMux;
+    logd("__CdxAacMuxerOpen");
 
-	aacMux = malloc(sizeof(AacMuxContext));
-	if(!aacMux)
-	{
-		return NULL;
-	}
-	memset(aacMux, 0x00, sizeof(AacMuxContext));
+    aacMux = malloc(sizeof(AacMuxContext));
+    if(!aacMux)
+    {
+        return NULL;
+    }
+    memset(aacMux, 0x00, sizeof(AacMuxContext));
 
-	aacMux->stream = stream;
-	aacMux->muxInfo.ops = &aacMuxerOps;
+    aacMux->stream_writer = stream;
+    aacMux->muxInfo.ops = &aacMuxerOps;
 
-	return &aacMux->muxInfo;
+    return &aacMux->muxInfo;
 }
 
 
 CdxMuxerCreatorT aacMuxerCtor = 
 {
-	.create = __CdxAacMuxerOpen
+    .create = __CdxAacMuxerOpen
 };
 

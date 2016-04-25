@@ -23,7 +23,7 @@ static const int STATUS_PLAYING   = 3;
 static const int STATUS_PAUSED    = 4;
 static const int STATUS_SEEKING   = 5;
 
-#if 1
+#if 0
 //-------------------------------------------------------------------
  /*
 　　位图文件的组成
@@ -121,7 +121,12 @@ static int save_bmp_rgb565(FILE* fp, int width, int height, unsigned char* pData
 	size = get_rgb565_header(width, height, &head, &info);
 	if(size > 0)
 	{
-		fwrite(head.bfType,1,14,fp);
+
+        fwrite(head.bfType,1,2,fp);
+        fwrite(&head.bfSize,1,4,fp);
+        fwrite(&head.bfReserved1,1,4,fp);
+        fwrite(&head.bfOffBits,1,4,fp);
+
 		fwrite(&info,1,sizeof(info), fp);
 		fwrite(pData,1,size, fp);
 		success = 1;
@@ -164,6 +169,8 @@ typedef struct Command
 #define COMMAND_SHOW_DURATION   0x107   //* show media duration, in unit of second.
 #define COMMAND_SHOW_POSITION   0x108   //* show current play position, in unit of second.
 #define COMMAND_SWITCH_AUDIO    0x109   //* switch autio track.
+#define COMMAND_SETSPEED        0x10a
+
 
 static const Command commands[] = 
 {
@@ -173,6 +180,7 @@ static const Command commands[] =
     {"play",            COMMAND_PLAY,               "start playback."},
     {"pause",           COMMAND_PAUSE,              "pause the playback."},
     {"stop",            COMMAND_STOP,               "stop the playback."},
+    {"set speed",       COMMAND_SETSPEED,      "stop the playback."},
     {"seek to",         COMMAND_SEEKTO,             
             "seek to specific position to play, position is in unit of second, for example, seek to: 100."},
     {"show media info", COMMAND_SHOW_MEDIAINFO,     "show media information of the media file."},
@@ -359,6 +367,23 @@ static int parseCommandLine(char* strCommandLine, int* pParam)
             }
             break;
         
+        case COMMAND_SETSPEED:
+            if(strParam != NULL)
+            {
+                *pParam = (int)strtol(strParam, (char**)NULL, 10);  //* seek speed.
+                if(errno == EINVAL || errno == ERANGE)
+                {
+                    printf("seek time is not valid.\n");
+                    nCommandId = -1;
+                }
+            }
+            else
+            {
+                printf("no seek time is specified.\n");
+                nCommandId = -1;
+            }
+            break;
+
         case COMMAND_SWITCH_AUDIO:
             if(strParam != NULL)
             {
@@ -469,7 +494,7 @@ void CallbackForAwPlayer(void* pUserData, int msg, int param0, void* param1)
 				{
 					if(videodata->ePixelFormat == VIDEO_PIXEL_FORMAT_YUV_MB32_420)
 					{
-						char filename[024];
+						char filename[1024];
 			        	sprintf(filename, "/mnt/UDISK/mb32_%d.dat", pDemoPlayer->mVideoFrameNum);
 			        	FILE* outFp = fopen(filename, "wb");
 			        	if(outFp != NULL)
@@ -493,7 +518,7 @@ void CallbackForAwPlayer(void* pUserData, int msg, int param0, void* param1)
         {
 
         	{
-	        	AudioPcmData* pcmData = (AudioPcmData*)param1;
+	        	//AudioPcmData* pcmData = (AudioPcmData*)param1;
 
 	        	/*
 	        	FILE* outFp = fopen("/mnt/UDISK/mb32.dat", "wb");
@@ -802,6 +827,32 @@ int main(int argc, char** argv)
                     break;
                 }
                 
+                case COMMAND_SETSPEED:   //* set speed
+                {
+                    int nSpeed;
+                    nSpeed = nCommandParam;
+
+                    if(demoPlayer.mStatus != STATUS_PLAYING &&
+                       demoPlayer.mStatus != STATUS_SEEKING &&
+                       demoPlayer.mStatus != STATUS_PAUSED  &&
+                       demoPlayer.mStatus != STATUS_PREPARED)
+                    {
+                        printf("invalid command:\n");
+                        printf("    player is not in playing/seeking/paused/prepared status.\n");
+                        break;
+                    }
+
+                    if(demoPlayer.mSeekable == 0)
+                    {
+                        printf("media source is unseekable.\n");
+                        break;
+                    }
+
+                    demoPlayer.mAwPlayer->setSpeed(nSpeed);
+                    logd("===  set speed end");
+                    break;
+                }
+
                 case COMMAND_SHOW_MEDIAINFO:   //* show media information.
                 {
                     printf("show media information.\n");

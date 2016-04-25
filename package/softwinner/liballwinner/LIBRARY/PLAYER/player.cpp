@@ -3557,6 +3557,14 @@ static int CallbackProcess(void* pSelf, int eMessageId, void* param)
             pthread_mutex_unlock(&p->eosMutex);
             break;
         
+        case PLAYER_VIDEO_RENDER_NOTIFY_VIDEO_FRAME:
+            if(p->callback != NULL)
+            {
+                logd("===== notify render key frame in fast mode");
+                p->callback(p->pUserData, PLAYER_NOTIFY_VIDEO_RENDER_FRAME, NULL);
+            }
+            break;
+
         case PLAYER_AUDIO_DECODER_NOTIFY_CRASH:
             
             pthread_mutex_lock(&p->eosMutex);
@@ -3680,13 +3688,13 @@ static int PlayerInitialVideo(PlayerContext* p)
     p->sVideoConfig.nRotateHoldingFrameBufferNum = NUM_OF_PICTURES_KEEPPED_BY_ROTATE;
     p->sVideoConfig.nDecodeSmoothFrameBufferNum = NUM_OF_PICTURES_FOR_EXTRA_SMOOTH;
 
-#if (CONFIG_OS == OPTION_OS_LINUX)
+#if (CONFIG_CHIP == OPTION_CHIP_C500)
 	p->sVideoConfig.nVbvBufferSize = 2*1024*1024;
 	p->sVideoConfig.nDeInterlaceHoldingFrameBufferNum = 0;
 	p->sVideoConfig.nDisplayHoldingFrameBufferNum = 0;
 	p->sVideoConfig.nRotateHoldingFrameBufferNum = 0;
 	p->sVideoConfig.nDecodeSmoothFrameBufferNum = 1;
-	logd("set vbv buf [2M] in 1663");
+	logd("set vbv buf [2M] in c500");
 #endif
 
 

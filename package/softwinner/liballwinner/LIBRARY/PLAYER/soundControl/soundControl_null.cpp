@@ -87,7 +87,7 @@ int SoundDeviceStart(SoundCtrl* s)
 
 int SoundDeviceStop(SoundCtrl* s)
 {  
-    int               ret;
+    int               ret = 0;
     SoundCtrlContext* sc;
     
     sc = (SoundCtrlContext*)s;
@@ -98,7 +98,7 @@ int SoundDeviceStop(SoundCtrl* s)
 
 int SoundDevicePause(SoundCtrl* s)
 {
-    int               ret;
+    int               ret = 0;
     SoundCtrlContext* sc;
     sc = (SoundCtrlContext*)s;
 	

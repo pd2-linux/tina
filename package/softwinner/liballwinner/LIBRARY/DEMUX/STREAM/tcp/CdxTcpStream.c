@@ -1,6 +1,7 @@
 //#define LOG_NDEBUG 0
 #define LOG_TAG "tcpStream"
-
+#include <sys/time.h>
+#include <unistd.h>
 #include <stdlib.h>
 #include <CdxTypes.h>
 #include <errno.h>

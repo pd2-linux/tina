@@ -1,20 +1,16 @@
-/*******************************************************************************
---                                                                            --
---                    CedarX Multimedia Framework                             --
---                                                                            --
---          the Multimedia Framework for Linux/Android System                 --
---                                                                            --
---       This software is confidential and proprietary and may be used        --
---        only as expressly authorized by a licensing agreement from          --
---                         Softwinner Products.                               --
---                                                                            --
---                   (C) COPYRIGHT 2011 SOFTWINNER PRODUCTS                   --
---                            ALL RIGHTS RESERVED                             --
---                                                                            --
---                 The entire notice above must be reproduced                 --
---                  on all copies and should not be removed.                  --
---                                                                            --
-*******************************************************************************/
+/*
+* Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+* All rights reserved.
+*
+* File : dvdTitleInfo.c
+* Description : parse dvdinfo file
+* History :
+*   Author  : xyliu <xyliu@allwinnertech.com>
+*   Date    : 2015/05/05
+*   Comment : parse dvdinfo file
+*
+*
+*/
 
 //#define LOG_NDEBUG 0
 #define LOG_TAG "dvdTitleIfo"
@@ -32,10 +28,10 @@ cdx_uint32 sizex[4] = {720, 704, 352, 352};
 cdx_uint32 sizey[2][4] = {{480, 480, 480, 240}, {576, 576, 576, 288}};
 const cdx_uint32 frame_rate[16] =
 {
-        00000,23976,24000,25000,
-		29970,30000,50000,59940,
-		60000,00000,00000,00000,
-		00000,00000,00000,00000
+    00000,23976,24000,25000,
+    29970,30000,50000,59940,
+    60000,00000,00000,00000,
+    00000,00000,00000,00000
 };
 
 //function-A1
@@ -43,8 +39,8 @@ cdx_uint32 BSWAP32(cdx_uint8 *dataPtr)
 {
     cdx_uint32 realVal = 0;
 	
-	realVal = ((dataPtr[0] << 24) | (dataPtr[1] << 16) | (dataPtr[2] << 8) | dataPtr[3]);
-	return realVal;
+    realVal = ((dataPtr[0] << 24) | (dataPtr[1] << 16) | (dataPtr[2] << 8) | dataPtr[3]);
+    return realVal;
 }
 
 //function-A2
@@ -52,8 +48,8 @@ cdx_uint16 BSWAP16(cdx_uint8 *dataPtr)
 {
     cdx_uint16 realVal = 0;
 	
-	realVal = ((dataPtr[0] << 8) | dataPtr[1]);
-	return realVal;
+    realVal = ((dataPtr[0] << 8) | dataPtr[1]);
+    return realVal;
 }
 
 //function-A3
@@ -66,12 +62,12 @@ cdx_uint8 *SetPgcMemory(struct PGCIT *curPgcit, cdx_uint8 *curBufferPtr)
     for(i=0; i<PGCIPTR_NS; i++)
     { 
        curPgcit->pgciPtr[i] = (struct PgciPtr *)(((uintptr_t)curBufferPtr + 3) & ~0x3);
-	   curBufferPtr += sizeof(struct PgciPtr) + 3;
+       curBufferPtr += sizeof(struct PgciPtr) + 3;
     }
      for(i=0; i<PGCIPTR_NS; i++)
     { 
        curPgcit->pgciPtr[i]->pgcIfo = (struct PgcIfo *)(((uintptr_t)curBufferPtr + 3) & ~0x3);
-	   curBufferPtr += sizeof(struct PgcIfo) + 3;
+       curBufferPtr += sizeof(struct PgcIfo) + 3;
     }
      for(i=0; i<PGCIPTR_NS; i++)
     { 
@@ -95,7 +91,8 @@ cdx_uint8 *SetPgcMemory(struct PGCIT *curPgcit, cdx_uint8 *curBufferPtr)
         }
         for(j=0; j<CMD_NS; j++)
         {
-             curPgc->cmdTable->cellCmd[j] = (struct Command *)(((uintptr_t)curBufferPtr + 3) & ~0x3);
+             curPgc->cmdTable->cellCmd[j] =
+                     (struct Command *)(((uintptr_t)curBufferPtr + 3) & ~0x3);
              curBufferPtr += sizeof(struct Command) + 3;
         }
      }
@@ -136,15 +133,15 @@ void SetVtsMemory(CdxMpgParserT *MpgParser)
 {
     DvdIfoT   *dvdIfo       = NULL;
     cdx_uint8 *dvdVtsBuffer = NULL;
-	cdx_uint32 redSize      = 0;
+    cdx_uint32 redSize      = 0;
 
-	dvdIfo = (DvdIfoT *) MpgParser->pDvdInfo;
+    dvdIfo = (DvdIfoT *) MpgParser->pDvdInfo;
    
-	redSize = sizeof(struct VTSI) + sizeof(struct MPGCIUT)+ sizeof(struct PgciLangUnit) 
+    redSize = sizeof(struct VTSI) + sizeof(struct MPGCIUT)+ sizeof(struct PgciLangUnit)
             +sizeof(struct PgcIfo) + sizeof(struct PgcCmdTable) + 3*sizeof(struct PGCIT)+ 
             +3*PGCIPTR_NS * (sizeof(struct PgciPtr)+ 3*CMD_NS* sizeof(struct Command)
-			+ PGMAP_NS * sizeof(struct PgcPgMap) + CELLPB_NS *sizeof(struct CellPlayback) 
-			+ CELLPOS_NS *sizeof(struct CellPosition)) + CELL_ENTRY_NS *sizeof(struct CellAdEntry);
+            + PGMAP_NS * sizeof(struct PgcPgMap) + CELLPB_NS *sizeof(struct CellPlayback)
+            + CELLPOS_NS *sizeof(struct CellPosition)) + CELL_ENTRY_NS *sizeof(struct CellAdEntry);
 			    
 		
     redSize += 3*(7+ 3*PGCIPTR_NS+3*CMD_NS+PGMAP_NS+CELLPB_NS+CELLPOS_NS+ TITLE_ENTRY_NS);
@@ -152,10 +149,10 @@ void SetVtsMemory(CdxMpgParserT *MpgParser)
     dvdIfo->vtsBuffer = (cdx_uint8 *) malloc(sizeof(cdx_uint8) * redSize);
     dvdVtsBuffer = dvdIfo->vtsBuffer;
 
-	dvdIfo->vtsIfo = (struct VTSI *)(((uintptr_t)dvdVtsBuffer + 3) & ~0x3);
-	dvdVtsBuffer += sizeof(struct VTSI) + 3;
+    dvdIfo->vtsIfo = (struct VTSI *)(((uintptr_t)dvdVtsBuffer + 3) & ~0x3);
+    dvdVtsBuffer += sizeof(struct VTSI) + 3;
     dvdIfo->titlePgcit = (struct PGCIT *)(((uintptr_t)dvdVtsBuffer + 3) & ~0x3);
-	dvdVtsBuffer += sizeof(struct PGCIT) + 3;
+    dvdVtsBuffer += sizeof(struct PGCIT) + 3;
     dvdVtsBuffer = SetPgcMemory(dvdIfo->titlePgcit, dvdVtsBuffer);
 }
 
@@ -167,7 +164,8 @@ void ParseVideoTitleSetInfo(MpgParserContextT *mMpgParserCxt, struct VTSI *vtsIf
 }
 
 //function-A6
-cdx_int16 ParsePgciTable(  CdxMpgParserT *MpgParser, struct PGCIT *pgciTab, cdx_uint32 startOffset, cdx_uint8 pgcType)
+cdx_int16 ParsePgciTable(  CdxMpgParserT *MpgParser, struct PGCIT *pgciTab,
+        cdx_uint32 startOffset, cdx_uint8 pgcType)
 {  
     struct PgcIfo     *curPgc        = NULL;
     DvdIfoT           *dvdIfo        = NULL;
@@ -185,7 +183,8 @@ cdx_int16 ParsePgciTable(  CdxMpgParserT *MpgParser, struct PGCIT *pgciTab, cdx_
     memcpy(pgciTab,mMpgParserCxt->mDataChunkT.pReadPtr,readSize);
     mMpgParserCxt->mDataChunkT.pReadPtr += readSize;
     
-    dvdIfo->pgciPtrNum[pgcType] = BSWAP16(pgciTab->pgciNs);         //type=0 : language; type = 1: title
+    dvdIfo->pgciPtrNum[pgcType] = BSWAP16(pgciTab->pgciNs);
+    //type=0 : language; type = 1: title
     if(dvdIfo->pgciPtrNum[pgcType] >  PGCIPTR_NS)
     {
         CDX_LOGW("the pgc nChunkNum is too large.\n");
@@ -195,11 +194,14 @@ cdx_int16 ParsePgciTable(  CdxMpgParserT *MpgParser, struct PGCIT *pgciTab, cdx_
     for(j = 0; j < dvdIfo->pgciPtrNum[pgcType]; j++)
     {   
         readSize = sizeof(struct PgciPtr) - sizeof(struct PgcIfo *);
-        memcpy(pgciTab->pgciPtr[j], mMpgParserCxt->mDataChunkT.pReadPtr, readSize);         // pgc_menu
+        memcpy(pgciTab->pgciPtr[j], mMpgParserCxt->mDataChunkT.pReadPtr,
+            readSize);// pgc_menu
     }   
     
-    readSize = sizeof(struct PgcIfo) - sizeof(struct PgcCmdTable*) - PGMAP_NS * sizeof(struct PgcPgMap*)
-            - CELLPB_NS * sizeof(struct CellPlayback*) - CELLPOS_NS * sizeof(struct CellPosition*);
+    readSize = sizeof(struct PgcIfo) - sizeof(struct PgcCmdTable*)
+            - PGMAP_NS * sizeof(struct PgcPgMap*)
+            - CELLPB_NS * sizeof(struct CellPlayback*)
+            -CELLPOS_NS * sizeof(struct CellPosition*);
 
     for(j=0; j<dvdIfo->pgciPtrNum[pgcType]; j++)
     {   
@@ -213,61 +215,6 @@ cdx_int16 ParsePgciTable(  CdxMpgParserT *MpgParser, struct PGCIT *pgciTab, cdx_
 }
 
 
-#if 0
-
-void JudgeLanguage(cdx_uint8 *str,cdx_uint8 data1, cdx_uint8 data2)
-{   
-   
-    memset(str, 0, MAX_LANG_LEN);
-  
-    if((data1 == 0) && (data2==0))
-    {
-         memcpy(str, "NoDefined", MAX_LANG_LEN);          // no defined 
-    }
-    else if((data1 == 'e') && (data2=='n'))
-    {
-         memcpy(str, "English", MAX_LANG_LEN);             //Ӣ��
-    }
-    else if((data1 == 'z') && (data2=='h'))
-    {
-         memcpy(str, "Chinese", MAX_LANG_LEN);             //����
-    }
-    else if((data1 == 'j') && (data2=='a'))
-    {
-        memcpy(str, "Japanese", MAX_LANG_LEN);              //����   
-    }
-    else if((data1 == 'k') && (data2=='o'))
-    {
-        memcpy(str, "Korean", MAX_LANG_LEN);               //����
-    }
-    else if((data1 == 't') && (data2=='h'))
-    {
-        memcpy(str, "Thai", MAX_LANG_LEN);                  //̩��
-    }
-    else if((data1 == 'f') && (data2=='r'))
-    {
-        memcpy(str, "France", MAX_LANG_LEN);               //����
-    }
-    else if((data1 == 'd') && (data2=='e'))
-    {
-        memcpy(str, "Deutsch", MAX_LANG_LEN);              //����
-    }
-    else if((data1 == 'v') && (data2=='i'))
-    {
-        memcpy(str, "Vietnamese", MAX_LANG_LEN);           //Խ����
-    }
-    else if((data1 == 'r') && (data2=='u'))
-    {
-        memcpy(str, "Russian", MAX_LANG_LEN);              //����
-    }   
-    else 
-    {
-        memcpy(str, "NoDefined", MAX_LANG_LEN);     
-    }
-    
-}
-
-#else
 //function-B1
 void JudgeLanguage(cdx_uint8 *str,cdx_uint8 data1, cdx_uint8 data2)
 {   
@@ -331,44 +278,42 @@ void JudgeLanguage(cdx_uint8 *str,cdx_uint8 data1, cdx_uint8 data2)
     }
 
 }
-
-#endif
-
 //*************************************************************//
 //************************************************************//
 //function-B2
-void ParseAudioCodingMode(DvdIfoT *dvdIfo , struct PgcIfo *curPgcIfo, cdx_uint8 codingMode, cdx_uint8 indexI,cdx_uint8 indexJ)
+void ParseAudioCodingMode(DvdIfoT *dvdIfo , struct PgcIfo *curPgcIfo,
+        cdx_uint8 codingMode, cdx_uint8 indexI,cdx_uint8 indexJ)
 {
-	switch(codingMode)
-	{
-	case 0:
-		dvdIfo->audioIfo.audioCodeMode[indexJ] = AUDIO_CODEC_FORMAT_AC3;
-		dvdIfo->audioIfo.audioPackId[indexJ] = 0x01BD;
-		dvdIfo->audioIfo.audioStreamId[indexJ] = 0x80 + (curPgcIfo->astCtl[indexI][0] & 0x03);
-		break;
-	case 2:
-		dvdIfo->audioIfo.audioCodeMode[indexJ] = AUDIO_CODEC_FORMAT_MP1;
-		dvdIfo->audioIfo.audioPackId[indexJ] = 0x01C0 + (curPgcIfo->astCtl[indexI][0] & 0x03);
-		break;
-	case 3:
-		dvdIfo->audioIfo.audioCodeMode[indexJ] = AUDIO_CODEC_FORMAT_MP2;
-		dvdIfo->audioIfo.audioPackId[indexJ] = 0x01D0 + (curPgcIfo->astCtl[indexI][0] & 0x03);
-		break;
-	case 4:
-		dvdIfo->audioIfo.audioCodeMode[indexJ] = AUDIO_CODEC_FORMAT_PCM;
-		dvdIfo->audioIfo.audioPackId[indexJ] = 0x01BD;
-		dvdIfo->audioIfo.audioStreamId[indexJ] = 0xA0 + (curPgcIfo->astCtl[indexI][0] & 0x03);
-		break;
-	case 6:
-		dvdIfo->audioIfo.audioCodeMode[indexJ] = AUDIO_CODEC_FORMAT_DTS;
-		dvdIfo->audioIfo.audioPackId[indexJ] = 0x01BD;
-		dvdIfo->audioIfo.audioStreamId[indexJ] = 0x88 + (curPgcIfo->astCtl[indexI][0] & 0x03);      
-		break;
-	case 7:
-	default:
-		dvdIfo->audioIfo.audioCodeMode[indexJ] = AUDIO_CODEC_FORMAT_UNKNOWN;
-		break;    
-	}
+    switch(codingMode)
+    {
+    case 0:
+        dvdIfo->audioIfo.audioCodeMode[indexJ] = AUDIO_CODEC_FORMAT_AC3;
+        dvdIfo->audioIfo.audioPackId[indexJ] = 0x01BD;
+        dvdIfo->audioIfo.audioStreamId[indexJ] = 0x80 + (curPgcIfo->astCtl[indexI][0] & 0x03);
+        break;
+    case 2:
+        dvdIfo->audioIfo.audioCodeMode[indexJ] = AUDIO_CODEC_FORMAT_MP1;
+        dvdIfo->audioIfo.audioPackId[indexJ] = 0x01C0 + (curPgcIfo->astCtl[indexI][0] & 0x03);
+        break;
+    case 3:
+        dvdIfo->audioIfo.audioCodeMode[indexJ] = AUDIO_CODEC_FORMAT_MP2;
+        dvdIfo->audioIfo.audioPackId[indexJ] = 0x01D0 + (curPgcIfo->astCtl[indexI][0] & 0x03);
+        break;
+    case 4:
+        dvdIfo->audioIfo.audioCodeMode[indexJ] = AUDIO_CODEC_FORMAT_PCM;
+        dvdIfo->audioIfo.audioPackId[indexJ] = 0x01BD;
+        dvdIfo->audioIfo.audioStreamId[indexJ] = 0xA0 + (curPgcIfo->astCtl[indexI][0] & 0x03);
+        break;
+    case 6:
+        dvdIfo->audioIfo.audioCodeMode[indexJ] = AUDIO_CODEC_FORMAT_DTS;
+        dvdIfo->audioIfo.audioPackId[indexJ] = 0x01BD;
+        dvdIfo->audioIfo.audioStreamId[indexJ] = 0x88 + (curPgcIfo->astCtl[indexI][0] & 0x03);
+        break;
+    case 7:
+    default:
+        dvdIfo->audioIfo.audioCodeMode[indexJ] = AUDIO_CODEC_FORMAT_UNKNOWN;
+        break;
+    }
     
 }
 
@@ -402,7 +347,8 @@ cdx_int16 ParseAudioInfo(CdxMpgParserT *MpgParser, cdx_uint16 audioNum)
          JudgeLanguage(dvdIfo->audioIfo.audioLang[j], curAudioAttr->data[2], curAudioAttr->data[3]); 
          dvdIfo->audioIfo.nChannelNum[j] = (curAudioAttr->data[1] & 0x07) + 1;
          dvdIfo->audioIfo.bitsPerSample[j] = quant_word_len[curAudioAttr->data[1] >>6];
-         dvdIfo->audioIfo.samplePerSecond[j] = audio_sample_frequency[(curAudioAttr->data[1] & 0x30) >> 4];
+         dvdIfo->audioIfo.samplePerSecond[j] =
+                 audio_sample_frequency[(curAudioAttr->data[1] & 0x30) >> 4];
          ParseAudioCodingMode(dvdIfo, curPgcIfo,codingMode, i, j);     
          j++; 
       } 
@@ -442,36 +388,36 @@ static cdx_int32 Yuv2Rgb(cdx_uint8 yuv_y, cdx_uint8 yuv_u, cdx_uint8 yuv_v)
 //function-B5
 void ParseSubPicId(DvdIfoT *dvdIfo , struct PgcIfo *curPgcIfo,cdx_uint8 indexI, cdx_uint8 indexJ)
 {   
-	cdx_uint8 videoAspect43        = 0;
+    cdx_uint8 videoAspect43        = 0;
     cdx_uint8 videoAspetWide       = 0;
     cdx_uint8 videoAspectLetterbox = 0;
     cdx_uint8 videoAspectPanScan   = 0; 
 
     videoAspect43        = curPgcIfo->spstCtl[indexI][0] & 0x1f;
-	videoAspetWide       = curPgcIfo->spstCtl[indexI][1] & 0x1f;
-	videoAspectLetterbox = curPgcIfo->spstCtl[indexI][2] & 0x1f;
-	videoAspectPanScan   = curPgcIfo->spstCtl[indexI][3] & 0x1f;
-	
-	if(videoAspect43 > 0)
-	{
-		dvdIfo->subpicIfo.subpicId[indexJ] = 0x20 + videoAspect43;
-	}
-	else if(videoAspetWide > 0)
-	{
-		dvdIfo->subpicIfo.subpicId[indexJ] = 0x20 + videoAspetWide;
-	}
-	else if(videoAspectLetterbox > 0)
-	{
-		dvdIfo->subpicIfo.subpicId[indexJ] = 0x20 + videoAspectLetterbox;
-	}
-	else if(videoAspectPanScan > 0)
-	{
-		dvdIfo->subpicIfo.subpicId[indexJ] = 0x20 + videoAspectPanScan;
-	}
-	else
-	{
-		dvdIfo->subpicIfo.subpicId[indexJ] = 0x20;
-	}
+    videoAspetWide       = curPgcIfo->spstCtl[indexI][1] & 0x1f;
+    videoAspectLetterbox = curPgcIfo->spstCtl[indexI][2] & 0x1f;
+    videoAspectPanScan   = curPgcIfo->spstCtl[indexI][3] & 0x1f;
+
+    if(videoAspect43 > 0)
+    {
+        dvdIfo->subpicIfo.subpicId[indexJ] = 0x20 + videoAspect43;
+    }
+    else if(videoAspetWide > 0)
+    {
+        dvdIfo->subpicIfo.subpicId[indexJ] = 0x20 + videoAspetWide;
+    }
+    else if(videoAspectLetterbox > 0)
+    {
+        dvdIfo->subpicIfo.subpicId[indexJ] = 0x20 + videoAspectLetterbox;
+    }
+    else if(videoAspectPanScan > 0)
+    {
+        dvdIfo->subpicIfo.subpicId[indexJ] = 0x20 + videoAspectPanScan;
+    }
+    else
+    {
+        dvdIfo->subpicIfo.subpicId[indexJ] = 0x20;
+    }
     
 }
 
@@ -479,7 +425,7 @@ void ParseSubPicId(DvdIfoT *dvdIfo , struct PgcIfo *curPgcIfo,cdx_uint8 indexI, 
 cdx_int16 ParseSubPicInfo(CdxMpgParserT *MpgParser, cdx_uint16 subpicNum)
 {
     struct PgcIfo      *curPgcIfo     = NULL;
-    DvdIfoT            *dvdIfo 		  = NULL;
+    DvdIfoT            *dvdIfo           = NULL;
     struct tSubpicAttr *curSubpicAttr = NULL;
  
     cdx_uint16  i = 0;
@@ -496,7 +442,8 @@ cdx_int16 ParseSubPicInfo(CdxMpgParserT *MpgParser, cdx_uint16 subpicNum)
       { 
         curSubpicAttr = &(dvdIfo->vtsIfo->titleSubpicAttr[j]);
         dvdIfo->subpicIfo.nHasSubpic += 1;
-        JudgeLanguage(dvdIfo->subpicIfo.subpicLang[j], curSubpicAttr->data[2], curSubpicAttr->data[3]); 
+        JudgeLanguage(dvdIfo->subpicIfo.subpicLang[j], curSubpicAttr->data[2],
+                curSubpicAttr->data[3]);
         ParseSubPicId(dvdIfo,curPgcIfo, i,j);
        j++;
       } 
@@ -512,170 +459,6 @@ cdx_int16 ParseSubPicInfo(CdxMpgParserT *MpgParser, cdx_uint16 subpicNum)
 
 //************************************************************/
 //************************************************************/
-
-#if 0
-cdx_uint8 *FindSequenceHeader(CdxMpgParserT *MpgParser, cdx_uint8 *curCheckBuf, cdx_uint32 curRedLen, cdx_uint32 *fstSysPos)
-{   
-    cdx_uint8   hasFindPackFlag = 0;
-    cdx_uint32  startCode       = 0;
-    cdx_uint32  bufOffset       = 0;
-    cdx_uint32  curPackPos      = 0;
-    cdx_uint32  oldDataLen      = 0;
-    cdx_uint8  *newCheckBuf     = NULL;
-    MpgParserContextT *mMpgParserCxt  = NULL;
-     
-    mMpgParserCxt = (MpgParserContextT *)MpgParser->pMpgParserContext;
-  
-    
-    oldDataLen = curRedLen;
-    
-    while(curRedLen >= 4)
-    {
-       newCheckBuf = MpgOpenSearchStartCode(curCheckBuf,curRedLen, &startCode);
-       if(newCheckBuf == NULL)
-       {  
-          curRedLen  = 0;
-          curCheckBuf = newCheckBuf;
-          break;
-       }
-       curRedLen -= (newCheckBuf -curCheckBuf);
-       curCheckBuf = newCheckBuf;
-       
-       if(startCode == MPG_PACK_START_CODE)
-       {  
-          curPackPos = CdxStreamTell(mMpgParserCxt->pStreamT)-oldDataLen + curCheckBuf - mMpgParserCxt->mDataChunkT.pStartAddr;
-          hasFindPackFlag = 1;
-          bufOffset = 4;
-       }
-       else if(hasFindPackFlag == 0)
-       {
-          bufOffset = 4;
-       }
-       else 
-       {   
-          if(startCode==MPG_SYSTEM_HEADER_START_CODE) 
-          { 
-            if((*fstSysPos) == 0)
-            {
-                *fstSysPos = curPackPos + 4;
-            }
-             bufOffset = (curCheckBuf[4]<<8) | curCheckBuf[5];
-	         bufOffset += 6;
-          }
-          else if((startCode&0xf0) == MPG_VIDEO_ID)
-          {   
-              if((*fstSysPos) != 0)
-              {
-                  curCheckBuf +=4;
-                  curRedLen -= 4;
-                  break;
-              }
-              bufOffset = (curCheckBuf[4]<<8) | curCheckBuf[5];
-	          bufOffset += 6;
-          }
-          else if((startCode==MPG_PADDING_STREAM)||(startCode==MPG_PRIVATE_STREAM_2)||(startCode==MPG_PRIVATE_STREAM_1) ||(startCode==MPG_PADDING_STREAM)
-            ||(startCode==MPG_PRIVATE_STREAM_2)||((startCode>=0x01c0)&&(startCode<=0x01df)))
-          {  
-              bufOffset = (curCheckBuf[4]<<8) | curCheckBuf[5];
-	          bufOffset += 6;
-              CheckAudioStreamId(MpgParser, startCode, curCheckBuf, bufOffset)
-          }
-          else
-          {
-            bufOffset = 4;
-          }
-          hasFindPackFlag = 0;
-       }
-       curCheckBuf += bufOffset;
-       curRedLen = (curRedLen>=bufOffset)? (curRedLen-bufOffset) : 0;
-       bufOffset = 0;
-    }
-
-    while(curRedLen >= 4)
-    {
-        newCheckBuf = MpgOpenSearchStartCode(curCheckBuf,curRedLen, &startCode);
-        if((curRedLen<4)&&(*fstSysPos==0))
-        {
-          curCheckBuf = NULL;
-          break;
-        }
-        else if(newCheckBuf == NULL)
-        {
-            curCheckBuf = NULL;
-            break;
-        }
-        else if(startCode == MPG_SEQUENCE_HEADER_CODE)
-        {
-            curCheckBuf = newCheckBuf;
-            curCheckBuf += 7;
-			MpgParser->mVideoFormatT.nFrameRate = frame_rate[checkBuf[0]&0x0f];
-		    if(MpgParser->mVideoFormatT.nFrameRate > 0)
-		       MpgParser->mVideoFormatT.nFrameDuration = 1000 * 1000 / MpgParser->mVideoFormatT.nFrameRate
-        }
-        else if()
-        {
-            
-        }
-       bufOffset = 4;
-       curRedLen -= (newCheckBuf - curCheckBuf);
-       curRedLen = (curRedLen>=bufOffset)? (curRedLen-bufOffset) : 0;
-       curCheckBuf = newCheckBuf+bufOffset;
-    }
-    
-    if((curRedLen<4)&&(*fstSysPos==0))
-    {
-        curCheckBuf = NULL;
-    }
-    return curCheckBuf;
-}
-
-cdx_int16 CalculateFrameRate(CdxMpgParserT *MpgParser, cdx_uint32 *fstSysPos)
-{
-    MpgParserContextT *mMpgParserCxt  = NULL;
-    cdx_bool    fileEndFlag = CDX_FALSE;
-    cdx_uint8  *checkBuf    = NULL;
-    cdx_int32  redLen      = 0;
-    
-	mMpgParserCxt = (MpgParserContextT *)MpgParser->pMpgParserContext;
-
-    CdxStreamSeek(mMpgParserCxt->pStreamT, 0, STREAM_SEEK_SET);
-
-    memset(mMpgParserCxt->mDataChunkT.pStartAddr, 0, MAX_CHUNK_BUF_SIZE);
-  
-     while(1)
-	 {  
-        checkBuf = mMpgParserCxt->mDataChunkT.pStartAddr;
-		redLen = CdxStreamRead(mMpgParserCxt->pStreamT,checkBuf, MAX_CHUNK_BUF_SIZE); 
-
-        if(redLen < MAX_CHUNK_BUF_SIZE)
-			   fileEndFlag = CDX_TRUE;
-		 checkBuf = FindSequenceHeader(MpgParser, checkBuf, redLen,fstSysPos);
-		   
-		   if(checkBuf == NULL)     //cannot find the sequence header
-		   {
-			   if(fileEndFlag == CDX_TRUE)
-				   return -1;
-			   else
-			   {
-				   CdxStreamSeek(mMpgParserCxt->pStreamT, -3, STREAM_SEEK_CUR);
-			   }
-		   }
-		   else                    // find the sequence header
-		   {  
-               checkBuf += 7;
-			   MpgParser->mVideoFormatT.nFrameRate = frame_rate[checkBuf[0]&0x0f];
-			   if(MpgParser->mVideoFormatT.nFrameRate > 0)
-			   {
-				   MpgParser->mVideoFormatT.nFrameDuration = 1000 * 1000 / MpgParser->mVideoFormatT.nFrameRate;
-			   }
-			   break;
-		   }
-	   }   // pEndPtr while(1)
-	   return 0;
-}
-
-#endif
-
 //function-B7
 void CheckAudioStreamId(CdxMpgParserT *MpgParser, cdx_uint8* curptr,cdx_uint32 startCode)
 {   
@@ -685,58 +468,60 @@ void CheckAudioStreamId(CdxMpgParserT *MpgParser, cdx_uint8* curptr,cdx_uint32 s
     cdx_int64  packetLen  = 0;
     cdx_uint32 curPtsLow  = 0;
     cdx_uint32 curPtsHigh = 0;
-	cdx_uint8  i = 0;
+    cdx_uint8  i = 0;
     cdx_uint8  j = 0;
 
     dvdIfo = (DvdIfoT *) MpgParser->pDvdInfo;
     
-    curDataBuf = MpgReadProcessNonISO11172(MpgParser, curptr+4, &nRet, &packetLen, &curPtsLow, &curPtsHigh);
+    curDataBuf = MpgReadProcessNonISO11172(MpgParser, curptr+4,
+        &nRet, &packetLen, &curPtsLow, &curPtsHigh);
         
     if(startCode == MPG_PRIVATE_STREAM_1)
     {
-      while(i < packetLen)
-      {
-         if(curDataBuf[i]!= 0xff)
-         {  
-            curDataBuf += i;
-            break;
-         }
-         i++;
-      }
-      if(i == packetLen)
-         return;
-
-      if(curDataBuf[0] >= 0x80)
-      {   
-        for(i=0; i<dvdIfo->audioIfo.audioNum;i++)
+        while(i < packetLen)
         {
-           if(curDataBuf[0] == dvdIfo->audioIfo.audioStreamId[i])
-           {   
-               if(dvdIfo->audioIfo.audioCheckFlag[i] == 0)
+            if(curDataBuf[i]!= 0xff)
+            {
+                curDataBuf += i;
+                break;
+            }
+            i++;
+        }
+        if(i == packetLen)
+            return;
+
+        if(curDataBuf[0] >= 0x80)
+        {
+            for(i=0; i<dvdIfo->audioIfo.audioNum;i++)
+            {
+               if(curDataBuf[0] == dvdIfo->audioIfo.audioStreamId[i])
                {
-                  dvdIfo->audioIfo.audioCheckFlag[i] = 1;
-                  dvdIfo->audioIfo.audioRightNum++;
+                   if(dvdIfo->audioIfo.audioCheckFlag[i] == 0)
+                   {
+                      dvdIfo->audioIfo.audioCheckFlag[i] = 1;
+                      dvdIfo->audioIfo.audioRightNum++;
+                   }
+                   break;
+                }
+            }
+            if(i == dvdIfo->audioIfo.audioNum)
+            {   
+                for(j=0; j<dvdIfo->audioIfo.audioWrongNum; j++)
+                {
+                    if(curDataBuf[0] == dvdIfo->audioIfo.audioStreamId[j])
+                    {
+                      break;
+                    }
+                }
+               if(j == dvdIfo->audioIfo.audioWrongNum)
+               {
+                   dvdIfo->audioIfo.audioErrorPackId[dvdIfo->audioIfo.audioWrongNum] = 0x01BD;
+                   dvdIfo->audioIfo.audioErrorStrmId[dvdIfo->audioIfo.audioWrongNum]
+                           = curDataBuf[0];
+                   dvdIfo->audioIfo.audioWrongNum++;
                }
-               break;
             }
         }
-        if(i == dvdIfo->audioIfo.audioNum)
-         {   
-            for(j=0; j<dvdIfo->audioIfo.audioWrongNum; j++)
-            {
-               if(curDataBuf[0] == dvdIfo->audioIfo.audioStreamId[j])
-               {
-                 break;
-               }
-            }
-            if(j == dvdIfo->audioIfo.audioWrongNum)
-            {   
-                dvdIfo->audioIfo.audioErrorPackId[dvdIfo->audioIfo.audioWrongNum] = 0x01BD;
-                dvdIfo->audioIfo.audioErrorStrmId[dvdIfo->audioIfo.audioWrongNum] = curDataBuf[0];
-                dvdIfo->audioIfo.audioWrongNum++;
-            }
-         }
-      }
     }
     else if((startCode>=0x01c0)&&(startCode<=0x01df))
     {
@@ -774,7 +559,7 @@ void CheckAudioStreamId(CdxMpgParserT *MpgParser, cdx_uint8* curptr,cdx_uint32 s
 void FindSequenceHeader(CdxMpgParserT *MpgParser, cdx_uint8* curptr, cdx_uint8* findSeqFlag)
 {   
     MpgParserContextT *mMpgParserCxt = NULL;
-	cdx_uint32 nextCode = 0;
+    cdx_uint32 nextCode = 0;
     cdx_uint8  i = 0;
 
     mMpgParserCxt = (MpgParserContextT *)MpgParser->pMpgParserContext;
@@ -799,7 +584,8 @@ void FindSequenceHeader(CdxMpgParserT *MpgParser, cdx_uint8* curptr, cdx_uint8* 
     {
         MpgParser->mVideoFormatT.nFrameRate = frame_rate[curptr[3]&0x0f];
         if(MpgParser->mVideoFormatT.nFrameRate > 0)
-		   MpgParser->mVideoFormatT.nFrameDuration = 1000 * 1000 / MpgParser->mVideoFormatT.nFrameRate;
+           MpgParser->mVideoFormatT.nFrameDuration =
+           1000 * 1000 / MpgParser->mVideoFormatT.nFrameRate;
     }
 }
 
@@ -813,31 +599,38 @@ void CorrectAudioStreamId(CdxMpgParserT *MpgParser, cdx_uint8 audIdx)
      cdx_uint8 newflagAc3 = 0;
      cdx_uint8 newflagPcm = 0;
      cdx_uint8 newflagDts = 0;
-	 cdx_uint8 i = 0;
+     cdx_uint8 i = 0;
      
      dvdIfo = (DvdIfoT *) MpgParser->pDvdInfo; 
 
-     flagAc3 = (dvdIfo->audioIfo.audioStreamId[audIdx]>=0x80) && (dvdIfo->audioIfo.audioStreamId[audIdx]<=0x83);
-     flagPcm = (dvdIfo->audioIfo.audioStreamId[audIdx]>=0xa0) && (dvdIfo->audioIfo.audioStreamId[audIdx]<=0xa3);
-     flagDts = (dvdIfo->audioIfo.audioStreamId[audIdx]>=0x88) && (dvdIfo->audioIfo.audioStreamId[audIdx]<=0x8b);
+     flagAc3 = (dvdIfo->audioIfo.audioStreamId[audIdx]>=0x80)
+        && (dvdIfo->audioIfo.audioStreamId[audIdx]<=0x83);
+     flagPcm = (dvdIfo->audioIfo.audioStreamId[audIdx]>=0xa0)
+        && (dvdIfo->audioIfo.audioStreamId[audIdx]<=0xa3);
+     flagDts = (dvdIfo->audioIfo.audioStreamId[audIdx]>=0x88)
+        && (dvdIfo->audioIfo.audioStreamId[audIdx]<=0x8b);
 
-     for(i=0; i<dvdIfo->audioIfo.audioWrongNum; i++) 
-     {
-       if(dvdIfo->audioIfo.audioErrorPackId[i]==MPG_PRIVATE_STREAM_1)
-       {
-          newflagAc3 = (dvdIfo->audioIfo.audioErrorStrmId[i]>=0x80) && (dvdIfo->audioIfo.audioErrorStrmId[i]<=0x83);
-          newflagPcm = (dvdIfo->audioIfo.audioErrorStrmId[i]>=0xa0) && (dvdIfo->audioIfo.audioErrorStrmId[i]<=0xa3);
-          newflagDts = (dvdIfo->audioIfo.audioErrorStrmId[i]>=0x88) && (dvdIfo->audioIfo.audioErrorStrmId[i]<=0x8b);
-    
-          if((newflagAc3==flagAc3)||(newflagPcm == flagPcm)||(newflagDts == flagDts))
-          {
-            dvdIfo->audioIfo.audioStreamId[audIdx] = dvdIfo->audioIfo.audioErrorStrmId[i];
-            dvdIfo->audioIfo.audioErrorStrmId[i] = 0;
-            dvdIfo->audioIfo.audioErrorPackId[i] = 0;
-            dvdIfo->audioIfo.audioRightNum++;
-            dvdIfo->audioIfo.audioCheckFlag[audIdx] = 1;
-            break;
-          }
+    for(i=0; i<dvdIfo->audioIfo.audioWrongNum; i++)
+    {
+        if(dvdIfo->audioIfo.audioErrorPackId[i]==MPG_PRIVATE_STREAM_1)
+        {
+            newflagAc3 = (dvdIfo->audioIfo.audioErrorStrmId[i]>=0x80)
+              && (dvdIfo->audioIfo.audioErrorStrmId[i]<=0x83);
+            newflagPcm = (dvdIfo->audioIfo.audioErrorStrmId[i]>=0xa0)
+              && (dvdIfo->audioIfo.audioErrorStrmId[i]<=0xa3);
+            newflagDts = (dvdIfo->audioIfo.audioErrorStrmId[i]>=0x88)
+              && (dvdIfo->audioIfo.audioErrorStrmId[i]<=0x8b);
+
+            if((newflagAc3==flagAc3)||(newflagPcm == flagPcm)||(newflagDts == flagDts))
+            {
+                dvdIfo->audioIfo.audioStreamId[audIdx] =
+                    dvdIfo->audioIfo.audioErrorStrmId[i];
+                dvdIfo->audioIfo.audioErrorStrmId[i] = 0;
+                dvdIfo->audioIfo.audioErrorPackId[i] = 0;
+                dvdIfo->audioIfo.audioRightNum++;
+                dvdIfo->audioIfo.audioCheckFlag[audIdx] = 1;
+                break;
+            }
        }
     } 
 }
@@ -849,7 +642,7 @@ void CorrectAudioPackId(CdxMpgParserT *MpgParser, cdx_uint8 audIdx)
      cdx_uint8  flagMp2    = 0;
      cdx_uint8  newflagMp1 = 0;
      cdx_uint8  newflagMp2 = 0;
-	 cdx_uint8  i = 0;
+     cdx_uint8  i = 0;
      
      DvdIfoT  *dvdIfo = NULL;
      dvdIfo = (DvdIfoT *) MpgParser->pDvdInfo; 
@@ -898,63 +691,66 @@ void CheckVideoAudioInfo(CdxMpgParserT *MpgParser, cdx_uint32 *fstSysPos)
    dvdIfo = (DvdIfoT *) MpgParser->pDvdInfo; 
    
    CdxStreamSeek(mMpgParserCxt->pStreamT, 0, STREAM_SEEK_SET);
-   redLen = CdxStreamRead(mMpgParserCxt->pStreamT,mMpgParserCxt->mDataChunkT.pStartAddr, MAX_CHUNK_BUF_SIZE);
+   redLen = CdxStreamRead(mMpgParserCxt->pStreamT,
+           mMpgParserCxt->mDataChunkT.pStartAddr, MAX_CHUNK_BUF_SIZE);
 
 new_parse_data:
    curDataBuf = mMpgParserCxt->mDataChunkT.pStartAddr;
 
    do
    {
-       while(redLen > 0)
-      {
-        nextByte = (nextByte<<8)|curDataBuf[0];
-        if(nextByte == 0x000001BA)
+        while(redLen > 0)
         { 
-          curDataBuf++;
-          redLen --;
-          break;
-       }
-         curDataBuf++;
-         redLen--;
-      }
-      if(redLen < (0x800-4))
-      {  
-        if(fileEndFlag == 1)
-        {
-            break;
+            nextByte = (nextByte<<8)|curDataBuf[0];
+            if(nextByte == 0x000001BA)
+            {
+                curDataBuf++;
+                redLen --;
+                break;
+            }
+            curDataBuf++;
+            redLen--;
         }
-         memcpy(mMpgParserCxt->mDataChunkT.pStartAddr, curDataBuf-4, redLen+4);
-         newRedLen = (redLen+4);
-         newRedLen += CdxStreamRead( mMpgParserCxt->pStreamT, mMpgParserCxt->mDataChunkT.pStartAddr+redLen+4, MAX_CHUNK_BUF_SIZE-(redLen+4));
-         redLen = newRedLen;
-         if(redLen < MAX_CHUNK_BUF_SIZE)
-            fileEndFlag = 1;
-         goto new_parse_data;
-      }
-      else
-      {
-         redPtr = curDataBuf+9;
-	     redPtr += (redPtr[0]&0x07)+1;
-         nextByte = (redPtr[0]<<24)|(redPtr[1]>>16)|(redPtr[2]<<8)|redPtr[3];
-         if((nextByte == MPG_SYSTEM_HEADER_START_CODE)&&(*fstSysPos==0))
+        if(redLen < (0x800-4))
         {
-             *fstSysPos = CdxStreamTell(mMpgParserCxt->pStreamT) - redLen;
-         }
-         else if((nextByte==0x01e0)&&(findSeqFlag==0))
-         {
-           FindSequenceHeader(MpgParser, redPtr,&findSeqFlag);
-         }
-        else if((nextByte==MPG_PRIVATE_STREAM_1)||((nextByte>=0x01c0)&&(nextByte<=0x01df)))
-         {
-             CheckAudioStreamId(MpgParser, redPtr, nextByte);
-         }
-         curDataBuf += (0x800-4);
-         redLen -=(0x800-4);
+            if(fileEndFlag == 1)
+            {
+                break;
+            }
+            memcpy(mMpgParserCxt->mDataChunkT.pStartAddr, curDataBuf-4, redLen+4);
+            newRedLen = (redLen+4);
+            newRedLen += CdxStreamRead( mMpgParserCxt->pStreamT,
+                mMpgParserCxt->mDataChunkT.pStartAddr+redLen+4, MAX_CHUNK_BUF_SIZE-(redLen+4));
+            redLen = newRedLen;
+            if(redLen < MAX_CHUNK_BUF_SIZE)
+               fileEndFlag = 1;
+            goto new_parse_data;
+        }
+        else
+        {
+            redPtr = curDataBuf+9;
+            redPtr += (redPtr[0]&0x07)+1;
+            nextByte = (redPtr[0]<<24)|(redPtr[1]>>16)|(redPtr[2]<<8)|redPtr[3];
+            if((nextByte == MPG_SYSTEM_HEADER_START_CODE)&&(*fstSysPos==0))
+            {
+                *fstSysPos = CdxStreamTell(mMpgParserCxt->pStreamT) - redLen;
+            }
+            else if((nextByte==0x01e0)&&(findSeqFlag==0))
+            {
+              FindSequenceHeader(MpgParser, redPtr,&findSeqFlag);
+            }
+            else if((nextByte==MPG_PRIVATE_STREAM_1)||((nextByte>=0x01c0)&&(nextByte<=0x01df)))
+            {
+                CheckAudioStreamId(MpgParser, redPtr, nextByte);
+            }
+            curDataBuf += (0x800-4);
+            redLen -=(0x800-4);
      }  // pEndPtr else
 
      flag1 = ((*fstSysPos) != 0);
      flag2 = (findSeqFlag == 1);
-     flag3 = ((dvdIfo->audioIfo.audioWrongNum+dvdIfo->audioIfo.audioRightNum)>=dvdIfo->audioIfo.audioNum);
+     flag3 = ((dvdIfo->audioIfo.audioWrongNum+dvdIfo->audioIfo.audioRightNum)>=
+        dvdIfo->audioIfo.audioNum);
         
    } while(!(flag1&&flag2&&flag3));
 
@@ -974,16 +770,11 @@ new_parse_data:
    }
 }
 
-
-
-
-
-
 cdx_int16 DvdParseTitleInfo(CdxMpgParserT *MpgParser, cdx_char *pUrl)
 {
     MpgParserContextT *mMpgParserCxt = NULL;
-	DvdIfoT    *dvdIfo        = NULL;
-	FILE       *pStreamT      = NULL;
+    DvdIfoT    *dvdIfo        = NULL;
+    FILE       *pStreamT      = NULL;
     cdx_uint8   strBuffer[13] = {0};
     cdx_uint32  titlePgcitSa  = 0;
     cdx_uint32  nSize         = 0;
@@ -992,12 +783,12 @@ cdx_int16 DvdParseTitleInfo(CdxMpgParserT *MpgParser, cdx_char *pUrl)
     
     
     dvdIfo = (DvdIfoT *) MpgParser->pDvdInfo;
-	mMpgParserCxt = (MpgParserContextT *)MpgParser->pMpgParserContext;
+    mMpgParserCxt = (MpgParserContextT *)MpgParser->pMpgParserContext;
 
-	if (pUrl == NULL)
-	{
-		return -1;
-	}
+    if (pUrl == NULL)
+    {
+        return -1;
+    }
 
     fileNameLen = strlen((const char*)pUrl);
     for(k=0; k<13; k++)
@@ -1058,7 +849,7 @@ cdx_int16 DvdParseTitleInfo(CdxMpgParserT *MpgParser, cdx_char *pUrl)
     if(nSize > MAX_CHUNK_BUF_SIZE)
        CDX_LOGW("The length of the info is oo larger.\n");
     mMpgParserCxt->mDataChunkT.pReadPtr = mMpgParserCxt->mDataChunkT.pStartAddr;
-	memcpy(strBuffer,mMpgParserCxt->mDataChunkT.pReadPtr, 12);
+    memcpy(strBuffer,mMpgParserCxt->mDataChunkT.pReadPtr, 12);
        
     if(strncmp((const char *)strBuffer, VTS_IFO_IDENTIFIER, 12) != 0)
      {
@@ -1078,7 +869,8 @@ cdx_int16 DvdParseTitleInfo(CdxMpgParserT *MpgParser, cdx_char *pUrl)
          titlePgcitSa = BSWAP32(dvdIfo->vtsIfo->titlePgcitSa);
          if(titlePgcitSa > 0)
          {    
-            if(ParsePgciTable(MpgParser, dvdIfo->titlePgcit,titlePgcitSa * VOB_VIDEO_LB_LEN,TITLE_PGC) < 0)
+            if(ParsePgciTable(MpgParser, dvdIfo->titlePgcit,
+                titlePgcitSa * VOB_VIDEO_LB_LEN,TITLE_PGC) < 0)
             {
                 dvdIfo->titleIfoFlag = CDX_FALSE;
                 free(dvdIfo->inputPath);
@@ -1110,7 +902,7 @@ cdx_int16 DvdOpenTitleFile(CdxMpgParserT *MpgParser, cdx_char *stream)
     cdx_uint8   tvSystem  = 0;
 
     (void)stream; 
-	mMpgParserCxt      = (MpgParserContextT *)MpgParser->pMpgParserContext;
+    mMpgParserCxt      = (MpgParserContextT *)MpgParser->pMpgParserContext;
     dvdIfo = (DvdIfoT *) MpgParser->pDvdInfo;
 
     //mMpgParserCxt->pStreamT = (struct cdx_stream_info *)create_stream_handle(stream);
@@ -1143,15 +935,16 @@ cdx_int16 DvdOpenTitleFile(CdxMpgParserT *MpgParser, cdx_char *stream)
     CheckVideoAudioInfo(MpgParser, &fstSysPos);
       
     MpgParser->mVideoFormatT.nWidth = sizex[srcPicId];
-	MpgParser->mVideoFormatT.nHeight = sizey[tvSystem][srcPicId];
+    MpgParser->mVideoFormatT.nHeight = sizey[tvSystem][srcPicId];
     
     if(MpgParser->mVideoFormatT.nFrameRate == 0)
     {
        MpgParser->mVideoFormatT.nFrameRate = 25000;
-	   MpgParser->mVideoFormatT.nFrameDuration = 1000 * 1000 / 25000;
+       MpgParser->mVideoFormatT.nFrameDuration = 1000 * 1000 / 25000;
     }
     MpgParser->mVideoFormatT.eCodecFormat = VIDEO_CODEC_FORMAT_MPEG2;
-    if((MpgParser->mVideoFormatT.eCodecFormat != VIDEO_CODEC_FORMAT_MPEG1) && (MpgParser->mVideoFormatT.eCodecFormat != VIDEO_CODEC_FORMAT_MPEG2))
+    if((MpgParser->mVideoFormatT.eCodecFormat != VIDEO_CODEC_FORMAT_MPEG1)
+        && (MpgParser->mVideoFormatT.eCodecFormat != VIDEO_CODEC_FORMAT_MPEG2))
     {
         return FILE_PARSER_NO_AV;
     }
@@ -1165,7 +958,9 @@ cdx_int16 DvdOpenTitleFile(CdxMpgParserT *MpgParser, cdx_char *stream)
     }
     else
     {
-       MpgParser->nhasAudioNum = (dvdIfo->audioIfo.audioNum>=dvdIfo->audioIfo.audioRightNum)?dvdIfo->audioIfo.audioRightNum:dvdIfo->audioIfo.audioNum;
+       MpgParser->nhasAudioNum =
+           (dvdIfo->audioIfo.audioNum>=dvdIfo->audioIfo.audioRightNum)?
+           dvdIfo->audioIfo.audioRightNum:dvdIfo->audioIfo.audioNum;
        MpgParser->bHasAudioFlag = CDX_TRUE;
        mMpgParserCxt->bAudioIdFlag = CDX_TRUE;
        mMpgParserCxt->nAudioId = dvdIfo->audioIfo.audioPackId[0];
@@ -1210,24 +1005,14 @@ cdx_int16 DvdOpenTitleFile(CdxMpgParserT *MpgParser, cdx_char *stream)
         return FILE_PARSER_NO_AV;
     }
     MpgParser->nTotalTimeLength = mMpgParserCxt->nFileTimeLength;
-    CdxStreamSeek(mMpgParserCxt->pStreamT,fstSysPos-4,STREAM_SEEK_SET);        //shift pointer to the file header
-    mMpgParserCxt->mDataChunkT.pReadPtr = mMpgParserCxt->mDataChunkT.pEndPtr = mMpgParserCxt->mDataChunkT.pStartAddr;
-    mMpgParserCxt->mDataChunkT.nUpdateSize = mMpgParserCxt->mDataChunkT.nSegmentNum = 0;
+    CdxStreamSeek(mMpgParserCxt->pStreamT,fstSysPos-4,STREAM_SEEK_SET);
+    //shift pointer to the file header
+    mMpgParserCxt->mDataChunkT.pReadPtr =
+        mMpgParserCxt->mDataChunkT.pEndPtr  =
+        mMpgParserCxt->mDataChunkT.pStartAddr;
+    mMpgParserCxt->mDataChunkT.nUpdateSize =
+        mMpgParserCxt->mDataChunkT.nSegmentNum = 0;
     mMpgParserCxt->mDataChunkT.bWaitingUpdateFlag = CDX_FALSE;
     return 0;
 }
-
-
-
-
-
-
-
-      
-
-
-
-
-
-
 

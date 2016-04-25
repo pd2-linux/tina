@@ -23,9 +23,11 @@ struct CdxStreamListS
 struct CdxStreamListS streamList;
 
 extern CdxStreamCreatorT fileStreamCtor;
-#if (CONFIG_OS != OPTION_OS_LINUX)
-//extern CdxStreamCreatorT rtspStreamCtor;
+
+#if (CONFIG_HAVE_LIVE555 == OPTION_HAVE_LIVE555)
+extern CdxStreamCreatorT rtspStreamCtor;
 #endif
+
 extern CdxStreamCreatorT httpStreamCtor;
 extern CdxStreamCreatorT tcpStreamCtor;
 //extern CdxStreamCreatorT rtmpStreamCtor;
@@ -38,7 +40,6 @@ extern CdxStreamCreatorT udpStreamCtor;
 //extern CdxStreamCreatorT bdmvStreamCtor;
 //extern CdxStreamCreatorT widevineStreamCtor;
 //extern CdxStreamCreatorT videoResizeStreamCtor;
-extern CdxStreamCreatorT writeStreamCtor;
 
 
 struct CdxStreamNodeS
@@ -70,8 +71,8 @@ cdx_void AwStreamInit(cdx_void)
     
     AwStreamRegister(&fileStreamCtor,"fd");
     AwStreamRegister(&fileStreamCtor,"file");
-#if (CONFIG_OS!=OPTION_OS_LINUX)
-//    AwStreamRegister(&rtspStreamCtor,"rtsp");
+#if (CONFIG_HAVE_LIVE555 == OPTION_HAVE_LIVE555)
+    AwStreamRegister(&rtspStreamCtor,"rtsp");
 #endif
     AwStreamRegister(&httpStreamCtor,"http");
 //    AwStreamRegister(&httpStreamCtor,"https");
@@ -90,7 +91,6 @@ cdx_void AwStreamInit(cdx_void)
 //    AwStreamRegister(&widevineStreamCtor,"widevine");
 #endif
 //    AwStreamRegister(&videoResizeStreamCtor,"videoResize");
-    AwStreamRegister(&writeStreamCtor,"write");
 
 	CDX_LOGD("stream list size:%d",streamList.size);
     return ;

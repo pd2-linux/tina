@@ -2,11 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 #include "vencoder.h"
 #include "CdxMuxer.h"
-#include <time.h>
+#include "memoryAdapter.h"
+#include "MuxerWriter.h"
 
-#define OUTPUT_H264 0
 #define DEMO_FILE_NAME_LEN 256
 
 #define _ENCODER_TIME_
@@ -21,14 +22,16 @@ static long long GetNowUs()
 long long time1=0;
 long long time2=0;
 long long time3=0;
-#endif
 
+long long mux_time1 = 0, mux_time2 = 0, mux_time3 = 0;
+long long total_time1 = 0, total_time2 = 0, total_time3 = 0;
+#endif
 
 typedef struct
 {
     char 			intput_file[256];
     char 			output_file[256];
-    char            ts_file[256];
+    char            stream_file[256];
 
 	unsigned int  encode_frame_num;
 	unsigned int  encode_format;
@@ -44,6 +47,9 @@ typedef struct
 	int bit_rate;
 	int frame_rate;
 	int maxKeyFrame;
+
+	unsigned char write_unmux;
+	int muxer_type;
 }encode_param_t;
 
 typedef enum
@@ -55,6 +61,7 @@ typedef enum
     OUTPUT,
     SRC_SIZE,
     DST_SIZE,
+    MP4,
     TS,
     INVALID
 }ARGUMENT_T;
@@ -83,8 +90,10 @@ static const argument_t ArgumentMapping[] =
 		"src_size,can be 1080,720,480" },
 	{ "-d",  "--dstsize",  DST_SIZE,
 		"dst_size,can be 1080,720,480" },
+	{ "-m",  "--mp4",  MP4,
+		"output mp4 file path" },
 	{ "-t",  "--ts",  TS,
-		"output ts file path" }
+		"output mp4 file path" },
 };
 
 int yu12_nv12(unsigned int width, unsigned int height, unsigned char *addr_uv, unsigned char *addr_tmp_uv)
@@ -125,7 +134,6 @@ ARGUMENT_T GetArgument(char *name)
         }
         i++;
     }
-    loge("INVALID name is %s\n", name);
     return INVALID;
 }
 
@@ -151,7 +159,7 @@ void demoParseArgument(encode_param_t *encode_param, char *argument, char *value
 
 	int len = 0;
 	if(arg != HELP)
-		strlen(value);
+		len = strlen(value);
     if(len > DEMO_FILE_NAME_LEN)
     	return;
 	
@@ -175,6 +183,7 @@ void demoParseArgument(encode_param_t *encode_param, char *argument, char *value
 			memset(encode_param->output_file, 0, sizeof(encode_param->output_file));
         	sscanf(value, "%255s", encode_param->output_file);
         	logd(" get output file: %s ", encode_param->output_file);
+        	encode_param->write_unmux = 1;
             break;
 		case SRC_SIZE:
         	sscanf(value, "%u", &encode_param->src_size);
@@ -193,6 +202,11 @@ void demoParseArgument(encode_param_t *encode_param, char *argument, char *value
 			{
 				encode_param->src_width = 640;
 				encode_param->src_height = 480;
+			}
+			else if(encode_param->src_size == 240)
+			{
+				encode_param->src_width = 320;
+				encode_param->src_height = 240;
 			}
 			else
 			{
@@ -219,6 +233,11 @@ void demoParseArgument(encode_param_t *encode_param, char *argument, char *value
 				encode_param->dst_width = 640;
 				encode_param->dst_height = 480;
 			}
+			else if(encode_param->dst_size == 240)
+			{
+				encode_param->dst_width = 320;
+				encode_param->dst_height = 240;
+			}
 			else
 			{
 				encode_param->dst_width = 1280;
@@ -226,11 +245,17 @@ void demoParseArgument(encode_param_t *encode_param, char *argument, char *value
 				logw("encoder demo only support the size 1080p,720p,480p, now use the default size 720p\n");
 			}
             break;
+        case MP4:
+            memset(encode_param->stream_file, 0, sizeof(encode_param->stream_file));
+        	sscanf(value, "%255s", encode_param->stream_file);
+        	logd(" get mp4 file: %s ", encode_param->stream_file);
+        	encode_param->muxer_type = CDX_MUXER_MOV;
+            break;
         case TS:
-            strcpy(encode_param->ts_file, "write://");
-            memset((encode_param->ts_file + 8), 0, (sizeof(encode_param->ts_file) - 8));
-        	sscanf(value, "%255s", (encode_param->ts_file + 8));
-        	logd(" get ts file: %s ", encode_param->ts_file);
+            memset(encode_param->stream_file, 0, sizeof(encode_param->stream_file));
+        	sscanf(value, "%255s", encode_param->stream_file);
+        	logd(" get ts file: %s ", encode_param->stream_file);
+        	encode_param->muxer_type = CDX_MUXER_TS;
             break;
         case INVALID:
         default:
@@ -261,12 +286,10 @@ int main(int argc, char** argv)
 	int i = 0;
 	long long pts = 0;	
 	FILE *in_file = NULL;
-#if OUTPUT_H264
 	FILE *out_file = NULL;
-#endif
 	char *input_path = NULL;
 	char *output_path = NULL;
-	char *ts_path = NULL;
+	char *stream_path = NULL;
 	encode_param_t	encode_param;
 
 	/********************** Define H264 Paramerter *************************/
@@ -281,10 +304,15 @@ int main(int argc, char** argv)
 	/********************** Define JPEG Paramerter *************************/
 
 	/****************************** Define MUXER Paramerter ********************************************/
-	CdxDataSourceT ts_stream;
+    MuxerWriterT *mw = NULL;
+    CdxWriterT *writer = NULL;
 	CdxMuxerMediaInfoT media_info;
-	CdxStreamT *ts_writer = NULL;
     CdxMuxerT *mux = NULL;
+
+#if FS_WRITER
+    CdxFsCacheMemInfo fs_cache_mem;
+    int fs_mode = FSWRITEMODE_DIRECT;
+#endif
 	/****************************** Define MUXER Paramerter ********************************************/
 	
 	memset(&encode_param, 0, sizeof(encode_param));	
@@ -292,14 +320,15 @@ int main(int argc, char** argv)
 	encode_param.src_height = 720;
 	encode_param.dst_width = 1280;
 	encode_param.dst_height = 720;
-	encode_param.bit_rate = 6 * 1024 * 1024;
+	encode_param.bit_rate = 2 * 1024 * 1024;
 	encode_param.frame_rate = 30;
 	encode_param.maxKeyFrame = 30;
 	encode_param.encode_format = VENC_CODEC_H264;
+    encode_param.muxer_type = CDX_MUXER_MOV;
 	encode_param.encode_frame_num = 200;
 	strcpy((char*)encode_param.intput_file,		"/mnt/sdcard/DCIM/Camera/720p.yuv");
 	strcpy((char*)encode_param.output_file,		"/mnt/sdcard/DCIM/Camera/720p.264");
-	strcpy((char*)encode_param.ts_file,		"write:///mnt/sdcard/DCIM/Camera/720p_h264.ts");
+	strcpy((char*)encode_param.stream_file,		"write:///mnt/sdcard/DCIM/Camera/720p_h264.mp4");
 	
 
 	//parse the config paramter
@@ -319,7 +348,7 @@ int main(int argc, char** argv)
 
     input_path = encode_param.intput_file;
 	output_path = encode_param.output_file;
-	ts_path = encode_param.ts_file;
+	stream_path = encode_param.stream_file;
 	
 	in_file = fopen(input_path, "rb");
 	if(in_file == NULL)
@@ -327,17 +356,26 @@ int main(int argc, char** argv)
 		loge("open in_file fail\n");
 		return -1;
 	}
-#if OUTPUT_H264		
-	out_file = fopen(output_path, "wb");
-	if(out_file == NULL)
+    if (encode_param.write_unmux)
 	{
-		loge("open out_file fail\n");
-		fclose(in_file);
-		return -1;
-	}
-#endif
+	    out_file = fopen(output_path, "wb");
+	    if(out_file == NULL)
+	    {
+		    loge("open out_file fail\n");
+		    fclose(in_file);
+		    return -1;
+	    }
+    }
 	memset(&baseConfig, 0 ,sizeof(VencBaseConfig));
 	memset(&bufferParam, 0 ,sizeof(VencAllocateBufferParam));
+
+	if ((baseConfig.memops = MemAdapterGetOpsS()) == NULL)
+	{
+	    loge("baseConfig.memops is NULL");
+	    fclose(in_file);
+	    return -1;
+	}
+	CdcMemOpen(baseConfig.memops);
 
 	baseConfig.nInputWidth= encode_param.src_width;
 	baseConfig.nInputHeight = encode_param.src_height;
@@ -404,19 +442,45 @@ int main(int argc, char** argv)
     media_info.video.nHeight = encode_param.dst_height;
     media_info.video.nFrameRate = encode_param.frame_rate;
     media_info.video.eCodeType = encode_param.encode_format;
-       
-    memset(&ts_stream, 0, sizeof(CdxDataSourceT));
-
-    ts_stream.uri = strdup(ts_path);
-    result = CdxStreamOpen(&ts_stream, NULL, NULL, &ts_writer, NULL);
-    if(result < 0)
+    if ((writer = CdxWriterCreat()) == NULL)
     {
-    	loge("CdxStreamOpen failed");
-    	return -1;
+        loge("writer creat failed\n");
+        fclose(in_file);
+        fclose(out_file);
+        return -1;
     }
-    mux = CdxMuxerCreate(CDX_MUXER_TS, ts_writer);
+    mw = (MuxerWriterT*)writer;
+    strcpy(mw->file_path, stream_path);
+    mw->file_mode = FD_FILE_MODE;
+    MWOpen(writer);
+    mux = CdxMuxerCreate(encode_param.muxer_type, writer);
     CdxMuxerSetMediaInfo(mux, &media_info);
-    //CdxMuxerWriteHeader(mux);
+       
+#if FS_WRITER
+    memset(&fs_cache_mem, 0, sizeof(CdxFsCacheMemInfo));
+
+    fs_cache_mem.m_cache_size = 1024 * 1024; // must be less than 512 * 1024
+    fs_cache_mem.mp_cache = (cdx_int8*)malloc(fs_cache_mem.m_cache_size);
+    if (fs_cache_mem.mp_cache == NULL)
+    {
+        loge("fs_cache_mem.mp_cache malloc failed\n");
+        fclose(in_file);
+        fclose(out_file);
+        return -1;
+    }
+    CdxMuxerControl(mux, SET_CACHE_MEM, &fs_cache_mem);
+    fs_mode = FSWRITEMODE_CACHETHREAD;
+
+    /*
+    fs_cache_size = 1024 * 1024;
+    CdxMuxerControl(mux, SET_FS_SIMPLE_CACHE_SIZE, &fs_cache_size);
+    fs_mode = FSWRITEMODE_SIMPLECACHE;
+    */
+    //fs_mode = FSWRITEMODE_DIRECT;
+    CdxMuxerControl(mux, SET_FS_WRITE_MODE, &fs_mode);
+#endif
+
+    CdxMuxerWriteHeader(mux);
 	/******************************* Set Muxer Parameters ****************************/
 	
 	pVideoEnc = VideoEncCreate(encode_param.encode_format);
@@ -431,6 +495,8 @@ int main(int argc, char** argv)
 	else if(encode_param.encode_format == VENC_CODEC_H264)
 	{	
 		VideoEncSetParameter(pVideoEnc, VENC_IndexParamH264Param, &h264Param);
+		int vbvSize = 4*1024*1024;
+	    VideoEncSetParameter(pVideoEnc, VENC_IndexParamSetVbvSize, &vbvSize);
 	}
 
 	VideoEncInit(pVideoEnc, &baseConfig);
@@ -439,9 +505,10 @@ int main(int argc, char** argv)
 	{
 		VideoEncGetParameter(pVideoEnc, VENC_IndexParamH264SPSPPS, &sps_pps_data);
 		CdxMuxerWriteExtraData(mux, sps_pps_data.pBuffer, sps_pps_data.nLength, 0);
-#if OUTPUT_H264
-		fwrite(sps_pps_data.pBuffer, 1, sps_pps_data.nLength, out_file);
-#endif
+        if (encode_param.write_unmux)
+        {
+            fwrite(sps_pps_data.pBuffer, 1, sps_pps_data.nLength, out_file);
+        }
 		logd("sps_pps_data.nLength: %d", sps_pps_data.nLength);
 	}
 	
@@ -454,22 +521,17 @@ int main(int argc, char** argv)
 		if(uv_tmp_buffer == NULL)
 		{
 			loge("malloc uv_tmp_buffer fail\n");
-#if OUTPUT_H264
-			fclose(out_file);
-#endif
+            if (encode_param.write_unmux)
+            {
+			    fclose(out_file);
+            }
 			fclose(in_file);
 			return -1;
 		}
 	}
 
-#if USE_SVC
-	// used for throw frame test with SVC
-	int TemporalLayer = -1;
-	char p9bytes[9] = {0};
-#endif
-		
 	unsigned int testNumber = 0;
-	
+    total_time1 = GetNowUs();
 	while(testNumber < encode_param.encode_frame_num)
 	{
 	    CdxMuxerPacketT pkt;
@@ -536,13 +598,15 @@ int main(int argc, char** argv)
         {
             memcpy((char*)pkt.buf + outputBuffer.nSize0, outputBuffer.pData1, outputBuffer.nSize1);
         }
-        
-        pkt.pts = outputBuffer.nPts / 1000; // us should be changed to ms
+        pkt.pts = outputBuffer.nPts / 1000; // us should be change to ms
         pkt.duration = 1.0/ media_info.video.nFrameRate * 1000;
         pkt.type = 0;
         pkt.streamIndex = 0;
         
+        mux_time1 = GetNowUs();
         result = CdxMuxerWritePacket(mux, &pkt);
+        mux_time2 = GetNowUs();
+        mux_time3 += mux_time2 - mux_time1;
 
         if (result)
         {
@@ -552,45 +616,51 @@ int main(int argc, char** argv)
         free(pkt.buf);
         pkt.buf = NULL;
 		/*************************** Write Packet **********************************/
-#if OUTPUT_H264		
-		fwrite(outputBuffer.pData0, 1, outputBuffer.nSize0, out_file);
-		if(outputBuffer.nSize1)
-		{
-			fwrite(outputBuffer.pData1, 1, outputBuffer.nSize1, out_file);
-		}
-#endif
+       if (encode_param.write_unmux)
+       {
+		    fwrite(outputBuffer.pData0, 1, outputBuffer.nSize0, out_file);
+		    if(outputBuffer.nSize1)
+		    {
+			    fwrite(outputBuffer.pData1, 1, outputBuffer.nSize1, out_file);
+		    }
+        }
 		FreeOneBitStreamFrame(pVideoEnc, &outputBuffer);
 
 		if(h264Param.nCodingMode==VENC_FIELD_CODING && encode_param.encode_format==VENC_CODEC_H264)
 		{
 			GetOneBitstreamFrame(pVideoEnc, &outputBuffer);
-#if OUTPUT_H264
-			fwrite(outputBuffer.pData0, 1, outputBuffer.nSize0, out_file);
-
-			if(outputBuffer.nSize1)
-			{
-				fwrite(outputBuffer.pData1, 1, outputBuffer.nSize1, out_file);
-			}
-#endif				
+            if (encode_param.write_unmux)
+            {
+			    fwrite(outputBuffer.pData0, 1, outputBuffer.nSize0, out_file);
+			    if(outputBuffer.nSize1)
+			    {
+				    fwrite(outputBuffer.pData1, 1, outputBuffer.nSize1, out_file);
+			    }
+            }
 			FreeOneBitStreamFrame(pVideoEnc, &outputBuffer);
 		}
 
 		testNumber++;
 	}
-	
+	total_time2 = GetNowUs();
+	total_time3 += total_time2 - total_time1;
     result = CdxMuxerWriteTrailer(mux);
     if (result)
     {
         loge("CdxMuxerWriteTrailer() failed\n");
     }
-	logd("the average encode time is %lldus...\n",time3/testNumber);
+	printf("the average encode time is %lldus...\n",time3/testNumber);
+	printf("the average mux time is %lldus...\n",mux_time3/testNumber);
+	printf("the average toatal time is %lldus...\n",total_time3/testNumber);
 
 out:
-	printf("output file is saved: %s and %s\n",encode_param.output_file, (encode_param.ts_file + 8));
-#if OUTPUT_H264
-	fclose(out_file);
-	out_file = NULL;
-#endif
+	printf("output file is saved: %s\n", (encode_param.stream_file + 8));
+    if (encode_param.write_unmux)
+	{
+	    printf("output file is saved: %s\n", encode_param.output_file);
+	    fclose(out_file);
+	    out_file = NULL;
+    }
 	fclose(in_file);
 	in_file = NULL;
 	if(uv_tmp_buffer)
@@ -609,12 +679,26 @@ out:
 
 	CdxMuxerClose(mux);
 
-	if(ts_stream.uri)
+    if (writer)
+    {
+        MWClose(writer);
+        CdxWriterDestroy(writer);
+        writer = NULL;
+        mw = NULL;
+    }
+
+#if FS_WRITER
+    if (fs_cache_mem.mp_cache)
 	{
-	    free(ts_stream.uri);
-	    ts_stream.uri = NULL;
+	    free(fs_cache_mem.mp_cache);
+	    fs_cache_mem.mp_cache = NULL;
 	}
-		
+#endif
+    if(baseConfig.memops)
+    {
+        CdcMemClose(baseConfig.memops);
+        baseConfig.memops = NULL;
+    }
 	return 0;
 }
 

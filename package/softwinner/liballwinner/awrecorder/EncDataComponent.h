@@ -1,7 +1,6 @@
 #ifndef __MUX_COMP_H__
 #define __MUX_COMP_H__
 
-#include "CdxParser.h"
 #include "CdxMuxer.h"
 #include "AudioEncodeComponent.h"
 #include "VideoEncodeComponent.h"

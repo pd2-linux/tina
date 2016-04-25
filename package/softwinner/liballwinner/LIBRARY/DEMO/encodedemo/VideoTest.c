@@ -132,7 +132,7 @@ void ParseArgument(encode_param_t *encode_param, char *argument, char *value)
 
 	int len = 0;
 	if(arg != HELP)
-		strlen(value);
+		len = strlen(value);
     if(len > DEMO_FILE_NAME_LEN)
     	return;
 	
@@ -277,14 +277,13 @@ int main(int argc, char** argv)
 	VencOutputBuffer outputBuffer;
 	VencHeaderData sps_pps_data;
 	VencH264Param h264Param;
-	VencH264FixQP fixQP;
+	//VencH264FixQP fixQP;
 	EXIFInfo exifinfo;
-	VencCyclicIntraRefresh sIntraRefresh;
+	//VencCyclicIntraRefresh sIntraRefresh;
 	unsigned char *uv_tmp_buffer = NULL;
 
 	VencSuperFrameConfig 	sSuperFrameCfg;
-	VencH264SVCSkip 		SVCSkip; // set SVC and skip_frame
-	VencH264AspectRatio		sAspectRatio;
+	//VencH264AspectRatio		sAspectRatio;
 
 	struct ScMemOpsS* memops = MemAdapterGetOpsS();
     if(memops == NULL)
@@ -337,7 +336,7 @@ int main(int argc, char** argv)
     	return 0;
     }
 	
-
+#if 0
 	// roi
 	VencROIConfig sRoiConfig[4];
 	
@@ -349,7 +348,6 @@ int main(int argc, char** argv)
 	sRoiConfig[0].sRect.nWidth = 320;
 	sRoiConfig[0].sRect.nHeight = 180;
 
-
 	sRoiConfig[1].bEnable = 1;
 	sRoiConfig[1].index = 1;
 	sRoiConfig[1].nQPoffset = 10;
@@ -357,7 +355,6 @@ int main(int argc, char** argv)
 	sRoiConfig[1].sRect.nTop = 180;
 	sRoiConfig[1].sRect.nWidth = 320;
 	sRoiConfig[1].sRect.nHeight = 180;
-
 
 	sRoiConfig[2].bEnable = 1;
 	sRoiConfig[2].index = 2;
@@ -367,7 +364,6 @@ int main(int argc, char** argv)
 	sRoiConfig[2].sRect.nWidth = 320;
 	sRoiConfig[2].sRect.nHeight = 180;
 
-
 	sRoiConfig[3].bEnable = 1;
 	sRoiConfig[3].index = 3;
 	sRoiConfig[3].nQPoffset = 10;
@@ -375,16 +371,15 @@ int main(int argc, char** argv)
 	sRoiConfig[3].sRect.nTop = 180;
 	sRoiConfig[3].sRect.nWidth = 320;
 	sRoiConfig[3].sRect.nHeight = 180;
-
-
+#endif
 	//intraRefresh
-	sIntraRefresh.bEnable = 1;
-	sIntraRefresh.nBlockNumber = 10;
+	//sIntraRefresh.bEnable = 1;
+	//sIntraRefresh.nBlockNumber = 10;
 
 	//fix qp mode
-	fixQP.bEnable = 1;
-	fixQP.nIQp = 20;
-	fixQP.nPQp = 30;
+	//fixQP.bEnable = 1;
+	//fixQP.nIQp = 20;
+	//fixQP.nPQp = 30;
 
 	//* h264 param
 	h264Param.bEntropyCodingCABAC = 1;
@@ -479,7 +474,7 @@ int main(int argc, char** argv)
 	pVideoEnc = VideoEncCreate(encode_param.encode_format);
 
 	int quality = 90;
-	int jpeg_mode = 1;
+	//int jpeg_mode = 1;
 	if(encode_param.encode_format == VENC_CODEC_JPEG)
 	{
 	  	VideoEncSetParameter(pVideoEnc, VENC_IndexParamJpegExifInfo, &exifinfo);
@@ -512,9 +507,9 @@ int main(int argc, char** argv)
 		value = 0;
 		VideoEncSetParameter(pVideoEnc, VENC_IndexParamSetPSkip, &value);
 
-		sAspectRatio.aspect_ratio_idc = 255;
-		sAspectRatio.sar_width = 4;
-		sAspectRatio.sar_height = 3;
+		//sAspectRatio.aspect_ratio_idc = 255;
+		//sAspectRatio.sar_width = 4;
+		//sAspectRatio.sar_height = 3;
 		//VideoEncSetParameter(pVideoEnc, VENC_IndexParamH264AspectRatio, &sAspectRatio);
 		
 		//value = 1;
@@ -557,10 +552,8 @@ int main(int argc, char** argv)
 	unsigned char* pAddrVirY = CdcMemPalloc(memops, bufferParam.nSizeY);
 	unsigned char* pAddrVirC = CdcMemPalloc(memops, bufferParam.nSizeC);
 			
-	unsigned int size1, size2;
-
-	size1 = fread(pAddrVirY, 1, baseConfig.nInputWidth*baseConfig.nInputHeight, in_file);
-	size2 = fread(pAddrVirC, 1, baseConfig.nInputWidth*baseConfig.nInputHeight/2, in_file);
+	fread(pAddrVirY, 1, baseConfig.nInputWidth*baseConfig.nInputHeight, in_file);
+	fread(pAddrVirC, 1, baseConfig.nInputWidth*baseConfig.nInputHeight/2, in_file);
 	CdcMemFlushCache(memops, pAddrVirY, bufferParam.nSizeY);
 	CdcMemFlushCache(memops, pAddrVirC, bufferParam.nSizeC);
 
@@ -582,7 +575,6 @@ int main(int argc, char** argv)
 		VideoEncodeOneFrame(pVideoEnc);
 
 		AlreadyUsedInputBuffer(pVideoEnc,&inputBuffer);
-		logd("========= used buf: %d", inputBuffer.nID);
 
 		result = GetOneBitstreamFrame(pVideoEnc, &outputBuffer);
 		if((sSuperFrameCfg.eSuperFrameMode==VENC_SUPERFRAME_DISCARD) && (result==-1))

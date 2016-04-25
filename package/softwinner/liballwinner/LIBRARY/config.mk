@@ -199,6 +199,12 @@ LOCAL_CFLAGS += -DOPTION_HAVE_SSL=$(OPTION_HAVE_SSL)
 OPTION_NO_SSL = 2
 LOCAL_CFLAGS += -DOPTION_NO_SSL=$(OPTION_NO_SSL)
 
+########## configure LIVE555 ##########
+OPTION_HAVE_LIVE555 = 1
+LOCAL_CFLAGS += -DOPTION_HAVE_LIVE555=$(OPTION_HAVE_LIVE555)
+OPTION_NO_LIVE555 = 2
+LOCAL_CFLAGS += -DOPTION_NO_LIVE555=$(OPTION_NO_LIVE555)
+
 #############################################################################
 ############################## configuration. ############################### 
 #############################################################################
@@ -208,6 +214,7 @@ CONFIG_PRODUCT = $(OPTION_PRODUCT_TVBOX)
 CONFIG_CHIP = $(OPTION_CHIP_C500)
 CONFIG_HAVE_ZLIB = $(OPTION_HAVE_ZLIB)
 CONFIG_HAVE_SSL = $(OPTION_HAVE_SSL)
+CONFIG_HAVE_LIVE555 = $(OPTION_NO_LIVE555)
 #CONFIG_LOG_LEVEL = $(OPTION_LOG_LEVEL_DETAIL)
 
 ########## configure CONFIG_CC ##########
@@ -310,12 +317,12 @@ LOCAL_CFLAGS += -DCONFIG_HAVE_ZLIB=$(CONFIG_HAVE_ZLIB)
 ########## configre ssl ######################
 LOCAL_CFLAGS += -DCONFIG_HAVE_SSL=$(CONFIG_HAVE_SSL)
 
+########## configre live555 ######################
+LOCAL_CFLAGS += -DCONFIG_HAVE_LIVE555=$(CONFIG_HAVE_LIVE555)
 
 ifeq ($(CONFIG_OS), $(OPTION_OS_LINUX))
 	ifeq ($(CONFIG_CHIP),$(OPTION_CHIP_R16))
 		include $(CONFIG_CEDARX_PATH)/LIBRARY/config/R16_linux_config.mk   # R16
-	else ifeq  ($(CONFIG_CHIP),$(OPTION_CHIP_R8))
-		include $(CONFIG_CEDARX_PATH)/LIBRARY/config/R8_linux_config.mk   # R8
 	else ifeq  ($(CONFIG_CHIP),$(OPTION_CHIP_C500))
 		include $(CONFIG_CEDARX_PATH)/LIBRARY/config/C500_linux_config.mk   # c500
 	else

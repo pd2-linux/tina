@@ -1,11 +1,11 @@
 #include <stdint.h>
 #include "CdxMovParser.h"
 #include "mpeg4Vol.h"
-#include <zconf.h>
 #include <errno.h>
 #include <stdint.h>
 
 #if (CONFIG_HAVE_ZLIB == OPTION_HAVE_ZLIB)
+#include <zconf.h>
 #include <zlib.h>
 #endif
 

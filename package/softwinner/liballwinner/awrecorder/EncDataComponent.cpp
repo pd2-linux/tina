@@ -7,7 +7,6 @@
 
 #include "log.h"
 #include "awMessageQueue.h"
-#include "CdxMuxer.h"
 #include "EncDataComponent.h"
 #include "VideoEncodeComponent.h"
 
@@ -34,6 +33,11 @@ typedef struct EncDataCompContext
 	AwMessageQueue*       	mMessageQueue;
 	pthread_t            	mThreadId;
 	int 					mThreadCreated;
+
+	AwMessageQueue*       	mAudioMessageQueue;
+	pthread_t            	mAudioThreadId;
+	int 					mAudioThreadCreated;
+	int                   	mAudioStatus;
 	int                   	mStatus;
 	MuxerCallback     		mCallback;
 	void*                   mUserData;
@@ -57,6 +61,17 @@ typedef struct EncDataCompContext
 	int 				    mStopReply;
 	int 				    mResetReply;
 	int 				    mPauseReply;
+
+	sem_t                   mAudioSemStart;
+	sem_t                   mAudioSemStop;
+	sem_t                   mAudioSemPause;
+	sem_t                   mAudioSemReset;
+	sem_t                   mAudioSemQuit;
+
+	int 				    mAudioStartReply;
+	int 				    mAudioStopReply;
+	int 				    mAudioResetReply;
+	int 				    mAudioPauseReply;
 
     void *                  mApp;
     EncDataCallBackOps*     mEncDataCallBackOps;
@@ -84,18 +99,19 @@ static void PostMuxerMessage(AwMessageQueue* mq)
 	}
 }
 
-
-static void* EncDataThread(void* arg)
+static void* AudioEncDataThread(void* arg)
 {
 	EncDataCompContext *p = (EncDataCompContext*)arg;
 	AwMessage			 msg;
 	sem_t*				 pReplySem;
 	int*					pReplyValue;
 	CdxMuxerPacketT          packet;
+	int ret;
 
 	while(1)
 	{
-		if(AwMessageQueueGetMessage(p->mMessageQueue, &msg) < 0)
+	    //logd("==== AudioEncDataThread");
+		if(AwMessageQueueGetMessage(p->mAudioMessageQueue, &msg) < 0)
 		{
 			loge("get message fail.");
 			continue;
@@ -104,6 +120,154 @@ static void* EncDataThread(void* arg)
 		pReplySem	= (sem_t*)msg.params[0];
 		pReplyValue = (int*)msg.params[1];
 		
+		if(msg.messageId == MUXER_COMMAND_START)
+		{
+			if(p->mAudioStatus == MUXER_STATUS_STARTED)
+			{
+				loge("invalid start operation, already in started status.");
+				if(pReplyValue != NULL)
+					*pReplyValue = -1;
+				sem_post(pReplySem);
+				continue;
+			}
+
+			if(p->mAudioStatus == MUXER_STATUS_PAUSED)
+			{
+				PostMuxerMessage(p->mAudioMessageQueue);
+				p->mAudioStatus = MUXER_STATUS_STARTED;
+				if(pReplyValue != NULL)
+					*pReplyValue = (int)0;
+				if(pReplySem != NULL)
+					sem_post(pReplySem);
+				continue;
+			}
+		
+			PostMuxerMessage(p->mAudioMessageQueue);
+			// reset encoder ****** 
+			p->mAudioStatus = MUXER_STATUS_STARTED;
+			if(pReplyValue != NULL)
+				*pReplyValue = (int)0;
+			if(pReplySem != NULL)
+				sem_post(pReplySem);
+			continue;
+		} //* end ENC_COMMAND_START.
+		else if(msg.messageId == MUXER_COMMAND_MUX)
+		{
+		    //logd("=========== audio mux thread");
+			//* 1. get the audio
+			if(!p->mGetAudioFrame && p->pAudioConfig)
+			{
+				p->mGetAudioFrame = 1;
+				ret = AudioEncodeCompRequestBuffer(p->pAudioEncComp, &p->pAudioOutBuf);
+				if(ret < 0)
+				{
+					logv(" request audio encode frame failed");
+					p->mGetAudioFrame = 0;
+				}
+			}
+
+			if(!p->mGetAudioFrame)
+			{
+				//loge("cannot request video and audio frame");
+				usleep(10*1000);
+				PostMuxerMessage(p->mAudioMessageQueue);
+                continue;
+			}
+
+			//* 2. choose a buf send to muxer
+			packet.buflen = p->pAudioOutBuf.len;
+			packet.length = p->pAudioOutBuf.len;
+			packet.buf = p->pAudioOutBuf.pBuf;
+			packet.pts = p->pAudioOutBuf.pts;
+			packet.type = CDX_MEDIA_AUDIO;
+			packet.streamIndex = 1;
+			if(p->pAudioConfig->nInSamplerate > 0)
+				packet.duration = 1024000 / p->pAudioConfig->nInSamplerate;
+			else
+				packet.duration = 23;
+
+			logd("audio packet length(%d)", packet.length);
+            if (p->mEncDataCallBackOps && p->mEncDataCallBackOps->onAudioDataEnc)
+                p->mEncDataCallBackOps->onAudioDataEnc(p->mApp,&packet);
+
+			// set audioBuf to NULL
+			AudioEncodeCompReturnBuffer(p->pAudioEncComp, &p->pAudioOutBuf);
+			p->mGetAudioFrame = 0;
+
+			PostMuxerMessage(p->mAudioMessageQueue);
+            continue;
+		} //* end ENC_COMMAND_ENCODE.
+		else if(msg.messageId == MUXER_COMMAND_STOP)
+		{
+			if(pReplyValue != NULL)
+				*pReplyValue = (int)0;
+			if(pReplySem != NULL)
+				sem_post(pReplySem);
+			continue;	//* break the thread.
+		} //* end ENC_COMMAND_STOP.
+		else if(msg.messageId == MUXER_COMMAND_PAUSE)
+		{
+			if(p->mAudioStatus == MUXER_STATUS_PAUSED)
+			{
+				loge("invalid pause operation, already in pause status.");
+				if(pReplyValue != NULL)
+					*pReplyValue = -1;
+				sem_post(pReplySem);
+				continue;
+			}
+			p->mAudioStatus = MUXER_STATUS_PAUSED;
+			PostMuxerMessage(p->mAudioMessageQueue);   //* post a decode message to decode the first picture.
+
+			if(pReplyValue != NULL)
+				*pReplyValue = 0;
+			sem_post(pReplySem);
+			continue;
+		} //* end ENC_COMMAND_PAUSE.
+		else if(msg.messageId == MUXER_COMMAND_RESET)
+		{
+			if(pReplyValue != NULL)
+				*pReplyValue = 0;
+			sem_post(pReplySem);
+			continue;
+		}
+		else if(msg.messageId == MUXER_COMMAND_QUIT)
+		{
+			if(pReplyValue != NULL)
+				*pReplyValue = (int)0;
+			if(pReplySem != NULL)
+				sem_post(pReplySem);
+			break;	//* break the thread.
+		}
+		else
+		{
+			logw("unknow message with id %d, ignore.", msg.messageId);
+		}
+	}
+
+	return NULL;
+}
+
+
+static void* EncDataThread(void* arg)
+{
+	EncDataCompContext *p = (EncDataCompContext*)arg;
+	AwMessage			 msg;
+	sem_t*				 pReplySem;
+	int*					pReplyValue;
+	CdxMuxerPacketT          packet;
+    int ret;
+
+	while(1)
+	{
+		if(AwMessageQueueGetMessage(p->mMessageQueue, &msg) < 0)
+		{
+			loge("get message fail.");
+			continue;
+		}
+
+		pReplySem	= (sem_t*)msg.params[0];
+		pReplyValue = (int*)msg.params[1];
+
 		if(msg.messageId == MUXER_COMMAND_START)
 		{
 			if(p->mStatus == MUXER_STATUS_STARTED)
@@ -125,9 +289,9 @@ static void* EncDataThread(void* arg)
 					sem_post(pReplySem);
 				continue;
 			}
-		
+
 			PostMuxerMessage(p->mMessageQueue);
-			// reset encoder ****** 
+			// reset encoder ******
 			p->mStatus = MUXER_STATUS_STARTED;
 			if(pReplyValue != NULL)
 				*pReplyValue = (int)0;
@@ -137,28 +301,7 @@ static void* EncDataThread(void* arg)
 		} //* end ENC_COMMAND_START.
 		else if(msg.messageId == MUXER_COMMAND_MUX)
 		{
-			int ret;
-
-            /*
-			if(p->pMediaInfo->video.eCodeType == VENC_CODEC_H264)
-			{
-				loge("we should set sps and pps in first frame, do not support it now");
-				//abort();
-			}
-			*/
-
-			//* 1. get the audio and video out buf;
-			if(!p->mGetAudioFrame && p->pAudioConfig)
-			{
-				p->mGetAudioFrame = 1;
-				ret = AudioEncodeCompRequestBuffer(p->pAudioEncComp, &p->pAudioOutBuf);
-				if(ret < 0)
-				{
-					//loge(" request audio encode frame failed");
-					p->mGetAudioFrame = 0;
-				}
-			}
-
+			//* 1. get the video out buf;
 			if(!p->mGetVideoFrame && p->pVideoConfig)
 			{
 				p->mGetVideoFrame = 1;
@@ -170,7 +313,7 @@ static void* EncDataThread(void* arg)
 				}
 			}
 
-			if(!p->mGetVideoFrame && !p->mGetAudioFrame)
+			if(!p->mGetVideoFrame)
 			{
 				//loge("cannot request video and audio frame");
 				usleep(20*1000);
@@ -178,89 +321,46 @@ static void* EncDataThread(void* arg)
                 continue;
 			}
 
-			//* 2. choose a buf send to muxer
-			//logd("audio pts: %lld, video pts: %lld\n", p->pAudioOutBuf.pts, p->pVideoOutBuf.nPts);
-			if((p->mGetVideoFrame && p->mGetAudioFrame && p->pAudioOutBuf.pts < p->pVideoOutBuf.nPts)
-			     || (!p->mGetVideoFrame))
+			packet.buflen = p->pVideoOutBuf.nSize0 + p->pVideoOutBuf.nSize1;
+			packet.length = packet.buflen;
+                
+			if(p->pVideoOutBuf.nSize1 > 0)
 			{
-				
-				packet.buflen = p->pAudioOutBuf.len;
-				packet.length = p->pAudioOutBuf.len;
-				packet.buf = malloc(p->pAudioOutBuf.len);
-				memcpy(packet.buf, p->pAudioOutBuf.pBuf, packet.buflen);
-				packet.pts = p->pAudioOutBuf.pts;
-				packet.type = CDX_MEDIA_AUDIO;
-				packet.streamIndex = 1;
-				if(p->pAudioConfig->nInSamplerate > 0)
-					packet.duration = 1024000 / p->pAudioConfig->nInSamplerate;
-				else
-					packet.duration = 23;
-                
-				//logv("audio packet length(%d)", packet.length);
-                
-                if (p->mEncDataCallBackOps && p->mEncDataCallBackOps->onAudioDataEnc)
-                    p->mEncDataCallBackOps->onAudioDataEnc(p->mApp,&packet);
-
-
-				// set audioBuf to NULL
-				AudioEncodeCompReturnBuffer(p->pAudioEncComp, &p->pAudioOutBuf);
-				p->mGetAudioFrame = 0;
+    			packet.buf = malloc(packet.buflen);
+    			memcpy(packet.buf, p->pVideoOutBuf.pData0, p->pVideoOutBuf.nSize0);
+				memcpy((char*)packet.buf + p->pVideoOutBuf.nSize0, p->pVideoOutBuf.pData1, p->pVideoOutBuf.nSize1);
 			}
 			else
 			{			    
-				packet.buflen = p->pVideoOutBuf.nSize0 + p->pVideoOutBuf.nSize1;
-				packet.length = packet.buflen;
-				packet.buf = malloc(packet.buflen);
-				memcpy(packet.buf, p->pVideoOutBuf.pData0, p->pVideoOutBuf.nSize0);
-				if(p->pVideoOutBuf.nSize1 > 0)
-				{
-					memcpy((char*)packet.buf + p->pVideoOutBuf.nSize0, p->pVideoOutBuf.pData1, p->pVideoOutBuf.nSize1);
-				}
-				packet.pts = p->pVideoOutBuf.nPts;
-				packet.type = CDX_MEDIA_VIDEO;
-				packet.streamIndex = 0;
-				packet.duration = 1000 / p->pVideoConfig->nFrameRate ;// 33;
-                
-				//logd("video frame rate(%d)", p->pVideoConfig->nFrameRate);
-				//logd("video packet duration(%lld)", packet.duration);
-				//logv("video packet length(%d)", packet.length);
-
-                if (p->mEncDataCallBackOps && p->mEncDataCallBackOps->onVideoDataEnc)
-                     p->mEncDataCallBackOps->onVideoDataEnc(p->mApp,&packet);
-
-
-				#if SAVE_FRAME
-				if(fwrite(packet.buf, 1, packet.buflen, p->pVideoFile) < (unsigned int)packet.buflen)
-				{
-					loge("+++++++++++++++ fwrite err(%d)", errno);
-				}
-				#endif
-
-				VideoEncodeCompReturnVideoFrame(p->pVideoEncComp, &p->pVideoOutBuf);
-				p->mGetVideoFrame = 0;
+			    packet.buf = p->pVideoOutBuf.pData0;
 			}
+			packet.pts = p->pVideoOutBuf.nPts;
+			packet.type = CDX_MEDIA_VIDEO;
+			packet.streamIndex = 0;
+			packet.duration = 1000 / p->pVideoConfig->nFrameRate ;// 33;
 
-			//logd("write packet type: %d", packet.type);
-			/*if(p->pMuxer)
+            if (p->mEncDataCallBackOps && p->mEncDataCallBackOps->onVideoDataEnc)
+                 p->mEncDataCallBackOps->onVideoDataEnc(p->mApp,&packet);
+
+
+			#if SAVE_FRAME
+			if(fwrite(packet.buf, 1, packet.buflen, p->pVideoFile) < (unsigned int)packet.buflen)
 			{
-				if(CdxMuxerWritePacket(p->pMuxer, &packet) < 0)
-				{
-					loge("+++++++ CdxMuxerWritePacket failed");
-				}
-			}*/
+				loge("+++++++++++++++ fwrite err(%d)", errno);
+			}
+			#endif
+
+			VideoEncodeCompReturnVideoFrame(p->pVideoEncComp, &p->pVideoOutBuf);
+			p->mGetVideoFrame = 0;
 			
-			free(packet.buf);
+            if(p->pVideoOutBuf.nSize1 > 0)
+			    free(packet.buf);
 
 			PostMuxerMessage(p->mMessageQueue);
             continue;
 		} //* end ENC_COMMAND_ENCODE.
 		else if(msg.messageId == MUXER_COMMAND_STOP)
 		{
-			/*if(p->pMuxer)
-			{
-				CdxMuxerWriteTrailer(p->pMuxer);
-			}*/
-			
 			if(pReplyValue != NULL)
 				*pReplyValue = (int)0;
 			if(pReplySem != NULL)
@@ -287,13 +387,6 @@ static void* EncDataThread(void* arg)
 		} //* end ENC_COMMAND_PAUSE.
 		else if(msg.messageId == MUXER_COMMAND_RESET)
 		{
-			/*if(p->pMuxer)
-			{
-				CdxMuxerWriteTrailer(p->pMuxer);
-				CdxMuxerClose(p->pMuxer);
-				p->pMuxer = NULL;
-			}*/
-			
 			if(pReplyValue != NULL)
 				*pReplyValue = 0;
 			sem_post(pReplySem);
@@ -353,6 +446,27 @@ EncDataComp* EncDataCompCreate(void * app)
 	}
 	p->mThreadCreated = 1;
 
+	sem_init(&p->mAudioSemStart, 0, 0);
+	sem_init(&p->mAudioSemStop, 0, 0);
+	sem_init(&p->mAudioSemReset, 0, 0);
+	sem_init(&p->mAudioSemPause, 0, 0);
+	sem_init(&p->mAudioSemQuit, 0, 0);
+	p->mAudioMessageQueue = AwMessageQueueCreate(4);
+	if(NULL == p->mAudioMessageQueue)
+	{
+		loge("create message queue failed");
+		free(p);
+		return NULL;
+	}
+
+	ret = pthread_create(&p->mAudioThreadId, NULL, AudioEncDataThread, p);
+	if(ret != 0)
+	{
+		p->mAudioThreadCreated = 0;
+		return NULL;
+	}
+	p->mAudioThreadCreated = 1;
+
 	#if SAVE_FRAME
 	p->pVideoFile = fopen("/mnt/sdcard/save.es", "wb");
 	if(!p->pVideoFile)
@@ -366,7 +480,6 @@ EncDataComp* EncDataCompCreate(void * app)
 
 int EncDataCompInit(EncDataComp* v,VideoEncodeConfig* videoConfig,AudioEncodeConfig* audioConfig, EncDataCallBackOps *ops)
 {
-	int ret;
 	EncDataCompContext *p = (EncDataCompContext*)v;
 
     p->mEncDataCallBackOps = ops;
@@ -398,29 +511,31 @@ void EncDataCompDestory(EncDataComp * v)
 		pthread_join(p->mThreadId, &status);
 	}
 	
+	if(p->mAudioThreadCreated)
+	{
+		void* status;
+
+		//* send a quit message to quit the main thread.
+		setMessage(&msg, MUXER_COMMAND_QUIT, (uintptr_t)&p->mAudioSemQuit);
+		AwMessageQueuePostMessage(p->mAudioMessageQueue, &msg);
+		SemTimedWait(&p->mAudioSemQuit, -1);
+		pthread_join(p->mAudioThreadId, &status);
+	}
+
 	sem_destroy(&p->mSemStart);
     sem_destroy(&p->mSemStop);
     sem_destroy(&p->mSemReset);
     sem_destroy(&p->mSemPause);
     sem_destroy(&p->mSemQuit);
 
-/*
-    if(p->pMuxer)
-		CdxMuxerClose(p->pMuxer);
-*/
+    sem_destroy(&p->mAudioSemStart);
+    sem_destroy(&p->mAudioSemStop);
+    sem_destroy(&p->mAudioSemReset);
+    sem_destroy(&p->mAudioSemPause);
+    sem_destroy(&p->mAudioSemQuit);
 
-	// stream closed in muxer
-	//if(p->pStream)
-	//	CdxStreamClose(p->pStream);
 	AwMessageQueueDestroy(p->mMessageQueue);
-
-    /*
-	if(p->pOutUrl)
-	 	free(p->pOutUrl);
-
-	if(p->pMediaInfo)
-		free(p->pMediaInfo);
-    */
+	AwMessageQueueDestroy(p->mAudioMessageQueue);
 
 	#if SAVE_FRAME
 	fclose(p->pVideoFile);
@@ -445,6 +560,14 @@ int EncDataCompStart(EncDataComp *v)
 			   (uintptr_t)&p->mStartReply);   //* params[1] = &mStartReply.
 	AwMessageQueuePostMessage(p->mMessageQueue, &msg);
 	SemTimedWait(&p->mSemStart, -1);
+
+	setMessage(&msg,
+			   MUXER_COMMAND_START,		//* message id.
+			   (uintptr_t)&p->mAudioSemStart,	   //* params[0] = &mSemStart.
+			   (uintptr_t)&p->mAudioStartReply);   //* params[1] = &mStartReply.
+	AwMessageQueuePostMessage(p->mAudioMessageQueue, &msg);
+	SemTimedWait(&p->mAudioSemStart, -1);
+
 	return (int)p->mStartReply;
 }
 
@@ -462,6 +585,14 @@ int EncDataCompStop(EncDataComp *v)
 			   (uintptr_t)&p->mStopReply);   //* params[1] = &mStartReply.
 	AwMessageQueuePostMessage(p->mMessageQueue, &msg);
 	SemTimedWait(&p->mSemStop, -1);
+
+	setMessage(&msg,
+			   MUXER_COMMAND_STOP,		//* message id.
+			   (uintptr_t)&p->mAudioSemStop,	   //* params[0] = &mSemStart.
+			   (uintptr_t)&p->mAudioStopReply);   //* params[1] = &mStartReply.
+	AwMessageQueuePostMessage(p->mAudioMessageQueue, &msg);
+	SemTimedWait(&p->mAudioSemStop, -1);
+
 	return (int)p->mStopReply;
 }
 
@@ -479,6 +610,13 @@ int EncDataCompReset(EncDataComp *v)
 			   (uintptr_t)&p->mResetReply);   //* params[1] = &mStartReply.
 	AwMessageQueuePostMessage(p->mMessageQueue, &msg);
 	SemTimedWait(&p->mSemReset, -1);
+
+	setMessage(&msg,
+			   MUXER_COMMAND_RESET,		//* message id.
+			   (uintptr_t)&p->mAudioSemReset,	   //* params[0] = &mSemStart.
+			   (uintptr_t)&p->mAudioResetReply);   //* params[1] = &mStartReply.
+	AwMessageQueuePostMessage(p->mAudioMessageQueue, &msg);
+	SemTimedWait(&p->mAudioSemReset, -1);
 	return (int)p->mResetReply;
 }
 

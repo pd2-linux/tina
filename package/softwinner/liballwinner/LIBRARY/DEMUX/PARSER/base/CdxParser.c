@@ -363,8 +363,8 @@ cdx_void AwParserInit(cdx_void)
 
     AwParserRegister(&asfParserCtor, CDX_PARSER_ASF, &asfKeyInfo);
     AwParserRegister(&movParserCtor, CDX_PARSER_MOV, &movKeyInfo);
-#if (CONFIG_OS != OPTION_OS_LINUX)
-//    AwParserRegister(&remuxParserCtor, CDX_PARSER_REMUX, &remuxKeyInfo);
+#if (CONFIG_HAVE_LIVE555 == OPTION_HAVE_LIVE555)
+    AwParserRegister(&remuxParserCtor, CDX_PARSER_REMUX, &remuxKeyInfo);
 #endif
 #if (CONFIG_PRODUCT != OPTION_PRODUCT_LOUDSPEAKER)
     AwParserRegister(&flvParserCtor, CDX_PARSER_FLV, &flvKeyInfo);

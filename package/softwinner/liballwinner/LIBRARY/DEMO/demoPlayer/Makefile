@@ -116,6 +116,10 @@ endif
 ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI64))
 LoadFlags +=-L../../EXTERNAL/lib64/muslgnueabi
 endif
+
+ifeq ($(CONFIG_HAVE_LIVE555), $(OPTION_HAVE_LIVE555))
+LoadFlags += -llive555
+endif
 ################################################################################
 ## make commands, all/clean/cleanall
 ################################################################################
@@ -141,16 +145,18 @@ cleanall: clean
 #$(ObjectPath)/%.o:%.cpp
 #	$(CPP) $(CompileFlags) -o $@ -c $<
 $(ObjectFiles):$(ObjectPath)/%.o:%.cpp
-	$(CPP) $(CompileFlags) -o $@ -c $<
+	@$(CPP) $(CompileFlags) -o $@ -c $<
+	@echo "CC    $<"
 
 ## link object files to the target share library.
 $(Target):$(ObjectFiles)
 #	echo $(LoadFlags)
-	$(CPP) -o $@ $^ $(LoadFlags) 
+	@$(CPP) -o $@ $^ $(LoadFlags) 
+	@echo "LD    $@"
 
 ## set rules to generate .d files.
 $(DependFilePath)/%.d:%.cpp
-	set -e; rm -f $@; \
+	@set -e; rm -f $@; \
 	$(CPP) -MM $(CompileFlags) $< > $@.$$$$; \
 	sed 's,\($*\)\.o[:]*,$(ObjectPath)/\1.o $@: ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$

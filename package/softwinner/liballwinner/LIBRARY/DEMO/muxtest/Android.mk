@@ -9,22 +9,18 @@ LOCAL_MODULE_TAGS := optional
 DEMUX_PATH = $(LOCAL_PATH)/../..
 LIBRARY_PATH = $(DEMUX_PATH)/..
 
-LOCAL_SRC_FILES:= testMp4Muxer.c \
+LOCAL_SRC_FILES:= MuxerWriter.c testVideoMuxer.c \
 									
 
 LOCAL_C_INCLUDES := \
   $(LOCAL_PATH) \
   $(DEMUX_PATH)/BASE/include \
-  $(DEMUX_PATH)/STREAM/include \
-  $(DEMUX_PATH)/PARSER/include \
-$(DEMUX_PATH)/MUXER/include \
-  $(DEMUX_PATH)/PARSER/mov \
+  $(DEMUX_PATH)/MUXER/include \
 	$(LIBRARY_PATH) \
 	$(LIBRARY_PATH)/CODEC/VIDEO/ENCODER/include/ \
-$(LIBRARY_PATH)/CODEC/AUDIO/ENCODER/include/ \
-$(LIBRARY_PATH)/CODEC/VIDEO/DECODER/include/ \
-$(LIBRARY_PATH)/CODEC/AUDIO/DECODER/include/ \
-$(LIBRARY_PATH)/CODEC/SUBTITLE/DECODER/include/ \
+  $(LIBRARY_PATH)/CODEC/AUDIO/ENCODER/include/ \
+
+
 
 
 LOCAL_SHARED_LIBRARIES := \
@@ -33,13 +29,11 @@ LOCAL_SHARED_LIBRARIES := \
 	libVE \
 	libMemAdapter \
 	libvencoder \
+	libaencoder \
 	libcdx_muxer \
-	libcdx_stream \
-	libcdx_parser \
 	libcdx_base \
-        libcdx_muxer
 
-LOCAL_MODULE:= demoMp4Muxer
+LOCAL_MODULE:= muxerdemo
 
 include $(BUILD_EXECUTABLE)
 

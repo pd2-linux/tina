@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : cache.cpp
+ * Description : cache
+ * History :
+ *
+ */
+
 
 #include <unistd.h>
 #include <stdlib.h>

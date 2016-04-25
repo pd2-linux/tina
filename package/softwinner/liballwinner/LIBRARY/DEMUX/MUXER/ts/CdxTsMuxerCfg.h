@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxTsMuxerCfg.h
+ * Description : Allwinner TS Muxer Definition
+ * History :
+ *   Author  : Q Wang <eric_wang@allwinnertech.com>
+ *   Date    : 2014/12/17
+ *   Comment : 创建初始版本，用于V3 CedarX_1.0
+ *
+ *   Author  : GJ Wu <wuguanjian@allwinnertech.com>
+ *   Date    : 2016/04/18
+ *   Comment_: 修改移植用于CedarX_2.0
+ */
+
 #ifndef CDX_TS_MUXER_CFG_H
 #define CDX_TS_MUXER_CFG_H
 

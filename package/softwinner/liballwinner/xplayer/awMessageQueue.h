@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : awMessageQueue.h
+ * Description : MessageQueue
+ * History :
+ *
+ */
+
 
 #ifndef MESSAGE_QUEUE_H
 #define MESSAGE_QUEUE_H

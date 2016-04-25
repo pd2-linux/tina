@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : AwTypes.h
+ * Description : Types
+ * History :
+ *
+ */
+
 #ifndef AW_TYPES_H
 #define AW_TYPES_H
 

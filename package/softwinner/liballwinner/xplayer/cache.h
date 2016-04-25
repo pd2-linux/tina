@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : cache.h
+ * Description : cache
+ * History :
+ *
+ */
+
 
 #ifndef CACHE_H
 #define CACHE_H

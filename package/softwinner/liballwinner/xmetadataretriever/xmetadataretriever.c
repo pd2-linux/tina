@@ -135,7 +135,11 @@ static int save_bmp_rgb565(FILE* fp, int width, int height, unsigned char* pData
 	size = get_rgb565_header(width, height, &head, &info);
 	if(size > 0)
 	{
-		fwrite(head.bfType,1,14,fp);
+        fwrite(head.bfType,1,2,fp);
+        fwrite(&head.bfSize,1,4,fp);
+        fwrite(&head.bfReserved1,1,4,fp);
+        fwrite(&head.bfOffBits,1,4,fp);
+
 		fwrite(&info,1,sizeof(info), fp);
 		fwrite(pData,1,size, fp);
 		success = 1;
@@ -352,6 +356,7 @@ AwRetriever* AwRetrieverCreate()
     p->memops = MemAdapterGetOpsS();
     if(p->memops == NULL)
     {
+        free(p);
     	return NULL;
     }
     CdcMemOpen(p->memops);

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : awMessageQueue.cpp
+ * Description : MessageQueue
+ * History :
+ *
+ */
+
 
 #include <unistd.h>
 #include <stdlib.h>

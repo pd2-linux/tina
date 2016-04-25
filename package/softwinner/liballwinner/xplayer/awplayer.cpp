@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : awplayer.cpp
+ * Description : player
+ * History :
+ *
+ */
+
 
 #include "awplayer.h"
 #include "log.h"
@@ -8,7 +18,6 @@
 #include "demuxComponent.h"
 #include "awMessageQueue.h"
 #include "memoryAdapter.h"
-
 
 //* player status.
 static const int AWPLAYER_STATUS_IDLE        = 0;
@@ -39,6 +48,7 @@ static const int AWPLAYER_MESSAGE_PLAYER_SUBTITLE_EXPIRED   = 0x204;
 static const int AWPLAYER_MESSAGE_PLAYER_VIDEO_PIC_DATA     = 0x205;
 static const int AWPLAYER_MESSAGE_PLAYER_AUDIO_PCM_DATA     = 0x206;
 
+static const int AWPLAYER_MESSAGE_PLAYER_VIDEO_RENDER_FRAME       = 0x20d;
 
 
 //* command id.
@@ -52,13 +62,15 @@ static const int AWPLAYER_COMMAND_PAUSE         = 0x107;
 static const int AWPLAYER_COMMAND_RESET         = 0x108;
 static const int AWPLAYER_COMMAND_QUIT          = 0x109;
 static const int AWPLAYER_COMMAND_SEEK          = 0x10a;
-static const int AWPLAYER_COMMAND_SET_VOLUME	= 0x10b;
+static const int AWPLAYER_COMMAND_SET_VOLUME    = 0x10b;
+static const int AWPLAYER_COMMAND_SETSPEED      = 0x10c;
+
 
 static void* AwPlayerThread(void* arg);
 static int DemuxCallbackProcess(void* pUserData, int eMessageId, void* param);
 static int PlayerCallbackProcess(void* pUserData, int eMessageId, void* param);
-static int transformPictureMb32ToRGB(VideoPicture* pPicture, unsigned char* pData, int nWidth, int nHeight);
-
+static int transformPictureMb32ToRGB(VideoPicture* pPicture,
+                            unsigned char* pData, int nWidth, int nHeight);
 
 AwPlayer::AwPlayer()
 {
@@ -72,7 +84,7 @@ AwPlayer::AwPlayer()
     mLoop           = 0;
     mMediaInfo      = NULL;
     mMessageQueue   = NULL;
-    mVolume			= 0;
+    mVolume            = 0;
     
     pthread_mutex_init(&mMutex, NULL);
     sem_init(&mSemSetDataSource, 0, 0);
@@ -83,6 +95,7 @@ AwPlayer::AwPlayer()
     sem_init(&mSemReset, 0, 0);
     sem_init(&mSemQuit, 0, 0);
     sem_init(&mSemSeek, 0, 0);
+    sem_init(&mSemSetSpeed, 0, 0);
     sem_init(&mSemPrepareFinish, 0, 0); //* for signal prepare finish, used in prepare().
     sem_init(&mSemSetVolume, 0, 0);
     
@@ -103,8 +116,11 @@ AwPlayer::AwPlayer()
         mThreadCreated = 1;
     else
         mThreadCreated = 0;
-}
 
+    mSpeed = 1;
+	mbFast = 0;
+	mFastTime = 0;
+}
 
 AwPlayer::~AwPlayer()
 {
@@ -142,8 +158,9 @@ AwPlayer::~AwPlayer()
     sem_destroy(&mSemReset);
     sem_destroy(&mSemQuit);
     sem_destroy(&mSemSeek);
+    sem_destroy(&mSemSetSpeed);
     sem_destroy(&mSemPrepareFinish);
-	sem_destroy(&mSemSetVolume);
+    sem_destroy(&mSemSetVolume);
     
     if(mMediaInfo != NULL)
         clearMediaInfo();
@@ -151,7 +168,6 @@ AwPlayer::~AwPlayer()
     if(mSourceUrl != NULL)
         free(mSourceUrl);
 }
-
 
 int AwPlayer::initCheck()
 {
@@ -166,7 +182,6 @@ int AwPlayer::initCheck()
         return 0;
 }
 
-
 int AwPlayer::setNotifyCallback(NotifyCallback notifier, void* pUserData)
 {
     mNotifier = notifier;
@@ -174,13 +189,11 @@ int AwPlayer::setNotifyCallback(NotifyCallback notifier, void* pUserData)
     return 0;
 }
 
-
 int AwPlayer::setControlOps(LayerControlOpsT* pLayerCtlOps, SoundControlOpsT* pSoundCtlOps)
 {
-	PlayerSetControlOps(mPlayer, pLayerCtlOps, pSoundCtlOps);
-	return 0;
+    PlayerSetControlOps(mPlayer, pLayerCtlOps, pSoundCtlOps);
+    return 0;
 }
-
 
 #if CONFIG_OS == OPTION_OS_ANDROID
 status_t AwPlayer::setDataSource(const char* pUrl, const KeyedVector<String8, String8>* pHeaders)
@@ -203,15 +216,14 @@ int AwPlayer::setDataSource(const char* pUrl, const map<string, string>* pHeader
                AWPLAYER_COMMAND_SET_SOURCE,             //* message id.
                (unsigned int)&mSemSetDataSource,        //* params[0] = &mSemSetDataSource.
                (unsigned int)&mSetDataSourceReply,      //* params[1] = &mSetDataSourceReply.
-               SOURCE_TYPE_URL,                         //* params[2] = SOURCE_TYPE_URL.
-               (unsigned int)pUrl,                      //* params[3] = pUrl.
-               (unsigned int)pHeaders);                 //* params[4] = KeyedVector<String8, String8>* pHeaders;
+               SOURCE_TYPE_URL,          //* params[2] = SOURCE_TYPE_URL.
+               (unsigned int)pUrl,       //* params[3] = pUrl.
+               (unsigned int)pHeaders);  //* params[4] = KeyedVector<String8, String8>* pHeaders;
     AwMessageQueuePostMessage(mMessageQueue, &msg);
     SemTimedWait(&mSemSetDataSource, -1);
     
     return mSetDataSourceReply;
 }
-
 
 int AwPlayer::prepareAsync()
 {
@@ -229,7 +241,6 @@ int AwPlayer::prepareAsync()
     SemTimedWait(&mSemPrepare, -1);
     return mPrepareReply;
 }
-
 
 int AwPlayer::prepare()
 {
@@ -259,7 +270,6 @@ int AwPlayer::prepare()
         return mPrepareReply; //* call DemuxCompPrepareAsync() fail, or status error.
 }
 
-
 int AwPlayer::start()
 {
     AwMessage msg;
@@ -275,7 +285,6 @@ int AwPlayer::start()
     SemTimedWait(&mSemStart, -1);
     return mStartReply;
 }
-
 
 int AwPlayer::stop()
 {
@@ -293,7 +302,6 @@ int AwPlayer::stop()
     return mStopReply;
 }
 
-
 int AwPlayer::pause()
 {
     AwMessage msg;
@@ -309,7 +317,6 @@ int AwPlayer::pause()
     SemTimedWait(&mSemPause, -1);
     return mPauseReply;
 }
-
 
 int AwPlayer::seekTo(int msec)
 {
@@ -329,6 +336,34 @@ int AwPlayer::seekTo(int msec)
     return mSeekReply;
 }
 
+int AwPlayer::setSpeed(int nSpeed)
+{
+    AwMessage msg;
+
+    logw("set speed %d...", nSpeed);
+    mSpeed = nSpeed;
+    //PlayerSetSpeed(mPlayer, nSpeed);
+
+    if(nSpeed == 1)
+    {
+    	mbFast = 0;
+    	mSpeed = 1;
+    	mFastTime = 0;
+    	start();
+        PlayerSetDiscardAudio(mPlayer, 0);
+        return 0;
+    }
+
+    //* send a start message.
+    setMessage(&msg,
+               AWPLAYER_COMMAND_SETSPEED,       //* message id.
+               (uintptr_t)&mSemSetSpeed,     //* params[0] = &mSemReset.
+               (uintptr_t)&mSetSpeedReply,
+               nSpeed);                      //* params[2] = speed.
+    AwMessageQueuePostMessage(mMessageQueue, &msg);
+    SemTimedWait(&mSemSetSpeed, -1);
+    return mSetSpeedReply;
+}
 
 int AwPlayer::reset()
 {
@@ -346,17 +381,15 @@ int AwPlayer::reset()
     return mResetReply;
 }
 
-
 int AwPlayer::isPlaying()
 {
     logv("isPlaying");
     if(mStatus == AWPLAYER_STATUS_STARTED || 
-    	(mStatus == AWPLAYER_STATUS_COMPLETE && mLoop != 0))
+        (mStatus == AWPLAYER_STATUS_COMPLETE && mLoop != 0))
         return 1;
     else
         return 0;
 }
-
 
 int AwPlayer::getCurrentPosition(int* msec)
 {
@@ -378,10 +411,11 @@ int AwPlayer::getCurrentPosition(int* msec)
         pthread_mutex_lock(&mMutex);    //* in complete status, the prepare() method maybe called
         if(mMediaInfo != NULL)
         {
-            if(mMediaInfo->eContainerType == CONTAINER_TYPE_TS || mMediaInfo->eContainerType == CONTAINER_TYPE_BD)
+            if(mMediaInfo->eContainerType == CONTAINER_TYPE_TS ||
+                mMediaInfo->eContainerType == CONTAINER_TYPE_BD)
                 nPositionUs = PlayerGetPosition(mPlayer); //* ts stream's pts is not started at 0.
             else
-                nPositionUs = PlayerGetPts(mPlayer);      //* generally, stream pts is started at 0 except ts stream.
+                nPositionUs = PlayerGetPts(mPlayer);
             *msec = (nPositionUs + 500)/1000;
             pthread_mutex_unlock(&mMutex);
             return 0;
@@ -404,7 +438,6 @@ int AwPlayer::getCurrentPosition(int* msec)
     }
 }
 
-
 int AwPlayer::getDuration(int *msec)
 {
     logv("getDuration");
@@ -415,7 +448,7 @@ int AwPlayer::getDuration(int *msec)
        mStatus == AWPLAYER_STATUS_STOPPED  ||
        mStatus == AWPLAYER_STATUS_COMPLETE)
     {
-        pthread_mutex_lock(&mMutex);    //* in complete status, the prepare() method maybe called and 
+        pthread_mutex_lock(&mMutex);
         if(mMediaInfo != NULL)
             *msec = mMediaInfo->nDurationMs;
         else
@@ -432,7 +465,6 @@ int AwPlayer::getDuration(int *msec)
         return -1;
     }
 }
-
 
 int AwPlayer::setLooping(int loop)
 {
@@ -515,7 +547,8 @@ int AwPlayer::initializePlayer()
             nDefaultAudioIndex = 0;
         }
 
-        ret = PlayerSetAudioStreamInfo(mPlayer, mi->pAudioStreamInfo, mi->nAudioStreamNum, nDefaultAudioIndex);
+        ret = PlayerSetAudioStreamInfo(mPlayer, mi->pAudioStreamInfo,
+                                mi->nAudioStreamNum, nDefaultAudioIndex);
         if(ret != 0)
         {
             logw("PlayerSetAudioStreamInfo() fail, audio stream not supported.");
@@ -550,12 +583,15 @@ int AwPlayer::initializePlayer()
             nDefaultSubtitleIndex = 0;
         }
         
-        ret = PlayerSetSubtitleStreamInfo(mPlayer, mi->pSubtitleStreamInfo, mi->nSubtitleStreamNum, nDefaultSubtitleIndex);
+        ret = PlayerSetSubtitleStreamInfo(mPlayer, mi->pSubtitleStreamInfo,
+                            mi->nSubtitleStreamNum, nDefaultSubtitleIndex);
         if(ret != 0)
         {
             logw("PlayerSetSubtitleStreamInfo() fail, subtitle stream not supported.");
         }
     }
+#else
+    void(nDefaultSubtitleIndex);
 #endif
     
     //* report not seekable.
@@ -574,7 +610,6 @@ int AwPlayer::initializePlayer()
     pthread_mutex_unlock(&mMutex);
     return 0;
 }
-
 
 void AwPlayer::clearMediaInfo()
 {
@@ -645,7 +680,6 @@ void AwPlayer::clearMediaInfo()
     return;
 }
 
-
 int AwPlayer::mainThread()
 {
     AwMessage            msg;
@@ -674,8 +708,8 @@ int AwPlayer::mainThread()
                 if(pReplyValue != NULL)
                     *pReplyValue = -1;
                 if(pReplySem != NULL)
-		            sem_post(pReplySem);
-		        continue;
+                    sem_post(pReplySem);
+                continue;
             }
             
             if((int)msg.params[2] == SOURCE_TYPE_URL)
@@ -719,8 +753,8 @@ int AwPlayer::mainThread()
             }
             
             if(pReplySem != NULL)
-		        sem_post(pReplySem);
-		    continue;
+                sem_post(pReplySem);
+            continue;
         } //* end AWPLAYER_COMMAND_SET_SOURCE.
         else if(msg.messageId == AWPLAYER_COMMAND_PREPARE)
         {
@@ -732,8 +766,8 @@ int AwPlayer::mainThread()
                 if(pReplyValue != NULL)
                     *pReplyValue = -1;
                 if(pReplySem != NULL)
-		            sem_post(pReplySem);
-		        continue;
+                    sem_post(pReplySem);
+                continue;
             }
     
             mStatus = AWPLAYER_STATUS_PREPARING;
@@ -753,8 +787,8 @@ int AwPlayer::mainThread()
             }
 		    
             if(pReplySem != NULL)
-		        sem_post(pReplySem);
-		    continue;
+                sem_post(pReplySem);
+            continue;
         } //* end AWPLAYER_COMMAND_PREPARE.
         else if(msg.messageId == AWPLAYER_COMMAND_START)
         {
@@ -764,12 +798,13 @@ int AwPlayer::mainThread()
                mStatus != AWPLAYER_STATUS_PAUSED   &&
                mStatus != AWPLAYER_STATUS_COMPLETE)
             {
-                logv("invalid start() call, player not in prepared, started, paused or complete status.");
+                logv("invalid start() call, player not in prepared, \
+                        started, paused or complete status.");
                 if(pReplyValue != NULL)
                     *pReplyValue = -1;
                 if(pReplySem != NULL)
-		            sem_post(pReplySem);
-		        continue;
+                    sem_post(pReplySem);
+                continue;
             }
             
             if(mStatus == AWPLAYER_STATUS_STARTED)
@@ -778,21 +813,21 @@ int AwPlayer::mainThread()
                 if(pReplyValue != NULL)
                     *pReplyValue = 0;
                 if(pReplySem != NULL)
-		            sem_post(pReplySem);
-		        continue;
+                    sem_post(pReplySem);
+                continue;
             }
             
             pthread_mutex_lock(&mMutex);    //* synchronize with the seek or complete callback.
             if(mSeeking)
             {
-                mStatus = AWPLAYER_STATUS_STARTED;  //* player and demux will be started at the seek callback.
+                mStatus = AWPLAYER_STATUS_STARTED;
                 pthread_mutex_unlock(&mMutex);
                 
                 if(pReplyValue != NULL)
                     *pReplyValue = 0;
                 if(pReplySem != NULL)
-		            sem_post(pReplySem);
-		        continue;
+                    sem_post(pReplySem);
+                continue;
             }
     
             //* for complete status, we seek to the begin of the file.
@@ -804,41 +839,41 @@ int AwPlayer::mainThread()
                 {
                     setMessage(&newMsg, 
                                AWPLAYER_COMMAND_SEEK,   //* message id.
-                               0,                       //* params[0] = &mSemSeek, internal message, do not post.
-                               0,                       //* params[1] = &mSeekReply, internal message, do not set reply.
-                               0,                       //* params[2] = mSeekTime(ms).
-                               1);                      //* params[3] = mSeekSync.
+                               0,  //* params[0] = &mSemSeek, internal message, do not post.
+                               0,  //* params[1] = &mSeekReply, internal message, do not set reply.
+                               0,  //* params[2] = mSeekTime(ms).
+                               1); //* params[3] = mSeekSync.
                     AwMessageQueuePostMessage(mMessageQueue, &newMsg);
                 
                     pthread_mutex_unlock(&mMutex);
                     if(pReplyValue != NULL)
                         *pReplyValue = 0;
                     if(pReplySem != NULL)
-		                sem_post(pReplySem);
-		            continue;
+                        sem_post(pReplySem);
+                    continue;
                 }
                 else
                 {
                     //* post a stop message.
                     setMessage(&newMsg, 
                                AWPLAYER_COMMAND_STOP,   //* message id.
-                               0,                       //* params[0] = &mSemStop, internal message, do not post.
-                               0);                      //* params[1] = &mStopReply, internal message, do not reply.
+                               0,   //* params[0] = &mSemStop, internal message, do not post.
+                               0);  //* params[1] = &mStopReply, internal message, do not reply.
                     AwMessageQueuePostMessage(mMessageQueue, &newMsg);
                     
                     //* post a prepare message.
                     setMessage(&newMsg, 
                                AWPLAYER_COMMAND_PREPARE,    //* message id.
-                               0,                           //* params[0] = &mSemPrepare, internal message, do not post.
-                               0,                           //* params[1] = &mPrepareReply, internal message, do not reply.
-                               1);                          //* params[2] = mPrepareSync.
+                               0,    //* params[0] = &mSemPrepare, internal message, do not post.
+                               0,    //* params[1] = &mPrepareReply, internal message, do not reply.
+                               1);   //* params[2] = mPrepareSync.
                     AwMessageQueuePostMessage(mMessageQueue, &newMsg);
                     
                     //* post a start message.
                     setMessage(&newMsg, 
                                AWPLAYER_COMMAND_START,      //* message id.
-                               0,                           //* params[0] = &mSemStart, internal message, do not post.
-                               0);                          //* params[1] = &mStartReply, internal message, do not reply.
+                               0,    //* params[0] = &mSemStart, internal message, do not post.
+                               0);   //* params[1] = &mStartReply, internal message, do not reply.
                     AwMessageQueuePostMessage(mMessageQueue, &newMsg);
                 
                     //* should I reply OK to the user at this moment?
@@ -848,8 +883,8 @@ int AwPlayer::mainThread()
                     if(pReplyValue != NULL)
                         *pReplyValue = 0;
                     if(pReplySem != NULL)
-		                sem_post(pReplySem);
-		            continue;
+                        sem_post(pReplySem);
+                    continue;
                 }
             }
             
@@ -861,8 +896,8 @@ int AwPlayer::mainThread()
             if(pReplyValue != NULL)
                 *pReplyValue = 0;
             if(pReplySem != NULL)
-		        sem_post(pReplySem);
-		    continue;
+                sem_post(pReplySem);
+            continue;
 		    
         } //* end AWPLAYER_COMMAND_START.
         else if(msg.messageId == AWPLAYER_COMMAND_STOP)
@@ -872,14 +907,16 @@ int AwPlayer::mainThread()
                mStatus != AWPLAYER_STATUS_STARTED  &&
                mStatus != AWPLAYER_STATUS_PAUSED   &&
                mStatus != AWPLAYER_STATUS_COMPLETE &&
+               mStatus != AWPLAYER_STATUS_PREPARING &&
                mStatus != AWPLAYER_STATUS_STOPPED)
             {
-                logv("invalid stop() call, player not in prepared, paused, started, stopped or complete status.");
+                logv("invalid stop() call, player not in prepared, \
+                        paused, started, stopped or complete status.");
                 if(pReplyValue != NULL)
                     *pReplyValue = -1;
                 if(pReplySem != NULL)
-		            sem_post(pReplySem);
-		        continue;
+                    sem_post(pReplySem);
+                continue;
             }
             
             if(mStatus == AWPLAYER_STATUS_STOPPED)
@@ -888,12 +925,12 @@ int AwPlayer::mainThread()
                 if(pReplyValue != NULL)
                     *pReplyValue = 0;
                 if(pReplySem != NULL)
-		            sem_post(pReplySem);
-		        continue;
+                    sem_post(pReplySem);
+                continue;
             }
             
-            if(mStatus == AWPLAYER_STATUS_PREPARING)    //* the prepare callback may happen at this moment.
-            {                                           //* so the mStatus may be changed to PREPARED asynchronizely.
+            if(mStatus == AWPLAYER_STATUS_PREPARING)
+            {           //* so the mStatus may be changed to PREPARED asynchronizely.
                 logw("stop() called at preparing status, cancel demux prepare.");
                 DemuxCompCancelPrepare(mDemux);
             }
@@ -911,9 +948,85 @@ int AwPlayer::mainThread()
             if(pReplyValue != NULL)
                 *pReplyValue = 0;
             if(pReplySem != NULL)
+                sem_post(pReplySem);
+            continue;
+        } //* end AWPLAYER_COMMAND_STOP.
+        else if(msg.messageId == AWPLAYER_COMMAND_SETSPEED)
+        {
+            logd("process message AWPLAYER_COMMAND_SETSPEED.");
+            if(mStatus != AWPLAYER_STATUS_PREPARED &&
+               mStatus != AWPLAYER_STATUS_STARTED )
+            {
+                logd("invalid start() call, player not in prepared, \
+                        started, paused or complete status.");
+                if(pReplyValue != NULL)
+                    *pReplyValue = -1;
+                if(pReplySem != NULL)
+		            sem_post(pReplySem);
+		        continue;
+            }
+
+		    if(mMediaInfo == NULL || mMediaInfo->bSeekable == 0)
+            {
+                if(mMediaInfo == NULL)
+                {
+                    loge("setspeed fail because mMediaInfo == NULL.");
+                    if(pReplyValue != NULL)
+                        *pReplyValue = -1;
+                    if(pReplySem != NULL)
+		                sem_post(pReplySem);
+		            continue;
+                }
+                else
+                {
+                    loge("media not seekable. cannot fast");
+                    if(pReplyValue != NULL)
+                        *pReplyValue = 0;
+                    if(pReplySem != NULL)
+		                sem_post(pReplySem);
+		            continue;
+                }
+            }
+
+            if(mSeeking)
+            {
+                DemuxCompCancelSeek(mDemux);
+                mSeeking = 0;
+            }
+
+            //pthread_mutex_lock(&mMutex);
+
+            int curTime;
+            getCurrentPosition(&curTime);
+
+            mSeeking  = 1;
+            mbFast = 1;
+            mFastTime = curTime + mSpeed*1000;
+            mSeekTime = mFastTime;
+            mSeekSync = 0;
+            logd("mFastTime %d ms, curTime: %d, mSpeed: %d",
+                mFastTime, curTime, mSpeed);
+            //pthread_mutex_unlock(&mMutex);
+
+			//PlayerFastForeward(mPlayer);
+            PlayerSetDiscardAudio(mPlayer, 1);
+
+            if(PlayerGetStatus(mPlayer) == PLAYER_STATUS_STOPPED)
+            {
+                //* if in prepared status, the player is in stopped status,
+                //* this will make the player not record the nSeekTime at PlayerReset() operation
+                //* called at seek finish callback.
+                PlayerStart(mPlayer);
+            }
+            PlayerPause(mPlayer);
+            DemuxCompSeekTo(mDemux, mSeekTime);
+
+            if(pReplyValue != NULL)
+                *pReplyValue = 0;
+            if(pReplySem != NULL)
 		        sem_post(pReplySem);
 		    continue;
-        } //* end AWPLAYER_COMMAND_STOP.
+        }
         else if(msg.messageId == AWPLAYER_COMMAND_PAUSE)
         {
             logv("process message AWPLAYER_COMMAND_PAUSE.");
@@ -925,8 +1038,8 @@ int AwPlayer::mainThread()
                 if(pReplyValue != NULL)
                     *pReplyValue = -1;
                 if(pReplySem != NULL)
-		            sem_post(pReplySem);
-		        continue;
+                    sem_post(pReplySem);
+                continue;
             }
             
             if(mStatus == AWPLAYER_STATUS_PAUSED || mStatus == AWPLAYER_STATUS_COMPLETE)
@@ -935,22 +1048,22 @@ int AwPlayer::mainThread()
                 if(pReplyValue != NULL)
                     *pReplyValue = 0;
                 if(pReplySem != NULL)
-		            sem_post(pReplySem);
-		        continue;
+                    sem_post(pReplySem);
+                continue;
             }
     
-            pthread_mutex_lock(&mMutex);        //* synchronize with the seek callback.
+            pthread_mutex_lock(&mMutex);  //* synchronize with the seek callback.
     
             if(mSeeking)
             {
-                mStatus = AWPLAYER_STATUS_PAUSED;  //* player and demux will be paused at the seek callback.
+                mStatus = AWPLAYER_STATUS_PAUSED;
                 pthread_mutex_unlock(&mMutex);
                 
                 if(pReplyValue != NULL)
                     *pReplyValue = 0;
                 if(pReplySem != NULL)
-		            sem_post(pReplySem);
-		        continue;
+                    sem_post(pReplySem);
+                continue;
             }
             
             pthread_mutex_unlock(&mMutex);  //* sync with the seek or complete call back.
@@ -961,15 +1074,16 @@ int AwPlayer::mainThread()
             if(pReplyValue != NULL)
                 *pReplyValue = 0;
             if(pReplySem != NULL)
-		        sem_post(pReplySem);
-		    continue;
+                sem_post(pReplySem);
+            continue;
         } //* end AWPLAYER_COMMAND_PAUSE.
         else if(msg.messageId == AWPLAYER_COMMAND_RESET)
         {
             logv("process message AWPLAYER_COMMAND_RESET.");
-            if(mStatus == AWPLAYER_STATUS_PREPARING)    //* the prepare callback may happen at this moment.
-            {                                           //* so the mStatus may be changed to PREPARED asynchronizely.
-                logw("reset() called at preparing status, cancel demux prepare.");
+            if(mStatus == AWPLAYER_STATUS_PREPARING)
+            {    //* so the mStatus may be changed to PREPARED asynchronizely.
+                logw("reset() called at preparing status, \
+                            cancel demux prepare.");
                 DemuxCompCancelPrepare(mDemux);
             }
             
@@ -980,8 +1094,8 @@ int AwPlayer::mainThread()
             }
     
             //* stop and clear the demux.
-            DemuxCompStop(mDemux);  //* this will stop the seeking if demux is currently processing seeking message.
-            DemuxCompClear(mDemux); //* it will clear the data source keep inside, this is important for the IStreamSource.
+            DemuxCompStop(mDemux);
+            DemuxCompClear(mDemux);
     
             //* stop and clear the player.
             PlayerStop(mPlayer);
@@ -1006,8 +1120,8 @@ int AwPlayer::mainThread()
             if(pReplyValue != NULL)
                 *pReplyValue = 0;
             if(pReplySem != NULL)
-		        sem_post(pReplySem);
-		    continue;
+                sem_post(pReplySem);
+            continue;
         }
         else if(msg.messageId == AWPLAYER_COMMAND_SEEK)
         {
@@ -1017,12 +1131,13 @@ int AwPlayer::mainThread()
                mStatus != AWPLAYER_STATUS_PAUSED   &&
                mStatus != AWPLAYER_STATUS_COMPLETE)
             {
-                logv("invalid seekTo() call, player not in prepared, started, paused or complete status.");
+                logv("invalid seekTo() call, player not in prepared,\
+                        started, paused or complete status.");
                 if(pReplyValue != NULL)
                     *pReplyValue = -1;
                 if(pReplySem != NULL)
-		            sem_post(pReplySem);
-		        continue;
+                    sem_post(pReplySem);
+                continue;
             }
             
             if(mMediaInfo == NULL || mMediaInfo->bSeekable == 0)
@@ -1033,8 +1148,8 @@ int AwPlayer::mainThread()
                     if(pReplyValue != NULL)
                         *pReplyValue = -1;
                     if(pReplySem != NULL)
-		                sem_post(pReplySem);
-		            continue;
+                        sem_post(pReplySem);
+                    continue;
                 }
                 else
                 {
@@ -1042,8 +1157,8 @@ int AwPlayer::mainThread()
                     if(pReplyValue != NULL)
                         *pReplyValue = -1;
                     if(pReplySem != NULL)
-		                sem_post(pReplySem);
-		            continue;
+                        sem_post(pReplySem);
+                    continue;
                 }
             }
             
@@ -1069,16 +1184,16 @@ int AwPlayer::mainThread()
             if(pReplyValue != NULL)
                 *pReplyValue = 0;
             if(pReplySem != NULL)
-		        sem_post(pReplySem);
-		    continue;
+                sem_post(pReplySem);
+            continue;
         } //* end AWPLAYER_COMMAND_SEEK.
         else if(msg.messageId == AWPLAYER_COMMAND_QUIT)
         {
             if(pReplyValue != NULL)
                 *pReplyValue = 0;
             if(pReplySem != NULL)
-		        sem_post(pReplySem);
-		    break;  //* break the thread.
+                sem_post(pReplySem);
+            break;  //* break the thread.
         }
         else if(msg.messageId == AWPLAYER_COMMAND_SET_VOLUME)
         {
@@ -1088,23 +1203,24 @@ int AwPlayer::mainThread()
                mStatus != AWPLAYER_STATUS_PAUSED   &&
                mStatus != AWPLAYER_STATUS_COMPLETE)
             {
-                logv("invalid setVolume() call, player not in prepared, started, paused or complete status.");
+                logv("invalid setVolume() call, player not in prepared, \
+                            started, paused or complete status.");
                 if(pReplyValue != NULL)
                     *pReplyValue = -1;
                 if(pReplySem != NULL)
-		            sem_post(pReplySem);
-		        continue;
+                    sem_post(pReplySem);
+                continue;
             }
 
-			mVolume = msg.params[2];
+            mVolume = msg.params[2];
 			
-			PlayerSetVolume(mPlayer, mVolume);
+            PlayerSetVolume(mPlayer, mVolume);
 			
             if(pReplyValue != NULL)
                 *pReplyValue = 0;
             if(pReplySem != NULL)
-		        sem_post(pReplySem);
-		    continue;
+                sem_post(pReplySem);
+            continue;
         }
         else
         {
@@ -1114,7 +1230,6 @@ int AwPlayer::mainThread()
     
     return 0;
 }
-
 
 int AwPlayer::callbackProcess(int messageId, void* param)
 {
@@ -1194,7 +1309,8 @@ int AwPlayer::callbackProcess(int messageId, void* param)
             
             nTotalPercentage  = ((int*)param)[0];   //* read positon to total file size.
             nBufferPercentage = ((int*)param)[1];   //* cache data size to start play cache size.
-            mNotifier(mUserData, NOTIFY_BUFFERRING_UPDATE, nBufferPercentage<<16 | nTotalPercentage, NULL);
+            mNotifier(mUserData, NOTIFY_BUFFERRING_UPDATE,
+                            nBufferPercentage<<16 | nTotalPercentage, NULL);
             break;
         }
         
@@ -1226,8 +1342,8 @@ int AwPlayer::callbackProcess(int messageId, void* param)
                 //* send a start message.
                 setMessage(&msg, 
                            AWPLAYER_COMMAND_START,      //* message id.
-                           0,                           //* params[0] = &mSemStart, internal message, do not post message.
-                           0);                          //* params[1] = &mStartReply, internal message, do not reply.
+                           0,   //* params[0] = &mSemStart, internal message, do not post message.
+                           0);  //* params[1] = &mStartReply, internal message, do not reply.
                 AwMessageQueuePostMessage(mMessageQueue, &msg);
             }
             break;
@@ -1244,11 +1360,11 @@ int AwPlayer::callbackProcess(int messageId, void* param)
             int seekResult;
             int seekTimeMs;
             
-            pthread_mutex_lock(&mMutex);    //* be careful to check whether there is any player callback lock the mutex,
-                                            //* if so, the PlayerPause() call may fall into dead lock if the player 
-                                            //* callback is requesting mMutex.
-                                            //* currently we do not lock mMutex in any player callback.
-            
+            //* be careful to check whether there is any player callback lock the mutex,
+            //* if so, the PlayerPause() call may fall into dead lock if the player
+            //* callback is requesting mMutex.
+            //* currently we do not lock mMutex in any player callback.
+            pthread_mutex_lock(&mMutex);
             seekResult = ((int*)param)[0];
             seekTimeMs = ((int*)param)[1];
             
@@ -1292,60 +1408,95 @@ int AwPlayer::callbackProcess(int messageId, void* param)
 
         case AWPLAYER_MESSAGE_DEMUX_DATA_PACKET:
         {
-        	CdxPacketT* packet = (CdxPacketT*)param;
-        	
-        	DemuxData data;
-        	data.nPts   = packet->pts;
-        	data.nSize0 = packet->buflen;
-        	data.pData0 = (unsigned char*)packet->buf;
-        	data.nSize1 = packet->ringBufLen;
-        	data.pData1 = (unsigned char*)packet->ringBuf;
-        	if(packet->type == CDX_MEDIA_VIDEO)
-        	{
-        		mNotifier(mUserData, NOTIFY_VIDEO_PACKET, 0, &data);
-        	}
-        	else if(packet->type == CDX_MEDIA_AUDIO)
-        	{
-        		mNotifier(mUserData, NOTIFY_AUDIO_PACKET, 0, &data);
-        	}
+            CdxPacketT* packet = (CdxPacketT*)param;
+
+            DemuxData data;
+            data.nPts   = packet->pts;
+            data.nSize0 = packet->buflen;
+            data.pData0 = (unsigned char*)packet->buf;
+            data.nSize1 = packet->ringBufLen;
+            data.pData1 = (unsigned char*)packet->ringBuf;
+            if(packet->type == CDX_MEDIA_VIDEO)
+            {
+                mNotifier(mUserData, NOTIFY_VIDEO_PACKET, 0, &data);
+            }
+            else if(packet->type == CDX_MEDIA_AUDIO)
+            {
+                mNotifier(mUserData, NOTIFY_AUDIO_PACKET, 0, &data);
+            }
             break;
         }
 
         case AWPLAYER_MESSAGE_PLAYER_VIDEO_PIC_DATA:
         {
-        	VideoPicture *pic = (VideoPicture*)param;
-        	VideoPicData data;
-        	memset(&data, 0x00, sizeof(VideoPicData));
-        	data.nPts = pic->nPts;
-        	data.nWidth = pic->nWidth;
-        	data.nHeight = pic->nHeight;
-        	data.ePixelFormat = pic->ePixelFormat;
-        	data.nBottomOffset = pic->nBottomOffset;
-        	data.nLeftOffset = pic->nLeftOffset;
-        	data.nRightOffset = pic->nRightOffset;
-        	data.nTopOffset = pic->nTopOffset;
-        	data.pData0 = pic->pData0;
-        	data.pData1 = pic->pData1;
-        	data.pData2 = pic->pData2;
-        	data.phyCBufAddr = pic->phyCBufAddr;
-        	data.phyYBufAddr = pic->phyYBufAddr;
-        	
-			{
-	        	mNotifier(mUserData, NOTIFY_VIDEO_FRAME, 0, &data);	
-	        	break;
-        	}
+            VideoPicture *pic = (VideoPicture*)param;
+            VideoPicData data;
+            memset(&data, 0x00, sizeof(VideoPicData));
+            data.nPts = pic->nPts;
+            data.nWidth = pic->nWidth;
+            data.nHeight = pic->nHeight;
+            data.ePixelFormat = pic->ePixelFormat;
+            data.nBottomOffset = pic->nBottomOffset;
+            data.nLeftOffset = pic->nLeftOffset;
+            data.nRightOffset = pic->nRightOffset;
+            data.nTopOffset = pic->nTopOffset;
+            data.pData0 = pic->pData0;
+            data.pData1 = pic->pData1;
+            data.pData2 = pic->pData2;
+            data.phyCBufAddr = pic->phyCBufAddr;
+            data.phyYBufAddr = pic->phyYBufAddr;
+
+            {
+                mNotifier(mUserData, NOTIFY_VIDEO_FRAME, 0, &data);
+                break;
+            }
         }
 
         case AWPLAYER_MESSAGE_PLAYER_AUDIO_PCM_DATA:
         {
-        	AudioPcmData pcmData;
+            AudioPcmData pcmData;
         	
             pcmData.pData = (unsigned char*)((int*)param)[0];
-        	pcmData.nSize = ((int*)param)[1];
+            pcmData.nSize = ((int*)param)[1];
 
-        	mNotifier(mUserData, NOTIFY_AUDIO_FRAME, 0, &pcmData);
-        	break;
+            mNotifier(mUserData, NOTIFY_AUDIO_FRAME, 0, &pcmData);
+            break;
         }
+
+    	case AWPLAYER_MESSAGE_PLAYER_VIDEO_RENDER_FRAME:
+    		if(mbFast)
+    		{
+    			logd("==== video key frame in fast mode, mFastTime: %d, mSpeed: %d", mFastTime, mSpeed);
+    			if(mSpeed == 0)
+    			{
+    				break;
+    			}
+
+	    		int sleepTime = (mSpeed > 0) ? 2000000/mSpeed : (-2000000/mSpeed);
+	    		//usleep(sleepTime);
+
+				mFastTime += mSpeed*1000;
+				if(mFastTime > 0 && mbFast)
+				{
+		            AwMessage msg;
+
+				    //* send a seek message.
+				    setMessage(&msg,
+				               AWPLAYER_COMMAND_SEEK,        //* message id.
+				               (uintptr_t)&mSemSeek,      //* params[0] = &mSemSeek.
+				               (uintptr_t)&mSeekReply,    //* params[1] = &mSeekReply.
+				               mFastTime,                  //* params[2] = mSeekTime.
+				               0);                           //* params[3] = mSeekSync.
+					AwMessageQueuePostMessage(mMessageQueue, &msg);
+				}
+				else if(mFastTime <= 0)
+				{
+					PlayerSetDiscardAudio(mPlayer, 0);
+					mbFast = 0;
+				}
+			}
+    		break;
+
 
         default:
         {
@@ -1357,14 +1508,12 @@ int AwPlayer::callbackProcess(int messageId, void* param)
     return 0;
 }
 
-
 static void* AwPlayerThread(void* arg)
 {
     AwPlayer* me = (AwPlayer*)arg;
     me->mainThread();
     return NULL;
 }
-
 
 static int DemuxCallbackProcess(void* pUserData, int eMessageId, void* param)
 {
@@ -1396,8 +1545,8 @@ static int DemuxCallbackProcess(void* pUserData, int eMessageId, void* param)
             break;
 
         case DEMUX_NOTIFY_DATA_PACKET:
-        	msg = AWPLAYER_MESSAGE_DEMUX_DATA_PACKET;
-        	break;
+            msg = AWPLAYER_MESSAGE_DEMUX_DATA_PACKET;
+            break;
         default:
             logw("ignore demux callback message, eMessageId = 0x%x.", eMessageId);
             return -1;
@@ -1408,7 +1557,6 @@ static int DemuxCallbackProcess(void* pUserData, int eMessageId, void* param)
     
     return 0;
 }
-
 
 static int PlayerCallbackProcess(void* pUserData, int eMessageId, void* param)
 {
@@ -1432,14 +1580,17 @@ static int PlayerCallbackProcess(void* pUserData, int eMessageId, void* param)
             msg = AWPLAYER_MESSAGE_PLAYER_SUBTITLE_EXPIRED;
             break;
 
-		case PLAYER_NOTIFY_VIDEO_PIC_DATA:
-			msg = AWPLAYER_MESSAGE_PLAYER_VIDEO_PIC_DATA;
-			break;
+        case PLAYER_NOTIFY_VIDEO_PIC_DATA:
+            msg = AWPLAYER_MESSAGE_PLAYER_VIDEO_PIC_DATA;
+            break;
 
-		case PLAYER_NOTIFY_AUDIO_PCM_DATA:
-			msg = AWPLAYER_MESSAGE_PLAYER_AUDIO_PCM_DATA;
-			break;
+        case PLAYER_NOTIFY_AUDIO_PCM_DATA:
+            msg = AWPLAYER_MESSAGE_PLAYER_AUDIO_PCM_DATA;
+            break;
 			
+        case PLAYER_NOTIFY_VIDEO_RENDER_FRAME:
+            msg = AWPLAYER_MESSAGE_PLAYER_VIDEO_RENDER_FRAME;
+            break;
         case PLAYER_NOTIFY_VIDEO_SIZE:              //* TODO
         case PLAYER_NOTIFY_VIDEO_CROP:              //* TODO
         default:
@@ -1453,7 +1604,10 @@ static int PlayerCallbackProcess(void* pUserData, int eMessageId, void* param)
     return 0;
 }
 
-static int transformPictureMb32ToRGB(VideoPicture* pPicture, unsigned char* pData, int nWidth, int nHeight)
+static int transformPictureMb32ToRGB(VideoPicture* pPicture,
+                                                    unsigned char* pData,
+                                                    int nWidth,
+                                                    int nHeight)
 {
     unsigned char*   pClipTable;
     unsigned char*   pClip;
@@ -1498,64 +1652,64 @@ static int transformPictureMb32ToRGB(VideoPicture* pPicture, unsigned char* pDat
     nMbWidth = pPicture->nWidth/32;
     nMbHeight = pPicture->nHeight/32;
 
-	for(nVMb=0; nVMb<nMbHeight;nVMb++)
-	{
-		for(nHMb=0; nHMb<nMbWidth; nHMb++)
-		{
-			pos = nVMb*pPicture->nWidth*32+nHMb*32;
-			for(y=0; y<32; y++)
-			{
-				yPos = (nVMb*nMbWidth+nHMb)*1024+y*32;
-				uvPos = ((nVMb/2)*nMbWidth*1024)+nHMb*1024+(y/2)*32+ (((nVMb%2)==1) ? 512 : 0);
-				for(x=0; x<32; x+=2)
-				{
-					signed y1 = (signed)pSrcY[yPos+x+0] - 16;
-					signed y2 = (signed)pSrcY[yPos+x+1] - 16;
-					signed u  = (signed)pSrcVU[uvPos+x+0] - 128;
-					signed v  = (signed)pSrcVU[uvPos+x+1] - 128;
-					signed u_b = u * 517;
-					signed u_g = -u * 100;
-					signed v_g = -v * 208;
-					signed v_r = v * 409;
-					signed tmp1 = y1 * 298;
-					signed b1 = (tmp1 + u_b) / 256;
-					signed g1 = (tmp1 + v_g + u_g) / 256;
-					signed r1 = (tmp1 + v_r) / 256;
-					signed tmp2 = y2 * 298;
-					signed b2 = (tmp2 + u_b) / 256;
-					signed g2 = (tmp2 + v_g + u_g) / 256;
-					signed r2 = (tmp2 + v_r) / 256;
-					unsigned int rgb1 = ((pClip[r1] >> 3) << 11) |
-										((pClip[g1] >> 2) << 5)  |
-										(pClip[b1] >> 3);
+    for(nVMb=0; nVMb<nMbHeight;nVMb++)
+    {
+        for(nHMb=0; nHMb<nMbWidth; nHMb++)
+        {
+            pos = nVMb*pPicture->nWidth*32+nHMb*32;
+            for(y=0; y<32; y++)
+            {
+                yPos = (nVMb*nMbWidth+nHMb)*1024+y*32;
+                uvPos = ((nVMb/2)*nMbWidth*1024)+nHMb*1024+(y/2)*32+ (((nVMb%2)==1) ? 512 : 0);
+                for(x=0; x<32; x+=2)
+                {
+                    signed y1 = (signed)pSrcY[yPos+x+0] - 16;
+                    signed y2 = (signed)pSrcY[yPos+x+1] - 16;
+                    signed u  = (signed)pSrcVU[uvPos+x+0] - 128;
+                    signed v  = (signed)pSrcVU[uvPos+x+1] - 128;
+                    signed u_b = u * 517;
+                    signed u_g = -u * 100;
+                    signed v_g = -v * 208;
+                    signed v_r = v * 409;
+                    signed tmp1 = y1 * 298;
+                    signed b1 = (tmp1 + u_b) / 256;
+                    signed g1 = (tmp1 + v_g + u_g) / 256;
+                    signed r1 = (tmp1 + v_r) / 256;
+                    signed tmp2 = y2 * 298;
+                    signed b2 = (tmp2 + u_b) / 256;
+                    signed g2 = (tmp2 + v_g + u_g) / 256;
+                    signed r2 = (tmp2 + v_r) / 256;
+                    unsigned int rgb1 = ((pClip[r1] >> 3) << 11) |
+                                        ((pClip[g1] >> 2) << 5)  |
+                                        (pClip[b1] >> 3);
 
-					unsigned int rgb2 = ((pClip[r2] >> 3) << 11) |
-										((pClip[g2] >> 2) << 5)  |
-										(pClip[b2] >> 3);
-					*(unsigned int *)(&pDst[pos]) = (rgb2 << 16) | rgb1;
-					pos += 2;
-				}
-				pos += (nMbWidth-1)*32;
-			}
-		}
-	}
+                    unsigned int rgb2 = ((pClip[r2] >> 3) << 11) |
+                                        ((pClip[g2] >> 2) << 5)  |
+                                        (pClip[b2] >> 3);
+                    *(unsigned int *)(&pDst[pos]) = (rgb2 << 16) | rgb1;
+                    pos += 2;
+                }
+                pos += (nMbWidth-1)*32;
+            }
+        }
+    }
 
-	logd("pos: %d", pos);
-	pDst  = (unsigned short*)pData;
-	for(y=0; y<pPicture->nTopOffset; y++)
-	{
-		memset(pDst+y*nWidth, 0, 2*nWidth);
-	}
-	for(y=pPicture->nBottomOffset; y<nHeight; y++)
-	{
-		memset(pDst+y*nWidth, 0, 2*nWidth);
-	}
+    logd("pos: %d", pos);
+    pDst  = (unsigned short*)pData;
+    for(y=0; y<pPicture->nTopOffset; y++)
+    {
+        memset(pDst+y*nWidth, 0, 2*nWidth);
+    }
+    for(y=pPicture->nBottomOffset; y<nHeight; y++)
+    {
+        memset(pDst+y*nWidth, 0, 2*nWidth);
+    }
 
-	for(y=pPicture->nTopOffset; y<pPicture->nBottomOffset; y++)
-	{
-		memset(pDst+y*nWidth, 0, 2*pPicture->nLeftOffset);
-		memset(pDst+y*nWidth+pPicture->nRightOffset, 0, 2*(nWidth-pPicture->nRightOffset));
-	}
+    for(y=pPicture->nTopOffset; y<pPicture->nBottomOffset; y++)
+    {
+        memset(pDst+y*nWidth, 0, 2*pPicture->nLeftOffset);
+        memset(pDst+y*nWidth+pPicture->nRightOffset, 0, 2*(nWidth-pPicture->nRightOffset));
+    }
 
     free(pClipTable);
 
