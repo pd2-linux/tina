@@ -43,6 +43,12 @@ define uboot/R16-Evb-Board-8723BS
   TITLE:=U-Boot 2011.09 Pre-Built for R16
   CONFIG:=sun8iw5p1
   PROFILE:=evb-8723bs
+endef
+
+define uboot/R16-0la100-Board
+  TITLE:=U-Boot 2011.09 Pre-Built for R16
+  CONFIG:=sun8iw5p1
+  PROFILE:=0la100
 endef  
 
 define uboot/R58-Perf-Board
@@ -67,6 +73,7 @@ UBOOTS:=R16-Evb-Board \
 	R16-Ol0102-Board \
 	R16-Bell-One-Board \
 	R16-Evb-Board-8723BS \
+	R16-0la100-Board \
 	R58-Perf-Board \
 	R58-Banana-Board \
 	A80-Evb-Board-Binary
