@@ -23,4 +23,5 @@ BOOT_IMG=boot.img
 ROOTFS_IMG=rootfs.img
 USR_IMG=usr.img
 
-UPGRADE_SETTING_PATH=/mnt/UDISK/.misc-upgrade/
+#UPGRADE_SETTING_PATH=/mnt/UDISK/.misc-upgrade/
+UPGRADE_SETTING_PATH=/overlay/etc/.misc-upgrade/

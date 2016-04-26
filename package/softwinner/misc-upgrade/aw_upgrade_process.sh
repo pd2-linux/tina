@@ -84,6 +84,17 @@ download_prepare_image(){
         $UPGRADE_SH prepare /tmp $1 $IS_COMPRESS_IMAGE
     fi
 }
+get_args(){
+    [ -f $UPGRADE_SETTING_PATH/.image_path ]     && export LOCAL_IMG_PATH=`cat $UPGRADE_SETTING_PATH/.image_path`
+    [ -f $UPGRADE_SETTING_PATH/.image_compress ] && export IS_COMPRESS_IMAGE=`cat $UPGRADE_SETTING_PATH/.image_compress`
+    [ -f $UPGRADE_SETTING_PATH/.image_domain ]   && export DOMAIN=`cat $UPGRADE_SETTING_PATH/.image_domain`
+    [ -f $UPGRADE_SETTING_PATH/.image_url ]      && export URL=`cat $UPGRADE_SETTING_PATH/.image_url`
+
+    echo setting args LOCAL_IMG_PATH:    $LOCAL_IMG_PATH
+    echo setting args IS_COMPRESS_IMAGE: $IS_COMPRESS_IMAGE
+    echo setting args DOMAIN:            $DOMAIN
+    echo setting args URL:               $URL
+}
 boot_recovery_mode(){
     # boot-reocvery mode
     # -->get target_sys.tar.gz
@@ -102,10 +113,8 @@ boot_recovery_mode(){
 
     upgrade_start boot_recovery
     
-    export LOCAL_IMG_PATH=`cat $UPGRADE_SETTING_PATH/.image_path`
-    export IS_COMPRESS_IMAGE=`cat $UPGRADE_SETTING_PATH/.image_compress`
-    export DOMAIN=`cat $UPGRADE_SETTING_PATH/.image_domain`
-    export URL=`cat $UPGRADE_SETTING_PATH/.image_url`
+    get_args
+
     if [ -f $LOCAL_IMG_PATH/$TARGET_PKG ] && [ -f $IMG_PATH/$USR_PKG; then
         $UPGRADE_SH prepare $LOCAL_IMG_PATH $TARGET_PKG $IS_COMPRESS_IMAGE
         $UPGRADE_SH prepare $LOCAL_IMG_PATH $USR_PKG $IS_COMPRESS_IMAGE
@@ -148,10 +157,8 @@ upgrade_pre_mode(){
 
     upgrade_start pre
     
-    export LOCAL_IMG_PATH=`cat $UPGRADE_SETTING_PATH/.image_path`
-    export IS_COMPRESS_IMAGE=`cat $UPGRADE_SETTING_PATH/.image_compress`
-    export DOMAIN=`cat $UPGRADE_SETTING_PATH/.image_domain`
-    export URL=`cat $UPGRADE_SETTING_PATH/.image_url`
+    get_args
+
     if [ -f $LOCAL_IMG_PATH/$RAMDISK_PKG ] && [ -f $LOCAL_IMG_PATH/$TARGET_PKG ]; then
         $UPGRADE_SH prepare $LOCAL_IMG_PATH $RAMDISK_PKG $IS_COMPRESS_IMAGE
         $UPGRADE_SH prepare $LOCAL_IMG_PATH $TARGET_PKG $IS_COMPRESS_IMAGE
@@ -185,10 +192,8 @@ upgrade_post_mode(){
 
     $UPGRADE_SH clean
     
-    export LOCAL_IMG_PATH=`cat $UPGRADE_SETTING_PATH/.image_path`
-    export IS_COMPRESS_IMAGE=`cat $UPGRADE_SETTING_PATH/.image_compress`
-    export DOMAIN=`cat $UPGRADE_SETTING_PATH/.image_domain`
-    export URL=`cat $UPGRADE_SETTING_PATH/.image_url`
+    get_args
+
     if [ -f $LOCAL_IMG_PATH/$USR_PKG ]; then
         $UPGRADE_SH prepare $LOCAL_IMG_PATH $USR_PKG $IS_COMPRESS_IMAGE
     else
