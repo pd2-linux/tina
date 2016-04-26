@@ -8,8 +8,6 @@
 **  Broadcom Bluetooth Core. Proprietary and confidential.
 **
 *****************************************************************************/
-#ifndef BUILD_LIB
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,9 +16,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <sys/time.h>
-
-#include "gki.h"
-#include "uipc.h"
 
 #include "bsa_api.h"
 
@@ -53,9 +48,17 @@ char bta_conf_path[MAX_PATH_LEN] = {0};
 /*static variables */
 static BD_ADDR     cur_connected_dev;        /* BdAddr of connected device */
 static BD_ADDR     last_connected_dev;       /* store connected dev last reboot */
-static void *p_sbt = NULL;
+static void *p_cbt = NULL;
 static int discoverable;
 static int connectable;
+
+//avk status
+static int avk_music_playing = 0;
+
+//discovery
+static int  disc_flag = 0;
+static int  dev_nums = 0;
+static char dev_info[4096] = {0};
 
 //tAvkCallback
 static void app_disc_callback(tBSA_DISC_EVT event, tBSA_DISC_MSG *p_data);
@@ -124,15 +127,13 @@ end:
 
 static void app_disc_callback(tBSA_DISC_EVT event, tBSA_DISC_MSG *p_data)
 {
-	  int num = 0;
-	  char buf[4096] = {0};
-	  int len = 4096;
+    int len = 4096;
 	  
     switch(event)
     {
-    	  case BSA_DISC_CMPL_EVT: /* Discovery complete. */
-        num = store_disc_results(buf, &len);
-        bt_event_transact(p_sbt, APP_MGR_DISC_RESULTS, buf, &len);
+    	case BSA_DISC_CMPL_EVT: /* Discovery complete. */
+        dev_nums = store_disc_results(dev_info, &len);
+        //bt_event_transact(p_sbt, APP_MGR_DISC_RESULTS, buf, &len);
         break;
     }	
 }
@@ -147,9 +148,10 @@ static void app_avk_callback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
 	  	  	  /* open status must be success */
 	  	  	  if (p_data->open.status == BSA_SUCCESS){
 	  	  	      APP_DEBUG0("avk connected!\n");
-	  	  	      bt_event_transact(p_sbt, APP_AVK_CONNECTED_EVT, NULL, NULL);
+	  	  	      bt_event_transact(p_cbt, APP_AVK_CONNECTED_EVT, NULL, NULL);
 	  	  	      bdcpy(cur_connected_dev, p_data->open.bd_addr);
 	  	  	      store_connected_dev(cur_connected_dev);
+                              
 	  	  	  }
 	  	  	    
 	  	      break;	
@@ -157,7 +159,7 @@ static void app_avk_callback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
 	  	  case BSA_AVK_CLOSE_EVT:
 	  	  {
 	  	      APP_DEBUG0("avk disconnected!\n");
-            bt_event_transact(p_sbt, APP_AVK_DISCONNECTED_EVT, NULL, NULL);
+            bt_event_transact(p_cbt, APP_AVK_DISCONNECTED_EVT, NULL, NULL);
             memset(cur_connected_dev, 0, sizeof(cur_connected_dev));
 	  	      break;	
 	  	  }
@@ -166,14 +168,16 @@ static void app_avk_callback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
 	      	  if(p_data->start.streaming == TRUE)
 	      	  {
                 APP_DEBUG0("BT is playing music!\n");
-                bt_event_transact(p_sbt, APP_AVK_START_EVT, NULL, NULL);
+                bt_event_transact(p_cbt, APP_AVK_START_EVT, NULL, NULL);
+                avk_music_playing = 1;
 	      	  }
 	      	  break;
 	      }
 	      case BSA_AVK_STOP_EVT:
 	      {
 	      	  APP_DEBUG0("BT is stop music!\n");
-	      	  bt_event_transact(p_sbt, APP_AVK_STOP_EVT, NULL, NULL);
+	      	  bt_event_transact(p_cbt, APP_AVK_STOP_EVT, NULL, NULL);
+                  avk_music_playing = 0;
 	      	  break;
 	      }
 	      
@@ -206,13 +210,13 @@ static void app_hs_callback(tBSA_HS_EVT event, tBSA_HS_MSG *p_data)
                 break;
             }
             
-            bt_event_transact(p_sbt, APP_HS_CONNECTED_EVT, NULL, NULL);	
+            bt_event_transact(p_cbt, APP_HS_CONNECTED_EVT, NULL, NULL);	
             break;	
         }
         case BSA_HS_CLOSE_EVT:
         {
         	  APP_DEBUG0("hs disconnected!\n");
-        	  bt_event_transact(p_sbt, APP_AVK_DISCONNECTED_EVT, NULL, NULL);
+        	  bt_event_transact(p_cbt, APP_AVK_DISCONNECTED_EVT, NULL, NULL);
         	  break;
         }	
         case BSA_HS_AUDIO_OPEN_EVT:
@@ -261,9 +265,9 @@ static BOOLEAN app_mgr_mgt_callback(tBSA_MGT_EVT event, tBSA_MGT_MSG *p_data)
 
 int bluetooth_start(void *p, char *p_conf)
 {
-	  int mode;
+    int mode;
 
-    p_sbt = p;
+    p_cbt = p;
    
     if(p_conf && p_conf[0] != '\0')
     {
@@ -271,7 +275,7 @@ int bluetooth_start(void *p, char *p_conf)
         strncpy(bta_conf_path, p_conf, MAX_PATH_LEN-1);    	
     }
      	  
-	  /* Init App manager */
+    /* Init App manager */
     app_mgt_init();
     if (app_mgt_open(NULL, app_mgr_mgt_callback) < 0)
     {
@@ -306,20 +310,26 @@ int bluetooth_start(void *p, char *p_conf)
         APP_INFO1("Current DualStack mode:%s", app_mgr_get_dual_stack_mode_desc());
     }
     
+    discoverable = 1;
+    connectable = 1;
+    
+    return 0;
+}
+
+void start_app_avk()
+{
     /* Init avk Application */
     app_avk_init(app_avk_callback);
     //auto register 
     app_avk_register();
-    
-    discoverable = 1;
-    connectable = 1;
-    
+}
+
+void start_app_hs()
+{
     /* Init Headset Application */
     //app_hs_init();
     /* Start Headset service*/
     //app_hs_start(app_hs_callback);
-    
-    return 0;
 }
 
 void s_set_bt_name(const char *name)
@@ -350,7 +360,30 @@ void s_set_connectable(int enable)
 
 void s_start_discovery(int time)
 {
-	  app_disc_start_regular(app_disc_callback);
+    disc_flag = 0;
+    dev_nums = 0;
+    app_disc_start_regular(app_disc_callback);
+}
+
+int s_get_disc_results(char *disc_results, int *len)
+{
+    int times = 0;
+
+    while((disc_flag == 0) && (times < 300)){
+        usleep(100*1000);
+        times++;
+    }
+
+    if(disc_flag == 0 || dev_nums == 0){
+        disc_results[0] = '\0';
+        *len = 0;
+	return 0;
+    }else{
+	strncpy(disc_results, dev_info, *len);
+	*len = strlen(dev_info);
+	disc_results[*len] = '\0';
+	return dev_nums;
+    }
 }
 
 void s_set_volume(int volume)
@@ -412,6 +445,7 @@ void s_set_volume_down()
 
 void s_connect_auto()
 {
+    printf("s connect auto\n");
     memset(last_connected_dev, 0, sizeof(last_connected_dev));
     read_connected_dev(last_connected_dev);
     app_avk_auto_connect(last_connected_dev);    	
@@ -419,14 +453,26 @@ void s_connect_auto()
 
 void s_disconnect()
 {
-    app_avk_close(cur_connected_dev);	
-}
+    int i = 0;
 
+    printf("s disconnect, music playing %d\n", avk_music_playing);
+    if(avk_music_playing == 1){
+        s_avk_pause();
+        do{
+           usleep(100*1000);
+           i++;
+        }while((avk_music_playing != 0) && (i<=20));
+    }
+    
+    app_avk_close(cur_connected_dev);
+}
 
 void s_avk_play()
 {
     tAPP_AVK_CONNECTION *connection = NULL;
-	  
+ 
+    printf("a avk play\n");	  
+
 	  connection = app_avk_find_connection_by_bd_addr(cur_connected_dev);
 	  if(connection)
 	  {
@@ -441,7 +487,9 @@ void s_avk_play()
 void s_avk_pause()
 {
 	  tAPP_AVK_CONNECTION *connection = NULL;
-	  
+
+          printf("s avk pause\n");	  
+
 	  connection = app_avk_find_connection_by_bd_addr(cur_connected_dev);
 	  if(connection)
 	  {
@@ -450,6 +498,22 @@ void s_avk_pause()
     else
     {
     	  printf("Connection is NULL when pausing\n");
+    }
+}
+
+void s_avk_stop()
+{
+    tAPP_AVK_CONNECTION *connection = NULL;
+
+    printf("s avk stop\n");	  
+    connection = app_avk_find_connection_by_bd_addr(cur_connected_dev);
+    if(connection)
+    {
+        app_avk_play_stop(connection->rc_handle);
+    }
+    else
+    {
+        printf("Connection is NULL when pausing\n");
     }
 }
 
@@ -493,100 +557,22 @@ void s_hs_hung_up()
     app_hs_hangup();
 }
 
-void bluetooth_stop()
-{
-	  /* Stop Headset service*/
-    //app_hs_stop();
-
+void stop_app_avk()
+{ 
     app_avk_deregister();
     /* Terminate the avk profile */
     app_avk_end();
+}
 
+void stop_app_hs()
+{
+    /* Stop Headset service*/
+    //app_hs_stop();
+}
+
+void bluetooth_stop()
+{
     app_mgt_close();
-    
     discoverable = 0;
     connectable = 0;
 }
-
-#else
-int bluetooth_start(void *p, char *p_conf)
-{
-    return 0;
-}
-
-void s_set_bt_name(const char *name)
-{
-    ;
-}
-
-void s_set_discoverable(int enable)
-{
-	  ;
-}
-
-void s_set_connectable(int enable)
-{
-    ;
-}
-
-void s_start_discovery(int time)
-{
-	  ;
-}
-
-void s_set_volume(int volume)
-{
-    ;
-}
-
-void s_set_volume_up()
-{
-    ;
-}
-
-void s_set_volume_down()
-{
-    ;
-}
-
-void s_connect_auto()
-{
-    ;
-}
-
-void s_disconnect()
-{
-	  ;
-}
-
-void s_avk_play()
-{
-	;
-}
-
-void s_avk_pause()
-{
-	;
-}
-
-void s_avk_play_previous()
-{
-	;
-}
-
-void s_avk_play_next()
-{
-	;
-}
-
-void s_hs_pick_up()
-{
-	;
-}
-
-void s_hs_hung_up()
-{
-	;
-}
-
-#endif

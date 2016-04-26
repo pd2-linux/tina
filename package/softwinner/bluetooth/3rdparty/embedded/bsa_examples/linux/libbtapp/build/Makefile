@@ -10,9 +10,11 @@
 GLOBALPATH := ../../../../../..
 customer := bsa_examples
 project := linux
-application := app_bluetooth
+application := libbtapp
 os_name := linux
 BLUETOOTH_3RD_DIR := $(GLOBALPATH)/3rdparty
+
+target := libbtapp.so
 
 # include common makefile rules
 include $(BLUETOOTH_3RD_DIR)/embedded/$(customer)/$(project)/app_common/build/make.common
@@ -49,11 +51,11 @@ incdirs += $(bsalibincdir)
 # BSA client library
 #
 #######################################
-ifeq ($(BSASHAREDLIB), TRUE)
+#ifeq ($(BSASHAREDLIB), TRUE)
 bsalib := $(bsasharedlib)
-else
-bsalib := $(bsastaticlib)
-endif
+#else
+#bsalib := $(bsastaticlib)
+#endif
 
 #######################################
 #
@@ -77,10 +79,14 @@ objlist := $(app_objs)
 
 .PHONY: all clean delivery
 
-all: $(bluetooth_app)
+all: $(target)
 	@$(ECHO) Done building $@ 
 
 %.s:%.S
+install:
+	-@$(MKDIR) -p $(CONFIG_PREFIX)/usr/lib
+	-@$(MKDIR) -p $(CONFIG_PREFIX)/usr/include
+	@$(CP) ./../include/bluetooth_socket.h $(CONFIG_PREFIX)/usr/include
 
 $(builddir):
 	@$(ECHO) Creating application directory '$(builddir)'.
@@ -94,23 +100,25 @@ $(objdir):
 
 $(c_objs):$(objdir)/%.o: %.c
 	@$(ECHO) Compiling [$(CC)] $<
-	$(CC) -c -MD $(CCFLAGS) $(GLOBAL_DEFINE) $(TARGET_DEF) $(CCINC) -o $@ $<
+	$(CC) -fPIC -c -MD -DBUILD_LIB $(CCFLAGS) $(GLOBAL_DEFINE) $(TARGET_DEF) $(CCINC) -o $@ $<
 
 $(cpp_objs):$(objdir)/%.o: %.cpp
 	@$(ECHO) Compiling [$(CPP)] $<
-	$(CXX) -c -MD $(CCFLAGS) $(GLOBAL_DEFINE) $(TARGET_DEF) $(CCINC) -o $@ $<
+	$(CXX) -fPIC -c -MD -DBUILD_LIB $(CCFLAGS) $(GLOBAL_DEFINE) $(TARGET_DEF) $(CCINC) -o $@ $<
 
 # include the dependencies (if they exist)
 -include $(objlist:.o=.d)
 
-$(bluetooth_app): $(builddir) $(objdir) $(objlist) $(bsalib)
+$(target): install $(builddir) $(objdir) $(objlist)
 ifneq ($(strip $(bsalib)),)
 	@$(ECHO) Linking application $@ with $(notdir $(bsalib))
-	$(CXX) $(LINKFLAGS) -L $(dir $(bsalib)) $(TARGET_LINK_FLAGS) -o $@ $(objlist) -lbsa $(LINKLIBS) -lipc
+	$(LINK) $(LINKFLAGS) -shared $(TARGET_LINK_FLAGS) -o $@ $(objlist) $(LINKLIBS)
 else
 	@$(ECHO) Linking application $@
-	$(CXX) $(LINKFLAGS) $(TARGET_LINK_FLAGS) -o $@ $(objlist) $(LINKLIBS) -L. -lipc
+	$(LINK) $(LINKFLAGS) -shared $(TARGET_LINK_FLAGS) -o $@ $(objlist) $(LINKLIBS)
 endif
+	@$(CP) $(target) $(CONFIG_PREFIX)/usr/lib
+	@$(CP) $(bsalib) $(CONFIG_PREFIX)/usr/lib
 
 clean:
 	@$(ECHO) Cleaning up : $(objdir) $(builddir)

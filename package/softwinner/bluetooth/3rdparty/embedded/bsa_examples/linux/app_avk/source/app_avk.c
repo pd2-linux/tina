@@ -356,6 +356,7 @@ static void app_avk_handle_start(tBSA_AVK_MSG *p_data, tAPP_AVK_CONNECTION *conn
         /* If ALSA PCM driver was already open => close it */
         if (app_avk_cb.alsa_handle != NULL)
         {
+            printf("app_avk_handle_start snd_pcm_close\n");
             snd_pcm_close(app_avk_cb.alsa_handle);
             app_avk_cb.alsa_handle = NULL;
         }
@@ -471,6 +472,7 @@ static void app_avk_cback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
                 /* If ALSA PCM driver was already open => close it */
                 if (app_avk_cb.alsa_handle != NULL)
                 {
+                    printf("BSA_AVK_CLOSE_EVT snd_pcm_close\n");
                     snd_pcm_close(app_avk_cb.alsa_handle);
                     app_avk_cb.alsa_handle = NULL;
                 }
@@ -548,6 +550,20 @@ static void app_avk_cback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
             }
 
             connection->is_streaming_open = FALSE;
+
+/* close alsa dev */
+            if (connection->format == BSA_AVK_CODEC_PCM){
+#ifdef PCM_ALSA
+                /* If ALSA PCM driver was already open => close it */
+                if (app_avk_cb.alsa_handle != NULL)
+                {
+                    printf("BSA_AVK_STOP_EVT1 snd_pcm_close\n");
+                    snd_pcm_close(app_avk_cb.alsa_handle);
+                    app_avk_cb.alsa_handle = NULL;
+                }
+#endif /* PCM_ALSA */
+            }
+
         }
         else
         {
@@ -567,6 +583,19 @@ static void app_avk_cback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
             }
             else
                 app_avk_close_wave_file(connection);
+
+            /* close alsa dev */
+            if (connection->format == BSA_AVK_CODEC_PCM){
+#ifdef PCM_ALSA
+                /* If ALSA PCM driver was already open => close it */
+                if (app_avk_cb.alsa_handle != NULL)
+                {
+                    printf("BSA_AVK_STOP_EVT2 snd_pcm_close\n");
+                    snd_pcm_close(app_avk_cb.alsa_handle);
+                    app_avk_cb.alsa_handle = NULL;
+                }
+#endif /* PCM_ALSA */
+            }
 
         }
 
@@ -1015,7 +1044,6 @@ void app_avk_close(BD_ADDR bda)
     {
         app_avk_reset_connection(bda);
     }
-
 }
 
 /*******************************************************************************

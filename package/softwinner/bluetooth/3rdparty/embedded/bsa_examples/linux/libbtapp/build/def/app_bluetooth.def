@@ -14,7 +14,6 @@ appsrcdir := $(appdir)/source \
 
 # list of sources for the current application
 appsrcs := \
-		bluetooth_main.cpp \
 		bluetooth_socket.cpp \
 		bluetooth_interface.c \
     app_manager.c \

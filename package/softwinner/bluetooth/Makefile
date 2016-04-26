@@ -40,7 +40,7 @@ define Package/bluetooth/Default
   SECTION:=utils
   CATEGORY:=softwinner
   TITLE:=Bluetooth APP(bsa 01062)
-  DEPENDS:=+libpthread +librt +alsa-lib +liballwinner-ipc
+  DEPENDS:=+libpthread +librt +alsa-lib
 endef
 
 define Package/bluetooth
@@ -52,7 +52,7 @@ endef
 define Package/bluetooth-demo
   $(call Package/bluetooth/Default)
   TITLE:=BT app demo
-  DEPENDS:=bluetooth +liballwinner-ipc +bluetooth
+  DEPENDS:=bluetooth +bluetooth
 endef
 
 define Package/bluetooth/description
@@ -72,21 +72,10 @@ define Build/Configure
 endef
 
 define Build/Compile
-	#compile app_bluetooth
-	$(MAKE) -C $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/app_bluetooth/build \
-		ENABLE_ALSA=TRUE \
-		CPU=arm \
-		AR="$(TARGET_AR)" \
-		CC="$(TARGET_CC)" \
-		CXX="$(TARGET_CXX)" \
-		CFLAGS="$(TARGET_CFLAGS)"\
-		LDFLAGS="$(TARGET_LDFLAGS)" \
-		all
-	$(STRIP) $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/app_bluetooth/build/arm/app_bluetooth
-
   #compile libbtapp
-	$(MAKE) -C $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/app_bluetooth/build \
-		-f Makefile_lib \
+	$(MAKE) -C $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/libbtapp/build \
+		-f Makefile \
+		ENABLE_ALSA=TRUE \
 		CPU=arm \
 		CC="$(TARGET_CC)" \
 		CXX="$(TARGET_CXX)" \
@@ -96,7 +85,7 @@ define Build/Compile
 		all
 	
 	#compile bt_demo
-	$(MAKE) -C $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/app_bluetooth/bt_test \
+	$(MAKE) -C $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/libbtapp/bt_test \
 		-f Makefile \
 		CC="$(TARGET_CC)" \
 		CXX="$(TARGET_CXX)" \
@@ -104,15 +93,14 @@ define Build/Compile
 		LDFLAGS="$(TARGET_LDFLAGS)" \
 		CONFIG_PREFIX="$(PKG_INSTALL_DIR)" \
 		all
-	$(STRIP) $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/app_bluetooth/bt_test/bt_demo
+	$(STRIP) $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/libbtapp/bt_test/bt_demo
 	
 	#strip bsa_server
 	$(STRIP) $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/server/build/arm/bsa_server
 	
 	#copy bsa_server and apps
 	$(CP) -r $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/server/build/arm/bsa_server $(PKG_BUILD_DIR)/
-	$(CP) -r $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/app_bluetooth/build/arm/app_bluetooth $(PKG_BUILD_DIR)/
-	$(CP) -r $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/app_bluetooth/bt_test/bt_demo $(PKG_BUILD_DIR)/
+	$(CP) -r $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/libbtapp/bt_test/bt_demo $(PKG_BUILD_DIR)/
 	
 endef
 
@@ -126,6 +114,7 @@ endef
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/usr/include
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libbsa.so $(1)/usr/lib
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libbtapp.so $(1)/usr/lib
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/include/*.h $(1)/usr/include
 endef
@@ -135,8 +124,8 @@ define Package/bluetooth/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bsa_server $(1)/usr/bin/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/app_bluetooth $(1)/usr/bin/
 	$(INSTALL_BIN) ./btenable.sh $(1)/etc/bluetooth/
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libbsa.so $(1)/usr/lib
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libbtapp.so $(1)/usr/lib
 endef
 
