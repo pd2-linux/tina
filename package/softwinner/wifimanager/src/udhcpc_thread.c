@@ -19,31 +19,32 @@ extern int  disconnect_ap_event_label;
 
 static int get_net_ip(const char *if_name, char *ip, int *len, int *vflag)
 {
-    struct ifaddrs * ifAddrStruct=NULL;
+    struct ifaddrs * ifAddrStruct=NULL, *pifaddr=NULL;
     void * tmpAddrPtr=NULL;
 
     *vflag = 0;
     getifaddrs(&ifAddrStruct);
-    while (ifAddrStruct!=NULL) {
-       if (ifAddrStruct->ifa_addr->sa_family==AF_INET) { // check it is IP4                                                 is a valid IP4 Address
-            tmpAddrPtr=&((struct sockaddr_in *)ifAddrStruct->ifa_addr)->sin_addr;
-            if(strcmp(ifAddrStruct->ifa_name, if_name) == 0){
+    pifaddr = ifAddrStruct;
+    while (pifaddr!=NULL) {
+       if (pifaddr->ifa_addr->sa_family==AF_INET) { // check it is IP4
+            tmpAddrPtr=&((struct sockaddr_in *)pifaddr->ifa_addr)->sin_addr;
+            if(strcmp(pifaddr->ifa_name, if_name) == 0){
                 inet_ntop(AF_INET, tmpAddrPtr, ip, INET_ADDRSTRLEN);
                 *vflag = 4;
                 break;
             }
-       } else if (ifAddrStruct->ifa_addr->sa_family==AF_INET6) { // check it is IP6
+       } else if (pifaddr->ifa_addr->sa_family==AF_INET6) { // check it is IP6
             // is a valid IP6 Address
-            tmpAddrPtr=&((struct sockaddr_in *)ifAddrStruct->ifa_addr)->sin_addr;
-            if(strcmp(ifAddrStruct->ifa_name, if_name) == 0){
+            tmpAddrPtr=&((struct sockaddr_in *)pifaddr->ifa_addr)->sin_addr;
+            if(strcmp(pifaddr->ifa_name, if_name) == 0){
                 inet_ntop(AF_INET6, tmpAddrPtr, ip, INET6_ADDRSTRLEN);    
                 *vflag=6;
                 break;
             }
        } 
-       ifAddrStruct=ifAddrStruct->ifa_next;
+       pifaddr=pifaddr->ifa_next;
     }
-    
+
     if(ifAddrStruct != NULL){
         freeifaddrs(ifAddrStruct);
     }
