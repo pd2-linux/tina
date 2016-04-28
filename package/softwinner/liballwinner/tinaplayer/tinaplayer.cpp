@@ -1,11 +1,12 @@
-#define TAG "TinaPlayer"
-#define CONFIG_TLOG_LEVEL OPTION_TLOG_LEVEL_DETAIL
-#include <tina_log.h>
-
+#define LOG_TAG "TinaPlayer"
 #include "tinaplayer.h"
 #include <string.h>
+#include <sys/syscall.h>
+#include <sys/time.h>
+
 #include "awplayer.h"
 #include "tinasoundcontrol.h"
+#include "log.h"
 
 #define SAVE_PCM_DATA 0
 
@@ -17,48 +18,49 @@ namespace aw{
 
 	SoundCtrl* gSoundCtrl = NULL;
 	static SoundCtrl* _SoundDeviceInit(void* pAudioSink){
-		TLOGD(" _SoundDeviceInit\n");
+		logd("_SoundDeviceInit()");
 		gSoundCtrl = TinaSoundDeviceInit(pAudioSink);
 		if(gSoundCtrl == NULL){
-			TLOGE(" _SoundDeviceInit,ERR:gSoundCtrl == NULL\n");
+			loge(" _SoundDeviceInit(),ERR:gSoundCtrl == NULL");
 		}
 		return gSoundCtrl;
 	}
 
 	static void _SoundDeviceRelease(SoundCtrl* s){
-		TLOGD(" _SoundDeviceRelease\n");
+		logd(" _SoundDeviceRelease()");
 		TinaSoundDeviceRelease(s);
 	}
 
 	static void _SoundDeviceSetFormat(SoundCtrl* s, unsigned int nSampleRate, unsigned int nChannelNum){
-		TLOGD(" _SoundDeviceSetFormat\n");
+		logd(" _SoundDeviceSetFormat()");
 		TinaSoundDeviceSetFormat(s, nSampleRate, nChannelNum);
 	}
 
 	static int _SoundDeviceStart(SoundCtrl* s){
-		TLOGD(" _SoundDeviceStart\n");
+		logd(" _SoundDeviceStart()");
+		//system("amixer cset numid=27 0");
 		return TinaSoundDeviceStart(s);
 	}
 
 	static int _SoundDeviceStop(SoundCtrl* s){
-		TLOGD(" _SoundDeviceStop\n");
+		logd(" _SoundDeviceStop()");
 		return TinaSoundDeviceStop(s);
 	}
 
 	static int _SoundDevicePause(SoundCtrl* s){
-		TLOGD(" _SoundDevicePause\n");
+		logd(" _SoundDevicePause()");
 		return TinaSoundDevicePause(s);
 	}
 
 	static int _SoundDeviceWrite(SoundCtrl* s, void* pData, int nDataSize){
-		//TLOGD(" _SoundDeviceWrite\n");
+		//logd(" _SoundDeviceWrite(),nDataSize = %d",nDataSize);
 		int ret = TinaSoundDeviceWrite(s, pData, nDataSize);
 		#if SAVE_PCM_DATA
 			if(savaPcmFd!=NULL){
 				int write_ret = fwrite(pData, 1, nDataSize, savaPcmFd);
-				//TLOGD("PCM write_ret = %d\n",write_ret);
+				//logd("PCM write_ret = %d",write_ret);
 				if(write_ret <= 0){
-					TLOGE("err str: %s\n",strerror(errno));
+					loge("_SoundDeviceWrite error,err str: %s",strerror(errno));
 				}
 			}
 		#endif
@@ -66,12 +68,12 @@ namespace aw{
 	}
 
 	static int _SoundDeviceReset(SoundCtrl* s){
-		TLOGD(" _SoundDeviceReset\n");
+		logd(" _SoundDeviceReset()");
 		return TinaSoundDeviceReset(s);
 	}
 
 	static int _SoundDeviceGetCachedTime(SoundCtrl* s){
-		//TLOGD(" _SoundDeviceGetCachedTime\n");
+		//logd(" _SoundDeviceGetCachedTime()");
 		return TinaSoundDeviceGetCachedTime(s);
 	}
 
@@ -113,17 +115,17 @@ namespace aw{
 	}
 
 	static int _SoundDeviceSetVolume(SoundCtrl* s, float volume){
-		TLOGD(" _SoundDeviceSetVolume\n");
+		logd(" _SoundDeviceSetVolume()");
 		return TinaSoundDeviceSetVolume(s, volume);
 	}
 
 	static int _SoundDeviceGetVolume(SoundCtrl* s, float *volume){
-		TLOGD(" _SoundDeviceGetVolume\n");
+		logd(" _SoundDeviceGetVolume()");
 		return TinaSoundDeviceGetVolume(s, volume);
 	}
 
 	static int _SoundDeviceSetCallback (SoundCtrl* s, SndCallback callback, void* pUserData){
-		TLOGD(" _SoundDeviceSetCallback\n");
+		logd(" _SoundDeviceSetCallback()");
 		return TinaSoundDeviceSetCallback(s, callback, pUserData);
 	}
 
@@ -139,23 +141,21 @@ namespace aw{
 	    {
 	        case NOTIFY_NOT_SEEKABLE:
 	        {
-				TLOGD(" NOTIFY_NOT_SEEKABLE\n");
+				logd(" ***NOTIFY_NOT_SEEKABLE***");
 				app_msg = TINA_NOTIFY_NOT_SEEKABLE;
 	            break;
 	        }
 	        
 	        case NOTIFY_ERROR:
 	        {
-				TLOGD(" NOTIFY_ERROR\n");
-				printf(" ****NOTIFY_ERROR****\n");
+				logd(" ****NOTIFY_ERROR***");
 				app_msg = TINA_NOTIFY_ERROR;
 	            break;
 	        }
 	            
 	        case NOTIFY_PREPARED:
 	        {
-				TLOGD(" NOTIFY_PREPARED\n");
-				printf(" ****NOTIFY_PREPARED****\n");
+				logd(" ***NOTIFY_PREPARED***");
 				app_msg = TINA_NOTIFY_PREPARED;
 	            break;
 	        }
@@ -176,12 +176,15 @@ namespace aw{
 	            
 	        case NOTIFY_PLAYBACK_COMPLETE:
 	        {
-	            TLOGD(" NOTIFY_PLAYBACK_COMPLETE\n");
-				printf(" ****NOTIFY_PLAYBACK_COMPLETE****\n");
+	            logd(" ****NOTIFY_PLAYBACK_COMPLETE****");
 				if(p){
 					if(p->mLoop == 0){
-						printf(" ****NOTIFY_PLAYBACK_COMPLETE,close the sound card****\n");
-						_SoundDeviceStop(gSoundCtrl);
+						logd(" ****NOTIFY_PLAYBACK_COMPLETE,close the sound card****");
+						if(gSoundCtrl==NULL){
+							loge(" ****NOTIFY_PLAYBACK_COMPLETE,gSoundCtrl==NULL****");
+						}else{
+							_SoundDeviceStop(gSoundCtrl);
+						}
 						app_msg = TINA_NOTIFY_PLAYBACK_COMPLETE;
 					}
 				}
@@ -190,14 +193,14 @@ namespace aw{
 	            
 	        case NOTIFY_RENDERING_START:
 	        {
-	            TLOGD(" NOTIFY_RENDERING_START\n");
+	            logd(" NOTIFY_RENDERING_START");
 				app_msg = TINA_NOTIFY_RENDERING_START;
 	            break;
 	        }
 	        
 	        case NOTIFY_SEEK_COMPLETE:
 	        {
-	            TLOGD(" NOTIFY_SEEK_COMPLETE\n");
+	            logd(" NOTIFY_SEEK_COMPLETE****");
 				app_msg = TINA_NOTIFY_SEEK_COMPLETE;
 	            break;
 	        }
@@ -298,7 +301,7 @@ namespace aw{
 	        
 	        default:
 	        {
-	            TLOGE(" warning: unknown callback from AwPlayer\n");
+	            logd(" warning: unknown callback from AwPlayer");
 	            break;
 	        }
 	    }
@@ -310,24 +313,22 @@ namespace aw{
 	}
 	TinaPlayer::TinaPlayer()
 	{
-		TLOGD(" TinaPlayer()\n");
-		printf(" TinaPlayer() contructor begin\n");
+		logd(" TinaPlayer() contructor begin");
 		mLoop = 0;
 		mPlayer = (void*)new AwPlayer();
 		initSoundControlOpsT();
 		((AwPlayer*)mPlayer)->setControlOps(NULL, &gSoundControl);
-		printf(" TinaPlayer() contructor finish\n");
+		logd(" TinaPlayer() contructor finish");
 	}
 	
 	TinaPlayer::~TinaPlayer()
 	{
-		TLOGD(" ~TinaPlayer()\n");
-		printf(" ~TinaPlayer() contructor begin\n");
+		logd(" ~TinaPlayer() contructor begin");
 		if(((AwPlayer*)mPlayer) != NULL){
 			delete ((AwPlayer*)mPlayer);
     		mPlayer = NULL;
 		}
-		printf(" ~TinaPlayer() contructor finish\n");
+		logd(" ~TinaPlayer() contructor finish");
 	}
 
 	void TinaPlayer::initSoundControlOpsT(){
@@ -374,7 +375,11 @@ namespace aw{
 	
 	int TinaPlayer::prepareAsync()
 	{
-		return ((AwPlayer*)mPlayer)->prepareAsync();
+		pid_t tid = syscall(SYS_gettid);
+		logd("TinaPlayer::prepareAsync() begin,tid = %d",tid);
+		int ret = ((AwPlayer*)mPlayer)->prepareAsync();
+		logd("TinaPlayer::prepareAsync() finish,tid = %d",tid);
+		return ret;
 	}
 	
 	int TinaPlayer::prepare()
@@ -387,14 +392,14 @@ namespace aw{
 		#if SAVE_PCM_DATA
 			savaPcmFd = fopen("/mnt/UDISK/save.pcm", "wb");
 			if(savaPcmFd==NULL){
-				TLOGE("fopen save.pcm fail****\n");
-				TLOGE("err str: %s\n",strerror(errno));
+				loge("fopen save.pcm fail****");
+				loge("err str: %s",strerror(errno));
 			}else{
 				fseek(savaPcmFd,0,SEEK_SET);
 			}
 		#endif
-		
-		return ((AwPlayer*)mPlayer)->start();
+		int ret = ((AwPlayer*)mPlayer)->start();
+		return ret;
 	}
 	
 	int TinaPlayer::stop()
@@ -402,6 +407,7 @@ namespace aw{
 		#if SAVE_PCM_DATA
 			if(savaPcmFd!=NULL){
 				fclose(savaPcmFd);
+				savaPcmFd = NULL;
 			}
 		#endif
 		return ((AwPlayer*)mPlayer)->stop();
@@ -419,7 +425,24 @@ namespace aw{
 	
 	int TinaPlayer::reset()
 	{
-		return ((AwPlayer*)mPlayer)->reset();
+		#if SAVE_PCM_DATA
+			if(savaPcmFd!=NULL){
+				fclose(savaPcmFd);
+				savaPcmFd = NULL;
+			}
+		#endif
+		pid_t tid = syscall(SYS_gettid);
+		logd("TinaPlayer::reset() begin,tid = %d",tid);
+		struct timeval time1, time2, time3;
+		memset(&time3, 0, sizeof(struct timeval));
+		gettimeofday(&time1, NULL);
+		int ret = ((AwPlayer*)mPlayer)->reset();
+		gettimeofday(&time2, NULL);
+		time3.tv_sec += (time2.tv_sec-time1.tv_sec);
+		time3.tv_usec += (time2.tv_usec-time1.tv_usec);
+		logd("TinaPlayer::reset() >>> time elapsed: %ld seconds  %ld useconds\n", time3.tv_sec, time3.tv_usec);
+		logd("TinaPlayer::reset() finish,tid = %d",tid);
+		return ret;
 	}
 	
 	
@@ -457,7 +480,7 @@ namespace aw{
 		if(mNotifier){
 			mNotifier(mUserData,msg,param0,param1);
 		}else{
-			TLOGE("mNotifier is null \n");
+			loge(" mNotifier is null ");
 		}
 	}
 
