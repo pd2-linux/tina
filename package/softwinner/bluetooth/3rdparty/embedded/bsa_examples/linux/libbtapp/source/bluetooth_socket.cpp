@@ -1,5 +1,6 @@
 #include "bluetooth_socket.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <unistd.h>
 
 extern "C"
@@ -124,6 +125,7 @@ int c_bt::reset_avk_status()
     printf("do bt cmd reset avk status\n");
     if(this->bt_on_status == 0){
         printf("bt status is off\n");
+        return 0;
     }
 
     /* stop app avk */
@@ -133,6 +135,7 @@ int c_bt::reset_avk_status()
     /* start app avk */
     start_app_avk();
     usleep(200*1000);
+    return 0;
 }
 
 int c_bt::avk_play()

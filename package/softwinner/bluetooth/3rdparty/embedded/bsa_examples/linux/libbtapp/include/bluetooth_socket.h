@@ -7,7 +7,6 @@
 #include <signal.h>
 #include <unistd.h>
 #include <unistd.h>
-#include <interface.h>
 
 #define BT_NAME_PATH_LEN   256
 

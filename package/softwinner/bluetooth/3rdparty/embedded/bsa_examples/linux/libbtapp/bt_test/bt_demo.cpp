@@ -1,4 +1,6 @@
 #include <bluetooth_socket.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <unistd.h>
 
 static int status = 0;

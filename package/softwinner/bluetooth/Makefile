@@ -22,7 +22,7 @@ PKG_NAME:=bluetooth
 PKG_VERSION:=0.0.1
 PKG_RELEASE:=1
 
-export ARMGCC=arm-openwrt-linux-uclibcgnueabi-gcc
+export ARMGCC=$(TARGET_CC)
 
 # This specifies the directory where we're going to build the program. 
 # The root build directory, $(BUILD_DIR), is by default the build_mipsel
@@ -82,6 +82,7 @@ define Build/Compile
 		CFLAGS="$(TARGET_CFLAGS)"\
 		LDFLAGS="$(TARGET_LDFLAGS)" \
 		CONFIG_PREFIX="$(PKG_INSTALL_DIR)" \
+		STRIP="$(STRIP)" \
 		all
 	
 	#compile bt_demo
