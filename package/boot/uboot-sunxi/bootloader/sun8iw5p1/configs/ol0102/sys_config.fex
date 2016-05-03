@@ -1385,7 +1385,7 @@ pmu_reset                  = 0
 pmu_IRQ_wakeup             = 1
 pmu_hot_shutdowm           = 1
 pmu_inshort                = 0
-power_start                = 1
+power_start                = 0
 
 pmu_temp_enable            = 1
 pmu_charge_ltf             = 2261
@@ -1553,7 +1553,7 @@ LV3_volt = 1100
 ;charging_type 0:uboot charging,       1:android charging
 ;----------------------------------------------------------------------------------
 [charging_type]
-charging_type = 1
+charging_type = 0
 
 
 ;----------------------------------------------------------------------------------
