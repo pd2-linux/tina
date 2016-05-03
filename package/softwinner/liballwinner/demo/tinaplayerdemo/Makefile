@@ -77,6 +77,14 @@ ifeq ($(CONFIG_HAVE_ZLIB), $(OPTION_HAVE_ZLIB))
     LoadFlags += -lz 
 endif
                
+ifeq ($(CONFIG_HAVE_SSL), $(OPTION_HAVE_SSL))
+	LoadFlags += -lcrypto -lssl
+endif
+               
+ifeq ($(CONFIG_HAVE_LIVE555), $(OPTION_HAVE_LIVE555))
+LoadFlags += -llive555
+endif
+
 LoadFlags +=  -lasound
 
 LoadFlags += -L../../LIBRARY/DEMUX/BASE/ \
