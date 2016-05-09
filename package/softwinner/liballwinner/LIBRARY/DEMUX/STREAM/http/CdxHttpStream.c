@@ -11,7 +11,7 @@
 #include <stdint.h>
 
 #define PROBE_DATA_LEN_DEFAULT (128*1024) 
-#define MAX_STREAM_BUF_SIZE (10*1024*1024)
+#define MAX_STREAM_BUF_SIZE (2*1024*1024)
 #define PROTECT_AREA_SIZE (512*1024)  //should not too big
 #define TEMP_HTTP_DATA_BUF (PROBE_DATA_LEN_DEFAULT + 4096)
 #define RE_CONNECT_TIME (3600) //* unit: second

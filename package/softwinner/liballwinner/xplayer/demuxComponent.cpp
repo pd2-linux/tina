@@ -50,7 +50,7 @@ static const int DEMUX_COMMAND_READ           = 0x10e;
 //* cache start play size and max buffer size.
 static const int CACHE_START_PLAY_SIZE               = 128*1024;
 static const int CACHE_START_PLAY_SIZE_WITHOUT_VIDEO = 1*1024;
-static const int CACHE_MAX_BUFFER_SIZE = 20*1024*1024;
+static const int CACHE_MAX_BUFFER_SIZE = 4*1024*1024;
 
 static void* DemuxThread(void* arg);
 static void* CacheThread(void* arg);
