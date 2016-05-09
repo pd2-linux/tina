@@ -273,7 +273,7 @@ static cdx_int32 UdpStreamControl(CdxStreamT *stream, cdx_int32 cmd, void *param
     switch(cmd)
     {
         case STREAM_CMD_GET_CACHESTATE:
-    		return GetCacheState(udpStream, (struct StreamCacheStateS *)param);
+		return GetCacheState(udpStream, (struct StreamCacheStateS *)param);
         case STREAM_CMD_SET_FORCESTOP:
             return UdpStreamForceStop(stream);
         default:

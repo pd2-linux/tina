@@ -27,4 +27,3 @@ cleanall:
 	make cleanall -C jpegdemo/
 	make cleanall -C muxtest/
 .PHONY: all clean cleanall
-

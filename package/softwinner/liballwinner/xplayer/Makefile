@@ -72,7 +72,7 @@ CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -mfpu=neon -O1 -fPIC -
 ## set link flags
 LoadFlags = $(CONFIG_FOR_LINK) -ldl -shared
 
-LoadFlags +=  -lplayer -lcdc_vdecoder -lcdc_adecoder -lnormal_audio -lcdc_sdecoder \
+LoadFlags +=  -lplayer -lcdc_vdecoder -lcdc_adecoder -lcdc_sdecoder \
              -lcdx_parser -lcdx_stream -lcdx_base -lcdc_ve -lcdc_memory \
              -lpthread -ldl -lstdc++
 
@@ -161,5 +161,3 @@ ifneq ($(MAKECMDGOALS),cleanall)
 endif
 endif
 endif
-
-

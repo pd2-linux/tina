@@ -130,8 +130,8 @@ typedef enum {
 } AMFType;
 
 typedef enum{	
-	Metadatacreator  		  = 0x00,
-	hasKeyframes 			  = 0x01,
+	Metadatacreator			  = 0x00,
+	hasKeyframes			  = 0x01,
 	hasVideo                  = 0x02,
 	hasAudio                  = 0x03, 
 	hasMetadata               = 0x04, 

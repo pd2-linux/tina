@@ -45,4 +45,3 @@ typedef enum __AVI_DEPACK_RETURN_VAL
 } __avi_depack_return_val_t;
 
 #endif  /* _CDX_AVI_DEPACK_LIB_H_ */
-

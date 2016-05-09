@@ -37,4 +37,3 @@
 #define PLAY_VIDEO_BITSTREAM    (1)
 
 #endif  /* _CDX_AVI_DEPACK_CORE_CFG_H_ */
-

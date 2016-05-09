@@ -57,7 +57,7 @@
  */
 
 /*
-**	19990701	VRS 	Started.
+**	19990701	VRS	Started.
 */
 
 #ifndef	KSSL_H
@@ -140,12 +140,12 @@ typedef struct kssl_ctx_st
 	krb5_octet FAR *key;
 	} KSSL_CTX;
 
-#define	KSSL_CLIENT 	1
-#define KSSL_SERVER 	2
+#define	KSSL_CLIENT	1
+#define KSSL_SERVER	2
 #define	KSSL_SERVICE	3
-#define	KSSL_KEYTAB 	4
+#define	KSSL_KEYTAB	4
 
-#define KSSL_CTX_OK 	0
+#define KSSL_CTX_OK	0
 #define KSSL_CTX_ERR	1
 #define KSSL_NOMEM	2
 
@@ -180,4 +180,4 @@ char *kssl_ctx_get0_client_princ(KSSL_CTX *kctx);
 }
 #endif
 #endif	/* OPENSSL_NO_KRB5	*/
-#endif	/* KSSL_H 	*/
+#endif	/* KSSL_H	*/

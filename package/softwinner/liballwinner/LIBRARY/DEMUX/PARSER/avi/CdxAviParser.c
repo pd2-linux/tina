@@ -676,7 +676,7 @@ _read_one_chunk:
     {
         if(impl->bDiscardAud || impl->curAudStreamNum != impl->nextCurAudStreamNum)
         {
-        	GetChunkDataDummy(impl, pkt);
+		GetChunkDataDummy(impl, pkt);
             CDX_LOGV("bDiscardAud[%d], AudStreamNum[%d][%d]\n",impl->bDiscardAud, 
                 impl->curAudStreamNum, impl->nextCurAudStreamNum);
             goto _read_one_chunk;
@@ -745,7 +745,7 @@ _read_one_chunk:
         goto _read_one_chunk;
     }
     pkt->flags |= (FIRST_PART|LAST_PART);
-   	memcpy(&impl->pkt, pkt, sizeof(CdxPacketT));
+	memcpy(&impl->pkt, pkt, sizeof(CdxPacketT));
     result = 0;
     
 __exit:
@@ -932,7 +932,7 @@ static cdx_int32 __CdxAviParserGetMediaInfo(CdxParserT *parser, CdxMediaInfoT *p
             }
             else 
             {
-            	//below set is for PCM format  TODO_DEL
+		//below set is for PCM format  TODO_DEL
 				pMediaInfo->program[0].audio[i].pCodecSpecificData = impl->aFormatArray[i].pCodecSpecificData; //Be careful, this point is used as  a value in audio decoder
 				pMediaInfo->program[0].audio[i].nCodecSpecificDataLen = impl->aFormatArray[i].nCodecSpecificDataLen; // it is equal to zero
             }
@@ -953,19 +953,19 @@ static cdx_int32 __CdxAviParserGetMediaInfo(CdxParserT *parser, CdxMediaInfoT *p
 
             if(impl->aviFormat.vFormat.nCodecSpecificDataLen > 0 && impl->aviFormat.vFormat.pCodecSpecificData)
             {
-            	assert(impl->aviFormat.vFormat.nCodecSpecificDataLen < 1024*128);
-            	pMediaInfo->program[0].video[i].nCodecSpecificDataLen = impl->aviFormat.vFormat.nCodecSpecificDataLen;
-            	pMediaInfo->program[0].video[i].pCodecSpecificData = 
-            	                    (cdx_char *)malloc(pMediaInfo->program[0].video[i].nCodecSpecificDataLen);
-            	memcpy(pMediaInfo->program[0].video[i].pCodecSpecificData, impl->aviFormat.vFormat.pCodecSpecificData,
-            			pMediaInfo->program[0].video[i].nCodecSpecificDataLen);
-            	//CDX_LOGV("pCodecSpecificData(%p),nCodecSpecificDataLen(%d)",
-            	//pMediaInfo->program[0].video[0].pCodecSpecificData,pMediaInfo->program[0].video[0].nCodecSpecificDataLen);		
+		assert(impl->aviFormat.vFormat.nCodecSpecificDataLen < 1024*128);
+		pMediaInfo->program[0].video[i].nCodecSpecificDataLen = impl->aviFormat.vFormat.nCodecSpecificDataLen;
+		pMediaInfo->program[0].video[i].pCodecSpecificData =
+		                    (cdx_char *)malloc(pMediaInfo->program[0].video[i].nCodecSpecificDataLen);
+		memcpy(pMediaInfo->program[0].video[i].pCodecSpecificData, impl->aviFormat.vFormat.pCodecSpecificData,
+				pMediaInfo->program[0].video[i].nCodecSpecificDataLen);
+		//CDX_LOGV("pCodecSpecificData(%p),nCodecSpecificDataLen(%d)",
+		//pMediaInfo->program[0].video[0].pCodecSpecificData,pMediaInfo->program[0].video[0].nCodecSpecificDataLen);
             }
             else
             {
-            	pMediaInfo->program[0].video[i].pCodecSpecificData = NULL;
-            	pMediaInfo->program[0].video[i].nCodecSpecificDataLen = 0;
+		pMediaInfo->program[0].video[i].pCodecSpecificData = NULL;
+		pMediaInfo->program[0].video[i].nCodecSpecificDataLen = 0;
             }
         }
         else
@@ -1002,8 +1002,8 @@ static cdx_int32 __CdxAviParserGetMediaInfo(CdxParserT *parser, CdxMediaInfoT *p
             }
             else
             {
-            	pMediaInfo->program[0].subtitle[i].pCodecSpecificData = NULL;
-            	pMediaInfo->program[0].subtitle[i].nCodecSpecificDataLen = 0;
+		pMediaInfo->program[0].subtitle[i].pCodecSpecificData = NULL;
+		pMediaInfo->program[0].subtitle[i].nCodecSpecificDataLen = 0;
             }
         }
         else

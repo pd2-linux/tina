@@ -117,7 +117,7 @@ int SoundDeviceWrite(SoundCtrl* s, void* pData, int nDataSize)
 	callbackParam[0] = (int)pData;
 	callbackParam[1] = nDataSize;
     if(sc->callback)
-    	sc->callback(sc->pUserData, MESSAGE_ID_SOUND_NOTIFY_BUFFER, (void*)callbackParam);
+	sc->callback(sc->pUserData, MESSAGE_ID_SOUND_NOTIFY_BUFFER, (void*)callbackParam);
 
 	return nDataSize;
 }
@@ -181,26 +181,25 @@ int SoundDeviceGetVolume(SoundCtrl* s, float *volume)
 
 SoundControlOpsT mSoundControlOps = 
 {
-	SoundDeviceInit:          		SoundDeviceInit,
-	SoundDeviceRelease:       		SoundDeviceRelease,
-	SoundDeviceSetFormat:     		SoundDeviceSetFormat,
-	SoundDeviceStart:         		SoundDeviceStart,
-	SoundDeviceStop:          		SoundDeviceStop,
-	SoundDevicePause:         		SoundDevicePause,
-	SoundDeviceWrite:         		SoundDeviceWrite,
-	SoundDeviceReset:         		SoundDeviceReset,
-	SoundDeviceGetCachedTime: 		SoundDeviceGetCachedTime,
-	SoundDeviceInit_raw:      		SoundDeviceInit_raw,
-	SoundDeviceRelease_raw:   		SoundDeviceRelease_raw,
-	SoundDeviceSetFormat_raw: 		SoundDeviceSetFormat,
-	SoundDeviceStart_raw:     		SoundDeviceStart_raw,
-	SoundDeviceStop_raw:      		SoundDeviceStop_raw,
-	SoundDevicePause_raw:     		SoundDevicePause_raw,
-	SoundDeviceWrite_raw:     		SoundDeviceWrite_raw,
-	SoundDeviceReset_raw:     		SoundDeviceReset,
-	SoundDeviceGetCachedTime_raw: 	SoundDeviceGetCachedTime,
-	SoundDeviceSetVolume: 			SoundDeviceSetVolume,
-	SoundDeviceGetVolume:         	SoundDeviceGetVolume,
-	SoundDeviceSetCallback:        	SoundDeviceSetCallback
+	SoundDeviceInit:			SoundDeviceInit,
+	SoundDeviceRelease:			SoundDeviceRelease,
+	SoundDeviceSetFormat:			SoundDeviceSetFormat,
+	SoundDeviceStart:			SoundDeviceStart,
+	SoundDeviceStop:			SoundDeviceStop,
+	SoundDevicePause:			SoundDevicePause,
+	SoundDeviceWrite:			SoundDeviceWrite,
+	SoundDeviceReset:			SoundDeviceReset,
+	SoundDeviceGetCachedTime:		SoundDeviceGetCachedTime,
+	SoundDeviceInit_raw:			SoundDeviceInit_raw,
+	SoundDeviceRelease_raw:			SoundDeviceRelease_raw,
+	SoundDeviceSetFormat_raw:		SoundDeviceSetFormat,
+	SoundDeviceStart_raw:			SoundDeviceStart_raw,
+	SoundDeviceStop_raw:			SoundDeviceStop_raw,
+	SoundDevicePause_raw:			SoundDevicePause_raw,
+	SoundDeviceWrite_raw:			SoundDeviceWrite_raw,
+	SoundDeviceReset_raw:			SoundDeviceReset,
+	SoundDeviceGetCachedTime_raw:	SoundDeviceGetCachedTime,
+	SoundDeviceSetVolume:			SoundDeviceSetVolume,
+	SoundDeviceGetVolume:		SoundDeviceGetVolume,
+	SoundDeviceSetCallback:		SoundDeviceSetCallback
 };
-

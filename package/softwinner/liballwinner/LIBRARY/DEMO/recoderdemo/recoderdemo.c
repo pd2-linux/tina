@@ -206,7 +206,7 @@ void* MuxerThread(void *param)
 #endif
     if(p->muxType == CDX_MUXER_AAC)
     {
-    	mediainfo.videoNum = 0;
+	mediainfo.videoNum = 0;
     }
 	
 	mediainfo.audio.nAvgBitrate = p->audioConfig.nBitrate;
@@ -412,7 +412,7 @@ void* VideoInputThread(void *param)
 		    return NULL;
 	    }
 	    CdcMemOpen(memops);
-    	p->pAddrPhyY = CdcMemPalloc(memops, sizeY);
+	p->pAddrPhyY = CdcMemPalloc(memops, sizeY);
 		p->pAddrPhyC = CdcMemPalloc(memops, sizeY/2);
 		printf("==== palloc demoRecoder.pAddrPhyY: %p\n", p->pAddrPhyY);
 
@@ -471,14 +471,14 @@ void* VideoInputThread(void *param)
 		else
 		{
 			size1 = fread(videoInputBuffer.pData, 1, videoInputBuffer.nLen, inputYUV);
-	    	if(size1 < videoInputBuffer.nLen)
-	    	{
-	    		logd("read error");
-	    		videoEos = 1;
-	    	}
+		if(size1 < videoInputBuffer.nLen)
+		{
+			logd("read error");
+			videoEos = 1;
+		}
 		}
 	
-    	while(ret < 0)
+	while(ret < 0)
 		{
 		    videoInputBuffer.nPts = videoPts;
 		    p->bUsed = 1;
@@ -541,19 +541,19 @@ int main(int argc, char *argv[])
 
     if(argc < 3)
     {
-    	printf("run failed \n");
-    	printf("./recoderdemo argv[1] argv[2] \n");
-    	printf(" argv[1]: video yuv data file \n");
-    	printf(" argv[2]: audio pcm file \n");
-    	return -1;
+	printf("run failed \n");
+	printf("./recoderdemo argv[1] argv[2] \n");
+	printf(" argv[1]: video yuv data file \n");
+	printf(" argv[2]: audio pcm file \n");
+	return -1;
     }
 #if VIDEO_INPUT
     inputYUV = fopen(argv[1], "rb");
     logd("fopen inputYUV == %p\n", inputYUV);
     if(inputYUV == NULL)
     {
-    	printf("open yuv file failed");
-    	return -1;
+	printf("open yuv file failed");
+	return -1;
     }
 #endif
 #if AUDIO_INPUT
@@ -561,8 +561,8 @@ int main(int argc, char *argv[])
     logd("fopen inputPCM == %p\n", inputPCM);
     if(inputPCM == NULL)
     {
-    	printf("open pcm file failed");
-    	return -1;
+	printf("open pcm file failed");
+	return -1;
     }
 #endif
     
@@ -575,7 +575,7 @@ int main(int argc, char *argv[])
     demoRecoder.fpSaveVideoFrame = fopen("/mnt/UDISK/video.dat", "wb");
     if(demoRecoder.fpSaveVideoFrame == NULL)
     {
-    	printf("open file /mnt/UDISK/video.dat failed, errno(%d)\n", errno);
+	printf("open file /mnt/UDISK/video.dat failed, errno(%d)\n", errno);
     }
 #endif
 	//VideoEncodeConfig videoConfig;
@@ -602,23 +602,23 @@ int main(int argc, char *argv[])
 
     if(demoRecoder.muxType == CDX_MUXER_TS && demoRecoder.audioConfig.nType == AUDIO_ENCODE_PCM_TYPE)
     {
-    	demoRecoder.audioConfig.nFrameStyle = 2;
+	demoRecoder.audioConfig.nFrameStyle = 2;
     }
 
     if(demoRecoder.muxType == CDX_MUXER_TS && demoRecoder.audioConfig.nType == AUDIO_ENCODE_AAC_TYPE)
     {
-    	demoRecoder.audioConfig.nFrameStyle = 1;
+	demoRecoder.audioConfig.nFrameStyle = 1;
     }
     
     if(demoRecoder.muxType == CDX_MUXER_AAC) 
     {
-    	demoRecoder.audioConfig.nType = AUDIO_ENCODE_AAC_TYPE;
-    	demoRecoder.audioConfig.nFrameStyle = 0;
+	demoRecoder.audioConfig.nType = AUDIO_ENCODE_AAC_TYPE;
+	demoRecoder.audioConfig.nFrameStyle = 0;
     }
 
     if(demoRecoder.muxType == CDX_MUXER_MP3) 
     {
-    	demoRecoder.audioConfig.nType = AUDIO_ENCODE_MP3_TYPE;
+	demoRecoder.audioConfig.nType = AUDIO_ENCODE_MP3_TYPE;
     }
     
     pthread_mutex_init(&demoRecoder.mMutex, NULL);
@@ -635,12 +635,12 @@ int main(int argc, char *argv[])
 
 	if(demoRecoder.muxType == CDX_MUXER_AAC || demoRecoder.muxType == CDX_MUXER_MP3) 
 	{
-    	AwEncoderInit(demoRecoder.mAwEncoder, NULL, &demoRecoder.audioConfig,&mEncDataCallBackOps); 
-    	videoEos = 1;
+	AwEncoderInit(demoRecoder.mAwEncoder, NULL, &demoRecoder.audioConfig,&mEncDataCallBackOps);
+	videoEos = 1;
     }
     else
     {
-    	AwEncoderInit(demoRecoder.mAwEncoder, &demoRecoder.videoConfig, &demoRecoder.audioConfig,&mEncDataCallBackOps); 
+	AwEncoderInit(demoRecoder.mAwEncoder, &demoRecoder.videoConfig, &demoRecoder.audioConfig,&mEncDataCallBackOps);
     }
     //AwEncoderInit(demoRecoder.mAwEncoder, &demoRecoder.videoConfig, NULL,&mEncDataCallBackOps);
 
@@ -666,7 +666,7 @@ int main(int argc, char *argv[])
 #if SAVE_VIDEO_FRAME
     if(demoRecoder.fpSaveVideoFrame)
     {
-    	fwrite(demoRecoder.extractDataBuff, 1, demoRecoder.extractDataLength, demoRecoder.fpSaveVideoFrame);
+	fwrite(demoRecoder.extractDataBuff, 1, demoRecoder.extractDataLength, demoRecoder.fpSaveVideoFrame);
     }
 #endif
 
@@ -676,7 +676,7 @@ int main(int argc, char *argv[])
 #if VIDEO_INPUT
     if((demoRecoder.muxType != CDX_MUXER_AAC) && (demoRecoder.muxType != CDX_MUXER_MP3)) 
     {
-    	pthread_create(&demoRecoder.videoDataThreadId, NULL, VideoInputThread, &demoRecoder);
+	pthread_create(&demoRecoder.videoDataThreadId, NULL, VideoInputThread, &demoRecoder);
     }
 #endif
 
@@ -690,14 +690,14 @@ int main(int argc, char *argv[])
     }
 
 	if(demoRecoder.muxerThreadId)
-    	pthread_join(demoRecoder.muxerThreadId,     NULL);
+	pthread_join(demoRecoder.muxerThreadId,     NULL);
 #if AUDIO_INPUT
     if(demoRecoder.audioDataThreadId)
-    	pthread_join(demoRecoder.audioDataThreadId, NULL);
+	pthread_join(demoRecoder.audioDataThreadId, NULL);
 #endif
 #if VIDEO_INPUT
     if(demoRecoder.videoDataThreadId)
-    	pthread_join(demoRecoder.videoDataThreadId, NULL);
+	pthread_join(demoRecoder.videoDataThreadId, NULL);
 #endif
 
 	printf("destroy AwRecorder.\n");
@@ -721,7 +721,7 @@ int main(int argc, char *argv[])
     pthread_mutex_destroy(&demoRecoder.mMutex);
 #if SAVE_VIDEO_FRAME
     if(demoRecoder.fpSaveVideoFrame)
-    	fclose(demoRecoder.fpSaveVideoFrame);
+	fclose(demoRecoder.fpSaveVideoFrame);
 #endif
 
 #if VIDEO_INPUT

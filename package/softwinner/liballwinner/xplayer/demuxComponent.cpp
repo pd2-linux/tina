@@ -393,6 +393,22 @@ MediaInfo* DemuxCompGetMediaInfo(DemuxComp* d)
     mi->eContainerType = myMediaInfo->eContainerType;
     mi->bSeekable      = myMediaInfo->bSeekable;
     
+    mi->albumsz = myMediaInfo->albumsz;
+    mi->albumCharEncode = myMediaInfo->albumCharEncode;
+    memcpy(mi->album, myMediaInfo->album, mi->albumsz);
+
+    mi->authorsz = myMediaInfo->authorsz;
+    mi->authorCharEncode = myMediaInfo->authorCharEncode;
+    memcpy(mi->author, myMediaInfo->author, mi->authorsz);
+
+    mi->genresz = myMediaInfo->genresz;
+    mi->genreCharEncode = myMediaInfo->genreCharEncode;
+    memcpy(mi->genre, myMediaInfo->genre, mi->genresz);
+
+    mi->titlesz = myMediaInfo->titlesz;
+    mi->titleCharEncode = myMediaInfo->titleCharEncode;
+    memcpy(mi->title, myMediaInfo->title, mi->titlesz);
+
     logv("video stream num = %d, video stream info = %p",
             myMediaInfo->nVideoStreamNum, myMediaInfo->pVideoStreamInfo);
     
@@ -686,18 +702,10 @@ process_message:
             {
                 //* data source of url path.
                 char*                          uri;
-#if CONFIG_OS == OPTION_OS_ANDROID
-                KeyedVector<String8, String8>* pHeaders;
-#else
                 map<string, string>*           pHeaders;
-#endif
                 
                 uri = (char*)msg.params[3];
-#if CONFIG_OS == OPTION_OS_ANDROID
-                pHeaders = (KeyedVector<String8, String8>*)msg.params[4];
-#else
                 pHeaders = (map<string, string>*)msg.params[4];
-#endif
                 
                 if(setDataSourceFields(&demux->source, uri, pHeaders) == 0)
                 {
@@ -1729,15 +1737,6 @@ static int setDataSourceFields(CdxDataSourceT* source, char* uri, map<string,str
         if(pHeaders != NULL && (!strncasecmp("http://", uri, 7) ||
             !strncasecmp("https://", uri, 8)))
         {
-#if CONFIG_OS == OPTION_OS_ANDROID
-            String8 key;
-            String8 value;
-            char*   str;
-            
-            i = pHeaders->indexOfKey(String8("x-hide-urls-from-log"));
-            if(i >= 0)
-                pHeaders->removeItemsAt(i);
-#else
             string key;
             string value;
             char*  str;
@@ -1746,7 +1745,7 @@ static int setDataSourceFields(CdxDataSourceT* source, char* uri, map<string,str
             it = pHeaders->find(string("x-hide-urls-from-log"));
             if(it != pHeaders->end())
                 pHeaders->erase(it);
-#endif
+
             nHeaderSize = pHeaders->size();
             if(nHeaderSize > 0)
             {
@@ -1773,22 +1772,13 @@ static int setDataSourceFields(CdxDataSourceT* source, char* uri, map<string,str
                 source->extraData = (void*)pHttpHeaders;
                 source->extraDataType = EXTRA_DATA_HTTP_HEADER;
                 
-#if CONFIG_OS == OPTION_OS_ANDROID
-                for(i=0; i<nHeaderSize; i++)
-#else
                 i = 0;
                 for(it=pHeaders->begin(); it!=pHeaders->end(); ++it)
-#endif
                 {
-#if CONFIG_OS == OPTION_OS_ANDROID
-                    key   = pHeaders->keyAt(i);
-                    value = pHeaders->valueAt(i);
-                    str = (char*)key.string();
-#else
                     key   = it->first;
                     value = it->second;
                     str = (char*)key.c_str();
-#endif
+
                     if(str != NULL)
                     {
                         pHttpHeaders->pHttpHeader[i].key = (const char*)strdup(str);
@@ -1802,11 +1792,7 @@ static int setDataSourceFields(CdxDataSourceT* source, char* uri, map<string,str
                     else
                         pHttpHeaders->pHttpHeader[i].key = NULL;
                     
-#if CONFIG_OS == OPTION_OS_ANDROID
-                    str = (char*)value.string();
-#else
                     str = (char*)value.c_str();
-#endif
                     if(str != NULL)
                     {
                         pHttpHeaders->pHttpHeader[i].val = (const char*)strdup(str);
@@ -1820,9 +1806,7 @@ static int setDataSourceFields(CdxDataSourceT* source, char* uri, map<string,str
                     else
                         pHttpHeaders->pHttpHeader[i].val = NULL;
                     
-#if CONFIG_OS != OPTION_OS_ANDROID
                     i++;
-#endif
                 }
             }
         }
@@ -1848,6 +1832,22 @@ static int setMediaInfo(MediaInfo* pMediaInfo, CdxMediaInfoT* pInfoFromParser)
     pMediaInfo->nFileSize   = pInfoFromParser->fileSize;
     pMediaInfo->bSeekable   = pInfoFromParser->bSeekable;    //* TODO, parser should give this flag.
     
+    pMediaInfo->albumsz = pInfoFromParser->albumsz;
+    pMediaInfo->albumCharEncode = pInfoFromParser->albumCharEncode;
+    memcpy(pMediaInfo->album, pInfoFromParser->album, pMediaInfo->albumsz);
+
+    pMediaInfo->authorsz = pInfoFromParser->authorsz;
+    pMediaInfo->authorCharEncode = pInfoFromParser->authorCharEncode;
+    memcpy(pMediaInfo->author, pInfoFromParser->author, pMediaInfo->authorsz);
+
+    pMediaInfo->genresz = pInfoFromParser->genresz;
+    pMediaInfo->genreCharEncode = pInfoFromParser->genreCharEncode;
+    memcpy(pMediaInfo->genre, pInfoFromParser->genre, pMediaInfo->genresz);
+
+    pMediaInfo->titlesz = pInfoFromParser->titlesz;
+    pMediaInfo->titleCharEncode = pInfoFromParser->titleCharEncode;
+    memcpy(pMediaInfo->title, pInfoFromParser->title, pMediaInfo->titlesz);
+
     nStreamCount = pInfoFromParser->program[0].videoNum;
     logv("video stream count = %d", nStreamCount);
     if(nStreamCount > 0)

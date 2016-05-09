@@ -77,7 +77,7 @@ typedef enum _snd_ctl_event_type {
 
 /** Element has been removed (Warning: test this first and if set don't
   * test the other masks) \hideinitializer */
-#define SND_CTL_EVENT_MASK_REMOVE 	(~0U)
+#define SND_CTL_EVENT_MASK_REMOVE	(~0U)
 /** Element value has been changed \hideinitializer */
 #define SND_CTL_EVENT_MASK_VALUE	(1<<0)
 /** Element info has been changed \hideinitializer */
@@ -116,17 +116,17 @@ typedef enum _snd_ctl_event_type {
 /** Mask for the major Power State identifier */
 #define SND_CTL_POWER_MASK		0xff00
 /** ACPI/PCI Power State D0 */
-#define SND_CTL_POWER_D0          	0x0000
+#define SND_CTL_POWER_D0		0x0000
 /** ACPI/PCI Power State D1 */
-#define SND_CTL_POWER_D1     	     	0x0100
+#define SND_CTL_POWER_D1		0x0100
 /** ACPI/PCI Power State D2 */
-#define SND_CTL_POWER_D2 	        0x0200
+#define SND_CTL_POWER_D2	        0x0200
 /** ACPI/PCI Power State D3 */
-#define SND_CTL_POWER_D3         	0x0300
+#define SND_CTL_POWER_D3		0x0300
 /** ACPI/PCI Power State D3hot */
 #define SND_CTL_POWER_D3hot		(SND_CTL_POWER_D3|0x0000)
 /** ACPI/PCI Power State D3cold */
-#define SND_CTL_POWER_D3cold	      	(SND_CTL_POWER_D3|0x0001)
+#define SND_CTL_POWER_D3cold		(SND_CTL_POWER_D3|0x0001)
 
 /** TLV type - Container */
 #define SND_CTL_TLVT_CONTAINER		0x0000

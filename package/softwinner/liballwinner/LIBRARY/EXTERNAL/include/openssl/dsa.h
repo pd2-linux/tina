@@ -223,7 +223,7 @@ void *DSA_get_ex_data(DSA *d, int idx);
 
 DSA *	d2i_DSAPublicKey(DSA **a, const unsigned char **pp, long length);
 DSA *	d2i_DSAPrivateKey(DSA **a, const unsigned char **pp, long length);
-DSA * 	d2i_DSAparams(DSA **a, const unsigned char **pp, long length);
+DSA *	d2i_DSAparams(DSA **a, const unsigned char **pp, long length);
 
 /* Deprecated version */
 #ifndef OPENSSL_NO_DEPRECATED
@@ -240,7 +240,7 @@ int	DSA_generate_parameters_ex(DSA *dsa, int bits,
 
 int	DSA_generate_key(DSA *a);
 int	i2d_DSAPublicKey(const DSA *a, unsigned char **pp);
-int 	i2d_DSAPrivateKey(const DSA *a, unsigned char **pp);
+int	i2d_DSAPrivateKey(const DSA *a, unsigned char **pp);
 int	i2d_DSAparams(const DSA *a,unsigned char **pp);
 
 #ifndef OPENSSL_NO_BIO

@@ -52,7 +52,7 @@
 #define MOV_TFHD_DEFAULT_DURATION       0x08
 #define MOV_TFHD_DEFAULT_SIZE           0x10
 #define MOV_TFHD_DEFAULT_FLAGS          0x20
-#define MOV_TFHD_DURATION_IS_EMPTY  	0x010000
+#define MOV_TFHD_DURATION_IS_EMPTY	0x010000
 
 // 'trun'
 #define MOV_TRUN_DATA_OFFSET            0x01
@@ -75,51 +75,51 @@
 
 struct CdxMovParser
 {
-    CdxParserT 	parserinfo;
+    CdxParserT	parserinfo;
     CdxStreamT *stream;
     CdxPacketT  packet;                  // for prefetch in prefetched status
-    int 		exitFlag;
+    int			exitFlag;
     int			mErrno;
     int         mStatus;
     cdx_atomic_t ref;
     int          bDashSegment;          // 1: DASH have serveral segments mp4 file ( HDWorld)        
     int          bSmsSegment;           // smooth streaming.
     
-    void    	*privData;              //pointer to the MOVContext
+    void	*privData;              //pointer to the MOVContext
 
-    CDX_S8    	hasVideo;               //video flag, =0:no video bitstream; >0:video bitstream count
-    CDX_S8    	hasAudio;               //audio flag, =0:no audio bitstream; >0:audio bitstream count
-    CDX_S8    	hasSubTitle;            //lyric flag, =0:no lyric bitstream; >0:lyric bitstream count
+    CDX_S8	hasVideo;               //video flag, =0:no video bitstream; >0:video bitstream count
+    CDX_S8	hasAudio;               //audio flag, =0:no audio bitstream; >0:audio bitstream count
+    CDX_S8	hasSubTitle;            //lyric flag, =0:no lyric bitstream; >0:lyric bitstream count
 
-    CDX_S8    	VideoStreamIndex;       //video bitstream index
-    CDX_S8    	AudioStreamIndex;       //audio bitstream index
-    CDX_S8    	SubTitleStreamIndex;    //lyric stream index
+    CDX_S8	VideoStreamIndex;       //video bitstream index
+    CDX_S8	AudioStreamIndex;       //audio bitstream index
+    CDX_S8	SubTitleStreamIndex;    //lyric stream index
 
-    CDX_U32   	totalTime;              //total time (ms)
-    CDX_S32   	hasIdx;                 //if the media file has index to support ff/rr
+    CDX_U32	totalTime;              //total time (ms)
+    CDX_S32	hasIdx;                 //if the media file has index to support ff/rr
 
-    CDX_U32   	nPreFRSpeed;            //previous ff/rr speed, for dynamic adjust
-    CDX_U32   	nFRSpeed;               //fast forward and fast backward speed, multiple of normal speed
-    CDX_U32   	nFRPicShowTime;         //picture show time under fast forward and backward
-    CDX_U32   	nFRPicCnt;              //picture count under ff/rr, for check if need delay
+    CDX_U32	nPreFRSpeed;            //previous ff/rr speed, for dynamic adjust
+    CDX_U32	nFRSpeed;               //fast forward and fast backward speed, multiple of normal speed
+    CDX_U32	nFRPicShowTime;         //picture show time under fast forward and backward
+    CDX_U32	nFRPicCnt;              //picture count under ff/rr, for check if need delay
 
-    CDX_U32   	nVidPtsOffset;          //video time offset
-    CDX_U32   	nAudPtsOffset;          //audio time offset
-    CDX_U32   	nSubPtsOffset;          //subtitle time offset
+    CDX_U32	nVidPtsOffset;          //video time offset
+    CDX_U32	nAudPtsOffset;          //audio time offset
+    CDX_U32	nSubPtsOffset;          //subtitle time offset
 
     CDX_S32     SubStreamSyncFlg;
-    CDX_U8		*pktData;      			// subtitle extra_data
+    CDX_U8		*pktData;			// subtitle extra_data
 
-	CDX_U32		chkType;           		//subtitle chunk type, it is unused
+	CDX_U32		chkType;			//subtitle chunk type, it is unused
 
     void        *pVideoExtraData;       //vop header pointer
     CDX_S32     nVideoExtraDataLen;      //vop header left size
-    CDX_S32   	keyItl;
-    CDX_S32   	bDiscardAud;
+    CDX_S32	keyItl;
+    CDX_S32	bDiscardAud;
 
-	VideoStreamInfo 			vFormat;
+	VideoStreamInfo				vFormat;
     SubtitleStreamInfo          tFormat;    //subtitle format
-    VirCacheContext             	*vc;
+    VirCacheContext			*vc;
 
     #if SAVE_VIDEO
     FILE *fp;
@@ -200,9 +200,9 @@ struct _MOVCtts
 //segment index
 typedef struct MOVSidx 
 {
-	CDX_U64   	current_dts;  // the start pts of this segment
+	CDX_U64		current_dts;  // the start pts of this segment
 	CDX_U64		offset;
-	CDX_U64 	duration;
+	CDX_U64		duration;
     CDX_U32		size;
 } MOVSidx;
 
@@ -384,7 +384,7 @@ struct _Sample
 typedef struct MOVContext 
 {
 	CdxStreamT		*fp;
-	CDX_U8  		*moov_buffer;   // 'moov' atom (not contain 'moov' size and type)
+	CDX_U8			*moov_buffer;   // 'moov' atom (not contain 'moov' size and type)
 	CDX_U32			moov_size;
     CDX_S32			file_size;
 	MOV_CHUNK		chunk_info;
@@ -410,7 +410,7 @@ typedef struct MOVContext
 	CDX_U64			last_sample_pts;
 	int				is_fragment;   // the mp4 file is fragment mp4
 	MOVFragment		fragment;     //current fragment in moof atom
-	MOVTrackExt 	*trex_data;    // 'trex' atom, each trak has a trex
+	MOVTrackExt	*trex_data;    // 'trex' atom, each trak has a trex
 	int				trex_num;
 	AW_List*			Vsamples;  //video sample
 	AW_List*			Asamples;  // audio sample
@@ -460,7 +460,7 @@ typedef struct MOVContext
 
 	//metadata
 	//**<  the geometry information for camera record
-	cdx_uint8 			location[32];
+	cdx_uint8			location[32];
 	cdx_uint8           title[32];
 	cdx_uint8           album[32];
 	cdx_uint8           artist[32];

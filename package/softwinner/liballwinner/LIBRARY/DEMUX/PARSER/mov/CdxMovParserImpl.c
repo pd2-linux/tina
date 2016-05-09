@@ -180,7 +180,7 @@ static CDX_S32 GetByte(CdxStreamT *s)
     int result;
     result = CdxStreamRead(s, &t, 1);
     if(result == 0)
-    	return 0;
+	return 0;
     t1 = (CDX_S32)t;
     return t1;
 }
@@ -339,15 +339,15 @@ static CDX_U64 ReadStco(MOVContext *c, MOVStreamContext *st, cdx_uint32 idx)
 
 	if(!st->co64)
 	{
-    	idx <<= 2;
-    	offset = st->stco_offset + idx;
-    	Cache_Data = MoovGetBe32(buffer+offset);
+	idx <<= 2;
+	offset = st->stco_offset + idx;
+	Cache_Data = MoovGetBe32(buffer+offset);
 	}
 	else
 	{
 	    idx <<= 3;
-    	offset = st->stco_offset + idx;
-    	Cache_Data = MoovGetBe64(buffer+offset);
+	offset = st->stco_offset + idx;
+	Cache_Data = MoovGetBe64(buffer+offset);
 	}
 
 	return	Cache_Data;
@@ -439,8 +439,8 @@ static int MovParseTfhd(MOVContext* s, CdxStreamT* pb, MOV_atom_t atom)
 	{
 	    if(!s->bSmsSegment) //* sms has no trex ??
 	    {
-    		CDX_LOGE("Worning: could not find corresponding trex!");
-    		return -1;
+		CDX_LOGE("Worning: could not find corresponding trex!");
+		return -1;
 		}
 	}
 
@@ -799,16 +799,16 @@ int MovParseTraf(MOVContext* s, CdxStreamT* pb, MOV_atom_t atom)
 	    }
 	    
 		a.size = MoovGetBe32(buf);   //big endium	
-    	a.type = MoovGetLe32(buf+4);
+	a.type = MoovGetLe32(buf+4);
     	
-    	//CDX_LOGD("traf  size = %x, type=%x", a.size, a.type);
-    	if((a.size == 0) || (a.type == 0))
-    	{    
-    		CDX_LOGE("atom error!");
-    		return -1;
-    	}
+	//CDX_LOGD("traf  size = %x, type=%x", a.size, a.type);
+	if((a.size == 0) || (a.type == 0))
+	{
+		CDX_LOGE("atom error!");
+		return -1;
+	}
     	
-    	if(a.type == MKTAG( 't', 'f', 'h', 'd' ))
+	if(a.type == MKTAG( 't', 'f', 'h', 'd' ))
 		{
 			// sample default infomation: base offset, duration,...
 			ret = MovParseTfhd(s, pb, a);
@@ -846,8 +846,8 @@ int MovParseTraf(MOVContext* s, CdxStreamT* pb, MOV_atom_t atom)
 		{   
 		    if(s->bSeekAble)
 		    {
-    			ret = CdxStreamSeek(pb, a.size-8, SEEK_CUR);
-    			if(ret < 0) return -1;
+			ret = CdxStreamSeek(pb, a.size-8, SEEK_CUR);
+			if(ret < 0) return -1;
 			}
 			else
 			{
@@ -1057,17 +1057,17 @@ static int MovParseMoof(MOVContext* s, CdxStreamT* pb, MOV_atom_t atom)
 	    }
 	    
 		a.size = MoovGetBe32(buf);   //big endium	
-    	a.type = MoovGetLe32(buf+4);
+	a.type = MoovGetLe32(buf+4);
 
-    	//LOGD("type = %x, size=%x", a.type, a.size);
-    	if((a.size == 0) || (a.type == 0))
-    	{    
-    		CDX_LOGE(" moof atom error!");
-    		return -1;
-    	}
+	//LOGD("type = %x, size=%x", a.type, a.size);
+	if((a.size == 0) || (a.type == 0))
+	{
+		CDX_LOGE(" moof atom error!");
+		return -1;
+	}
     	
-    	//CDX_LOGD("type = %x, size=%x", a.type, a.size);
-    	if(a.type == MKTAG( 't', 'r', 'a', 'f' ))
+	//CDX_LOGD("type = %x, size=%x", a.type, a.size);
+	if(a.type == MKTAG( 't', 'r', 'a', 'f' ))
 		{
 			ret = MovParseTraf(s, pb, a);
 		}
@@ -1075,8 +1075,8 @@ static int MovParseMoof(MOVContext* s, CdxStreamT* pb, MOV_atom_t atom)
 		{
 			 if(s->bSeekAble)
 		    {
-    			ret = CdxStreamSeek(pb, a.size-8, SEEK_CUR);
-    			if(ret < 0) return -1;
+			ret = CdxStreamSeek(pb, a.size-8, SEEK_CUR);
+			if(ret < 0) return -1;
 			}
 			else
 			{
@@ -1110,7 +1110,7 @@ CDX_S16 MovBuildKeyframeIdx(struct CdxMovParser *p, CDX_S32 tbl_itl) //(sample_n
     CDX_U64       chunk_ost;
     CDX_U64       chunk_sample_size;
     CDX_S32       sample_num, stsc_samples_acc=0;
-	CDX_S32   	  chunk_first_sample_ost;
+	CDX_S32		  chunk_first_sample_ost;
 	CDX_S32       tbl_idx = 0;
     
     c = (MOVContext*)p->privData;
@@ -1127,13 +1127,13 @@ CDX_S16 MovBuildKeyframeIdx(struct CdxMovParser *p, CDX_S32 tbl_itl) //(sample_n
 	//stss_idx is the keyframe index
     for(stss_idx=0; stss_idx < st->stss_size; stss_idx+=tbl_itl)
     {
-    	//read the sample index of keyframe from stss
-    	st->mov_idx_curr.sample_idx = sample_num = ReadStss(c, st, stss_idx<<2) - 1;
+	//read the sample index of keyframe from stss
+	st->mov_idx_curr.sample_idx = sample_num = ReadStss(c, st, stss_idx<<2) - 1;
 
 		//if the sample_num exist , find the chunk of key frame
         if (sample_num > stsc_samples_acc-1 && stsc_idx <= st->stsc_size) 
         {
-        	//accumulate the samples in the same chunk ,until find the chunk where the keyframe index sample in
+		//accumulate the samples in the same chunk ,until find the chunk where the keyframe index sample in
             while(1)
             {
                 idx = stsc_idx * 12;
@@ -1149,7 +1149,7 @@ CDX_S16 MovBuildKeyframeIdx(struct CdxMovParser *p, CDX_S32 tbl_itl) //(sample_n
                 }
                 else
                 {
-                	stsc_next    = ReadStsc(c, st, idx+12); //the next chunk id
+			stsc_next    = ReadStsc(c, st, idx+12); //the next chunk id
 
                     samples_in_chunks = (stsc_next - stsc_first)*stsc_samples;//the sample number between the two chunks
                 }
@@ -1191,7 +1191,7 @@ CDX_S16 MovBuildKeyframeIdx(struct CdxMovParser *p, CDX_S32 tbl_itl) //(sample_n
         {
             for(i=0; i<sample_in_chunk_ost; i++)
             {
-            	chunk_sample_size += ReadStsz(c, st, chunk_first_sample_ost + (i<<2) );
+		chunk_sample_size += ReadStsz(c, st, chunk_first_sample_ost + (i<<2) );
             }
         }
         c->idx_buf[tbl_idx].offset  = chunk_ost + chunk_sample_size;
@@ -1273,14 +1273,14 @@ CDX_S32 MovTimeToSampleSidx(struct CdxMovParser *p, int seconds, int stream_inde
 	}
     for(i=0; i<s->sidx_count; i++)
     {
-    	if(sidx[i].current_dts <= time)
-    	{
-    		sidx_idx = i;
-    	}
-    	else
-    	{
-    		break;
-    	}
+	if(sidx[i].current_dts <= time)
+	{
+		sidx_idx = i;
+	}
+	else
+	{
+		break;
+	}
     }
     s->streams[stream_index]->mov_idx_curr.current_dts = sidx[sidx_idx].current_dts;  //reset the audio pts
 	
@@ -1289,7 +1289,7 @@ CDX_S32 MovTimeToSampleSidx(struct CdxMovParser *p, int seconds, int stream_inde
     ret = CdxStreamSeek(pb, offset, SEEK_SET);
     if(ret < 0)
     {
-    	return -1;
+	return -1;
     }
 
     return 0;
@@ -1326,9 +1326,9 @@ CDX_S32 MovTimeToSample(struct CdxMovParser *p, int seconds)
             return -1;
         }
         
-    	idx = stts_idx << 3;
+	idx = stts_idx << 3;
 
-    	sample_count    = ReadStts(c, c->streams[stream_idx], idx);
+	sample_count    = ReadStts(c, c->streams[stream_idx], idx);
         sample_duration = ReadStts(c, c->streams[stream_idx], idx+4);
 
         duration_acc += (CDX_U64)sample_count * sample_duration;
@@ -1340,12 +1340,12 @@ CDX_S32 MovTimeToSample(struct CdxMovParser *p, int seconds)
 	
     if(sample_duration != 0)
 	{
-    	sample_idx = sample_count_acc - (duration_acc - duration_seek) / sample_duration;
+	sample_idx = sample_count_acc - (duration_acc - duration_seek) / sample_duration;
 	}
     else
 	{
 		CDX_LOGI("Be careful: sample_duration is zero, set sample_idx to zero!");
-    	sample_idx = 0;
+	sample_idx = 0;
 	}
 
     return sample_idx;
@@ -1431,7 +1431,7 @@ CDX_S16 MovSeekSample(struct CdxMovParser *p, CDX_U32 sample_num, CDX_S32 second
             chunk_first_sample_ost = (sample_num - sample_in_chunk_ost)<<2;
             for(i=0;i<sample_in_chunk_ost;i++)
             {
-            	st->mov_idx_curr.chunk_sample_size += ReadStsz(c, st, chunk_first_sample_ost + (i<<2));
+		st->mov_idx_curr.chunk_sample_size += ReadStsz(c, st, chunk_first_sample_ost + (i<<2));
             }
         }
     
@@ -1546,7 +1546,7 @@ CDX_S16 MovSeekSample(struct CdxMovParser *p, CDX_U32 sample_num, CDX_S32 second
                 
                 if (st->mov_idx_curr.stts_idx == 0) 
                 {
-                	stts_sample_count    = ReadStts(c, st, idx);
+			stts_sample_count    = ReadStts(c, st, idx);
                     stts_sample_duration = ReadStts(c, st, idx+4);
                     
                     st->mov_idx_curr.stts_samples_acc = stts_sample_count;
@@ -1587,10 +1587,10 @@ CDX_S16 MovSeekSample(struct CdxMovParser *p, CDX_U32 sample_num, CDX_S32 second
 
                 if(seek_dts > 0)
                 {
-    	            if(st->mov_idx_curr.stts_duration_acc > seek_dts) 
-    	            {
-    	                break;
-    	            } 
+	            if(st->mov_idx_curr.stts_duration_acc > seek_dts)
+	            {
+	                break;
+	            }
                 }
                 
                 if (stsz_acc <= st->mov_idx_curr.stts_samples_acc) 
@@ -1766,7 +1766,7 @@ CDX_S16 MovSeekSample(struct CdxMovParser *p, CDX_U32 sample_num, CDX_S32 second
                 st->mov_idx_curr.chunk_sample_size = 0;
                 for(idx=0; idx<seek_audio_sample; idx++)
                 {
-                	st->mov_idx_curr.chunk_sample_size += ReadStsz(c, st, st->mov_idx_curr.stsz_idx<<2);
+			st->mov_idx_curr.chunk_sample_size += ReadStsz(c, st, st->mov_idx_curr.stsz_idx<<2);
 
                     st->mov_idx_curr.stsz_idx++;
                 }   
@@ -1775,17 +1775,17 @@ CDX_S16 MovSeekSample(struct CdxMovParser *p, CDX_U32 sample_num, CDX_S32 second
             }
             else
             {
-            	// for 3D-1080P-B052.mov, the sample_idx is not right. 
-            	// but it is not a good idea 
-            	if((st->stts_size > 1) && (stsc_samples > 10))
-            	{
-            	    st->mov_idx_curr.sample_idx = stsz_acc + stsc_samples;
-            		//st->mov_idx_curr.sample_idx = st->mov_idx_curr.stts_samples_acc-1;
-            		CDX_LOGD("--- sample_idx=%d", st->mov_idx_curr.sample_idx);
-            	}            	
-            	else
-            	{
-                	st->mov_idx_curr.sample_idx = stsz_acc;   
+		// for 3D-1080P-B052.mov, the sample_idx is not right.
+		// but it is not a good idea
+		if((st->stts_size > 1) && (stsc_samples > 10))
+		{
+		    st->mov_idx_curr.sample_idx = stsz_acc + stsc_samples;
+			//st->mov_idx_curr.sample_idx = st->mov_idx_curr.stts_samples_acc-1;
+			CDX_LOGD("--- sample_idx=%d", st->mov_idx_curr.sample_idx);
+		}
+		else
+		{
+			st->mov_idx_curr.sample_idx = stsz_acc;
                 }
                 st->mov_idx_curr.chunk_sample_size = 0;
                 st->mov_idx_curr.chunk_sample_idx = 0;
@@ -1808,41 +1808,41 @@ CDX_S16 MovSeekSample(struct CdxMovParser *p, CDX_U32 sample_num, CDX_S32 second
             CDX_U32 stsz_acc;
             CDX_S32 stsc_first, stts_sample_count,stts_sample_duration;
             CDX_U32 stsc_next;
-    		CDX_U64 curr_chunk_duration = 0,seek_dts;
-    		CDX_U32 seek_subtitle_sample=0;
+		CDX_U64 curr_chunk_duration = 0,seek_dts;
+		CDX_U32 seek_subtitle_sample=0;
 
             //search audio stco > video stco
             st->mov_idx_curr.stco_idx = 0;
 
             st->mov_idx_curr.stsc_idx = 0;
-    		st->mov_idx_curr.stts_idx = 0;
-    		idx = 0;
-    		stsz_acc = 0;
+		st->mov_idx_curr.stts_idx = 0;
+		idx = 0;
+		stsz_acc = 0;
 
-    		stsc_first = ReadStsc(c, st, 0);
-    		stsc_samples = ReadStsc(c, st, idx+4);
-    		stsc_next    = ReadStsc(c, st, idx+12);
+		stsc_first = ReadStsc(c, st, 0);
+		stsc_samples = ReadStsc(c, st, idx+4);
+		stsc_next    = ReadStsc(c, st, idx+12);
 
-    		st->mov_idx_curr.stsc_idx++;
-    		if(st->mov_idx_curr.stsc_idx >= st->stsc_size)
-    		{
-    			stsc_next = INT_MAX;
-    		}
+		st->mov_idx_curr.stsc_idx++;
+		if(st->mov_idx_curr.stsc_idx >= st->stsc_size)
+		{
+			stsc_next = INT_MAX;
+		}
 
-    		stts_sample_count    = ReadStts(c, st, idx);
-    		stts_sample_duration = ReadStts(c, st, idx+4);
+		stts_sample_count    = ReadStts(c, st, idx);
+		stts_sample_duration = ReadStts(c, st, idx+4);
 
-    		st->mov_idx_curr.stts_samples_acc = stts_sample_count;
-    		st->mov_idx_curr.stts_duration_acc = (CDX_U64)stts_sample_count * stts_sample_duration;
-    		st->mov_idx_curr.stts_sample_duration = stts_sample_duration;
-    		st->mov_idx_curr.stts_idx = 1;
-    		seek_dts = c->streams[c->video_stream_idx]->mov_idx_curr.current_dts * st->time_scale
-    		             / c->streams[c->video_stream_idx]->time_scale;
-    		             
-    		if(st->stts_size == 1)
-    		{
-    		    seek_subtitle_sample = (CDX_U32)(seek_dts/stts_sample_duration);
-    		}
+		st->mov_idx_curr.stts_samples_acc = stts_sample_count;
+		st->mov_idx_curr.stts_duration_acc = (CDX_U64)stts_sample_count * stts_sample_duration;
+		st->mov_idx_curr.stts_sample_duration = stts_sample_duration;
+		st->mov_idx_curr.stts_idx = 1;
+		seek_dts = c->streams[c->video_stream_idx]->mov_idx_curr.current_dts * st->time_scale
+		             / c->streams[c->video_stream_idx]->time_scale;
+
+		if(st->stts_size == 1)
+		{
+		    seek_subtitle_sample = (CDX_U32)(seek_dts/stts_sample_duration);
+		}
     		    
             while(1)
             {
@@ -1851,69 +1851,69 @@ CDX_S16 MovSeekSample(struct CdxMovParser *p, CDX_U32 sample_num, CDX_S32 second
                     return -1;
                 }
                 
-    			if(st->mov_idx_curr.stco_idx+1 > stsc_next)
-    			{
-    				idx = st->mov_idx_curr.stsc_idx * 12;
-    				//stsc_first = ReadSubtitleSTSC(vc, 0);
+			if(st->mov_idx_curr.stco_idx+1 > stsc_next)
+			{
+				idx = st->mov_idx_curr.stsc_idx * 12;
+				//stsc_first = ReadSubtitleSTSC(vc, 0);
 
-    				stsc_samples = ReadStsc(c, st, idx+4);
-    				stsc_next    = ReadStsc(c, st, idx+12);
+				stsc_samples = ReadStsc(c, st, idx+4);
+				stsc_next    = ReadStsc(c, st, idx+12);
 
-    				st->mov_idx_curr.stsc_idx++;
-    				if(st->mov_idx_curr.stsc_idx >= st->stsc_size)
-    				{
-    			        stsc_next = INT_MAX;
-    		        }
-    			}
+				st->mov_idx_curr.stsc_idx++;
+				if(st->mov_idx_curr.stsc_idx >= st->stsc_size)
+				{
+			        stsc_next = INT_MAX;
+		        }
+			}
 
-    			stsz_acc += stsc_samples;
-                
-    			if(st->stts_size == 1)//most of streams goes here
-    			{
-        			if(stsz_acc > seek_subtitle_sample)
-        				break;
-    			}
-    			else    
-        		{
-        		    curr_chunk_duration += (CDX_U64)stsc_samples*stts_sample_duration;
-        			if(curr_chunk_duration > seek_dts)
-        				break;
-        			
-        			if(stsz_acc > st->mov_idx_curr.stts_samples_acc 
-        				&& st->mov_idx_curr.stts_idx < st->stts_size-1)
-        			{
-        				idx = st->mov_idx_curr.stts_idx<<3;
+			stsz_acc += stsc_samples;
 
-        				stts_sample_count    = ReadStts(c, st, idx);
-        				stts_sample_duration = ReadStts(c, st, idx+4);
-        				
-        				st->mov_idx_curr.stts_samples_acc += stts_sample_count;
-        				st->mov_idx_curr.stts_duration_acc += (CDX_U64)stts_sample_count * stts_sample_duration;
-        				st->mov_idx_curr.stts_sample_duration = stts_sample_duration;
-        				st->mov_idx_curr.stts_idx++;
-        			}
-        		}	
+			if(st->stts_size == 1)//most of streams goes here
+			{
+				if(stsz_acc > seek_subtitle_sample)
+					break;
+			}
+			else
+			{
+			    curr_chunk_duration += (CDX_U64)stsc_samples*stts_sample_duration;
+				if(curr_chunk_duration > seek_dts)
+					break;
 
-    			if(st->mov_idx_curr.stco_idx >= st->stco_size)
-    			{
-    				st->read_va_end = 1;
-    				break;
-    			}
+				if(stsz_acc > st->mov_idx_curr.stts_samples_acc
+					&& st->mov_idx_curr.stts_idx < st->stts_size-1)
+				{
+					idx = st->mov_idx_curr.stts_idx<<3;
 
-    			st->mov_idx_curr.stco_idx++;	
-    		}
-    		
-    		if(st->stts_size == 1)//most of streams goes here
-    		{
-    		    if(st->stco_size==1)
-    		        curr_chunk_duration = (CDX_U64)seek_subtitle_sample*stts_sample_duration;
-    		    else
-        		    curr_chunk_duration = (CDX_U64)stsz_acc*stts_sample_duration;
-    		}
-    		
-    		st->mov_idx_curr.current_dts = curr_chunk_duration;
-    		st->mov_idx_curr.stsc_samples = stsc_samples;
-    		st->mov_idx_curr.stsc_end = stsc_next;
+					stts_sample_count    = ReadStts(c, st, idx);
+					stts_sample_duration = ReadStts(c, st, idx+4);
+
+					st->mov_idx_curr.stts_samples_acc += stts_sample_count;
+					st->mov_idx_curr.stts_duration_acc += (CDX_U64)stts_sample_count * stts_sample_duration;
+					st->mov_idx_curr.stts_sample_duration = stts_sample_duration;
+					st->mov_idx_curr.stts_idx++;
+				}
+			}
+
+			if(st->mov_idx_curr.stco_idx >= st->stco_size)
+			{
+				st->read_va_end = 1;
+				break;
+			}
+
+			st->mov_idx_curr.stco_idx++;
+		}
+
+		if(st->stts_size == 1)//most of streams goes here
+		{
+		    if(st->stco_size==1)
+		        curr_chunk_duration = (CDX_U64)seek_subtitle_sample*stts_sample_duration;
+		    else
+			    curr_chunk_duration = (CDX_U64)stsz_acc*stts_sample_duration;
+		}
+
+		st->mov_idx_curr.current_dts = curr_chunk_duration;
+		st->mov_idx_curr.stsc_samples = stsc_samples;
+		st->mov_idx_curr.stsc_end = stsc_next;
             st->mov_idx_curr.chunk_idx = st->mov_idx_curr.stco_idx;//+1 to make it read stsc_end
             //audio stco_idx search end
 
@@ -1942,7 +1942,7 @@ CDX_S16 MovSeekSample(struct CdxMovParser *p, CDX_U32 sample_num, CDX_S32 second
                 stsz_acc += stsc_samples*(stsc_next - stsc_first);
                 stsc_first = stsc_next;
                 if(st->mov_idx_curr.stsc_idx >= st->stsc_size)
-    				break;
+				break;
             }
             st->mov_idx_curr.stsc_samples = stsc_samples;//add 20090512 to fix audio 1 table bug
             st->mov_idx_curr.stsc_end = 0; //force to read a audio stco idx
@@ -1995,7 +1995,7 @@ CDX_S16 MovSeekSample(struct CdxMovParser *p, CDX_U32 sample_num, CDX_S32 second
 CDX_S32 MovReadSampleList(struct CdxMovParser *p)
 {
 	int ret = 0;
-	MOVContext* 		s = (MOVContext*)p->privData;
+	MOVContext*		s = (MOVContext*)p->privData;
 	CdxStreamT	*pb = s->fp;
 	CDX_U64 offset = 0;
 	unsigned char buf[8] = {0};
@@ -2025,7 +2025,7 @@ CDX_S32 MovReadSampleList(struct CdxMovParser *p)
 	    }
 	    
 		a.size = MoovGetBe32(buf);   //big endium	
-    	a.type = MoovGetLe32(buf+4);	
+	a.type = MoovGetLe32(buf+4);
 
 		// read end
 		if((a.size == 0) || (a.type == 0))
@@ -2039,33 +2039,33 @@ CDX_S32 MovReadSampleList(struct CdxMovParser *p)
 			ret = MovParseMoof(s, pb, a);	
 		}	
 		else if (a.type == MKTAG( 'm', 'd', 'a', 't' ))
-    	{  
-    		//offset and duration of the chunk in segment 
-    		s->moof_end_offset = a.offset+a.size;
-    		s->nSmsMdatOffset = CdxStreamTell(pb); //* for sms
-    		//CDX_LOGD("xxx s->nSmsMdatOffset=%llu", s->nSmsMdatOffset);
-    		return 0;
-    	}
+	{
+		//offset and duration of the chunk in segment
+		s->moof_end_offset = a.offset+a.size;
+		s->nSmsMdatOffset = CdxStreamTell(pb); //* for sms
+		//CDX_LOGD("xxx s->nSmsMdatOffset=%llu", s->nSmsMdatOffset);
+		return 0;
+	}
 		else if (a.type == MKTAG( 's', 'i', 'd', 'x' ))
-    	{  
-    		//offset and duration of the chunk in segment 
-    		//if get a sidx the first_moof_offset should set to 0
-    		s->sidx_flag = 1;
-    		ret = MovParseSidx(s, pb, a);
-    	}
-    	else if (a.type == MKTAG( 's', 's', 'i', 'x' ))
-    	{  
-    		//offset and duration of the chunk in segment 		
-    		//MovParseSidx(s, pb, a);
-    		ret = CdxStreamSeek(pb, a.size - 8,SEEK_CUR);
-    	}
-    	else if (a.type == MKTAG( 'm', 'o', 'o', 'v' ))
-    	{  
-    		//offset and duration of the chunk in segment 
-    		//LOGD("-- sample list -- moov");    		
-    		//MovParseSidx(s, pb, a);
-    		ret = CdxStreamSeek(pb, a.size - 8,SEEK_CUR);
-    	}
+	{
+		//offset and duration of the chunk in segment
+		//if get a sidx the first_moof_offset should set to 0
+		s->sidx_flag = 1;
+		ret = MovParseSidx(s, pb, a);
+	}
+	else if (a.type == MKTAG( 's', 's', 'i', 'x' ))
+	{
+		//offset and duration of the chunk in segment
+		//MovParseSidx(s, pb, a);
+		ret = CdxStreamSeek(pb, a.size - 8,SEEK_CUR);
+	}
+	else if (a.type == MKTAG( 'm', 'o', 'o', 'v' ))
+	{
+		//offset and duration of the chunk in segment
+		//LOGD("-- sample list -- moov");
+		//MovParseSidx(s, pb, a);
+		ret = CdxStreamSeek(pb, a.size - 8,SEEK_CUR);
+	}
 		else
 		{
 			ret = CdxStreamSeek(pb, a.size - 8,SEEK_CUR);
@@ -2086,7 +2086,7 @@ CDX_S32 MovReadSampleList(struct CdxMovParser *p)
 CDX_S16 MovReadSampleFragment(struct CdxMovParser *p)
 {
 	int ret;
-	MOVContext* 		s = (MOVContext*)p->privData;
+	MOVContext*		s = (MOVContext*)p->privData;
 	AW_List* Vsamples = s->Vsamples;
 	AW_List* Asamples = s->Asamples;
 	MOV_CHUNK* chunk_info = &s->chunk_info;
@@ -2109,8 +2109,8 @@ CDX_S16 MovReadSampleFragment(struct CdxMovParser *p)
 			ret = MovReadSampleList(p);
 			if(ret == 1)
 			{
-	        	a_end = 1;
-	        	break;
+			a_end = 1;
+			break;
 			}
 			else if(ret < 0)
 			{
@@ -2323,24 +2323,24 @@ CDX_S16 MovReadSample(struct CdxMovParser *p)
     {   //load a new stsc function        
         if(st->mov_idx_curr.stsc_idx < st->stsc_size
            && st->mov_idx_curr.chunk_idx >= st->mov_idx_curr.stsc_end)
-       	{
+	{
             idx = st->mov_idx_curr.stsc_idx*12;
 
-    		//first chunk id in 'stsc' atom
-     		st->mov_idx_curr.stsc_first = ReadStsc(c, st, idx) - 1;
-     		//sample number of this chunk
+		//first chunk id in 'stsc' atom
+		st->mov_idx_curr.stsc_first = ReadStsc(c, st, idx) - 1;
+		//sample number of this chunk
             st->mov_idx_curr.stsc_samples = ReadStsc(c, st, idx + 4);
             
             /////******************  care , i do not kown it. maybe for audio seek
             if(st->stsd_type==2 && c->chunk_sample_idx_assgin_by_seek)
             {
-            	c->chunk_sample_idx_assgin_by_seek = 0;//assigned by seek
-            	// maybe should      st->chunk_sample_idx_assgin_by_seek = 0;
-            	CDX_LOGE("***** maybe error here");
+		c->chunk_sample_idx_assgin_by_seek = 0;//assigned by seek
+		// maybe should      st->chunk_sample_idx_assgin_by_seek = 0;
+		CDX_LOGE("***** maybe error here");
             }
             else
             {
-            	st->mov_idx_curr.chunk_sample_idx = 0;//a new sample idx
+		st->mov_idx_curr.chunk_sample_idx = 0;//a new sample idx
             }
             st->mov_idx_curr.stsc_idx++;
 
@@ -2377,8 +2377,8 @@ CDX_S16 MovReadSample(struct CdxMovParser *p)
         //video or there is stsz table
         if(st->sample_size == 0  || st->stsd_type == 1 || st->stsd_type == 3)
         { 
-        	// the size of this sample in stsz
-        	curr_sample_size = ReadStsz(c, st, st->mov_idx_curr.stsz_idx<<2);
+		// the size of this sample in stsz
+		curr_sample_size = ReadStsz(c, st, st->mov_idx_curr.stsz_idx<<2);
 
             //add the current sample size tp the chunk_sample_size to get the next sample offset
             st->mov_idx_curr.chunk_sample_size += curr_sample_size;
@@ -2393,13 +2393,13 @@ CDX_S16 MovReadSample(struct CdxMovParser *p)
                 {
                     if (st->sample_size != 0)
                     {                    //201200621 for ulaw;
-            		    st->audio_sample_size = st->sample_size;
+			    st->audio_sample_size = st->sample_size;
                     }
-            		curr_sample_size = st->mov_idx_curr.stsc_samples * st->audio_sample_size;
+			curr_sample_size = st->mov_idx_curr.stsc_samples * st->audio_sample_size;
                 }
                 else //MPX000002.3gp akira.mov will goes here
                 {
-                	curr_sample_size = st->mov_idx_curr.stsc_samples * st->sample_size;
+			curr_sample_size = st->mov_idx_curr.stsc_samples * st->sample_size;
                 }
                 st->mov_idx_curr.chunk_sample_size += curr_sample_size;
             }
@@ -2408,21 +2408,21 @@ CDX_S16 MovReadSample(struct CdxMovParser *p)
             {
                 if (1 || st->samples_per_frame < 160) //.lys 2012-03-26 always set it to compute!
                 {
-                	curr_sample_size = st->mov_idx_curr.stsc_samples * st->bytes_per_frame / st->samples_per_frame;
+			curr_sample_size = st->mov_idx_curr.stsc_samples * st->bytes_per_frame / st->samples_per_frame;
                 }
                 else
                 {
-                	//!!maybe multiframe error! see ffmpeg 
-                	curr_sample_size = st->bytes_per_frame;
+			//!!maybe multiframe error! see ffmpeg
+			curr_sample_size = st->bytes_per_frame;
                 }
                 st->mov_idx_curr.chunk_sample_size += curr_sample_size;
             }
             else if (st->sample_size == 1 )//MPX000002.3gp akira.mov P1000100.MOV will goes here
             {
-            	if(st->audio_sample_size)
-            		curr_sample_size = st->mov_idx_curr.stsc_samples * st->audio_sample_size;
-            	else
-                	curr_sample_size = st->mov_idx_curr.stsc_samples * st->sample_size;
+		if(st->audio_sample_size)
+			curr_sample_size = st->mov_idx_curr.stsc_samples * st->audio_sample_size;
+		else
+			curr_sample_size = st->mov_idx_curr.stsc_samples * st->sample_size;
                 st->mov_idx_curr.chunk_sample_size += curr_sample_size;
             }
             else 
@@ -2441,7 +2441,7 @@ CDX_S16 MovReadSample(struct CdxMovParser *p)
 			
         //calc stts from here  (sample duration)
         {
-        	//如果当前sample不在累加的sample ( stts_samples_acc)里，继续累加
+		//如果当前sample不在累加的sample ( stts_samples_acc)里，继续累加
             if(st->mov_idx_curr.sample_idx >= st->mov_idx_curr.stts_samples_acc)
             {
                 CDX_S32 stts_sample_count;
@@ -2493,11 +2493,11 @@ CDX_S16 MovReadSample(struct CdxMovParser *p)
             if(st->mov_idx_curr.stts_duration_acc < (CDX_U64)st->mov_idx_curr.stts_sample_duration *
                             (st->mov_idx_curr.stts_samples_acc - st->mov_idx_curr.sample_idx))
             {
-            	st->mov_idx_curr.current_dts = 0;
+		st->mov_idx_curr.current_dts = 0;
             }
             else
             {
-            	st->mov_idx_curr.current_dts =
+		st->mov_idx_curr.current_dts =
                             st->mov_idx_curr.stts_duration_acc -
                             (CDX_U64)st->mov_idx_curr.stts_sample_duration *
                             (st->mov_idx_curr.stts_samples_acc - st->mov_idx_curr.sample_idx);
@@ -2790,8 +2790,8 @@ static CDX_S32 MovParseTkhd(MOVContext *c, MOV_atom_t a)
         }
 
         if (rotationDegrees != 0) {
-        	CDX_LOGD("nRotation variable is not in vFormat");
-        	//c->ptr_fpsr->vFormat.nRotation = rotationDegrees;
+		CDX_LOGD("nRotation variable is not in vFormat");
+		//c->ptr_fpsr->vFormat.nRotation = rotationDegrees;
         }
     }
 
@@ -2992,8 +2992,8 @@ static CDX_S32 MovParseHdlr(MOVContext *c, MOV_atom_t a)
 
     else if(type == MKTAG('s', 'o', 'u', 'n'))
     {
-    	if(c->has_audio < AUDIO_STREAM_LIMIT)//select the first audio track as default
-    	{ 
+	if(c->has_audio < AUDIO_STREAM_LIMIT)//select the first audio track as default
+	{
 			st->codec.codecType = CODEC_TYPE_AUDIO;
 			c->has_audio++;
 			c->ptr_fpsr->hasAudio++;
@@ -3010,10 +3010,10 @@ static CDX_S32 MovParseHdlr(MOVContext *c, MOV_atom_t a)
 		}
 	}
 	
-	/* component  manufacture 	(4 bytes)*/
+	/* component  manufacture	(4 bytes)*/
 	/* component flags                    (4 bytes)*/
-	/* component flags mask 		(4 bytes)*/
-   /*   Companent name 		(variable )  */
+	/* component flags mask			(4 bytes)*/
+   /*   Companent name		(variable )  */
     return 0;
 }
 
@@ -3033,8 +3033,8 @@ static int MovParseSvq3(MOVContext *c, MOV_atom_t a)
 	//LOGD("--- <%x%x%x%x>", buffer[offset], buffer[offset+1], buffer[offset+2], buffer[offset+3]);
     if(st->codec.extradata)
     {
-    	free(st->codec.extradata);
-    	st->codec.extradata = NULL;
+	free(st->codec.extradata);
+	st->codec.extradata = NULL;
     }
 
     st->codec.extradata = malloc(a.size);
@@ -3065,8 +3065,8 @@ static int MovParseGlbl(MOVContext *c, MOV_atom_t a)
 	//LOGD("--- <%x%x%x%x>", buffer[offset], buffer[offset+1], buffer[offset+2], buffer[offset+3]);
     if(st->codec.extradata)
     {
-    	free(st->codec.extradata);
-    	st->codec.extradata = NULL;
+	free(st->codec.extradata);
+	st->codec.extradata = NULL;
     }
 
     st->codec.extradata = malloc(a.size -8);
@@ -3168,8 +3168,8 @@ static int MovParseEsds(MOVContext *c, MOV_atom_t a)
     int tag, len = 0;
 
     offset += 4; /* version + flags */
-  	len = Mp4ParseDescr(c, &tag, &(offset));
-  	//LOGD("edsd len = %x, tag = %x.", len, tag);
+	len = Mp4ParseDescr(c, &tag, &(offset));
+	//LOGD("edsd len = %x, tag = %x.", len, tag);
 
     if (tag == MP4ESDescrTag) 
     {
@@ -3239,8 +3239,8 @@ static int MovParseEsds(MOVContext *c, MOV_atom_t a)
             case 0xdd: //OGG
             {
                 CDX_LOGW("it is ogg audio, not support");
-            	st->eCodecFormat = AUDIO_CODEC_FORMAT_UNKNOWN;
-            	break;
+		st->eCodecFormat = AUDIO_CODEC_FORMAT_UNKNOWN;
+		break;
             }
         }
 
@@ -3261,15 +3261,15 @@ static int MovParseEsds(MOVContext *c, MOV_atom_t a)
                 || st->eCodecFormat == VIDEO_CODEC_FORMAT_DIVX4
                 || st->eCodecFormat == VIDEO_CODEC_FORMAT_XVID)
             {
-            	int width=0,height=0;
-            	
-            	mov_getvolhdr((CDX_U8*)st->codec.extradata,len,&width,&height); 
-            	if(width!=0 && height!=0)
-            	{
-            	    st->codec.width  = width;
-            	    st->codec.height = height;
-            	    CDX_LOGD("esds width = %d, height = %d", st->codec.width, st->codec.height);
-            	}
+		int width=0,height=0;
+
+		mov_getvolhdr((CDX_U8*)st->codec.extradata,len,&width,&height);
+		if(width!=0 && height!=0)
+		{
+		    st->codec.width  = width;
+		    st->codec.height = height;
+		    CDX_LOGD("esds width = %d, height = %d", st->codec.width, st->codec.height);
+		}
             }
        }
     }
@@ -3385,20 +3385,20 @@ static CDX_S32 MovParseStsd(MOVContext *c, MOV_atom_t a)
 	                c->video_stream_num++;
 	                break;
 	            case MKTAG('D', 'I', 'V', '3'):
-	            	st->eCodecFormat = VIDEO_CODEC_FORMAT_DIVX3;
+			st->eCodecFormat = VIDEO_CODEC_FORMAT_DIVX3;
                     st->stsd_type = 1;
                     st->stream_index = c->video_stream_num;
                     c->video_stream_num++;
-	            	break;
+			break;
 	            case MKTAG('D', 'I', 'V', 'X'):// OpenDiVX
-	            	st->eCodecFormat = VIDEO_CODEC_FORMAT_DIVX4;
-	            	st->stsd_type = 1;
+			st->eCodecFormat = VIDEO_CODEC_FORMAT_DIVX4;
+			st->stsd_type = 1;
 	                st->stream_index = c->video_stream_num;
 	                c->video_stream_num++;
-	            	break;
+			break;
 	            case MKTAG('a','v','c','1'):
 	            case MKTAG('A','V','C','1'):
-	            	st->eCodecFormat = VIDEO_CODEC_FORMAT_H264;
+			st->eCodecFormat = VIDEO_CODEC_FORMAT_H264;
 	                st->stsd_type = 1;
 	                st->stream_index = c->video_stream_num;
 	                c->video_stream_num++;
@@ -3406,14 +3406,14 @@ static CDX_S32 MovParseStsd(MOVContext *c, MOV_atom_t a)
 	            case MKTAG('h','v','c','1'):
 	            case MKTAG('H','V','C','L'):
 	            case MKTAG('h','e','v','1'):
-	            	st->eCodecFormat = VIDEO_CODEC_FORMAT_H265;
+			st->eCodecFormat = VIDEO_CODEC_FORMAT_H265;
 	                st->stsd_type = 1;
 	                st->stream_index = c->video_stream_num;
 	                c->video_stream_num++;
 	                break;
 	            case MKTAG('s','2','6','3'):
 	            case MKTAG('h','2','6','3'):
-	            	st->eCodecFormat = VIDEO_CODEC_FORMAT_H263;
+			st->eCodecFormat = VIDEO_CODEC_FORMAT_H263;
 	                st->stsd_type = 1;
 	                st->stream_index = c->video_stream_num;
 	                c->video_stream_num++;
@@ -3425,7 +3425,7 @@ static CDX_S32 MovParseStsd(MOVContext *c, MOV_atom_t a)
 	            case MKTAG('m', 'j', 'p', 'b'):
 	            case MKTAG('d', 'm', 'b', '1'):
 	            case MKTAG('A', 'V', 'D', 'J'):
-	            	st->eCodecFormat = VIDEO_CODEC_FORMAT_MJPEG;
+			st->eCodecFormat = VIDEO_CODEC_FORMAT_MJPEG;
 	                st->stsd_type = 1;
 	                st->stream_index = c->video_stream_num;
 	                c->video_stream_num++;
@@ -3436,11 +3436,11 @@ static CDX_S32 MovParseStsd(MOVContext *c, MOV_atom_t a)
 	                st->stream_index = c->video_stream_num;
 	                c->video_stream_num++;
 			        break;
-	    	    case MKTAG('h', 'd', 'v', '1') : /* HDV 720p30 */
-	    	    case MKTAG('h', 'd', 'v', '2') : /* MPEG2 produced by Sony HD camera */
-	    	    case MKTAG('h', 'd', 'v', '3') : /* HDV produced by FCP */
-	    	    case MKTAG('h', 'd', 'v', '5') : /* HDV 720p25 */
-	    	    case MKTAG('m', 'x', '5', 'n') : /* MPEG2 IMX NTSC 525/60 50mb/s produced by FCP */
+		    case MKTAG('h', 'd', 'v', '1') : /* HDV 720p30 */
+		    case MKTAG('h', 'd', 'v', '2') : /* MPEG2 produced by Sony HD camera */
+		    case MKTAG('h', 'd', 'v', '3') : /* HDV produced by FCP */
+		    case MKTAG('h', 'd', 'v', '5') : /* HDV 720p25 */
+		    case MKTAG('m', 'x', '5', 'n') : /* MPEG2 IMX NTSC 525/60 50mb/s produced by FCP */
 	            case MKTAG('m', 'x', '5', 'p') : /* MPEG2 IMX PAL 625/50 50mb/s produced by FCP */
 	            case MKTAG('m', 'x', '4', 'n') : /* MPEG2 IMX NTSC 525/60 40mb/s produced by FCP */
 	            case MKTAG('m', 'x', '4', 'p') : /* MPEG2 IMX PAL 625/50 40mb/s produced by FCP */
@@ -3448,24 +3448,24 @@ static CDX_S32 MovParseStsd(MOVContext *c, MOV_atom_t a)
 	            case MKTAG('m', 'x', '3', 'p') : /* MPEG2 IMX PAL 625/50 30mb/s produced by FCP */
 	            case MKTAG('x', 'd', 'v', '2') :  /* XDCAM HD 1080i60 */
 	            case MKTAG('A', 'V', 'm', 'p'):	/* AVID IMX PAL */
-	            	st->eCodecFormat = VIDEO_CODEC_FORMAT_MPEG2;
-	    		    st->stsd_type = 1;
+			st->eCodecFormat = VIDEO_CODEC_FORMAT_MPEG2;
+			    st->stsd_type = 1;
 	                st->stream_index = c->video_stream_num;
 	                c->video_stream_num++;
-	    		    break;
+			    break;
 	            case MKTAG('v', 'c', '-', '1'):	/* AVID IMX PAL */
 	            CDX_LOGD(" the codec atom is vc-1, maybe the codec format is not right");
 					st->eCodecFormat = VIDEO_CODEC_FORMAT_WMV1;
-	    		    st->stsd_type = 1;
+			    st->stsd_type = 1;
 	                st->stream_index = c->video_stream_num;
 	                c->video_stream_num++;
-	    		    break;
+			    break;
 
-	    		case MKTAG('S', 'V', 'Q', '3'):
-	    		    CDX_LOGD("---- can not support svq3");
+			case MKTAG('S', 'V', 'Q', '3'):
+			    CDX_LOGD("---- can not support svq3");
                     st->stsd_type = 0;
                     st->unsurpoort = 1;
-	    		    break;
+			    break;
 	
 	            //parse audio format type
 	            case MKTAG('m','p','4','a'):
@@ -3508,7 +3508,7 @@ static CDX_S32 MovParseStsd(MOVContext *c, MOV_atom_t a)
 	            //pcm type, adpcm/raw pcm/alaw pc/ulaw pcm/...
 	            case MKTAG('u','l','a','w'):    //u-law pcm
 	            case MKTAG('U','L','A','W'):    //u-law pcm
-	            	bits_per_sample = 8;
+			bits_per_sample = 8;
 	                st->eCodecFormat = AUDIO_CODEC_FORMAT_PCM;
 	                st->eSubCodecFormat = WAVE_FORMAT_MULAW | ABS_EDIAN_FLAG_LITTLE;
 	                st->stsd_type = 2;
@@ -3518,7 +3518,7 @@ static CDX_S32 MovParseStsd(MOVContext *c, MOV_atom_t a)
 	
 	            case MKTAG('a','l','a','w'):    //a-law pcm
 	            case MKTAG('A','L','A','W'):    //a-law pcm
-	            	bits_per_sample = 8;
+			bits_per_sample = 8;
 	                st->eCodecFormat = AUDIO_CODEC_FORMAT_PCM;
 	                st->eSubCodecFormat = WAVE_FORMAT_ALAW | ABS_EDIAN_FLAG_LITTLE;
 	                st->stsd_type = 2;
@@ -3532,7 +3532,7 @@ static CDX_S32 MovParseStsd(MOVContext *c, MOV_atom_t a)
 	            case MKTAG('N', 'O', 'N', 'E'): //uncompressed
 	            case MKTAG('r', 'a', 'w', ' '):    //raw pcm
 	            case MKTAG('R', 'A', 'W', ' '):    //raw pcm
-	            	bits_per_sample = 8;
+			bits_per_sample = 8;
 	                st->eCodecFormat = AUDIO_CODEC_FORMAT_PCM;
 	                st->eSubCodecFormat = WAVE_FORMAT_PCM | ABS_EDIAN_FLAG_LITTLE;
 	                st->stsd_type = 2;
@@ -3550,7 +3550,7 @@ static CDX_S32 MovParseStsd(MOVContext *c, MOV_atom_t a)
 	
 	            case MKTAG('s','o','w','t'):    //signed/two\'s complement little endian
 	            case MKTAG('S','O','W','T'):    //signed/two\'s complement little endian
-	            	bits_per_sample = 16;
+			bits_per_sample = 16;
 	                st->eCodecFormat = AUDIO_CODEC_FORMAT_PCM;
 	                st->eSubCodecFormat = WAVE_FORMAT_PCM | ABS_EDIAN_FLAG_LITTLE;
 	                st->stsd_type = 2;
@@ -3560,7 +3560,7 @@ static CDX_S32 MovParseStsd(MOVContext *c, MOV_atom_t a)
 	
 	            case MKTAG('t','w','o','s'):    //signed/two\'s complement big endian
 	            case MKTAG('T','W','O','S'):    //signed/two\'s complement big endian
-	            	bits_per_sample = 16;
+			bits_per_sample = 16;
 	                st->eCodecFormat = AUDIO_CODEC_FORMAT_PCM;
 	                st->eSubCodecFormat = WAVE_FORMAT_PCM | ABS_EDIAN_FLAG_BIG;
 	                st->stsd_type = 2;
@@ -3575,17 +3575,17 @@ static CDX_S32 MovParseStsd(MOVContext *c, MOV_atom_t a)
 	                st->stream_index = c->audio_stream_num;
 	                c->audio_stream_num++;
 	                break; 
-	    	    case MKTAG('s','a','w','b'):    //amr wide band
-	    	        st->eCodecFormat = AUDIO_CODEC_FORMAT_AMR;
+		    case MKTAG('s','a','w','b'):    //amr wide band
+		        st->eCodecFormat = AUDIO_CODEC_FORMAT_AMR;
 	                st->eSubCodecFormat = AMR_FORMAT_WIDEBAND;
 	                st->stsd_type = 2;
 	                st->stream_index = c->audio_stream_num;
 	                c->audio_stream_num++;
-	    		    break;
-	    	    case MKTAG('W', 'M', 'A', '2') ://CODEC_ID_WMAV2
-	    		    st->eCodecFormat =  AUDIO_CODEC_FORMAT_WMA_STANDARD;
-	    		    st->eSubCodecFormat = 0;
-	    		    st->stsd_type = 2;
+			    break;
+		    case MKTAG('W', 'M', 'A', '2') ://CODEC_ID_WMAV2
+			    st->eCodecFormat =  AUDIO_CODEC_FORMAT_WMA_STANDARD;
+			    st->eSubCodecFormat = 0;
+			    st->stsd_type = 2;
 	                st->stream_index = c->audio_stream_num;
 	                c->audio_stream_num++;
 	                break;
@@ -3594,8 +3594,8 @@ static CDX_S32 MovParseStsd(MOVContext *c, MOV_atom_t a)
 				case MKTAG('a','c','-','3'):
 				case MKTAG('e','c','-','3'):
 					st->eCodecFormat =  AUDIO_CODEC_FORMAT_AC3;
-	    			st->eSubCodecFormat = 0;
-	    			st->stsd_type = 2;
+				st->eSubCodecFormat = 0;
+				st->stsd_type = 2;
 	                st->stream_index = c->audio_stream_num;
 	                c->audio_stream_num++;
 					break;
@@ -3605,8 +3605,8 @@ static CDX_S32 MovParseStsd(MOVContext *c, MOV_atom_t a)
                 case MKTAG('T', 'X', '3', 'G'):  
                 case MKTAG('t', 'e', 'x', 't'):
                 case MKTAG('t', 'x', '3', 'g'):
-                	CDX_LOGW(" subtitle is not define yet!!!!");
-                	st->codec.codecType = CODEC_TYPE_SUBTITLE;    // for Jumanji.mp4, which 'hdlr' atom do not have 'text'
+			CDX_LOGW(" subtitle is not define yet!!!!");
+			st->codec.codecType = CODEC_TYPE_SUBTITLE;    // for Jumanji.mp4, which 'hdlr' atom do not have 'text'
                     st->eCodecFormat = SUBTITLE_CODEC_TIMEDTEXT;        // LYRIC_TXT;
                     st->eSubCodecFormat = SUBTITLE_TEXT_FORMAT_UTF8;    //LYRIC_SUB_ENCODE_UTF8;
                     st->stsd_type = 3;
@@ -3638,39 +3638,39 @@ static CDX_S32 MovParseStsd(MOVContext *c, MOV_atom_t a)
 			format = ((format&0xff)<<8) | ((format>>8)&0xff);
 			switch(format)
 	        {
-	        	case 0x02:
+			case 0x02:
                     st->eCodecFormat = AUDIO_CODEC_FORMAT_PCM;
 		            st->eSubCodecFormat = ADPCM_CODEC_ID_MS | ABS_EDIAN_FLAG_LITTLE; 
 		            st->stsd_type = 2;
 		            break;
-	        	case 0x11:
-		        	st->eCodecFormat = AUDIO_CODEC_FORMAT_PCM;
+			case 0x11:
+				st->eCodecFormat = AUDIO_CODEC_FORMAT_PCM;
 		            st->eSubCodecFormat = ADPCM_CODEC_ID_IMA_WAV | ABS_EDIAN_FLAG_LITTLE; 
 		            st->stsd_type = 2;
 		            break;
 		        case 0x20:
-		        	st->eCodecFormat = AUDIO_CODEC_FORMAT_PCM;
+				st->eCodecFormat = AUDIO_CODEC_FORMAT_PCM;
 		            st->eSubCodecFormat = ADPCM_CODEC_ID_YAMAHA | ABS_EDIAN_FLAG_LITTLE;
 		            st->stsd_type = 2;
 		            break;
                 case 0x6:
-		        	st->eCodecFormat = AUDIO_CODEC_FORMAT_PCM;
+				st->eCodecFormat = AUDIO_CODEC_FORMAT_PCM;
 		            st->eSubCodecFormat = WAVE_FORMAT_ALAW | ABS_EDIAN_FLAG_LITTLE;
 		            st->stsd_type = 2;
 		            break;
                 case 0x7:
-		        	st->eCodecFormat = AUDIO_CODEC_FORMAT_PCM;
+				st->eCodecFormat = AUDIO_CODEC_FORMAT_PCM;
 		            st->eSubCodecFormat = WAVE_FORMAT_MULAW | ABS_EDIAN_FLAG_LITTLE;
 		            st->stsd_type = 2;
 		            break;
                 case 0x45:
-		        	st->eCodecFormat = AUDIO_CODEC_FORMAT_PCM;
+				st->eCodecFormat = AUDIO_CODEC_FORMAT_PCM;
 		            st->eSubCodecFormat = WAVE_FORMAT_G726_ADPCM | ABS_EDIAN_FLAG_LITTLE;
 		            st->stsd_type = 2;
 		            break;
                 case 0x50:
                 case 0x55:
-		        	st->eCodecFormat = AUDIO_CODEC_FORMAT_MP3;
+				st->eCodecFormat = AUDIO_CODEC_FORMAT_MP3;
                     st->eSubCodecFormat = 0;
                     st->stsd_type = 2;
 		            break;
@@ -3680,21 +3680,21 @@ static CDX_S32 MovParseStsd(MOVContext *c, MOV_atom_t a)
 		            st->stsd_type = 2;
 		            break;
                 case 0x62:
-		        	st->eCodecFormat = AUDIO_CODEC_FORMAT_PCM;
+				st->eCodecFormat = AUDIO_CODEC_FORMAT_PCM;
 		            st->eSubCodecFormat = ADPCM_CODEC_ID_IMA_DK3 | ABS_EDIAN_FLAG_LITTLE;
 		            st->stsd_type = 2;
 		            break;
                 case 0xFF:
-		        	st->eCodecFormat = AUDIO_CODEC_FORMAT_MPEG_AAC_LC;
+				st->eCodecFormat = AUDIO_CODEC_FORMAT_MPEG_AAC_LC;
                     st->eSubCodecFormat = 0;
                     st->stsd_type = 2;
 		            break;
                 case 0x160:
                 case 0x161:
                 case 0x162:
-        		    st->eCodecFormat =  AUDIO_CODEC_FORMAT_WMA_STANDARD;
-        		    st->eSubCodecFormat = 0;
-        		    st->stsd_type = 2;
+			    st->eCodecFormat =  AUDIO_CODEC_FORMAT_WMA_STANDARD;
+			    st->eSubCodecFormat = 0;
+			    st->stsd_type = 2;
                     break;
                 case 0x200:
                     st->eCodecFormat = AUDIO_CODEC_FORMAT_PCM;
@@ -3702,12 +3702,12 @@ static CDX_S32 MovParseStsd(MOVContext *c, MOV_atom_t a)
 		            st->stsd_type = 2;
 		            break;
                 case 0x2000:
-		        	st->eCodecFormat = AUDIO_CODEC_FORMAT_AC3;
+				st->eCodecFormat = AUDIO_CODEC_FORMAT_AC3;
                     st->eSubCodecFormat = 0;
                     st->stsd_type = 2;
 		            break;
                 case 0x2001:
-		        	st->eCodecFormat = AUDIO_CODEC_FORMAT_DTS;
+				st->eCodecFormat = AUDIO_CODEC_FORMAT_DTS;
                     st->eSubCodecFormat = 0;
                     st->stsd_type = 2;
 		            break;
@@ -3719,7 +3719,7 @@ static CDX_S32 MovParseStsd(MOVContext *c, MOV_atom_t a)
 		        default:
 		            CDX_LOGW("unkown format <%x>", format);
 		            st->stsd_type = 0;
-		       		break;
+				break;
 	        }
 		}
 
@@ -3729,11 +3729,11 @@ static CDX_S32 MovParseStsd(MOVContext *c, MOV_atom_t a)
 		//parse the video sample description if it is a vedio trak
         if(st->codec.codecType == CODEC_TYPE_VIDEO) 
         {
-             /* version 			(2 bytes)*/
-             /* revision level 		(2bytes) */
-             /* vendor 			(4 bytes)*/
-             /* temporal quality 		(4 bytes)*/
-             /* spacial quality 		(4 bytes)*/
+             /* version				(2 bytes)*/
+             /* revision level		(2bytes) */
+             /* vendor			(4 bytes)*/
+             /* temporal quality		(4 bytes)*/
+             /* spacial quality			(4 bytes)*/
             offset += 16;
 
             st->codec.width = MoovGetBe16(buffer+offset); /* width */
@@ -3744,10 +3744,10 @@ static CDX_S32 MovParseStsd(MOVContext *c, MOV_atom_t a)
             //c->ptr_fpsr->vFormat.nWidth = st->codec.width;
             //c->ptr_fpsr->vFormat.nHeight = st->codec.height;
 
-            /* horiz resolution 		(4 bytes)*/
-            /* vert resolution 		(4 bytes)*/
-            /* data size, always 0 	(4 bytes)*/
-            /* frames per samples 	(2 bytes)*/
+            /* horiz resolution			(4 bytes)*/
+            /* vert resolution		(4 bytes)*/
+            /* data size, always 0	(4 bytes)*/
+            /* frames per samples	(2 bytes)*/
             offset += 14;
 
             offset += 32;//skip codec_name
@@ -3851,7 +3851,7 @@ static CDX_S32 MovParseStsd(MOVContext *c, MOV_atom_t a)
                     if(st->bytes_per_frame && st->eCodecFormat==AUDIO_CODEC_FORMAT_PCM)
                     {
                         //what is the meaning of  the code below, it will error if PCM audio
-                    	//c->ptr_fpsr->aFormat.nCodecSpecificDataLen = st->bytes_per_frame;
+			//c->ptr_fpsr->aFormat.nCodecSpecificDataLen = st->bytes_per_frame;
                     }
                     offset += 4; /* bytes per sample */
                 } 
@@ -3861,8 +3861,8 @@ static CDX_S32 MovParseStsd(MOVContext *c, MOV_atom_t a)
                     {
                         /*st->codec.sample_rate = av_int2dbl(get_be64(pb));  float 64 */
                         union av_intfloat64{
-                        	long long i;
-                        	double f;
+				long long i;
+				double f;
                         };
                         union av_intfloat64 v;
                         v.i = MoovGetBe64(buffer+offset);
@@ -3894,16 +3894,16 @@ static CDX_S32 MovParseStsd(MOVContext *c, MOV_atom_t a)
                     st->codec.bitsPerSample = (bytes_per_packet << 3);
                     if (st->eCodecFormat == AUDIO_CODEC_FORMAT_PCM) 
                     {
-                    	st->codec.bitsPerSample = bits_per_sample;
+			st->codec.bitsPerSample = bits_per_sample;
                     }
                     c->audio_sample_size = bytes_per_packet * st->codec.channels;
                     st->audio_sample_size = c->audio_sample_size;
                 } 
                 else
                 {
-                  	if(version == 2 && st->codec.codecTag!=MKTAG('l', 'p', 'c', 'm'))
-                	{
-                    	st->codec.bitsPerSample = bits_per_sample;
+			if(version == 2 && st->codec.codecTag!=MKTAG('l', 'p', 'c', 'm'))
+			{
+			st->codec.bitsPerSample = bits_per_sample;
                     }
                     c->audio_sample_size = (bits_per_sample >> 3) * st->codec.channels;
                     st->audio_sample_size = c->audio_sample_size;
@@ -3919,8 +3919,8 @@ static CDX_S32 MovParseStsd(MOVContext *c, MOV_atom_t a)
             //LOGD("----------- subtitle  size = %d", fake_atom.size);
             if (format != MKTAG('m','p','4','s'))
             {
-            	CDX_LOGD("-------- subtitle glbl, format = %x, offset = %x, size = %d", format, offset, fake_atom.size);
-            	fake_atom.offset = offset;
+		CDX_LOGD("-------- subtitle glbl, format = %x, offset = %x, size = %d", format, offset, fake_atom.size);
+		fake_atom.offset = offset;
                 MovParseGlbl(c, fake_atom);
                 st->codec.width = st->width;
                 st->codec.height = st->height;
@@ -3928,7 +3928,7 @@ static CDX_S32 MovParseStsd(MOVContext *c, MOV_atom_t a)
             }
             else
             {
-            	CDX_LOGI(" Be Careful: We do not support the 'mp4s' subtitle");
+		CDX_LOGI(" Be Careful: We do not support the 'mp4s' subtitle");
             }
             
         } 
@@ -4055,7 +4055,7 @@ static CDX_S32 MovParseStts(MOVContext *c, MOV_atom_t a)
     
     if(size <= 0)
     {
-    	return 0;
+	return 0;
     }
     if(entries >= UINT_MAX/8)
         return -1;
@@ -4155,12 +4155,12 @@ static CDX_S32 MovParseStsc(MOVContext *c, MOV_atom_t a)
 	if(st->eCodecFormat==AUDIO_CODEC_FORMAT_PCM && entries==1
 		&& !st->codec.extradataSize && st->codec.codecType==CODEC_TYPE_AUDIO)
     {
-    	MoovGetBe32(buffer+offset);
-    	offset += 4;
-    	// if will error,if add the code below
-    	//st->codec.extradataSize = MoovGetBe32(buffer+offset);
-    	offset += 4;
-    	CDX_LOGW("read pcm size from stsc! 0x%x", st->codec.extradataSize);
+	MoovGetBe32(buffer+offset);
+	offset += 4;
+	// if will error,if add the code below
+	//st->codec.extradataSize = MoovGetBe32(buffer+offset);
+	offset += 4;
+	CDX_LOGW("read pcm size from stsc! 0x%x", st->codec.extradataSize);
     }   
     return 0;
 }
@@ -4188,7 +4188,7 @@ static CDX_S32 MovParseCtts(MOVContext *c, MOV_atom_t a)
 
     CDX_LOGD("track[%d].ctts.entries = %d", c->nb_streams-1, entries);
     if(!entries)
-    	return 0;
+	return 0;
     if(entries >= MAXENTRY || a.size < entries)
         return -1;
     st->ctts_data = malloc(entries * sizeof(*st->ctts_data));
@@ -4673,11 +4673,11 @@ int MovParseUdta(MOVContext *c, MOV_atom_t a)
 //            break;
         case MKTAG(0xA9, 'x', 'y', 'z'):
             // it is the geometry position of user, which is very important in a CTS test
-        	length = a.size-8-4-1;
+		length = a.size-8-4-1;
 			MovParseUdtaString2(buffer+offset, c->location, sizeof(c->location));
 			length = MIN(length, 31);
 			c->location[length] = '\0';
-        	break;
+		break;
         default:
             break;
         }
@@ -4783,17 +4783,17 @@ static int MovParseMvhd(MOVContext *c, MOV_atom_t a)
 
 		if (version == 1) 
 		{
-    		//MoovGetBe64(buffer + offset);
-    		offset += 8;
-    		//MoovGetBe64(buffer + offset);
-    		offset += 8;
+		//MoovGetBe64(buffer + offset);
+		offset += 8;
+		//MoovGetBe64(buffer + offset);
+		offset += 8;
 		}
 		else if(version == 0)
 		{
-    		//MoovGetBe32(buffer+offset); /* creation time */
-    		offset += 4;
-    		//MoovGetBe32(buffer+offset); /* modification time */
-    		offset += 4;
+		//MoovGetBe32(buffer+offset); /* creation time */
+		offset += 4;
+		//MoovGetBe32(buffer+offset); /* modification time */
+		offset += 4;
 		}
 		else
 		{
@@ -4948,7 +4948,7 @@ int MovParserMoov(MOVContext *c)
 
 		if(a.type == MKTAG( 'm', 'v', 'h', 'd' ))
 		{		
-    		a.offset = offset ;
+		a.offset = offset ;
 			err = MovParseMvhd(c, a);
 			offset = offset + a.size - 8;
 		}
@@ -4963,26 +4963,26 @@ int MovParserMoov(MOVContext *c)
 		{
 			MOVStreamContext *st;
 
-    		if (c->nb_streams < MOV_MAX_STREAMS) 
-    		{   		
-        		st = AvNewStream(c, c->nb_streams);
-        		if (!st)
-            		return -2;
-    		}
-    		else
-    		{
-    		    CDX_LOGW("the stream of this file is large than MOV_MAX_STREAMS !!!");
-            	return -2;
-    		}
+		if (c->nb_streams < MOV_MAX_STREAMS)
+		{
+			st = AvNewStream(c, c->nb_streams);
+			if (!st)
+			return -2;
+		}
+		else
+		{
+		    CDX_LOGW("the stream of this file is large than MOV_MAX_STREAMS !!!");
+		return -2;
+		}
 
-    		c->nb_streams++;
-    		st->codec.codecType = CODEC_TYPE_DATA;
-    		st->codec.extradata = NULL;
-   		 	c->streams[c->nb_streams-1] = st;
+		c->nb_streams++;
+		st->codec.codecType = CODEC_TYPE_DATA;
+		st->codec.extradata = NULL;
+			c->streams[c->nb_streams-1] = st;
 
 			a.offset = offset ;
-   		 	err = MovParseTrak(c, a);
-   		 	offset = offset + a.size - 8;
+			err = MovParseTrak(c, a);
+			offset = offset + a.size - 8;
 		}
 		else if(a.type == MKTAG( 'm', 'v', 'e', 'x' ))
 		{
@@ -5040,19 +5040,19 @@ static int MovTop(MOVContext *s, CdxStreamT* pb)
 	    }
 	    
 		a.size = MoovGetBe32(buf);   //big endium	
-    	a.type = MoovGetLe32(buf+4);
-    	//CDX_LOGD("type = %x, size=%x, offset = %d", a.type, a.size, a.offset);
-    	if((a.size == 0) || (a.type == 0))
-    	{
-    	    break;
-    	}
-    	
-    	if(a.type == MKTAG( 'f', 't', 'y', 'p' ))
-    	{  		   		
-    		CDX_U32 major_brand;
-    		int   minor_ver;
-    		ret = CdxStreamRead(pb, buf, a.size-8);
-   	 		major_brand = MoovGetLe32(buf);  	 		
+	a.type = MoovGetLe32(buf+4);
+	//CDX_LOGD("type = %x, size=%x, offset = %d", a.type, a.size, a.offset);
+	if((a.size == 0) || (a.type == 0))
+	{
+	    break;
+	}
+
+	if(a.type == MKTAG( 'f', 't', 'y', 'p' ))
+	{
+		CDX_U32 major_brand;
+		int   minor_ver;
+		ret = CdxStreamRead(pb, buf, a.size-8);
+			major_brand = MoovGetLe32(buf);
 			minor_ver = MoovGetBe32(buf+4);
 
 			if(a.size < 16 || a.size > 1024)
@@ -5064,36 +5064,36 @@ static int MovTop(MOVContext *s, CdxStreamT* pb)
 			char* compatible = (char*)buf+8;
 			buf[a.size-8] = '\0';
 			CDX_LOGD("---- compatible = %s", compatible);
-   	 		//if the major brand and compatible brand are neithor "qt  ", it is ISO base media file
-   			if (major_brand != MKTAG('q','t',' ',' ') && !strstr(compatible, "qt  "))
-   			{
-        		s->isom = 1;
-        	}
-    	}
-    	else if (a.type == MKTAG( 'w', 'i', 'd', 'e' ))  //if have the 'wide' atom, it must before the 'mdat' atom
-    	{
-    		// sometimes, the mdat is in the wide atom
-    		if(a.size != 8)
-    		{
-    		    CDX_LOGW("care, the 'wide' atom size is not 8 <%d> ", a.size);
-    		    if(s->bSeekAble)
-    		    {
-        			ret = CdxStreamSeek(pb, a.size-8, SEEK_CUR);
-        			if(ret < 0) return -1;
-    			}
-    			else
-    			{
-    			    ret = CdxStreamSkip(pb, a.size-8);
-    			    if(ret < 0) return -1;
-    			}
-    		}
-    	}
-    	else if (a.type == MKTAG( 'm', 'o', 'o', 'v' ))
-    	{
-    		//in dash, 'moov' atom will come twice, one for video init segment, another one for audio init segment
-    		// if the video bitrate changed, there were be a 'moov' atom in the middle of file
-    		if(!s->found_moov)
-    		{
+			//if the major brand and compatible brand are neithor "qt  ", it is ISO base media file
+			if (major_brand != MKTAG('q','t',' ',' ') && !strstr(compatible, "qt  "))
+			{
+			s->isom = 1;
+		}
+	}
+	else if (a.type == MKTAG( 'w', 'i', 'd', 'e' ))  //if have the 'wide' atom, it must before the 'mdat' atom
+	{
+		// sometimes, the mdat is in the wide atom
+		if(a.size != 8)
+		{
+		    CDX_LOGW("care, the 'wide' atom size is not 8 <%d> ", a.size);
+		    if(s->bSeekAble)
+		    {
+				ret = CdxStreamSeek(pb, a.size-8, SEEK_CUR);
+				if(ret < 0) return -1;
+			}
+			else
+			{
+			    ret = CdxStreamSkip(pb, a.size-8);
+			    if(ret < 0) return -1;
+			}
+		}
+	}
+	else if (a.type == MKTAG( 'm', 'o', 'o', 'v' ))
+	{
+		//in dash, 'moov' atom will come twice, one for video init segment, another one for audio init segment
+		// if the video bitrate changed, there were be a 'moov' atom in the middle of file
+		if(!s->found_moov)
+		{
 			    s->found_moov = 1;
 			    s->moov_buffer = (unsigned char*)malloc(a.size);
 			    s->moov_size = a.size;
@@ -5108,17 +5108,17 @@ static int MovTop(MOVContext *s, CdxStreamT* pb)
 		    }
 		    else
 		    {	
-		    	CDX_LOGI("duplicated moov atom, skip it!");
+			CDX_LOGI("duplicated moov atom, skip it!");
                 if(s->bSeekAble)
-    		    {
-        			ret = CdxStreamSeek(pb, a.size-8, SEEK_CUR);
-        			if(ret < 0) return -1;
-    			}
-    			else
-    			{
-    			    ret = CdxStreamSkip(pb, a.size-8);
-    			    if(ret < 0) return -1;
-    			}
+		    {
+				ret = CdxStreamSeek(pb, a.size-8, SEEK_CUR);
+				if(ret < 0) return -1;
+			}
+			else
+			{
+			    ret = CdxStreamSkip(pb, a.size-8);
+			    if(ret < 0) return -1;
+			}
 		    }
 #if 0
 		    FILE* fp = fopen("/mnt/sdcard/moov.s", "wb");
@@ -5130,116 +5130,116 @@ static int MovTop(MOVContext *s, CdxStreamT* pb)
 		    {
 		        break;
 		    }
-    	}
-    	else if (a.type == MKTAG( 'm', 'd', 'a', 't' ))
-    	{
+	}
+	else if (a.type == MKTAG( 'm', 'd', 'a', 't' ))
+	{
 			s->mdat_count++;
-	   		s->found_mdat = 1;
-	   		if(s->found_moov)
-	   		{
-	   		    break;
-	   		}
-	   		
-    		if(a.size == 1)
-    		{
-    			// if the mdat size is 1, is a extend mdat size.
-    			// the 8 size after 'mdat' is the true size
-    			ret = CdxStreamRead(pb, buf, 8);
+			s->found_mdat = 1;
+			if(s->found_moov)
+			{
+			    break;
+			}
 
-    			CDX_S64 size = MoovGetBe64(buf);
+		if(a.size == 1)
+		{
+			// if the mdat size is 1, is a extend mdat size.
+			// the 8 size after 'mdat' is the true size
+			ret = CdxStreamRead(pb, buf, 8);
 
-	   			if(s->bSeekAble)
-    		    {
-    		        //CDX_LOGD("---size=%llx, offset = %llx", size, CdxStreamTell(pb));
-        			ret = CdxStreamSeek(pb, size-16, SEEK_CUR);
-                    
-        			if(ret < 0) return -1;
-    			}
-    			else
-    			{
-    			    unsigned char* buf = malloc(size-16);
-    			    ret = CdxStreamRead(pb, buf, size-16);
-    			    free(buf);
-    			    if(ret < 0) return -1;
-    			}
-    		}
-    		else
-    		{
-	   			if(s->bSeekAble)
-    		    {
-        			ret = CdxStreamSeek(pb, a.size-8, SEEK_CUR);
-        			if(ret < 0) return -1;
-    			}
-    			else
-    			{
-    			    unsigned char* buf = malloc(a.size-8);
-    			    ret = CdxStreamRead(pb, buf, a.size-8);
-    			    free(buf);
-    			    if(ret < 0) return -1;
-    			}
-   			}	
-    	}
-    	else if (a.type == MKTAG( 's', 't', 'y', 'p' ))
-    	{  
-    		//if every segment has a url, the 'styp' must be in the first box in the media segmnet
-    		//LOGD("--xuqi-- styp");
-    		s->first_styp_offset = file_offset;
-    		s->is_fragment = 1;
-    		if(s->bSeekAble)
+			CDX_S64 size = MoovGetBe64(buf);
+
+				if(s->bSeekAble)
 		    {
-    			ret = CdxStreamSeek(pb, a.size-8, SEEK_CUR);
-    			if(ret < 0) return -1;
+		        //CDX_LOGD("---size=%llx, offset = %llx", size, CdxStreamTell(pb));
+				ret = CdxStreamSeek(pb, size-16, SEEK_CUR);
+
+				if(ret < 0) return -1;
+			}
+			else
+			{
+			    unsigned char* buf = malloc(size-16);
+			    ret = CdxStreamRead(pb, buf, size-16);
+			    free(buf);
+			    if(ret < 0) return -1;
+			}
+		}
+		else
+		{
+				if(s->bSeekAble)
+		    {
+				ret = CdxStreamSeek(pb, a.size-8, SEEK_CUR);
+				if(ret < 0) return -1;
+			}
+			else
+			{
+			    unsigned char* buf = malloc(a.size-8);
+			    ret = CdxStreamRead(pb, buf, a.size-8);
+			    free(buf);
+			    if(ret < 0) return -1;
+			}
+			}
+	}
+	else if (a.type == MKTAG( 's', 't', 'y', 'p' ))
+	{
+		//if every segment has a url, the 'styp' must be in the first box in the media segmnet
+		//LOGD("--xuqi-- styp");
+		s->first_styp_offset = file_offset;
+		s->is_fragment = 1;
+		if(s->bSeekAble)
+		    {
+			ret = CdxStreamSeek(pb, a.size-8, SEEK_CUR);
+			if(ret < 0) return -1;
 			}
 			else
 			{
 			    ret = CdxStreamSkip(pb, a.size-8);
 			    if(ret < 0) return -1;
 			}
-    	}
-    	else if (a.type == MKTAG( 's', 'i', 'd', 'x' ))
-    	{  
-    		//offset and duration of the chunk in segment 
-    		//sidx is used for dash (one segment), local file is not needed
-    		s->is_fragment = 1;
-    		s->sidx_flag = 1;
+	}
+	else if (a.type == MKTAG( 's', 'i', 'd', 'x' ))
+	{
+		//offset and duration of the chunk in segment
+		//sidx is used for dash (one segment), local file is not needed
+		s->is_fragment = 1;
+		s->sidx_flag = 1;
 
 			ret = MovParseSidx(s, pb, a);		
-    	}
-    	else if (a.type == MKTAG( 'm', 'o', 'o', 'f' ))
-    	{
-    		CDX_LOGD("the mov file contain movie fragment box!");
-    		s->is_fragment = 1;
-    		if(!s->first_moof_offset)
+	}
+	else if (a.type == MKTAG( 'm', 'o', 'o', 'f' ))
+	{
+		CDX_LOGD("the mov file contain movie fragment box!");
+		s->is_fragment = 1;
+		if(!s->first_moof_offset)
 			{		
 				s->first_moof_offset = CdxStreamTell(pb)-8;
 			}
-    		s->fragment.moof_offset = CdxStreamTell(pb)-8; 
-    		if(s->bSeekAble)
+		s->fragment.moof_offset = CdxStreamTell(pb)-8;
+		if(s->bSeekAble)
 		    {
-    			ret = CdxStreamSeek(pb, a.size-8, SEEK_CUR);
-    			if(ret < 0) return -1;
+			ret = CdxStreamSeek(pb, a.size-8, SEEK_CUR);
+			if(ret < 0) return -1;
 			}
 			else
 			{
 			    ret = CdxStreamSkip(pb, a.size-8);
 			    if(ret < 0) return -1;
 			}
-    		break;
-    		//MovParseMoof(s, pb, a);   		
-    	}
-    	else
-    	{
-    		if(s->bSeekAble)
+		break;
+		//MovParseMoof(s, pb, a);
+	}
+	else
+	{
+		if(s->bSeekAble)
 		    {
-    			ret = CdxStreamSeek(pb, a.size-8, SEEK_CUR);
-    			if(ret < 0) return -1;
+			ret = CdxStreamSeek(pb, a.size-8, SEEK_CUR);
+			if(ret < 0) return -1;
 			}
 			else
 			{
 			    ret = CdxStreamSkip(pb, a.size-8);
 			    if(ret < 0) return -1;
 			}
-    	}
+	}
 	}
 	
 	return 0;   
@@ -5322,21 +5322,21 @@ CDX_S16 CdxMovClose(struct CdxMovParser *p)
 
     if(c)
     {
-    	if(c->sidx_buffer)
-    	{
-    		free(c->sidx_buffer);
-    		c->sidx_buffer = NULL;
-    	}
-    	if(c->moov_buffer)
-    	{
-    		free(c->moov_buffer);
-    		c->moov_buffer = NULL;
-    	}
-    	if(c->trex_data)
-    	{
-    		free(c->trex_data);
-    		c->trex_data = NULL;
-    	}
+	if(c->sidx_buffer)
+	{
+		free(c->sidx_buffer);
+		c->sidx_buffer = NULL;
+	}
+	if(c->moov_buffer)
+	{
+		free(c->moov_buffer);
+		c->moov_buffer = NULL;
+	}
+	if(c->trex_data)
+	{
+		free(c->trex_data);
+		c->trex_data = NULL;
+	}
         if (c->senc_data) 
 		{
             free(c->senc_data);
@@ -5349,57 +5349,57 @@ CDX_S16 CdxMovClose(struct CdxMovParser *p)
         }
         if(c->Vsamples) 
         {   
-        	//Sample* sample = aw_list_last(c->samples);
-        	unsigned int i;
-        	Sample* samp;
-        	for(i=0; i<aw_list_count(c->Vsamples); i++)
-        	{
-        		samp = aw_list_get(c->Vsamples, i);
-        		if(samp)
-        		{
-        			free(samp);
-        			samp = NULL;
-        		}
-        	}
-        	aw_list_del(c->Vsamples);
-        	c->Vsamples = NULL;
+		//Sample* sample = aw_list_last(c->samples);
+		unsigned int i;
+		Sample* samp;
+		for(i=0; i<aw_list_count(c->Vsamples); i++)
+		{
+			samp = aw_list_get(c->Vsamples, i);
+			if(samp)
+			{
+				free(samp);
+				samp = NULL;
+			}
+		}
+		aw_list_del(c->Vsamples);
+		c->Vsamples = NULL;
         }
         if(c->Asamples) 
         {   
-        	//Sample* sample = aw_list_last(c->samples);
-        	unsigned int i;
-        	Sample* samp;
-        	for(i=0; i<aw_list_count(c->Asamples); i++)
-        	{
-        		samp = aw_list_get(c->Asamples, i);
-        		if(samp)
-        		{
-        			free(samp);
-        			samp = NULL;
-        		}
-        	}
-        	aw_list_del(c->Asamples);
-        	c->Asamples = NULL;
+		//Sample* sample = aw_list_last(c->samples);
+		unsigned int i;
+		Sample* samp;
+		for(i=0; i<aw_list_count(c->Asamples); i++)
+		{
+			samp = aw_list_get(c->Asamples, i);
+			if(samp)
+			{
+				free(samp);
+				samp = NULL;
+			}
+		}
+		aw_list_del(c->Asamples);
+		c->Asamples = NULL;
         }
 
         for(i=0; i<c->nb_streams; i++)
-    	{
-    		if (c->streams[i])
-    		{
-    			if(c->streams[i]->codec.extradata)
-    			{
-    				free(c->streams[i]->codec.extradata);
+	{
+		if (c->streams[i])
+		{
+			if(c->streams[i]->codec.extradata)
+			{
+				free(c->streams[i]->codec.extradata);
                     c->streams[i]->codec.extradata = 0;
-    			}
-    			if(c->streams[i]->ctts_data)
-    			{
-    				free(c->streams[i]->ctts_data);
-    				c->streams[i]->ctts_data = NULL;
-    			}
-    			free(c->streams[i]);
-    			c->streams[i] = 0;
-    		}
-    	}
+			}
+			if(c->streams[i]->ctts_data)
+			{
+				free(c->streams[i]->ctts_data);
+				c->streams[i]->ctts_data = NULL;
+			}
+			free(c->streams[i]);
+			c->streams[i] = 0;
+		}
+	}
 
         if(c->pAvccHdrInfo)
         {
@@ -5466,11 +5466,11 @@ CDX_S16 CdxMovRead(struct CdxMovParser *p)
 	if(c->is_fragment)
     {
 //        CDX_LOGD("xxx MovReadSampleFragment");
-    	ret = MovReadSampleFragment(p);
+	ret = MovReadSampleFragment(p);
     }
     else
     {
-    	ret = MovReadSample(p);
+	ret = MovReadSample(p);
     }
     
     p->nFRPicCnt = 0;
@@ -5505,8 +5505,8 @@ int CdxMovSeek(struct CdxMovParser *p, cdx_int64  timeUs)
     int i;
 	for(i=0; i<c->has_subtitle; i++)
 	{
-    	st = c->streams[c->s2st[i]];
-    	st->SubStreamSyncFlg = 1;
+	st = c->streams[c->s2st[i]];
+	st->SubStreamSyncFlg = 1;
     }
 
     //in DASH, the totaltime maybe 0, but it seekable  ( BigBuckBunny audio segment )  	
@@ -5538,22 +5538,22 @@ int CdxMovSeek(struct CdxMovParser *p, cdx_int64  timeUs)
         if(!p->bDashSegment && !p->bSmsSegment) //* for sms 
         {
             
-    		if(c->has_video)
-    		{
-    			result = MovTimeToSampleSidx(p, timeUs/1000, c->video_stream_idx, 0);
-    			if(result < 0)
-    			{
-    				return -1;
-    			}
-    		}
-    		if(c->has_audio)
-    		{
-    			result = MovTimeToSampleSidx(p, timeUs/1000, c->audio_stream_idx, 1);
-    			if(result < 0)
-    			{
-    				return -1;
-    			}
-    		}
+		if(c->has_video)
+		{
+			result = MovTimeToSampleSidx(p, timeUs/1000, c->video_stream_idx, 0);
+			if(result < 0)
+			{
+				return -1;
+			}
+		}
+		if(c->has_audio)
+		{
+			result = MovTimeToSampleSidx(p, timeUs/1000, c->audio_stream_idx, 1);
+			if(result < 0)
+			{
+				return -1;
+			}
+		}
     		
             
 		    c->moof_end_offset = CdxStreamTell(pb); // we must reset it when jump
@@ -5562,21 +5562,21 @@ int CdxMovSeek(struct CdxMovParser *p, cdx_int64  timeUs)
 		{
 		    result = MovReadSampleFragment(p);
 		    if(c->has_video)
-    		{
-    			result = MovTimeToSampleSidx(p, timeUs/1000, c->video_stream_idx, 0);
-    			if(result < 0)
-    			{
-    				return -1;
-    			}
-    		}
-    		if(c->has_audio)
-    		{
-    			result = MovTimeToSampleSidx(p, timeUs/1000, c->audio_stream_idx, 1);
-    			if(result < 0)
-    			{
-    				return -1;
-    			}
-    		}
+		{
+			result = MovTimeToSampleSidx(p, timeUs/1000, c->video_stream_idx, 0);
+			if(result < 0)
+			{
+				return -1;
+			}
+		}
+		if(c->has_audio)
+		{
+			result = MovTimeToSampleSidx(p, timeUs/1000, c->audio_stream_idx, 1);
+			if(result < 0)
+			{
+				return -1;
+			}
+		}
 		}
 	}
 	else
@@ -5638,13 +5638,13 @@ int CdxMovSeek(struct CdxMovParser *p, cdx_int64  timeUs)
             CDX_U64           vas_chunk_ost[MOV_MAX_STREAMS];
             CDX_S32           va_sel = 1;
 
-        	MOVStreamContext *st = NULL;
+		MOVStreamContext *st = NULL;
 
-        	int i;
-        	for(i=0; i<c->nb_streams; i++)
-        	{
-        	    vas_chunk_ost[i] = (CDX_U64)-1LL;
-        	}   
+		int i;
+		for(i=0; i<c->nb_streams; i++)
+		{
+		    vas_chunk_ost[i] = (CDX_U64)-1LL;
+		}
 
             for(i=0; i<c->nb_streams; i++)
             {
@@ -5847,9 +5847,8 @@ CDX_S32 CdxMovSetStream(struct CdxMovParser *p)
 
     if(c->sidx_flag)
     {
-    	p->hasIdx = 1;
+	p->hasIdx = 1;
     }
 
     return 0;
 }
-

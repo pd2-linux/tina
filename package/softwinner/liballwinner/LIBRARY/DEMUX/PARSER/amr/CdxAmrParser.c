@@ -104,13 +104,13 @@ static cdx_int32 __AmrParserControl(CdxParserT *parser, cdx_int32 cmd, void *par
     case CDX_PSR_CMD_DISABLE_AUDIO:
     case CDX_PSR_CMD_DISABLE_VIDEO:
     case CDX_PSR_CMD_SWITCH_AUDIO:
-    	break;
+	break;
     case CDX_PSR_CMD_SET_FORCESTOP:
-    	CdxStreamForceStop(impl->stream);
+	CdxStreamForceStop(impl->stream);
       break;
     case CDX_PSR_CMD_CLR_FORCESTOP:
-    	CdxStreamClrForceStop(impl->stream);
-    	break;
+	CdxStreamClrForceStop(impl->stream);
+	break;
     default :
         CDX_LOGW("not implement...(%d)", cmd);
         break;

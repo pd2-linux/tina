@@ -173,133 +173,133 @@ static int WavInit(CdxParserT* parameter)
     }
     else if(WAVObject.UID ==RIFX)
     {
-    	impl->nBigEndian = ABS_EDIAN_FLAG_BIG;
-    	ret = CdxStreamRead(impl->stream, (void *)&TempUid,4);
-    	if(ret != 4)
-    	{
-    		goto OPENFAILURE;
-    	}
-    	ulLength +=4;
-    	if(TempUid == WAVE)
-    	{
-    		while(nFindAllFlag<2)
-    		{
-    			ret = CdxStreamRead(impl->stream, (void *)&WAVObject, 8);
-    			if(ret != 8)
-    			{
-    				goto OPENFAILURE;
-    			}
-    			WAVObject.Dsize = ((WAVObject.Dsize>>24) & 0X000000FF)
-    			                 |((WAVObject.Dsize>>8 ) & 0X0000FF00)
-    			                 |((WAVObject.Dsize<<8 ) & 0X00FF0000)
-    			                 |((WAVObject.Dsize<<24) & 0XFF000000);
-    			ulLength +=8;
-    			switch(WAVObject.UID)
-    			{
-    			case fmt:
-    				{
-    					if(WAVObject.Dsize>64)
-    					{
-    						ret = CdxStreamRead(impl->stream, readBuf,WAVObject.Dsize);
-    						if(ret != 64)
-    						{
-    							goto OPENFAILURE;
-    						}
-    						CdxStreamSeek(impl->stream,WAVObject.Dsize-64, SEEK_CUR);
-    					}
-    					else
-    					{
-    						ret = CdxStreamRead(impl->stream, readBuf,WAVObject.Dsize);
-    						if(ret != WAVObject.Dsize)
-    						{
-    							goto OPENFAILURE;
-    						}
-    					}
-    					if(ulFlag==0)ulLength +=WAVObject.Dsize;
-    					impl->WavFormat.wFormatag 					= (readBuf[1 ]&0xff)|(((cdx_int32)readBuf[0 ]&0xff)<<8);
-    					impl->WavFormat.nChannls 					= (readBuf[3 ]&0xff)|(((cdx_int32)readBuf[2 ]&0xff)<<8);
-    					impl->WavFormat.nSamplesPerSec 		= (readBuf[7 ]&0xff)|(((cdx_int32)readBuf[6 ]&0xff)<<8)|(((cdx_int32)readBuf[5]&0xff)<<16)|(((cdx_int32)readBuf[4]&0xff)<<24);
-    					impl->WavFormat.nAvgBytesperSec 		= (readBuf[11]&0xff)|(((cdx_int32)readBuf[10]&0xff)<<8)|(((cdx_int32)readBuf[9]&0xff)<<16)|(((cdx_int32)readBuf[8]&0xff)<<24);
-    					impl->WavFormat.nBlockAlign 				= (readBuf[13]&0xff)|(((cdx_int32)readBuf[12]&0xff)<<8);
-    					impl->WavFormat.wBitsPerSample 		= (readBuf[15]&0xff)|(((cdx_int32)readBuf[14]&0xff)<<8);
-    					
-    					if(WAVObject.Dsize>16)
-    					{
-    						impl->WavFormat.sbSize						= (readBuf[17]&0xff)|(((cdx_int32)readBuf[16]&0xff)<<8);                                                               
-    						impl->WavFormat.nSamplesPerBlock	= (readBuf[21]&0xff)|(((cdx_int32)readBuf[20]&0xff)<<8)|(((cdx_int32)readBuf[19]&0xff)<<16)|(((cdx_int32)readBuf[18]&0xff)<<24);
-    						if(impl->WavFormat.nSamplesPerBlock == 0)
-    						{
-    							impl->WavFormat.nSamplesPerBlock = impl->WavFormat.nBlockAlign*8/(impl->WavFormat.wBitsPerSample*impl->WavFormat.nChannls);
-    						}
-    					}
-    					else
-    					{
-    						impl->WavFormat.nSamplesPerBlock	= 1;	
+	impl->nBigEndian = ABS_EDIAN_FLAG_BIG;
+	ret = CdxStreamRead(impl->stream, (void *)&TempUid,4);
+	if(ret != 4)
+	{
+		goto OPENFAILURE;
+	}
+	ulLength +=4;
+	if(TempUid == WAVE)
+	{
+		while(nFindAllFlag<2)
+		{
+			ret = CdxStreamRead(impl->stream, (void *)&WAVObject, 8);
+			if(ret != 8)
+			{
+				goto OPENFAILURE;
+			}
+			WAVObject.Dsize = ((WAVObject.Dsize>>24) & 0X000000FF)
+			                 |((WAVObject.Dsize>>8 ) & 0X0000FF00)
+			                 |((WAVObject.Dsize<<8 ) & 0X00FF0000)
+			                 |((WAVObject.Dsize<<24) & 0XFF000000);
+			ulLength +=8;
+			switch(WAVObject.UID)
+			{
+			case fmt:
+				{
+					if(WAVObject.Dsize>64)
+					{
+						ret = CdxStreamRead(impl->stream, readBuf,WAVObject.Dsize);
+						if(ret != 64)
+						{
+							goto OPENFAILURE;
+						}
+						CdxStreamSeek(impl->stream,WAVObject.Dsize-64, SEEK_CUR);
+					}
+					else
+					{
+						ret = CdxStreamRead(impl->stream, readBuf,WAVObject.Dsize);
+						if(ret != WAVObject.Dsize)
+						{
+							goto OPENFAILURE;
+						}
+					}
+					if(ulFlag==0)ulLength +=WAVObject.Dsize;
+					impl->WavFormat.wFormatag					= (readBuf[1 ]&0xff)|(((cdx_int32)readBuf[0 ]&0xff)<<8);
+					impl->WavFormat.nChannls					= (readBuf[3 ]&0xff)|(((cdx_int32)readBuf[2 ]&0xff)<<8);
+					impl->WavFormat.nSamplesPerSec		= (readBuf[7 ]&0xff)|(((cdx_int32)readBuf[6 ]&0xff)<<8)|(((cdx_int32)readBuf[5]&0xff)<<16)|(((cdx_int32)readBuf[4]&0xff)<<24);
+					impl->WavFormat.nAvgBytesperSec			= (readBuf[11]&0xff)|(((cdx_int32)readBuf[10]&0xff)<<8)|(((cdx_int32)readBuf[9]&0xff)<<16)|(((cdx_int32)readBuf[8]&0xff)<<24);
+					impl->WavFormat.nBlockAlign				= (readBuf[13]&0xff)|(((cdx_int32)readBuf[12]&0xff)<<8);
+					impl->WavFormat.wBitsPerSample		= (readBuf[15]&0xff)|(((cdx_int32)readBuf[14]&0xff)<<8);
+
+					if(WAVObject.Dsize>16)
+					{
+						impl->WavFormat.sbSize						= (readBuf[17]&0xff)|(((cdx_int32)readBuf[16]&0xff)<<8);
+						impl->WavFormat.nSamplesPerBlock	= (readBuf[21]&0xff)|(((cdx_int32)readBuf[20]&0xff)<<8)|(((cdx_int32)readBuf[19]&0xff)<<16)|(((cdx_int32)readBuf[18]&0xff)<<24);
+						if(impl->WavFormat.nSamplesPerBlock == 0)
+						{
+							impl->WavFormat.nSamplesPerBlock = impl->WavFormat.nBlockAlign*8/(impl->WavFormat.wBitsPerSample*impl->WavFormat.nChannls);
+						}
+					}
+					else
+					{
+						impl->WavFormat.nSamplesPerBlock	= 1;
 							if(impl->WavFormat.wFormatag==0x02 ||impl->WavFormat.wFormatag==0x11)
 							{
 								impl->WavFormat.nSamplesPerBlock = impl->WavFormat.nBlockAlign*8/(impl->WavFormat.wBitsPerSample*impl->WavFormat.nChannls);																	
 							}
-    					}	
-    					nFindAllFlag++;
-    					break;
-    				}
-    			case fact:
-    				{ 
-    					if(WAVObject.Dsize>64)
-    					{
-    						ret = CdxStreamRead(impl->stream, readBuf,WAVObject.Dsize);
-    						if(ret != 64)
-    						{
-    							goto OPENFAILURE;
-    						}
-    						CdxStreamSeek(impl->stream,WAVObject.Dsize-64, SEEK_CUR);
-    					}
-    					else
-    					{
-    						ret = CdxStreamRead(impl->stream, readBuf,WAVObject.Dsize);
-    						if(ret != WAVObject.Dsize)
-    						{
-    							goto OPENFAILURE;
-    						}
-    					}
-    					nDataFactSize = (readBuf[3]&0xff)|(((cdx_int32)readBuf[2]&0xff)<<8)|(((cdx_int32)readBuf[1]&0xff)<<16)|(((cdx_int32)readBuf[0]&0xff)<<24);
-    					if(impl->WavFormat.nSamplesPerSec)
-    					{
-    						dDurationADPCM = (cdx_int64)nDataFactSize*1000000/impl->WavFormat.nSamplesPerSec;
-    					}
-    					if(ulFlag==0)
-    					{
-    						ulLength +=WAVObject.Dsize;
-    					}
-    					break;
+					}
+					nFindAllFlag++;
+					break;
+				}
+			case fact:
+				{
+					if(WAVObject.Dsize>64)
+					{
+						ret = CdxStreamRead(impl->stream, readBuf,WAVObject.Dsize);
+						if(ret != 64)
+						{
+							goto OPENFAILURE;
+						}
+						CdxStreamSeek(impl->stream,WAVObject.Dsize-64, SEEK_CUR);
+					}
+					else
+					{
+						ret = CdxStreamRead(impl->stream, readBuf,WAVObject.Dsize);
+						if(ret != WAVObject.Dsize)
+						{
+							goto OPENFAILURE;
+						}
+					}
+					nDataFactSize = (readBuf[3]&0xff)|(((cdx_int32)readBuf[2]&0xff)<<8)|(((cdx_int32)readBuf[1]&0xff)<<16)|(((cdx_int32)readBuf[0]&0xff)<<24);
+					if(impl->WavFormat.nSamplesPerSec)
+					{
+						dDurationADPCM = (cdx_int64)nDataFactSize*1000000/impl->WavFormat.nSamplesPerSec;
+					}
+					if(ulFlag==0)
+					{
+						ulLength +=WAVObject.Dsize;
+					}
+					break;
                       }
-    			case dataF:
-    				{
-    					ulFlag = 1;
-    					impl->WavFormat.nDataCKSzie		=	WAVObject.Dsize;
-    					nFindAllFlag++;
-    					if(nFindAllFlag>1)break;
-    					CdxStreamSeek(impl->stream,WAVObject.Dsize, SEEK_CUR);	
-    					break;
+			case dataF:
+				{
+					ulFlag = 1;
+					impl->WavFormat.nDataCKSzie		=	WAVObject.Dsize;
+					nFindAllFlag++;
+					if(nFindAllFlag>1)break;
+					CdxStreamSeek(impl->stream,WAVObject.Dsize, SEEK_CUR);
+					break;
     					
-    				}
-    			default:
-    				{
-    					CdxStreamSeek(impl->stream,WAVObject.Dsize, SEEK_CUR);
-    					if(ulFlag==0)ulLength +=WAVObject.Dsize;
-    					break;
+				}
+			default:
+				{
+					CdxStreamSeek(impl->stream,WAVObject.Dsize, SEEK_CUR);
+					if(ulFlag==0)ulLength +=WAVObject.Dsize;
+					break;
     					
-    				}
+				}
     				
-    			}//switch
-    		}//while
+			}//switch
+		}//while
     		
-    	}//wav
+	}//wav
 	
     }//rifx
     if(nFindAllFlag <2)
     {
-    	goto OPENFAILURE;
+	goto OPENFAILURE;
     }
     	
     
@@ -309,28 +309,28 @@ static int WavInit(CdxParserT* parameter)
     //during
     if((impl->WavFormat.wFormatag == WAVE_FORMAT_DVI_ADPCM)&&(impl->WavFormat.nChannls))
     {
-    	impl->WavFormat.nSamplesPerBlock = ((impl->WavFormat.nBlockAlign-4* impl->WavFormat.nChannls)*2+ impl->WavFormat.nChannls)/ impl->WavFormat.nChannls;
+	impl->WavFormat.nSamplesPerBlock = ((impl->WavFormat.nBlockAlign-4* impl->WavFormat.nChannls)*2+ impl->WavFormat.nChannls)/ impl->WavFormat.nChannls;
     }
     
     if(  ( (impl->WavFormat.wFormatag == WAVE_FORMAT_PCM)||(impl->WavFormat.wFormatag == WAVE_FORMAT_EXTENSIBLE)||(impl->WavFormat.wFormatag == WAVE_FORMAT_ALAW)||(impl->WavFormat.wFormatag == WAVE_FORMAT_MULAW) )
-    			&& (impl->WavFormat.nSamplesPerSec) )
+			&& (impl->WavFormat.nSamplesPerSec) )
     {
-    	impl->ulDuration = ((cdx_int64)(impl->WavFormat.nDataCKSzie/(impl->WavFormat.nChannls*impl->WavFormat.wBitsPerSample/8))*1000000/impl->WavFormat.nSamplesPerSec);
+	impl->ulDuration = ((cdx_int64)(impl->WavFormat.nDataCKSzie/(impl->WavFormat.nChannls*impl->WavFormat.wBitsPerSample/8))*1000000/impl->WavFormat.nSamplesPerSec);
     }
     else if(impl->WavFormat.nSamplesPerBlock)
     {
-    	impl->ulDuration = ((cdx_int64)impl->WavFormat.nDataCKSzie*1000000*impl->WavFormat.nSamplesPerBlock/((cdx_int64)impl->WavFormat.nBlockAlign*impl->WavFormat.nSamplesPerSec));
+	impl->ulDuration = ((cdx_int64)impl->WavFormat.nDataCKSzie*1000000*impl->WavFormat.nSamplesPerBlock/((cdx_int64)impl->WavFormat.nBlockAlign*impl->WavFormat.nSamplesPerSec));
     }
     else
     {
-    	if(impl->WavFormat.nAvgBytesperSec)
-    	{
-    		impl->ulDuration = ((cdx_int64)impl->WavFormat.nDataCKSzie*1000000/impl->WavFormat.nAvgBytesperSec);
-    	}
+	if(impl->WavFormat.nAvgBytesperSec)
+	{
+		impl->ulDuration = ((cdx_int64)impl->WavFormat.nDataCKSzie*1000000/impl->WavFormat.nAvgBytesperSec);
+	}
     }
     if(abs(impl->ulDuration-dDurationADPCM)<=((cdx_int64)impl->WavFormat.nSamplesPerBlock*1000000/impl->WavFormat.nSamplesPerSec))
     {
-    	impl->ulDuration=dDurationADPCM;
+	impl->ulDuration=dDurationADPCM;
     }
     impl->ulDuration /=1000;
     ///////////////////////////////////////////////
@@ -339,43 +339,43 @@ static int WavInit(CdxParserT* parameter)
     
     switch(impl->WavFormat.wFormatag)
     {
-    	case WAVE_FORMAT_EXTENSIBTS:
-    		ret = CdxStreamRead(impl->stream, readBuf,4);
-    		if(ret != 4)
-    		{
-    			goto OPENFAILURE;
-    		}
-    		if(impl->nBigEndian)
-    		{
-    		    impl->nFrameLen = ((int)readBuf[1] <<8)|((int)readBuf[0] & 0xff);
-    		}
-    		else
-    		{
-    		    impl->nFrameLen = ((int)readBuf[0] <<8)|((int)readBuf[1] & 0xff);
-    		}
-    		impl->nFrameSamples = impl->nFrameLen * 8/(impl->WavFormat.nChannls *impl->WavFormat.wBitsPerSample);
-    		impl->nFrameLen +=4;
-    		CdxStreamSeek(impl->stream,impl->nHeadLen, SEEK_SET);			
-    		break;
-    	case WAVE_FORMAT_EXTENSIBTSMIRACAST:
-    		impl->nFrameLen = 1924;
-    		impl->nFrameSamples = 1920 * 8 /(impl->WavFormat.nChannls *impl->WavFormat.wBitsPerSample);
-    		break;
-    	case WAVE_FORMAT_PCM:
-    	case WAVE_FORMAT_EXTENSIBLE:
-    		if(impl->WavFormat.nBlockAlign*8 != impl->WavFormat.nChannls*impl->WavFormat.wBitsPerSample)
-    		{
-    			impl->WavFormat.nBlockAlign = impl->WavFormat.nChannls*impl->WavFormat.wBitsPerSample>>3;
-    		}
-    	case WAVE_FORMAT_ALAW:		/*0x0006  ALAW */
+	case WAVE_FORMAT_EXTENSIBTS:
+		ret = CdxStreamRead(impl->stream, readBuf,4);
+		if(ret != 4)
+		{
+			goto OPENFAILURE;
+		}
+		if(impl->nBigEndian)
+		{
+		    impl->nFrameLen = ((int)readBuf[1] <<8)|((int)readBuf[0] & 0xff);
+		}
+		else
+		{
+		    impl->nFrameLen = ((int)readBuf[0] <<8)|((int)readBuf[1] & 0xff);
+		}
+		impl->nFrameSamples = impl->nFrameLen * 8/(impl->WavFormat.nChannls *impl->WavFormat.wBitsPerSample);
+		impl->nFrameLen +=4;
+		CdxStreamSeek(impl->stream,impl->nHeadLen, SEEK_SET);
+		break;
+	case WAVE_FORMAT_EXTENSIBTSMIRACAST:
+		impl->nFrameLen = 1924;
+		impl->nFrameSamples = 1920 * 8 /(impl->WavFormat.nChannls *impl->WavFormat.wBitsPerSample);
+		break;
+	case WAVE_FORMAT_PCM:
+	case WAVE_FORMAT_EXTENSIBLE:
+		if(impl->WavFormat.nBlockAlign*8 != impl->WavFormat.nChannls*impl->WavFormat.wBitsPerSample)
+		{
+			impl->WavFormat.nBlockAlign = impl->WavFormat.nChannls*impl->WavFormat.wBitsPerSample>>3;
+		}
+	case WAVE_FORMAT_ALAW:		/*0x0006  ALAW */
       case WAVE_FORMAT_MULAW:		/*0x0007  MULAW */
-      	impl->nFrameLen = READBUF_SIZE_1 * impl->WavFormat.nChannls;
-      	impl->nFrameSamples = impl->nFrameLen /impl->WavFormat.nBlockAlign;
-    	  break;
-    	default :
-    		impl->nFrameLen = impl->WavFormat.nBlockAlign;
-    		impl->nFrameSamples = impl->WavFormat.nSamplesPerBlock;
-    		break;
+	impl->nFrameLen = READBUF_SIZE_1 * impl->WavFormat.nChannls;
+	impl->nFrameSamples = impl->nFrameLen /impl->WavFormat.nBlockAlign;
+	  break;
+	default :
+		impl->nFrameLen = impl->WavFormat.nBlockAlign;
+		impl->nFrameSamples = impl->WavFormat.nSamplesPerBlock;
+		break;
     }
     impl->mErrno = PSR_OK;
 	pthread_cond_signal(&impl->cond);
@@ -398,13 +398,13 @@ static cdx_int32 __WavParserControl(CdxParserT *parser, cdx_int32 cmd, void *par
     case CDX_PSR_CMD_DISABLE_AUDIO:
     case CDX_PSR_CMD_DISABLE_VIDEO:
     case CDX_PSR_CMD_SWITCH_AUDIO:
-    	break;
+	break;
     case CDX_PSR_CMD_SET_FORCESTOP:
-    	CdxStreamForceStop(impl->stream);
+	CdxStreamForceStop(impl->stream);
       break;
     case CDX_PSR_CMD_CLR_FORCESTOP:
-    	CdxStreamClrForceStop(impl->stream);
-    	break;
+	CdxStreamClrForceStop(impl->stream);
+	break;
     default :
         CDX_LOGW("not implement...(%d)", cmd);
         break;
@@ -528,7 +528,7 @@ static cdx_int32 __WavParserGetMediaInfo(CdxParserT *parser, CdxMediaInfoT *medi
 
 static cdx_int32 __WavParserSeekTo(CdxParserT *parser, cdx_int64 timeUs)
 { 
-   	struct WavParserImplS *impl = NULL;
+	struct WavParserImplS *impl = NULL;
     cdx_int32 file_location = 0;
     cdx_int32 nFrames = 0;
     impl = CdxContainerOf(parser, struct WavParserImplS, base);
@@ -541,10 +541,10 @@ static cdx_int32 __WavParserSeekTo(CdxParserT *parser, cdx_int64 timeUs)
     {
 	    if(CdxStreamSeek(impl->stream,file_location,SEEK_SET))
 	    {
-	    	  CDX_LOGE("CdxStreamSeek fail");
-	    	  return CDX_FAILURE;
+		  CDX_LOGE("CdxStreamSeek fail");
+		  return CDX_FAILURE;
 	    }
-  	}
+	}
     impl->nFrames = nFrames;
     impl->dFileOffset = file_location;
     // TODO: not implement now...
@@ -611,7 +611,7 @@ static cdx_int32 WavProbe(CdxStreamProbeDataT *p)
 	    {
 	        return CDX_TRUE;
 	    }
-  	}
+	}
     CDX_LOGE("audio probe fail!!!");
     return CDX_FALSE;
 }
@@ -656,4 +656,3 @@ struct CdxParserCreatorS wavParserCtor =
     .probe = __WavParserProbe,
     .create  = __WavParserOpen
 };
-

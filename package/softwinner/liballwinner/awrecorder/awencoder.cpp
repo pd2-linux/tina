@@ -13,13 +13,13 @@ enum AwEncoderStatus
 {
     AWRECORDER_STATUS_IDLE        = 0,
     AWRECORDER_STATUS_INITIALIZED  = 1,
- 	AWRECORDER_STATUS_PREPARING    = 2,
- 	AWRECORDER_STATUS_PREPARED    = 3,
- 	AWRECORDER_STATUS_STARTED     = 4,
- 	AWRECORDER_STATUS_PAUSED      = 5,
- 	AWRECORDER_STATUS_STOPPED     = 6,
- 	AWRECORDER_STATUS_COMPLETE    = 7,
- 	AWRECORDER_STATUS_ERROR       = 8,
+	AWRECORDER_STATUS_PREPARING    = 2,
+	AWRECORDER_STATUS_PREPARED    = 3,
+	AWRECORDER_STATUS_STARTED     = 4,
+	AWRECORDER_STATUS_PAUSED      = 5,
+	AWRECORDER_STATUS_STOPPED     = 6,
+	AWRECORDER_STATUS_COMPLETE    = 7,
+	AWRECORDER_STATUS_ERROR       = 8,
 };
 
 //* command id.
@@ -251,8 +251,8 @@ int AwEncoderStart(AwEncoder* v)
 
     if(p->pEncData)
     {
-    	EncDataCompSetCallback(p->pEncData, ComponentCallbackProcess, p);
-    	EncDataCompStart(p->pEncData);
+	EncDataCompSetCallback(p->pEncData, ComponentCallbackProcess, p);
+	EncDataCompStart(p->pEncData);
     }
 
 	return 0;
@@ -266,7 +266,7 @@ int AwEncoderStop(AwEncoder* v)
 
 	if(p->pEncData)
     {
-    	EncDataCompStop(p->pEncData);
+	EncDataCompStop(p->pEncData);
     }
 	
 	if(p->pAudioEncode)
@@ -290,7 +290,7 @@ int AwEncoderReset(AwEncoder* v)
 
 	if(p->pEncData)
     {
-    	EncDataCompReset(p->pEncData);
+	EncDataCompReset(p->pEncData);
     }
 	
 	if(p->pAudioEncode)
@@ -362,5 +362,3 @@ int   AwEncoderSetNotifyCallback(AwEncoder* v, EncoderNotifyCallback notifier, v
 	p->mUserData = pUserData;
 	return 0;
 }
-
-

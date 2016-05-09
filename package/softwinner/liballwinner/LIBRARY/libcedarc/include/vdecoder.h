@@ -206,7 +206,7 @@ typedef struct VIDEOPICTURE
     size_addr phyCBufAddr;
     void*   pPrivate;
     int     nBufStatus;
-    int 	bTopFieldError;
+    int		bTopFieldError;
     int		bBottomFieldError;
     int     nColorPrimary;  // default value is 0xffffffff, valid value id 0x0000xxyy
                             // xx: is video full range code
@@ -224,7 +224,7 @@ typedef struct VIDEOFBMINFO
 	VideoPicture*        pMajorDecoderFrame;
 	unsigned int         nMinorYBufOffset;
     unsigned int         nMinorCBufOffset;
-	int   				 bIsFrameCtsTestFlag;
+	int				 bIsFrameCtsTestFlag;
     int                  nExtraFbmBufferNum;
     int                  nDecoderNeededMiniFbmNum;
     int                  nDecoderNeededMiniFbmNumSD;
@@ -375,4 +375,3 @@ int GetDecodePerformInfo(VideoDecoder* pDecoder, enum EVDECODERGETPERFORMCMD per
 #endif
 
 #endif
-

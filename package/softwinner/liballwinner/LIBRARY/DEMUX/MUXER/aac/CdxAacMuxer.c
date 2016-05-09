@@ -245,4 +245,3 @@ CdxMuxerCreatorT aacMuxerCtor =
 {
     .create = __CdxAacMuxerOpen
 };
-

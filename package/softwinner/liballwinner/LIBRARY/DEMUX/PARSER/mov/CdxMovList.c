@@ -3,17 +3,17 @@
 
 typedef struct tagIS
 {
-	struct tagIS 	*next;
-	void* 			data;
+	struct tagIS	*next;
+	void*			data;
 }ItemSlot;
 
 struct _tag_array
 {
-	struct tagIS 	*head;
-	struct tagIS 	*tail;
-	unsigned int 	entryCount;       // number of ItemSlot in the list
-	int 			foundEntryNumber;
-	struct tagIS 	*foundEntry;
+	struct tagIS	*head;
+	struct tagIS	*tail;
+	unsigned int	entryCount;       // number of ItemSlot in the list
+	int			foundEntryNumber;
+	struct tagIS	*foundEntry;
 };
 
 
@@ -224,4 +224,3 @@ int aw_list_insert(AW_List *ptr, void* item, unsigned int position)
 	ptr->foundEntryNumber = i;
 	return 0;
 }
-

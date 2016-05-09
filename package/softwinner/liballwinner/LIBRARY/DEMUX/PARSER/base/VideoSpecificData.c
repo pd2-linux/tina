@@ -139,9 +139,9 @@ static unsigned char getbits(unsigned char* buffer, unsigned int from, unsigned 
 
     y = (buffer[n] << m);
     if(8 > len)
-    	y  >>= (8-len);
+	y  >>= (8-len);
     if(l)
-    	y |= (buffer[n+1] >> (8-l));
+	y |= (buffer[n+1] >> (8-l));
     	
     return  y;
 }
@@ -407,9 +407,9 @@ cdx_int32 probeConvertAvcSpecificData(cdx_uint8* dstBuf, cdx_uint8* orgBuf, cdx_
     orgBuf += 6;
     while(i<2)
     {
-    	for(;cnt>0; cnt--)
-    	{
-    		dstBuf[0] = 0x00;
+	for(;cnt>0; cnt--)
+	{
+		dstBuf[0] = 0x00;
 			dstBuf[1] = 0x00;
 			dstBuf[2] = 0x00;
 		    dstBuf[3] = 0x01;
@@ -419,8 +419,8 @@ cdx_int32 probeConvertAvcSpecificData(cdx_uint8* dstBuf, cdx_uint8* orgBuf, cdx_
 			dstBuf += 4+nalSize;
 			orgBuf += nalSize;
 			*dstDataLen += 4+nalSize;
-    	}
-    	cnt = *(orgBuf) & 0xff;      // Number of pps
+	}
+	cnt = *(orgBuf) & 0xff;      // Number of pps
 		orgBuf += 1;
 		i++;
     }
@@ -437,8 +437,8 @@ cdx_int32 VerifyAvcSpecificDataForPacketOriented(VideoStreamInfo* pVideoInfo, cd
     orgBuf += 6;
     while(i<2)
     {
-    	for(;cnt>0; cnt--)
-    	{
+	for(;cnt>0; cnt--)
+	{
 			nalSize = (orgBuf[0]<<8)|orgBuf[1];
 			orgBuf += 2;
             if(i == 0 && j == 0)
@@ -452,7 +452,7 @@ cdx_int32 VerifyAvcSpecificDataForPacketOriented(VideoStreamInfo* pVideoInfo, cd
             }
             j++;
 			orgBuf += nalSize;
-    	}
+	}
         ++i;
         if(orgBuf > data + orgDataLen)
         {
@@ -473,7 +473,7 @@ cdx_int32 VerifyAvcSpecificDataForPacketOriented(VideoStreamInfo* pVideoInfo, cd
                 return PROBE_SPECIFIC_DATA_ERROR;
             }
         }
-    	cnt = (*orgBuf++) & 0xff;      // Number of pps
+	cnt = (*orgBuf++) & 0xff;      // Number of pps
     }
     return PROBE_SPECIFIC_DATA_ERROR;
 }
@@ -657,15 +657,15 @@ cdx_int32 probeMpeg2SpecificData(VideoStreamInfo* pVideoInfo, cdx_uint8* pDataBu
 
     if(pVideoInfo->nWidth == 0)
     {
-    	pVideoInfo->nWidth = width;
+	pVideoInfo->nWidth = width;
     }
     if(pVideoInfo->nHeight == 0)
     {
-    	pVideoInfo->nHeight = height;
+	pVideoInfo->nHeight = height;
     }
     if(pVideoInfo->nFrameRate == 0)
     {
-    	pVideoInfo->nFrameRate = frameRate;
+	pVideoInfo->nFrameRate = frameRate;
     }
     if(pVideoInfo->nFrameRate)
     {
@@ -674,8 +674,8 @@ cdx_int32 probeMpeg2SpecificData(VideoStreamInfo* pVideoInfo, cdx_uint8* pDataBu
     pVideoInfo->pCodecSpecificData = malloc(nIndex[2]-nIndex[0]);
     if(pVideoInfo->pCodecSpecificData == NULL)
     {
-    	CDX_LOGE("malloc fail.");
-    	return PROBE_SPECIFIC_DATA_ERROR;
+	CDX_LOGE("malloc fail.");
+	return PROBE_SPECIFIC_DATA_ERROR;
     }
     memcpy(pVideoInfo->pCodecSpecificData, pDataBuf+nIndex[0]-4, nIndex[2]-nIndex[0]);
     return PROBE_SPECIFIC_DATA_SUCCESS;
@@ -713,18 +713,18 @@ cdx_int32 decodeWmv3SequenceHeader(VideoStreamInfo* pVideoInfo, cdx_uint8* pData
 
     if(profile == PROFILE_ADVANCED)
     {
-    	level = getBits(&sBitContext, 3);
-    	if(level >= 5)
-    	{
-    		CDX_LOGW("Reserved LEVEL %i",level);
-    	}
-    	getBits(&sBitContext, 2);
-    	getBits(&sBitContext, 3); //common
-    	getBits(&sBitContext, 5); //common
-    	getBits1(&sBitContext);   //common
+	level = getBits(&sBitContext, 3);
+	if(level >= 5)
+	{
+		CDX_LOGW("Reserved LEVEL %i",level);
+	}
+	getBits(&sBitContext, 2);
+	getBits(&sBitContext, 3); //common
+	getBits(&sBitContext, 5); //common
+	getBits1(&sBitContext);   //common
 
-    	width       = (getBits(&sBitContext, 12) + 1) << 1;
-    	height      = (getBits(&sBitContext, 12) + 1) << 1;
+	width       = (getBits(&sBitContext, 12) + 1) << 1;
+	height      = (getBits(&sBitContext, 12) + 1) << 1;
         cdx_uint8 display_ext = getBits(&sBitContext, 7)&0x1;
         if(display_ext)
         {
@@ -763,7 +763,7 @@ cdx_int32 decodeWmv3SequenceHeader(VideoStreamInfo* pVideoInfo, cdx_uint8* pData
     else
     {
         CDX_LOGE("profile = %d, not PROFILE_ADVANCED",profile);
-    	getBits1(&sBitContext);
+	getBits1(&sBitContext);
 	    resSprite = getBits1(&sBitContext);
 	    getBits(&sBitContext, 3); //common
 	    getBits(&sBitContext, 5); //common
@@ -776,22 +776,22 @@ cdx_int32 decodeWmv3SequenceHeader(VideoStreamInfo* pVideoInfo, cdx_uint8* pData
 	    fastuvmc  = getBits1(&sBitContext); //common
 	    if(!profile && !fastuvmc)
 	    {
-	    	CDX_LOGD("FASTUVMC unavailable in Simple Profile\n");
-	    	return PROBE_SPECIFIC_DATA_ERROR;
+		CDX_LOGD("FASTUVMC unavailable in Simple Profile\n");
+		return PROBE_SPECIFIC_DATA_ERROR;
 	    }
 	    extendedMv = getBits1(&sBitContext); //common
 	    if (!profile && extendedMv)
 	    {
-	    	CDX_LOGD("Extended MVs unavailable in Simple Profile\n");
-	    	return PROBE_SPECIFIC_DATA_ERROR;
+		CDX_LOGD("Extended MVs unavailable in Simple Profile\n");
+		return PROBE_SPECIFIC_DATA_ERROR;
 	    }
 	    getBits(&sBitContext, 2); //common
 	    getBits1(&sBitContext); //common
 	    resTranstab    = getBits1(&sBitContext);
 	    if(resTranstab)
 	    {
-	    	CDX_LOGD("1 for reserved RES_TRANSTAB is forbidden\n");
-	    	return PROBE_SPECIFIC_DATA_ERROR;
+		CDX_LOGD("1 for reserved RES_TRANSTAB is forbidden\n");
+		return PROBE_SPECIFIC_DATA_ERROR;
 	    }
 
 	    getBits1(&sBitContext); //common
@@ -882,8 +882,8 @@ cdx_int32 probeWmv3SpecificData(VideoStreamInfo* pVideoInfo, cdx_uint8* pDataBuf
     pVideoInfo->pCodecSpecificData = malloc(nIndex[2]-nIndex[0]);
     if(pVideoInfo->pCodecSpecificData == NULL)
     {
-    	CDX_LOGE("malloc fail.");
-    	return PROBE_SPECIFIC_DATA_ERROR;
+	CDX_LOGE("malloc fail.");
+	return PROBE_SPECIFIC_DATA_ERROR;
     }
     memcpy(pVideoInfo->pCodecSpecificData, pDataBuf+nIndex[0]-4, nIndex[2]-nIndex[0]);
     return PROBE_SPECIFIC_DATA_SUCCESS;
@@ -907,7 +907,7 @@ static unsigned int h265_read_golomb(unsigned char* buffer, unsigned int* init)
         if(x - n > 8)
             v <<= 8;
         else if((x - n) > 0)
-        	v <<= (x - n);
+		v <<= (x - n);
     }
 
     v2 = 1;
@@ -996,7 +996,7 @@ static int h265_parse_sps(VideoStreamInfo* pVideoInfo, unsigned char* buf, int l
     h265_read_golomb(buf, &n); /* sps_seq_parameter_set_id: ue(v) */
     chroma_format_idc = h265_read_golomb(buf, &n); /* chroma_format_idc: ue(v) */
     if(chroma_format_idc == 3)
-    	n += 1; /* separate_colour_plane_flag: u(1) */
+	n += 1; /* separate_colour_plane_flag: u(1) */
 
     pVideoInfo->nWidth = h265_read_golomb(buf, &n); /* pic_width_in_luma_samples: ue(v) */
     pVideoInfo->nHeight = h265_read_golomb(buf, &n); /* pic_height_in_luma_samples: ue(v) */
@@ -1004,10 +1004,10 @@ static int h265_parse_sps(VideoStreamInfo* pVideoInfo, unsigned char* buf, int l
     n += 1;
     if(flag)
     {
-    	h265_read_golomb(buf, &n);  /*conf_win_left_offset: ue(v)*/
-    	h265_read_golomb(buf, &n);  /*conf_win_right_offset: ue(v)*/
-    	h265_read_golomb(buf, &n);  /*conf_win_top_offset: ue(v)*/
-    	h265_read_golomb(buf, &n);  /*conf_win_bottom_offset: ue(v)*/
+	h265_read_golomb(buf, &n);  /*conf_win_left_offset: ue(v)*/
+	h265_read_golomb(buf, &n);  /*conf_win_right_offset: ue(v)*/
+	h265_read_golomb(buf, &n);  /*conf_win_top_offset: ue(v)*/
+	h265_read_golomb(buf, &n);  /*conf_win_bottom_offset: ue(v)*/
     }
     h265_read_golomb(buf, &n);  /*bit_depth_luma_minus8: ue(v)*/
     h265_read_golomb(buf, &n);  /*bit_depth_chroma_minus8: ue(v)*/
@@ -1015,24 +1015,24 @@ static int h265_parse_sps(VideoStreamInfo* pVideoInfo, unsigned char* buf, int l
     flag = getbits(buf, n, 1);  /* sps_sub_layer_ordering_info_present_flag: u(1) */
     n += 1;
     for(i = 0; i < 16; i++)
-    	nSpsMaxDecPicBuffering[i] = 1;
+	nSpsMaxDecPicBuffering[i] = 1;
     start = flag ? 0 : sps_max_sub_layers - 1;
     for(i = start ; i <= sps_max_sub_layers - 1; i++)
     {
-    	nSpsMaxDecPicBuffering[i] = h265_read_golomb(buf, &n) + 1;  /*sps_max_dec_pic_buffering_minus1[i]: ue(v)*/
-    	loge("nSpsMaxDecPicBuffering[i]: %d", nSpsMaxDecPicBuffering[i]);
-    	h265_read_golomb(buf, &n);  /*sps_max_num_reorder_pics[i]: ue(v)*/
-    	h265_read_golomb(buf, &n);  /*sps_max_latency_increase_plus1[i]: ue(v)*/
+	nSpsMaxDecPicBuffering[i] = h265_read_golomb(buf, &n) + 1;  /*sps_max_dec_pic_buffering_minus1[i]: ue(v)*/
+	loge("nSpsMaxDecPicBuffering[i]: %d", nSpsMaxDecPicBuffering[i]);
+	h265_read_golomb(buf, &n);  /*sps_max_num_reorder_pics[i]: ue(v)*/
+	h265_read_golomb(buf, &n);  /*sps_max_latency_increase_plus1[i]: ue(v)*/
     }
     ref_pictures = 1;
     for(i = 0; i < 16; i++)
     {
-    	if(ref_pictures < nSpsMaxDecPicBuffering[i])
-    		ref_pictures = nSpsMaxDecPicBuffering[i];
+	if(ref_pictures < nSpsMaxDecPicBuffering[i])
+		ref_pictures = nSpsMaxDecPicBuffering[i];
     }
     pVideoInfo->h265ReferencePictureNum = ref_pictures;
     CDX_LOGV("zwh h265 parser prob pic width: %d, pic height: %d, reference pictures: %d",
-    		pVideoInfo->nWidth, pVideoInfo->nHeight, pVideoInfo->h265ReferencePictureNum);
+		pVideoInfo->nWidth, pVideoInfo->nHeight, pVideoInfo->h265ReferencePictureNum);
 	return PROBE_SPECIFIC_DATA_SUCCESS;
 }
 
@@ -1074,7 +1074,7 @@ static int HevcParseExtraDataDeleteEmulationCode(cdx_uint8 *pBuf, int nSize)
 				pBuf[i - nSkipped] = pBuf[i];
 		}
 	}
-	return 	(i - nSkipped);
+	return	(i - nSkipped);
 }
 
 cdx_int32 probeH265RefPictureNumber(cdx_uint8* pDataBuf, cdx_uint32 nDataLen)
@@ -1674,6 +1674,3 @@ cdx_int32 ProbeVideoSpecificData(VideoStreamInfo* pVideoInfo, cdx_uint8* pDataBu
 	}
 	return ret;
 }
-
-
-

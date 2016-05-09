@@ -223,6 +223,8 @@ LOCAL_CFLAGS += -DCONFIG_CC=$(CONFIG_CC)
 ########## configure CONFIG_OS ##########
 LOCAL_CFLAGS += -DCONFIG_OS=$(CONFIG_OS)
 
+########## configure CONFIG_CHIP##########
+LOCAL_CFLAGS += -DCONFIG_CHIP=$(CONFIG_CHIP)
 
 ########## configure CONFIG_ALI_YUNOS ##########
 CONFIG_ALI_YUNOS = $(OPTION_ALI_YUNOS_NO)
@@ -332,5 +334,3 @@ ifeq ($(CONFIG_OS), $(OPTION_OS_LINUX))
 	endif
 endif
 ###################################end define####################################
-
-

@@ -533,9 +533,9 @@ cdx_int32 AsfReadHeader(AsfContextT *ctx)
             
             ctx->packet_size = ctx->hdr.max_pktsize;
             if(ctx->hdr.play_time)
-            	ctx->durationMs = ctx->hdr.play_time/10000 - ctx->hdr.preroll; /* 100-nanoseconds  */
+		ctx->durationMs = ctx->hdr.play_time/10000 - ctx->hdr.preroll; /* 100-nanoseconds  */
             else
-            	ctx->durationMs = 0;
+		ctx->durationMs = 0;
             logd("++++ durationMs: %lld", ctx->durationMs);
         } 
         else if (!memcmp(&guid, &stream_header, sizeof(AsfGuid)))
@@ -723,12 +723,12 @@ fail:
         AsfMediaStreamT *avStream = ctx->streams[i];
         if (avStream) 
         {
-        	if (avStream->codec.extradata)
+		if (avStream->codec.extradata)
             {
-        		free(avStream->codec.extradata);
-        		avStream->codec.extradata = NULL;
-        	}
-        	free(avStream);
+			free(avStream->codec.extradata);
+			avStream->codec.extradata = NULL;
+		}
+		free(avStream);
         }
         ctx->streams[i] = NULL;
     }
@@ -976,7 +976,7 @@ cdx_int32 AsfReadPacket(AsfContextT *ctx)
             if (ctx->stream_index == (cdx_int8)0xff)
             {
                 CDX_LOGE("invalid stream index(%d)-----------", ctx->stream_index);
-            	CdxStreamSkip(ioStream, ctx->packet_frag_size);
+		CdxStreamSkip(ioStream, ctx->packet_frag_size);
                 ctx->packet_size_left -= ctx->packet_frag_size;
                 continue;
             }
@@ -1260,11 +1260,11 @@ static cdx_int32 AsfSeekToTime(AsfContextT *ctx, cdx_int32 seconds)
 
 		if(ctx->nb_packets != 0xffffffff)
 		{
-        	startpkt = (cdx_int32)(ctx->nb_packets * seconds / ctx->durationMs);//from packet
+		startpkt = (cdx_int32)(ctx->nb_packets * seconds / ctx->durationMs);//from packet
         }
         else if(ctx->totalBitRate)
         {
-        	startpkt = ctx->totalBitRate * seconds / 8 / ctx->packet_size;
+		startpkt = ctx->totalBitRate * seconds / 8 / ctx->packet_size;
         }
 
         while (1)
@@ -1460,4 +1460,3 @@ int AsfPsrCoreIoctrl(AsfContextT *ctx, cdx_uint32 uCmd, cdx_uint32 uParam)
 
     return 0;
 }
-

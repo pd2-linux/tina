@@ -1285,4 +1285,3 @@ cdx_int16 AviReadByIndex(CdxAviParserImplT *p)
         return AVI_SUCCESS;
     }
 }
-

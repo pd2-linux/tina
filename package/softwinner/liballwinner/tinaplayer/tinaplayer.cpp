@@ -215,20 +215,20 @@ namespace aw{
 				//	if(videodata->ePixelFormat == VIDEO_PIXEL_FORMAT_YUV_MB32_420)
 				//	{
 				//		char filename[024];
-			    //    	sprintf(filename, "/mnt/UDISK/mb32_%d.dat", pDemoPlayer->mVideoFrameNum);
-			    //    	FILE* outFp = fopen(filename, "wb");
-			    //    	if(outFp != NULL)
+			    //		sprintf(filename, "/mnt/UDISK/mb32_%d.dat", pDemoPlayer->mVideoFrameNum);
+			    //		FILE* outFp = fopen(filename, "wb");
+			    //		if(outFp != NULL)
 				//	    {
-				//	    	int height64Align = (videodata->nHeight + 63)& ~63;
-				//	    	fwrite(videodata->pData0, videodata->nWidth*videodata->nHeight, 1, outFp);
-				//	    	fwrite(videodata->pData1, videodata->nWidth*height64Align/2, 1, outFp);
-				//	    	fclose(outFp);
+				//		int height64Align = (videodata->nHeight + 63)& ~63;
+				//		fwrite(videodata->pData0, videodata->nWidth*videodata->nHeight, 1, outFp);
+				//		fwrite(videodata->pData1, videodata->nWidth*height64Align/2, 1, outFp);
+				//		fclose(outFp);
 				//	    }
 				//	}
 			    //}	
 			    //app_msg = TINA_NOTIFY_VIDEO_FRAME;
 				//TLOGD(" NOTIFY_VIDEO_FRAME\n");
-	        	break;
+			break;
 	        }
 
 	        case NOTIFY_AUDIO_FRAME:
@@ -247,12 +247,12 @@ namespace aw{
 				//	}
 				//#endif
 				//app_msg = TINA_NOTIFY_AUDIO_FRAME;
-	        	break;
+			break;
 	        }
 
 	        case NOTIFY_VIDEO_PACKET:
 	        {
-	        	//DemuxData* videoData = (DemuxData*)param1;
+			//DemuxData* videoData = (DemuxData*)param1;
 				//logd("videoData pts: %lld", videoData->nPts);
 				//static int frame = 0;
 				//if(frame == 0)
@@ -268,15 +268,15 @@ namespace aw{
 		        //	}
 		        //	fclose(outFp);
 		        //	frame ++;
-	        	//}
-	        	//TLOGD(" NOTIFY_VIDEO_PACKET\n");
-	        	//app_msg = TINA_NOTIFY_VIDEO_PACKET;
-	        	break;
+			//}
+			//TLOGD(" NOTIFY_VIDEO_PACKET\n");
+			//app_msg = TINA_NOTIFY_VIDEO_PACKET;
+			break;
 	        }
 
 	        case NOTIFY_AUDIO_PACKET:
 	        {
-	        	//DemuxData* audioData = (DemuxData*)param1;
+			//DemuxData* audioData = (DemuxData*)param1;
 				//logd("audio pts: %lld", audioData->nPts);
 				//static int audioframe = 0;
 				//if(audioframe == 0)
@@ -292,10 +292,10 @@ namespace aw{
 		        //	}
 		        //	fclose(outFp);
 		        //	audioframe ++;
-	        	//}
-	        	//TLOGD(" NOTIFY_AUDIO_PACKET\n");
-	        	//app_msg = TINA_NOTIFY_AUDIO_PACKET;
-	        	break;
+			//}
+			//TLOGD(" NOTIFY_AUDIO_PACKET\n");
+			//app_msg = TINA_NOTIFY_AUDIO_PACKET;
+			break;
 	        	
 	        }
 	        
@@ -315,6 +315,8 @@ namespace aw{
 	{
 		logd(" TinaPlayer() contructor begin");
 		mLoop = 0;
+		mNotifier = NULL;
+		mUserData = NULL;
 		mPlayer = (void*)new AwPlayer();
 		initSoundControlOpsT();
 		((AwPlayer*)mPlayer)->setControlOps(NULL, &gSoundControl);
@@ -326,7 +328,7 @@ namespace aw{
 		logd(" ~TinaPlayer() contructor begin");
 		if(((AwPlayer*)mPlayer) != NULL){
 			delete ((AwPlayer*)mPlayer);
-    		mPlayer = NULL;
+		mPlayer = NULL;
 		}
 		logd(" ~TinaPlayer() contructor finish");
 	}
@@ -485,4 +487,3 @@ namespace aw{
 	}
 
 }
-

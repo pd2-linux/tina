@@ -614,16 +614,16 @@ int CdxParserOpen(CdxStreamT *stream, cdx_uint32 flags, pthread_mutex_t *mutex, 
 	pthread_mutex_lock(mutex);
     if(exit && *exit)
     {
-    	CDX_LOGW("open parser user cancel.");
+	CDX_LOGW("open parser user cancel.");
         pthread_mutex_unlock(mutex);
-    	return -1;
+	return -1;
     }
     *parser = CdxParserCreate(stream, flags);
 	pthread_mutex_unlock(mutex);
     if(!*parser)
     {
-    	CDX_LOGW("should not be here.");
-    	return -1;
+	CDX_LOGW("should not be here.");
+	return -1;
     }
 	int ret;
 	while(parserTasks)
@@ -661,4 +661,3 @@ int CdxParserPrepare(CdxDataSourceT *source, cdx_uint32 flags, pthread_mutex_t *
 out:
     return ret;
 }
-

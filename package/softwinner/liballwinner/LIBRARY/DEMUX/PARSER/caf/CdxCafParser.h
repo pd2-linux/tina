@@ -32,7 +32,7 @@ enum
 
 typedef struct _CafDescription
 {
-    double   	mSampleRate;
+    double	mSampleRate;
     cdx_uint32  mFormatID;
     cdx_uint32  mFormatFlags;
     cdx_uint32  mBytesPerPacket;

@@ -28,4 +28,3 @@ int EncDataCompSetCallback(EncDataComp* v, MuxerCallback callback, void* pUserDa
 
 
 #endif /* __VIDEO_RESIZER_MUXER_H__ */
-

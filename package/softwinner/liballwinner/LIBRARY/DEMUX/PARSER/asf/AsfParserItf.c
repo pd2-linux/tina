@@ -288,8 +288,8 @@ static cdx_int32 __AsfPsrGetMediaInfo(CdxParserT *parser, CdxMediaInfoT *mediaIn
     if((!impl->ctx->index_ptr) && (impl->ctx->nb_packets == 0 || impl->ctx->nb_packets == 0xffffffff) && 
          (impl->ctx->totalBitRate == 0))
     {
-    	CDX_LOGD("cannot seek");
-    	mediaInfo->bSeekable = 0;
+	CDX_LOGD("cannot seek");
+	mediaInfo->bSeekable = 0;
     }*/
     
     mediaInfo->program[0].audioNum = impl->ctx->audioNum;
@@ -430,7 +430,7 @@ static int __AsfPsrControl(CdxParserT *psr, cdx_int32 cmd, void *param)
             return onClrForceStop(impl);
         default:
             CDX_LOGW("not support cmd(%d)", cmd);
-        	break;
+		break;
     }
 
 	return 0;
@@ -577,4 +577,3 @@ struct CdxParserCreatorS asfParserCtor =
     .probe = __AsfPsrProbe,
     .create = __AsfPsrCreate
 };
-

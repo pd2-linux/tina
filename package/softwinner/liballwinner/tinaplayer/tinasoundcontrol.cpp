@@ -154,7 +154,7 @@ namespace aw{
 	    }
 	    memset(s, 0, sizeof(SoundCtrlContext));
 		s->alsa_access_type = SND_PCM_ACCESS_RW_INTERLEAVED;
-		s->nSampleRate = 44100;
+		s->nSampleRate = 48000;
 		s->nChannelNum = 2;
 		s->alsa_format = SND_PCM_FORMAT_S16_LE;
 		s->alsa_can_pause = 0;

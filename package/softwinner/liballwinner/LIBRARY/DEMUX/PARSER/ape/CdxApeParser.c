@@ -342,13 +342,13 @@ static int CdxApeParserControl(CdxParserT *parser, cdx_int32 cmd, void *param)
         case CDX_PSR_CMD_DISABLE_AUDIO:
         case CDX_PSR_CMD_DISABLE_VIDEO:
         case CDX_PSR_CMD_SWITCH_AUDIO:
-        	break;
+		break;
         case CDX_PSR_CMD_SET_FORCESTOP:
-        	CdxStreamForceStop(pApe->stream);
+		CdxStreamForceStop(pApe->stream);
           break;
         case CDX_PSR_CMD_CLR_FORCESTOP:
-        	CdxStreamClrForceStop(pApe->stream);
-        	break;
+		CdxStreamClrForceStop(pApe->stream);
+		break;
         default:
             CDX_LOGW("not implement...(%d)", cmd);
             break;
@@ -386,7 +386,7 @@ static int CdxApeParserPrefetch(CdxParserT *parser, CdxPacketT *pkt)
 		pkt->length = pApe->frames[pApe->currentframe].size;
 
 		
-   	pkt->pts = pApe->frames[pApe->currentframe].pts;
+	pkt->pts = pApe->frames[pApe->currentframe].pts;
     pkt->flags |= (FIRST_PART|LAST_PART);
 
     // First Frame

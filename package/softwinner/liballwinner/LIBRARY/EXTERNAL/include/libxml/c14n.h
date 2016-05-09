@@ -123,4 +123,3 @@ XMLPUBFUN int XMLCALL
 #endif /* LIBXML_OUTPUT_ENABLED */
 #endif /* LIBXML_C14N_ENABLED */
 #endif /* __XML_C14N_H__ */
-

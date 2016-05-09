@@ -193,4 +193,3 @@ cdx_int32 DeinitFsSimpleCache(CdxFsWriter *p_fs_writer)
     free(p_fs_writer);
     return 0;
 }
-

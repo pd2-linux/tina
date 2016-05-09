@@ -11,4 +11,3 @@ cdx_int64 CdxGetNowUs(cdx_void)
 
     return (cdx_int64)tv.tv_usec + tv.tv_sec * 1000000ll;
 }
-

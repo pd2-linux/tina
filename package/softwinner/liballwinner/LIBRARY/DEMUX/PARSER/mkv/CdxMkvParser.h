@@ -765,11 +765,11 @@ typedef struct MatroskaDemuxContext {
 	unsigned int        slice_offset;
 	
 	//use for audio
-	unsigned char  	    *a_Header;
+	unsigned char	    *a_Header;
 	cdx_int32           a_Header_size;
 	
 	//use for ogg
-	cdx_uint64       	ogg_granulepos;
+	cdx_uint64		ogg_granulepos;
     cdx_int32           ogg_pageno;
     unsigned char       ogg_uflag;
     

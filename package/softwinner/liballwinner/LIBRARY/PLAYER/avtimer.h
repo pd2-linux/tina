@@ -44,4 +44,3 @@ AvTimer* AvTimerCreate(void);
 void AvTimerDestroy(AvTimer*);
 
 #endif
-

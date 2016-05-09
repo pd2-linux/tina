@@ -170,4 +170,3 @@ cdx_void CdxQueueDestroy(CdxQueueT *queue)
 
     return ;
 }
-

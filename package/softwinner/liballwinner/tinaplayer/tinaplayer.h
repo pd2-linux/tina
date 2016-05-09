@@ -125,6 +125,7 @@ class TinaPlayer{
 		void callbackToApp(int msg, int param0, void* param1);
 
 	private:
+
 		void initSoundControlOpsT();
 		void* mPlayer;
 		NotifyCallback		mNotifier;

@@ -138,10 +138,10 @@ static cdx_int32 __CdxTcpStreamRead(CdxStreamT *stream, void *buf, cdx_uint32 le
         impl->notBlockFlag = 0;
         
 __exit0:
-    	pthread_mutex_lock(&impl->stateLock);
+	pthread_mutex_lock(&impl->stateLock);
         CdxAtomicSet(&impl->state, TCP_STREAM_IDLE);
         CdxTcpStreamDecRef(stream);
-    	pthread_mutex_unlock(&impl->stateLock);
+	pthread_mutex_unlock(&impl->stateLock);
 
         return ret;
     }
@@ -277,7 +277,7 @@ static cdx_int32 CdxTcpStreamForceStop(CdxStreamT *stream)
     pthread_mutex_unlock(&impl->stateLock);
     
     while(((ref = CdxAtomicRead(&impl->state)) != TCP_STREAM_IDLE)/* && 
-    		((ref = CdxAtomicRead(&impl->state)) != TCP_STREAM_CONNECTING)*/)
+		((ref = CdxAtomicRead(&impl->state)) != TCP_STREAM_CONNECTING)*/)
     {
         //CDX_LOGV("xxx state(%ld)", ref);
         usleep(10*1000);
@@ -510,8 +510,8 @@ err_out:
     end = GetNowUs();
     if(errno == 101)
     {
-    	CDX_LOGD("errno 101, reconnect");
-    	return -2;
+	CDX_LOGD("errno 101, reconnect");
+	return -2;
     }
     //CDX_LOGV("Start tcp time(%lld)", end-start);
     return -1;
@@ -546,7 +546,7 @@ static cdx_int32 __CdxTcpStreamConnect(CdxStreamT *stream)
     }
     else
     {
-    	pthread_mutex_lock(&impl->stateLock);
+	pthread_mutex_lock(&impl->stateLock);
         impl->ioState = CDX_IO_STATE_OK;
         pthread_mutex_unlock(&impl->stateLock);
     }
@@ -618,4 +618,3 @@ err_out:
 CdxStreamCreatorT tcpStreamCtor = {
     .create = __CdxTcpStreamCreate
 };
-

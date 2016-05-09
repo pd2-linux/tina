@@ -118,8 +118,8 @@ static int __FileStreamWrite(CdxStreamT *stream, void * buf, cdx_uint32 len)
     ret = cdxfwrite64(impl->fd, buf, len);
     if(ret < len)
     {
-    	loge("wrie err(%d)", errno);
-    	return -1;
+	loge("wrie err(%d)", errno);
+	return -1;
     }
     
 	CdxAtomicSet(&impl->state, FILE_STREAM_IDLE);
@@ -547,4 +547,3 @@ CdxStreamCreatorT fileStreamCtor =
 {
     .create = __FileStreamCreate
 };
-

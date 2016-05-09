@@ -29,7 +29,7 @@ LOCAL_SRC_FILES := \
     
 ifeq ($(CONFIG_DEINTERLACE),$(OPTION_SW_DEINTERLACE))
 LOCAL_SRC_FILES += \
-    sw-deinterlace/deinterlaceSw.cpp 	\
+    sw-deinterlace/deinterlaceSw.cpp	\
     sw-deinterlace/postprocess.cpp      \
     sw-deinterlace/AWPostProcess.cpp    \
     sw-deinterlace/yadif.cpp
@@ -122,4 +122,3 @@ LOCAL_SHARED_LIBRARIES +=   \
         libicuuc
 
 include $(BUILD_SHARED_LIBRARY)
-

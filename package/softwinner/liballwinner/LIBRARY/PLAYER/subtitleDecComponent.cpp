@@ -166,9 +166,9 @@ void SubtitleDecCompDestroy(SubtitleDecComp* s)
             }
             if(p->pStreamInfoArr[i].pCodecSpecificData != NULL && p->pStreamInfoArr[i].nCodecSpecificDataLen > 0)
             {
-            	free(p->pStreamInfoArr[i].pCodecSpecificData);
-            	p->pStreamInfoArr[i].pCodecSpecificData = NULL;
-            	p->pStreamInfoArr[i].nCodecSpecificDataLen = 0;
+		free(p->pStreamInfoArr[i].pCodecSpecificData);
+		p->pStreamInfoArr[i].pCodecSpecificData = NULL;
+		p->pStreamInfoArr[i].nCodecSpecificDataLen = 0;
             }
         }
         free(p->pStreamInfoArr);
@@ -407,9 +407,9 @@ int SubtitleDecCompSetSubtitleStreamInfo(SubtitleDecComp*     s,
             }
             if(p->pStreamInfoArr[i].pCodecSpecificData != NULL && p->pStreamInfoArr[i].nCodecSpecificDataLen > 0)
             {
-            	free(p->pStreamInfoArr[i].pCodecSpecificData);
-            	p->pStreamInfoArr[i].pCodecSpecificData = NULL;
-            	p->pStreamInfoArr[i].nCodecSpecificDataLen = 0;
+		free(p->pStreamInfoArr[i].pCodecSpecificData);
+		p->pStreamInfoArr[i].pCodecSpecificData = NULL;
+		p->pStreamInfoArr[i].nCodecSpecificDataLen = 0;
             }
         }
         
@@ -458,17 +458,17 @@ int SubtitleDecCompSetSubtitleStreamInfo(SubtitleDecComp*     s,
         }
         if(p->pStreamInfoArr[i].pCodecSpecificData != NULL && p->pStreamInfoArr[i].nCodecSpecificDataLen > 0)
         {
-        	pStreamInfo[i].nCodecSpecificDataLen = p->pStreamInfoArr[i].nCodecSpecificDataLen;
-        	pStreamInfo[i].pCodecSpecificData = (char*)malloc(pStreamInfo[i].nCodecSpecificDataLen);
-        	if(pStreamInfo[i].pCodecSpecificData == NULL)
-        	{
+		pStreamInfo[i].nCodecSpecificDataLen = p->pStreamInfoArr[i].nCodecSpecificDataLen;
+		pStreamInfo[i].pCodecSpecificData = (char*)malloc(pStreamInfo[i].nCodecSpecificDataLen);
+		if(pStreamInfo[i].pCodecSpecificData == NULL)
+		{
                 loge("malloc memory fail.");
                 pStreamInfo[i].pCodecSpecificData = 0;
                 break;
             }
             memcpy(pStreamInfo[i].pCodecSpecificData, 
-            	p->pStreamInfoArr[i].pCodecSpecificData, 
-            	p->pStreamInfoArr[i].nCodecSpecificDataLen);
+		p->pStreamInfoArr[i].pCodecSpecificData,
+		p->pStreamInfoArr[i].nCodecSpecificDataLen);
         }
     }
     
@@ -485,9 +485,9 @@ int SubtitleDecCompSetSubtitleStreamInfo(SubtitleDecComp*     s,
             }
             if(p->pStreamInfoArr[i].pCodecSpecificData != NULL && p->pStreamInfoArr[i].nCodecSpecificDataLen > 0)
             {
-            	free(p->pStreamInfoArr[i].pCodecSpecificData);
-            	p->pStreamInfoArr[i].pCodecSpecificData = NULL;
-            	p->pStreamInfoArr[i].nCodecSpecificDataLen = 0;
+		free(p->pStreamInfoArr[i].pCodecSpecificData);
+		p->pStreamInfoArr[i].pCodecSpecificData = NULL;
+		p->pStreamInfoArr[i].nCodecSpecificDataLen = 0;
             }
         }
         free(p->pStreamInfoArr);
@@ -508,9 +508,9 @@ int SubtitleDecCompSetSubtitleStreamInfo(SubtitleDecComp*     s,
             }
             if(p->pStreamInfoArr[i].pCodecSpecificData != NULL && p->pStreamInfoArr[i].nCodecSpecificDataLen > 0)
             {
-            	free(p->pStreamInfoArr[i].pCodecSpecificData);
-            	p->pStreamInfoArr[i].pCodecSpecificData = NULL;
-            	p->pStreamInfoArr[i].nCodecSpecificDataLen = 0;
+		free(p->pStreamInfoArr[i].pCodecSpecificData);
+		p->pStreamInfoArr[i].pCodecSpecificData = NULL;
+		p->pStreamInfoArr[i].nCodecSpecificDataLen = 0;
             }
         }
         free(p->pStreamInfoArr);
@@ -560,9 +560,9 @@ int SubtitleDecCompSetSubtitleStreamInfo(SubtitleDecComp*     s,
             }
             if(p->pStreamInfoArr[i].pCodecSpecificData != NULL && p->pStreamInfoArr[i].nCodecSpecificDataLen > 0)
             {
-            	free(p->pStreamInfoArr[i].pCodecSpecificData);
-            	p->pStreamInfoArr[i].pCodecSpecificData = NULL;
-            	p->pStreamInfoArr[i].nCodecSpecificDataLen = 0;
+		free(p->pStreamInfoArr[i].pCodecSpecificData);
+		p->pStreamInfoArr[i].pCodecSpecificData = NULL;
+		p->pStreamInfoArr[i].nCodecSpecificDataLen = 0;
             }
         }
         free(p->pStreamInfoArr);
@@ -651,18 +651,18 @@ int SubtitleDecCompAddSubtitleStream(SubtitleDecComp* s, SubtitleStreamInfo* pSt
         }
         if(pStreamInfo->pCodecSpecificData != NULL && pStreamInfo->nCodecSpecificDataLen > 0)
         {
-        	pStreamInfoArr[nStreamCount-1].nCodecSpecificDataLen = pStreamInfo->nCodecSpecificDataLen;
-        	pStreamInfoArr[nStreamCount-1].pCodecSpecificData = (char*)malloc(pStreamInfo->nCodecSpecificDataLen);
-        	if(pStreamInfoArr[nStreamCount-1].pCodecSpecificData == NULL)
-        	{
+		pStreamInfoArr[nStreamCount-1].nCodecSpecificDataLen = pStreamInfo->nCodecSpecificDataLen;
+		pStreamInfoArr[nStreamCount-1].pCodecSpecificData = (char*)malloc(pStreamInfo->nCodecSpecificDataLen);
+		if(pStreamInfoArr[nStreamCount-1].pCodecSpecificData == NULL)
+		{
                 loge("malloc memory fail.");
                 free(pStreamManagerArr);
                 free(pStreamInfoArr);
                 return -1;
             }
             memcpy(pStreamInfoArr[nStreamCount-1].pCodecSpecificData, 
-            	pStreamInfo->pCodecSpecificData, 
-            	pStreamInfo->nCodecSpecificDataLen);
+		pStreamInfo->pCodecSpecificData,
+		pStreamInfo->nCodecSpecificDataLen);
         }
         
         free(p->pStreamInfoArr);
@@ -731,16 +731,16 @@ int SubtitleDecCompGetSubtitleStreamInfo(SubtitleDecComp* s, int* pStreamNum, Su
         }
         if(p->pStreamInfoArr[i].pCodecSpecificData != NULL && p->pStreamInfoArr[i].nCodecSpecificDataLen > 0)
         {
-        	pStreamInfo[i].nCodecSpecificDataLen = p->pStreamInfoArr[i].nCodecSpecificDataLen;
-        	pStreamInfo[i].pCodecSpecificData = (char*)malloc(pStreamInfo[i].nCodecSpecificDataLen);
-        	if(pStreamInfo[i].pCodecSpecificData == NULL)
-        	{
+		pStreamInfo[i].nCodecSpecificDataLen = p->pStreamInfoArr[i].nCodecSpecificDataLen;
+		pStreamInfo[i].pCodecSpecificData = (char*)malloc(pStreamInfo[i].nCodecSpecificDataLen);
+		if(pStreamInfo[i].pCodecSpecificData == NULL)
+		{
                 loge("malloc memory fail.");
                 break;
             }
             memcpy(pStreamInfo[i].pCodecSpecificData, 
-            	p->pStreamInfoArr[i].pCodecSpecificData, 
-            	p->pStreamInfoArr[i].nCodecSpecificDataLen);
+		p->pStreamInfoArr[i].pCodecSpecificData,
+		p->pStreamInfoArr[i].nCodecSpecificDataLen);
         }
     }
     
@@ -757,9 +757,9 @@ int SubtitleDecCompGetSubtitleStreamInfo(SubtitleDecComp* s, int* pStreamNum, Su
             }
             if(p->pStreamInfoArr[i].pCodecSpecificData != NULL && p->pStreamInfoArr[i].nCodecSpecificDataLen > 0)
             {
-            	free(p->pStreamInfoArr[i].pCodecSpecificData);
-            	p->pStreamInfoArr[i].pCodecSpecificData = NULL;
-            	p->pStreamInfoArr[i].nCodecSpecificDataLen = 0;
+		free(p->pStreamInfoArr[i].pCodecSpecificData);
+		p->pStreamInfoArr[i].pCodecSpecificData = NULL;
+		p->pStreamInfoArr[i].nCodecSpecificDataLen = 0;
             }
         }
         free(pStreamInfo);

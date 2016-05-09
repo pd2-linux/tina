@@ -357,4 +357,3 @@ const struct ogg_codec cdx_ff_ogm_text_codec = {
     .granule_is_start = 1,
     .nb_header = 2,
 };
-

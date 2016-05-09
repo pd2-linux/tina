@@ -976,4 +976,3 @@ CdxParserCreatorT mpgParserCtor =
     .create    = CdxMpgParserOpen,
     .probe     = CdxMpgParserProbe
 };
-

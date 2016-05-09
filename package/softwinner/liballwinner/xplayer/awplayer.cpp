@@ -286,6 +286,20 @@ int AwPlayer::start()
     return mStartReply;
 }
 
+MediaInfo* AwPlayer::getMediaInfo()
+{
+    if(mStatus == AWPLAYER_STATUS_PREPARING ||
+       mStatus == AWPLAYER_STATUS_INITIALIZED||
+       mStatus == AWPLAYER_STATUS_IDLE )
+    {
+        loge("cannot get mediainfo in this status");
+        return NULL;
+    }
+
+    return mMediaInfo;
+}
+
+
 int AwPlayer::stop()
 {
     AwMessage msg;
@@ -346,10 +360,10 @@ int AwPlayer::setSpeed(int nSpeed)
 
     if(nSpeed == 1)
     {
-    	mbFast = 0;
-    	mSpeed = 1;
-    	mFastTime = 0;
-    	start();
+	mbFast = 0;
+	mSpeed = 1;
+	mFastTime = 0;
+	start();
         PlayerSetDiscardAudio(mPlayer, 0);
         return 0;
     }
@@ -1463,17 +1477,17 @@ int AwPlayer::callbackProcess(int messageId, void* param)
             break;
         }
 
-    	case AWPLAYER_MESSAGE_PLAYER_VIDEO_RENDER_FRAME:
-    		if(mbFast)
-    		{
-    			logd("==== video key frame in fast mode, mFastTime: %d, mSpeed: %d", mFastTime, mSpeed);
-    			if(mSpeed == 0)
-    			{
-    				break;
-    			}
+	case AWPLAYER_MESSAGE_PLAYER_VIDEO_RENDER_FRAME:
+		if(mbFast)
+		{
+			logd("==== video key frame in fast mode, mFastTime: %d, mSpeed: %d", mFastTime, mSpeed);
+			if(mSpeed == 0)
+			{
+				break;
+			}
 
-	    		int sleepTime = (mSpeed > 0) ? 2000000/mSpeed : (-2000000/mSpeed);
-	    		//usleep(sleepTime);
+			int sleepTime = (mSpeed > 0) ? 2000000/mSpeed : (-2000000/mSpeed);
+			//usleep(sleepTime);
 
 				mFastTime += mSpeed*1000;
 				if(mFastTime > 0 && mbFast)
@@ -1495,7 +1509,7 @@ int AwPlayer::callbackProcess(int messageId, void* param)
 					mbFast = 0;
 				}
 			}
-    		break;
+		break;
 
 
         default:
@@ -1715,4 +1729,3 @@ static int transformPictureMb32ToRGB(VideoPicture* pPicture,
 
     return 0;
 }
-

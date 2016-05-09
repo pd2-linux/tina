@@ -55,4 +55,3 @@ static int SemTimedWait(sem_t* sem, int64_t time_ms)
 }
 
 #endif
-

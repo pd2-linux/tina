@@ -507,5 +507,3 @@ cdx_void CdxHandlerDestroy(CdxHandlerT *hdr)
 }
 
 /*--------------------------msg handler end----------------------------*/
-
-

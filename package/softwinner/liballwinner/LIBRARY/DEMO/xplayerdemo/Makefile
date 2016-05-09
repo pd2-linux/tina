@@ -69,12 +69,12 @@ SourceIncludePath = $(foreach dir,$(SourcePath),-I$(dir)) \
 					-I../../../xplayer
 
 ## set compile flags
-CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -Wall -O2 -ldl
+CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -Wall -O2 -ldl -g
 
 ## set link flags
 LoadFlags = $(CONFIG_FOR_LINK)
 
-LoadFlags +=   -lxplayer -lcdc_vdecoder -lcdc_adecoder -lnormal_audio -lcdc_sdecoder -lcdc_base -lcdc_ve -lcdc_memory \
+LoadFlags +=   -lxplayer -lcdc_vdecoder -lcdc_adecoder -lcdc_sdecoder -lcdc_base -lcdc_ve -lcdc_memory \
                -lcdx_parser  -lplayer -lcdx_stream -lcdx_base  -lpostprocess \
                -law_plugin  -lpthread -ldl -lstdc++ -lrt -lm -lc
 
@@ -172,5 +172,3 @@ ifneq ($(MAKECMDGOALS),cleanall)
 endif
 endif
 endif
-
-

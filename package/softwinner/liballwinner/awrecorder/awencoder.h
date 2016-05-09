@@ -57,14 +57,14 @@ typedef enum AUDIO_ENCODE_TYPE
 
 typedef struct AudioEncodeConfig
 {
-	AUDIO_ENCODE_TYPE 	nType;
-	int                	nInSamplerate;   //那?豕?fs
-    int     			nInChan;         //那?豕?pcm chan 1:mon 2:stereo
-    int     			nBitrate;        //bs
-    int     			nSamplerBits;    //only for 16bits
-    int     			nOutSamplerate;  //那?3?fs,now OutSamplerate must equal InSamplerate
-    int     			nOutChan;        //㊣角??那?3? chan
-    int     			nFrameStyle;    //for aac: 0:add head,1:raw data; for pcm: 2:mpegTs pcm(big endian), other: common pcm(little endian)
+	AUDIO_ENCODE_TYPE	nType;
+	int			nInSamplerate;   //那?豕?fs
+    int				nInChan;         //那?豕?pcm chan 1:mon 2:stereo
+    int				nBitrate;        //bs
+    int				nSamplerBits;    //only for 16bits
+    int				nOutSamplerate;  //那?3?fs,now OutSamplerate must equal InSamplerate
+    int				nOutChan;        //㊣角??那?3? chan
+    int				nFrameStyle;    //for aac: 0:add head,1:raw data; for pcm: 2:mpegTs pcm(big endian), other: common pcm(little endian)
 }AudioEncodeConfig;
 
 typedef struct VideoEncodeConfig
@@ -73,10 +73,10 @@ typedef struct VideoEncodeConfig
 	int             nFrameRate;
 	int             nBitRate;
     int             nOutWidth;
-    int 			nOutHeight;
-    int 			nSrcFrameRate;
-    int 			nSrcWidth;
-    int 			nSrcHeight;
+    int				nOutHeight;
+    int				nSrcFrameRate;
+    int				nSrcWidth;
+    int				nSrcHeight;
     int             bUsePhyBuf;
 }VideoEncodeConfig;
 
@@ -144,4 +144,3 @@ int            AwEncoderSetNotifyCallback(AwEncoder* p, EncoderNotifyCallback no
 #endif
 
 #endif /* __RECORDER_H__ */
-

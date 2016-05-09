@@ -15,7 +15,7 @@ cdx_int32 GetAACDuration(const cdx_uint8 *data, cdx_int32 datalen)
 {
 	cdx_int32 i                     = 0;
 	cdx_int32 firstframe            = 1;
-	cdx_uint32 Duration     = 0; 	//ms
+	cdx_uint32 Duration     = 0;	//ms
 	cdx_uint32 BitRate      = 0;
 	cdx_uint32 frameOn      = 0;
 	cdx_uint8 layer       = 0;
@@ -115,9 +115,9 @@ static cdx_uint8 getbits8(cdx_uint8* buffer, cdx_uint32 start, cdx_uint8 len)
 
     ret = (buffer[i] << n);
     if(8 > len)
-    	ret  >>= (8-len);
+	ret  >>= (8-len);
     if(k)
-    	ret |= (buffer[i+1] >> (8-k));
+	ret |= (buffer[i+1] >> (8-k));
     	
     return  ret;
 }
@@ -507,7 +507,7 @@ static cdx_uint32 h265_read_golomb(cdx_uint8* buffer, cdx_uint32* init)
         if(y - j > 8)
             w <<= 8;
         else if((y - j) > 0)
-        	w <<= (y - j);
+		w <<= (y - j);
     }
 
     w2 = 1;
@@ -593,7 +593,7 @@ static cdx_int32 h265_parse_sps(VideoMetaData *videoMetaData, cdx_uint8* buf, cd
     h265_read_golomb(buf, &n); /* sps_seq_parameter_set_id: ue(v) */
     chroma_format_idc = h265_read_golomb(buf, &n); /* chroma_format_idc: ue(v) */
     if(chroma_format_idc == 3)
-    	n += 1; /* separate_colour_plane_flag: u(1) */
+	n += 1; /* separate_colour_plane_flag: u(1) */
 
     videoMetaData->width = h265_read_golomb(buf, &n); /* pic_width_in_luma_samples: ue(v) */
     videoMetaData->height = h265_read_golomb(buf, &n); /* pic_height_in_luma_samples: ue(v) */
@@ -633,26 +633,26 @@ static cdx_int32 prob_h265(Stream *st)
 
     for (ptr = st->probeBuf; ptr <= st->probeBuf + st->probeDataSize - 16;)
     {
-    	if(ptr[0] == 0 && ptr[1] == 0 && ptr[2] == 1 && /*h265 nalu start code*/
-    			ptr[3] == 0x42 && ptr[4] == 0x01 /*h265 sps nalu type*/)
-    	{
-    		ptr += 3;
-    		ptr_nalu = ptr;
-    		found = 1;
-    		break; /* find sps, next we will get the size of sps_nalu by searching next start_code*/
-    	}
-    	++kk;
-    	++ptr;
+	if(ptr[0] == 0 && ptr[1] == 0 && ptr[2] == 1 && /*h265 nalu start code*/
+			ptr[3] == 0x42 && ptr[4] == 0x01 /*h265 sps nalu type*/)
+	{
+		ptr += 3;
+		ptr_nalu = ptr;
+		found = 1;
+		break; /* find sps, next we will get the size of sps_nalu by searching next start_code*/
+	}
+	++kk;
+	++ptr;
     }
     kk = 0;
     if(found == 1)
     {
-    	for (; ptr <= st->probeBuf + st->probeDataSize - 16;)
-    	{
-    		if(ptr[0] == 0 && ptr[1] == 0 && ptr[2] == 1)
-    		{
-   				nalu = calloc(kk+16, 1);
-    			sps_nalu_len = prob_h265_delete_emulation_code(nalu, ptr_nalu, kk);
+	for (; ptr <= st->probeBuf + st->probeDataSize - 16;)
+	{
+		if(ptr[0] == 0 && ptr[1] == 0 && ptr[2] == 1)
+		{
+				nalu = calloc(kk+16, 1);
+			sps_nalu_len = prob_h265_delete_emulation_code(nalu, ptr_nalu, kk);
                 if(!st->metadata)
                 {
                     st->metadata = (VideoMetaData *)malloc(sizeof(VideoMetaData));
@@ -664,13 +664,13 @@ static cdx_int32 prob_h265(Stream *st)
                 }
                 VideoMetaData *videoMetaData = (VideoMetaData *)st->metadata;
                 
-    			h265_parse_sps(videoMetaData, nalu, sps_nalu_len);
-    			free(nalu);
-    			return 0;
-    		}
-        	++kk;
-        	++ptr;
-    	}
+			h265_parse_sps(videoMetaData, nalu, sps_nalu_len);
+			free(nalu);
+			return 0;
+		}
+		++kk;
+		++ptr;
+	}
     }
 	return 0;
 }
@@ -699,7 +699,7 @@ cdx_int32 ProbeVideo(Stream *stream)
     }
     else if (stream->codec_id == VIDEO_CODEC_FORMAT_AVS)
     {
-    	return 0;
+	return 0;
     }
     else
     {
@@ -731,4 +731,3 @@ cdx_int32 ProbeStream(Stream *stream)
     }
 }
 #endif    
-

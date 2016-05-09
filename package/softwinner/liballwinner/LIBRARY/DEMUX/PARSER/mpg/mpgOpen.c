@@ -1377,5 +1377,3 @@ __read_new_data:
     }
     return FILE_PARSER_RETURN_OK;
 }
-
-

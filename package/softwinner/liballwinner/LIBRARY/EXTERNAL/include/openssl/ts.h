@@ -703,7 +703,7 @@ void TS_VERIFY_CTX_cleanup(TS_VERIFY_CTX *ctx);
  * imprint, imprint_len = imprint from request
  * data = NULL
  * nonce, nonce_len = nonce from the request or NULL if absent (in this case
- * 	TS_VFY_NONCE is cleared from flags as well)
+ *	TS_VFY_NONCE is cleared from flags as well)
  * tsa_name = NULL
  * Important: after calling this method TS_VFY_SIGNATURE should be added!
  */

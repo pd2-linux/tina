@@ -109,20 +109,20 @@ void SoundDeviceRelease(SoundCtrl* s)
     pthread_mutex_lock(&sc->mutex);
     if(sc->eStatus != PLAYER_STATUS_STOPPED) 
     {
-    	if (sc->alsa_handler) 
+	if (sc->alsa_handler)
         {
-    		int err;
-    		if ((err = snd_pcm_close(sc->alsa_handler)) < 0) 
+		int err;
+		if ((err = snd_pcm_close(sc->alsa_handler)) < 0)
             {
                 logw("MSGTR_AO_ALSA_PcmCloseError");
-    		} else 
-    		{
-    			sc->alsa_handler = NULL;
+		} else
+		{
+			sc->alsa_handler = NULL;
                 logd("alsa-uninit: pcm closed\n");
-    		}
-    	} else {
-    	    logw("MSGTR_AO_ALSA_NoHandlerDefined");
-    	}    
+		}
+	} else {
+	    logw("MSGTR_AO_ALSA_NoHandlerDefined");
+	}
     }  
     pthread_mutex_unlock(&sc->mutex);
     
@@ -560,21 +560,21 @@ static int SoundDeviceStop_l(SoundCtrlContext* sc)
     
     if(sc->eStatus != PLAYER_STATUS_STOPPED) 
     {
-    	if (sc->alsa_handler) 
+	if (sc->alsa_handler)
         {
-    		int err;
-    		if ((err = snd_pcm_close(sc->alsa_handler)) < 0) 
+		int err;
+		if ((err = snd_pcm_close(sc->alsa_handler)) < 0)
             {
                 logw("MSGTR_AO_ALSA_PcmCloseError");
-    		}
-    		else
-    		{
-    			sc->alsa_handler = NULL;
+		}
+		else
+		{
+			sc->alsa_handler = NULL;
                 logd("alsa-uninit: pcm closed\n");
-    		}
-    	} else {
-    	    logw("MSGTR_AO_ALSA_NoHandlerDefined");
-    	}  
+		}
+	} else {
+	    logw("MSGTR_AO_ALSA_NoHandlerDefined");
+	}
         
         sc->eStatus = PLAYER_STATUS_STOPPED;
     }      
@@ -746,26 +746,25 @@ int SoundDeviceGetVolume(SoundCtrl* s, float *volume)
 
 SoundControlOpsT mSoundControlOps = 
 {
-	SoundDeviceInit:          		SoundDeviceInit,
-	SoundDeviceRelease:       		SoundDeviceRelease,
-	SoundDeviceSetFormat:     		SoundDeviceSetFormat,
-	SoundDeviceStart:         		SoundDeviceStart,
-	SoundDeviceStop:          		SoundDeviceStop,
-	SoundDevicePause:         		SoundDevicePause,
-	SoundDeviceWrite:         		SoundDeviceWrite,
-	SoundDeviceReset:         		SoundDeviceReset,
-	SoundDeviceGetCachedTime: 		SoundDeviceGetCachedTime,
-	SoundDeviceInit_raw:      		SoundDeviceInit_raw,
-	SoundDeviceRelease_raw:   		SoundDeviceRelease_raw,
-	SoundDeviceSetFormat_raw: 		SoundDeviceSetFormat_raw,
-	SoundDeviceStart_raw:     		SoundDeviceStart_raw,
-	SoundDeviceStop_raw:      		SoundDeviceStop_raw,
-	SoundDevicePause_raw:     		SoundDevicePause_raw,
-	SoundDeviceWrite_raw:     		SoundDeviceWrite_raw,
-	SoundDeviceReset_raw:     		SoundDeviceReset_raw,
-	SoundDeviceGetCachedTime_raw: 	SoundDeviceGetCachedTime_raw,
-	SoundDeviceSetVolume: 			SoundDeviceSetVolume,
-	SoundDeviceGetVolume:         	SoundDeviceGetVolume,
-	SoundDeviceSetCallback:        	SoundDeviceSetCallback
+	SoundDeviceInit:			SoundDeviceInit,
+	SoundDeviceRelease:			SoundDeviceRelease,
+	SoundDeviceSetFormat:			SoundDeviceSetFormat,
+	SoundDeviceStart:			SoundDeviceStart,
+	SoundDeviceStop:			SoundDeviceStop,
+	SoundDevicePause:			SoundDevicePause,
+	SoundDeviceWrite:			SoundDeviceWrite,
+	SoundDeviceReset:			SoundDeviceReset,
+	SoundDeviceGetCachedTime:		SoundDeviceGetCachedTime,
+	SoundDeviceInit_raw:			SoundDeviceInit_raw,
+	SoundDeviceRelease_raw:			SoundDeviceRelease_raw,
+	SoundDeviceSetFormat_raw:		SoundDeviceSetFormat_raw,
+	SoundDeviceStart_raw:			SoundDeviceStart_raw,
+	SoundDeviceStop_raw:			SoundDeviceStop_raw,
+	SoundDevicePause_raw:			SoundDevicePause_raw,
+	SoundDeviceWrite_raw:			SoundDeviceWrite_raw,
+	SoundDeviceReset_raw:			SoundDeviceReset_raw,
+	SoundDeviceGetCachedTime_raw:	SoundDeviceGetCachedTime_raw,
+	SoundDeviceSetVolume:			SoundDeviceSetVolume,
+	SoundDeviceGetVolume:		SoundDeviceGetVolume,
+	SoundDeviceSetCallback:		SoundDeviceSetCallback
 };
-

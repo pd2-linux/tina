@@ -421,4 +421,3 @@ XMLPUBFUN void XMLCALL
 #endif
 
 #endif /* __XML_XMLREADER_H__ */
-

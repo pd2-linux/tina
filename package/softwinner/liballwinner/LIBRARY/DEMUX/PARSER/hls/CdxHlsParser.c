@@ -481,16 +481,16 @@ int DownloadParseM3u8(CdxHlsParser *hlsParser)
     
 	while(1)
 	{
-    	if(hlsParser->forceStop == 1)
-    	{
-    		return -1;
-    	}
-    	ret = CdxStreamRead(hlsParser->cdxStream, hlsParser->m3u8Buf + m3u8ReadSize, num);
-    	if(ret < 0)
-    	{
+	if(hlsParser->forceStop == 1)
+	{
+		return -1;
+	}
+	ret = CdxStreamRead(hlsParser->cdxStream, hlsParser->m3u8Buf + m3u8ReadSize, num);
+	if(ret < 0)
+	{
             CDX_LOGE("CdxStreamRead fail, hlsParser->forceStop=%d", hlsParser->forceStop);
-    		return -1;
-    	}
+		return -1;
+	}
 		if(ret == 0)
 		{
 			break;
@@ -1170,15 +1170,15 @@ static cdx_int32 SetMediaInfo(CdxHlsParser *hlsParser)
 {
 	if(!hlsParser->child[0])
 	{
-    	CDX_LOGE("hlsParser->child[0] == NULL");
-    	return -1;
+	CDX_LOGE("hlsParser->child[0] == NULL");
+	return -1;
 	}
     CdxMediaInfoT* pMediaInfo = &hlsParser->mediaInfo;
 	int ret = CdxParserGetMediaInfo(hlsParser->child[0], pMediaInfo);
 	if(ret < 0)
 	{
 		CDX_LOGE("hlsParser->child[0] getMediaInfo error!");
-    	return -1;
+	return -1;
 	}
 	if(hlsParser->child[1])
 	{
@@ -1604,9 +1604,9 @@ static cdx_int32 HlsParserRead(CdxParserT *parser, CdxPacketT *pkt)
 	CdxHlsParser *hlsParser = (CdxHlsParser*)parser;
     if(hlsParser->status != CDX_PSR_PREFETCHED)
     {
-    	CDX_LOGE("status != CDX_PSR_PREFETCHED, we can not read!");
+	CDX_LOGE("status != CDX_PSR_PREFETCHED, we can not read!");
         hlsParser->mErrno = PSR_INVALID_OPERATION;
-    	return -1;
+	return -1;
     }
     pthread_mutex_lock(&hlsParser->statusLock);
     if(hlsParser->forceStop)
@@ -1740,10 +1740,10 @@ static int HlsParserControl(CdxParserT *parser, int cmd, void *param)
     int ret;
     switch(cmd)
     {
-    	case CDX_PSR_CMD_SWITCH_AUDIO:
-    	case CDX_PSR_CMD_SWITCH_SUBTITLE:
-    		CDX_LOGI(" hls parser is not support switch stream yet!!!");
-    		break;
+	case CDX_PSR_CMD_SWITCH_AUDIO:
+	case CDX_PSR_CMD_SWITCH_SUBTITLE:
+		CDX_LOGI(" hls parser is not support switch stream yet!!!");
+		break;
         case CDX_PSR_CMD_SET_FORCESTOP:
             return HlsParserForceStop(parser);
         case CDX_PSR_CMD_CLR_FORCESTOP:
@@ -1767,14 +1767,14 @@ static int HlsParserControl(CdxParserT *parser, int cmd, void *param)
         }
         case CDX_PSR_CMD_GET_REDIRECT_URL:
         {
-        	if(hlsParser->isMasterParser)
-        	{
+		if(hlsParser->isMasterParser)
+		{
 				return CdxParserControl(hlsParser->child[0], CDX_PSR_CMD_GET_REDIRECT_URL, param);
-        	}
-        	else
-        	{
-        		if(hlsParser->cdxStream)
-        		{
+		}
+		else
+		{
+			if(hlsParser->cdxStream)
+			{
 					char* tmpUrl = NULL;
 					CdxStreamGetMetaData(hlsParser->cdxStream, "uri", (void**)&tmpUrl);
 					if(tmpUrl)
@@ -1794,11 +1794,11 @@ static int HlsParserControl(CdxParserT *parser, int cmd, void *param)
 					param = NULL;
 				}
 				return 0;
-        	}
+		}
         }
 		case CDX_PSR_CMD_GET_STREAM_STATUSCODE:
 		{
-        	if(hlsParser->isMasterParser)
+		if(hlsParser->isMasterParser)
 			{
 				return CdxParserControl(hlsParser->child[0], CDX_PSR_CMD_GET_STREAM_STATUSCODE, param);
 			}
@@ -1820,14 +1820,14 @@ static int HlsParserControl(CdxParserT *parser, int cmd, void *param)
 			{
 				return CdxParserControl(hlsParser->child[0], CDX_PSR_CMD_GET_STREAM_EXTRADATA, param);
 			}
-        	return 0;
+		return 0;
 		}
         case CDX_PSR_CMD_GET_URL:
         {
-        	char* tmpUrl = NULL;
-        	CDX_LOGD("*********** CDX_PSR_CMD_GET_URL");
-        	if(hlsParser->cdxStream)
-        	{
+		char* tmpUrl = NULL;
+		CDX_LOGD("*********** CDX_PSR_CMD_GET_URL");
+		if(hlsParser->cdxStream)
+		{
 				CdxStreamGetMetaData(hlsParser->cdxStream, "uri", (void**)&tmpUrl);
 				if(tmpUrl)
 				{
@@ -1932,7 +1932,7 @@ static int HlsParserControl(CdxParserT *parser, int cmd, void *param)
 			return 0;
         }
         default:
-        	break;
+		break;
     }
 	return -1;
 }
@@ -2494,15 +2494,15 @@ _exit:
 			
 static struct CdxParserOpsS hlsParserOps = 
 {
-    .control 		= HlsParserControl,
-    .prefetch 		= HlsParserPrefetch,
-    .read 			= HlsParserRead,
-    .getMediaInfo 	= HlsParserGetMediaInfo,
-    .close 			= HlsParserClose,
+    .control		= HlsParserControl,
+    .prefetch		= HlsParserPrefetch,
+    .read			= HlsParserRead,
+    .getMediaInfo	= HlsParserGetMediaInfo,
+    .close			= HlsParserClose,
     .seekTo			= HlsParserSeekTo,
     .attribute		= HlsParserAttribute,
     .getStatus		= HlsParserGetStatus,
-	.init 			= HlsParserInit
+	.init			= HlsParserInit
 };
 	
 	
@@ -2519,8 +2519,8 @@ CdxParserT *HlsParserOpen(CdxStreamT *stream, cdx_uint32 flags)
     hlsParser->flags = flags;
     if(flags & CMCC_TIME_SHIFT)
     {
-    	CDX_LOGD("---- cmcc timeShift");
-    	hlsParser->mIsTimeShift = 1;
+	CDX_LOGD("---- cmcc timeShift");
+	hlsParser->mIsTimeShift = 1;
     }
 
     int ret = pthread_mutex_init(&hlsParser->statusLock, NULL);
@@ -2617,6 +2617,5 @@ cdx_uint32 HlsParserProbe(CdxStreamProbeDataT *probeData)
 CdxParserCreatorT hlsParserCtor =
 {
     .create	= HlsParserOpen,
-    .probe 	= HlsParserProbe
+    .probe	= HlsParserProbe
 };
-

@@ -70,7 +70,7 @@ CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -Wall -ldl
 
 ## set link flags
 $(warning $(CONFIG_PRODUCT))
-LoadFlags = $(CONFIG_FOR_LINK) -lplayer -lcdc_vdecoder -lcdc_adecoder -lpostprocess -lnormal_audio -lcdc_sdecoder -lcdc_base \
+LoadFlags = $(CONFIG_FOR_LINK) -lplayer -lcdc_vdecoder -lcdc_adecoder -lpostprocess -lcdc_sdecoder -lcdc_base \
              -lcdx_parser -lcdx_stream -lcdx_base -lcdc_ve -lcdc_memory \
                -lpthread -ldl -lstdc++ -lrt -lc
 
@@ -169,5 +169,3 @@ ifneq ($(MAKECMDGOALS),cleanall)
 endif
 endif
 endif
-
-

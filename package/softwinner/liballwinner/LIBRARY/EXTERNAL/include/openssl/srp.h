@@ -131,7 +131,7 @@ int SRP_create_verifier_BN(const char *user, const char *pass, BIGNUM **salt, BI
 
 #define DB_srptype	0
 #define DB_srpverifier	1
-#define DB_srpsalt 	2
+#define DB_srpsalt	2
 #define DB_srpid	3              
 #define DB_srpgN	4       
 #define DB_srpinfo	5 

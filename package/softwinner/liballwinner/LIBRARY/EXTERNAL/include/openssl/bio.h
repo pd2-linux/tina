@@ -106,8 +106,8 @@ extern "C" {
 #ifndef OPENSSL_NO_SCTP
 #define BIO_TYPE_DGRAM_SCTP	(24|0x0400|0x0100)
 #endif
-#define BIO_TYPE_ASN1 		(22|0x0200)		/* filter */
-#define BIO_TYPE_COMP 		(23|0x0200)		/* filter */
+#define BIO_TYPE_ASN1		(22|0x0200)		/* filter */
+#define BIO_TYPE_COMP		(23|0x0200)		/* filter */
 
 #define BIO_TYPE_DESCRIPTOR	0x0100	/* socket, fd, connect or accept */
 #define BIO_TYPE_FILTER		0x0200
@@ -466,7 +466,7 @@ struct bio_dgram_sctp_prinfo
 #define BIO_set_conn_int_port(b,port) BIO_ctrl(b,BIO_C_SET_CONNECT,3,(char *)port)
 #define BIO_get_conn_hostname(b)  BIO_ptr_ctrl(b,BIO_C_GET_CONNECT,0)
 #define BIO_get_conn_port(b)      BIO_ptr_ctrl(b,BIO_C_GET_CONNECT,1)
-#define BIO_get_conn_ip(b) 		 BIO_ptr_ctrl(b,BIO_C_GET_CONNECT,2)
+#define BIO_get_conn_ip(b)		 BIO_ptr_ctrl(b,BIO_C_GET_CONNECT,2)
 #define BIO_get_conn_int_port(b) BIO_int_ctrl(b,BIO_C_GET_CONNECT,3,0)
 
 

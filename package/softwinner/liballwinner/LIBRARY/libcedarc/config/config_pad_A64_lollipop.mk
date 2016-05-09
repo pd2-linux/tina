@@ -19,4 +19,3 @@ NEW_DISPLAY = yes
 
 ## 5. audio decoder soundtouch
 #LOCAL_CFLAGS += -CONFIG_ADECODER_SUPPORT_SOUNDTOUCH
-

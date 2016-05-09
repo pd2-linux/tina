@@ -30,16 +30,16 @@ typedef struct EncDataCompContext
 {
 	AudioEncodeComp*        pAudioEncComp;
 	VideoEncodeComp*        pVideoEncComp;
-	AwMessageQueue*       	mMessageQueue;
-	pthread_t            	mThreadId;
-	int 					mThreadCreated;
+	AwMessageQueue*		mMessageQueue;
+	pthread_t		mThreadId;
+	int					mThreadCreated;
 
-	AwMessageQueue*       	mAudioMessageQueue;
-	pthread_t            	mAudioThreadId;
-	int 					mAudioThreadCreated;
-	int                   	mAudioStatus;
-	int                   	mStatus;
-	MuxerCallback     		mCallback;
+	AwMessageQueue*		mAudioMessageQueue;
+	pthread_t		mAudioThreadId;
+	int					mAudioThreadCreated;
+	int			mAudioStatus;
+	int			mStatus;
+	MuxerCallback			mCallback;
 	void*                   mUserData;
 
 	AudioEncOutBuffer      pAudioOutBuf;
@@ -57,10 +57,10 @@ typedef struct EncDataCompContext
 	sem_t                   mSemReset;
 	sem_t                   mSemQuit;
 
-	int 				    mStartReply;
-	int 				    mStopReply;
-	int 				    mResetReply;
-	int 				    mPauseReply;
+	int				    mStartReply;
+	int				    mStopReply;
+	int				    mResetReply;
+	int				    mPauseReply;
 
 	sem_t                   mAudioSemStart;
 	sem_t                   mAudioSemStop;
@@ -68,10 +68,10 @@ typedef struct EncDataCompContext
 	sem_t                   mAudioSemReset;
 	sem_t                   mAudioSemQuit;
 
-	int 				    mAudioStartReply;
-	int 				    mAudioStopReply;
-	int 				    mAudioResetReply;
-	int 				    mAudioPauseReply;
+	int				    mAudioStartReply;
+	int				    mAudioStopReply;
+	int				    mAudioResetReply;
+	int				    mAudioPauseReply;
 
     void *                  mApp;
     EncDataCallBackOps*     mEncDataCallBackOps;
@@ -326,8 +326,8 @@ static void* EncDataThread(void* arg)
                 
 			if(p->pVideoOutBuf.nSize1 > 0)
 			{
-    			packet.buf = malloc(packet.buflen);
-    			memcpy(packet.buf, p->pVideoOutBuf.pData0, p->pVideoOutBuf.nSize0);
+			packet.buf = malloc(packet.buflen);
+			memcpy(packet.buf, p->pVideoOutBuf.pData0, p->pVideoOutBuf.nSize0);
 				memcpy((char*)packet.buf + p->pVideoOutBuf.nSize0, p->pVideoOutBuf.pData1, p->pVideoOutBuf.nSize1);
 			}
 			else
@@ -645,5 +645,3 @@ int EncDataCompSetCallback(EncDataComp* v, MuxerCallback callback, void* pUserDa
     p->mUserData = pUserData;
     return 0;
 }
-
-

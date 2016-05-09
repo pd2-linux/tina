@@ -69,7 +69,7 @@ LoadFlags = $(CONFIG_FOR_LINK)
 #               -lcdx_parser  -lplayer -lcdx_stream -lcdx_base -lVE -lMemAdapter \
 #               -law_plugin -lcrypto -lssl  -lpthread -ldl -lstdc++ -lrt
 
-LoadFlags +=   -ltinaplayer -lxplayer -lcdc_vdecoder -lcdc_adecoder -lnormal_audio -lcdc_sdecoder -lcdc_base -lcdc_ve -lcdc_memory \
+LoadFlags +=   -ltinaplayer -lxplayer -lcdc_vdecoder -lcdc_adecoder -lcdc_sdecoder -lcdc_base -lcdc_ve -lcdc_memory \
                -lcdx_parser  -lplayer -lcdx_stream -lcdx_base  -lpostprocess \
                -law_plugin  -lpthread -ldl -lstdc++ -lrt -lm -lc
 
@@ -169,5 +169,3 @@ ifneq ($(MAKECMDGOALS),cleanall)
 endif
 endif
 endif
-
-

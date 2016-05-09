@@ -164,8 +164,8 @@ cdx_int32 CdxAsynSocket(cdx_int32 nRecvBufLen, cdx_int32 *nRecvBufLenRet)//nRecv
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if(sockfd < 0)
     {
-    	CDX_LOGE("errno(%d)", errno);
-    	return -1;
+	CDX_LOGE("errno(%d)", errno);
+	return -1;
     }
 
     ret = CdxSockSetBlocking(sockfd, 0);
@@ -516,4 +516,3 @@ cdx_ssize CdxSockNoblockRecv(cdx_int32 sockfd, void *buf, cdx_size len)
 {
     return recv(sockfd, buf, len, 0);
 }
-

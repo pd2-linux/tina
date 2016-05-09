@@ -34,7 +34,7 @@
 
 #define ZALLOC(size)	malloc(size)
 #define ZFREE(pbuf)		free(pbuf)
-#define zmemcpy 		memcpy
+#define zmemcpy			memcpy
 
 #define ZLIB_VERSION	"1.2.2"
 #define Z_OK			0
@@ -157,4 +157,3 @@ typedef struct z_stream {
 int decode_zlib_data(unsigned char * source, unsigned char * dest, unsigned int DataInSize, unsigned int DataOutSize);
 
 #endif
-

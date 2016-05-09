@@ -967,4 +967,3 @@ cdx_int16 AviReadSequence(CdxAviParserImplT *p)
     }
     return ret;
 }
-

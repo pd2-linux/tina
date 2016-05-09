@@ -366,8 +366,8 @@ cdx_int32 ebml_read_num (MatroskaDemuxContext *matroska, cdx_int32 max_size, cdx
      * use it safely here to catch EOS. */
     if(CdxStreamRead(pb, t, 1) < 1)
     {
-    	CDX_LOGE(" read error at pos(%llx)", CdxStreamTell(pb));
-    	return AVERROR(EIO); // EOS or actual I/O error
+	CDX_LOGE(" read error at pos(%llx)", CdxStreamTell(pb));
+	return AVERROR(EIO); // EOS or actual I/O error
     }
     total = t[0];
     if (!total) 
@@ -399,10 +399,10 @@ cdx_int32 ebml_read_num (MatroskaDemuxContext *matroska, cdx_int32 max_size, cdx
     total &= ~len_mask;
     if(read-n>0)
     {
-    	if(CdxStreamRead(pb, &t[n],read-n) < (read-n))
-    	{
-    		return AVERROR(EIO); // EOS or actual I/O error
-    	}
+	if(CdxStreamRead(pb, &t[n],read-n) < (read-n))
+	{
+		return AVERROR(EIO); // EOS or actual I/O error
+	}
     }
     while (n++ < read)
         total = (total << 8) | t[n-1];
@@ -485,7 +485,7 @@ cdx_uint32 ebml_peek_id (MatroskaDemuxContext *matroska, cdx_int32 *level_up)
 
     if (ebml_read_element_id(matroska, &id, level_up) < 0)
     {
-    	CDX_LOGE("Invalid id(%d) at pos (0x%llx)", id, CdxStreamTell(matroska->fp));
+	CDX_LOGE("Invalid id(%d) at pos (0x%llx)", id, CdxStreamTell(matroska->fp));
         return 0;
     }
 
@@ -506,7 +506,7 @@ cdx_int32 ebml_read_seek (MatroskaDemuxContext *matroska,  cdx_uint64 offset)
 
 	if(CdxStreamSeekAble(pb))
 	{
-    	ret = CdxStreamSeek(pb, offset, SEEK_SET);
+	ret = CdxStreamSeek(pb, offset, SEEK_SET);
     }
 	else
 	{
@@ -579,7 +579,7 @@ cdx_int32 ebml_read_uint (MatroskaDemuxContext *matroska, cdx_uint32 *id, cdx_ui
     {
 	    if(CdxStreamRead(pb, &t[n], size-n) < (size-n))
 	    {
-	    	return AVERROR(EIO); // EOS or actual I/O error
+		return AVERROR(EIO); // EOS or actual I/O error
 	    }
 	}
 	
@@ -658,7 +658,7 @@ cdx_int32 ebml_read_float (MatroskaDemuxContext *matroska, cdx_uint32 *id, doubl
     } 
     else if(size==8)
     {
-    	*num= av_int2dbl(CdxStreamGetBE64(pb));
+	*num= av_int2dbl(CdxStreamGetBE64(pb));
     } 
     else
     {
@@ -693,9 +693,9 @@ cdx_int32 ebml_read_ascii (MatroskaDemuxContext *matroska, cdx_uint32 *id, cdx_i
     }
     else
     {
-    	*str = malloc(size + 1);
-    	if(!(*str))
-    		return AVERROR(ENOMEM);
+	*str = malloc(size + 1);
+	if(!(*str))
+		return AVERROR(ENOMEM);
 	}
 	
     if (CdxStreamRead(pb, (*str), (size)) != (cdx_int32)size) 
@@ -813,7 +813,7 @@ cdx_int32 ebml_read_header (MatroskaDemuxContext *matroska, cdx_int32 *version)
     while (res == 0)
     {
         //**< get the EMBL id
-    	id = ebml_peek_id(matroska, &level_up);
+	id = ebml_peek_id(matroska, &level_up);
         if (!id)
             return AVERROR(EIO);
 
@@ -924,7 +924,7 @@ cdx_int32 matroska_parse_info (MatroskaDemuxContext *matroska)
 
     while (res == 0) 
     {
-    	id = ebml_peek_id(matroska, &matroska->level_up);
+	id = ebml_peek_id(matroska, &matroska->level_up);
         if (!id)
         {
             res = AVERROR(EIO);
@@ -1020,8 +1020,8 @@ cdx_int32 matroska_add_stream (MatroskaDemuxContext *matroska)
     track = malloc(MAX_TRACK_SIZE);
     if(!track)
     {
-    	CDX_LOGE("no memory, errno = %d", errno);
-    	return -1;
+	CDX_LOGE("no memory, errno = %d", errno);
+	return -1;
     }
 	memset(track, 0, MAX_TRACK_SIZE);
     track->time_scale = 1.0;
@@ -1030,7 +1030,7 @@ cdx_int32 matroska_add_stream (MatroskaDemuxContext *matroska)
     // try reading the trackentry headers
     while (res == 0) 
     {
-    	id = ebml_peek_id(matroska, &matroska->level_up);
+	id = ebml_peek_id(matroska, &matroska->level_up);
         if (!id)
         {
             res = AVERROR(EIO);
@@ -1109,7 +1109,7 @@ cdx_int32 matroska_add_stream (MatroskaDemuxContext *matroska)
 
                 while (res == 0) 
                 {
-                	id = ebml_peek_id(matroska, &matroska->level_up);
+			id = ebml_peek_id(matroska, &matroska->level_up);
                     if (!id) 
                     {
                         res = AVERROR(EIO);
@@ -1247,7 +1247,7 @@ cdx_int32 matroska_add_stream (MatroskaDemuxContext *matroska)
 
                 while (res == 0) 
                 {
-                	id = ebml_peek_id(matroska, &matroska->level_up);
+			id = ebml_peek_id(matroska, &matroska->level_up);
                     if (!id) 
                     {
                         res = AVERROR(EIO);
@@ -1365,7 +1365,7 @@ cdx_int32 matroska_add_stream (MatroskaDemuxContext *matroska)
             // name of this track
             case CDX_MATROSKA_ID_TRACKNAME: 
             {
-            	res = ebml_read_ascii(matroska, &id, &track_name);
+		res = ebml_read_ascii(matroska, &id, &track_name);
                 break;
             }
 
@@ -1382,123 +1382,123 @@ cdx_int32 matroska_add_stream (MatroskaDemuxContext *matroska)
                     *end = '\0';
                 //if (strlen((char *)text) == 3)
                 //    strcpy((char *)track->language, (const char *)text);
-        		if(!strcmp((const char *)text, "chi"))
-        		{
-        			strcpy((char *)track->language, "Chinese");
+			if(!strcmp((const char *)text, "chi"))
+			{
+				strcpy((char *)track->language, "Chinese");
 		        }
 		        else if(!strcmp((const char *)text, "cht"))
 		        {
-		        	strcpy((char *)track->language, "Chinese-Traditional");
+				strcpy((char *)track->language, "Chinese-Traditional");
 		        }
 		        else if(!strcmp((const char *)text, "eng"))
 		        {
-		        	strcpy((char *)track->language, "English");
+				strcpy((char *)track->language, "English");
 		        }
 		        else if(!strcmp((const char *)text, "bra"))
 		        {
-		        	strcpy((char *)track->language, "Brazilian");
+				strcpy((char *)track->language, "Brazilian");
 		        }
 		        else if(!strcmp((const char *)text, "cat"))
 		        {
-		        	strcpy((char *)track->language, "Catalan");
+				strcpy((char *)track->language, "Catalan");
 		        }
 		        else if(!strcmp((const char *)text, "cro"))
 		        {
-		        	strcpy((char *)track->language, "Croatian");
+				strcpy((char *)track->language, "Croatian");
 		        }
 		        else if(!strcmp((const char *)text, "cze"))
 		        {
-		        	strcpy((char *)track->language, "Czech");
+				strcpy((char *)track->language, "Czech");
 		        }
 		        else if(!strcmp((const char *)text, "dan"))
 		        {
-		        	strcpy((char *)track->language, "Danish");
+				strcpy((char *)track->language, "Danish");
 		        }
 		        else if(!strcmp((const char *)text, "dut"))
 		        {
-		        	strcpy((char *)track->language, "Dutch");
+				strcpy((char *)track->language, "Dutch");
 		        }
 		        else if(!strcmp((const char *)text, "fin"))
 		        {
-		        	strcpy((char *)track->language, "Finnish");
+				strcpy((char *)track->language, "Finnish");
 		        }
 		        else if(!strcmp((const char *)text, "fre"))
 		        {
-		        	strcpy((char *)track->language, "French");
+				strcpy((char *)track->language, "French");
 		        }
 		        else if(!strcmp((const char *)text, "ger"))
 		        {
-		        	strcpy((char *)track->language, "German");
+				strcpy((char *)track->language, "German");
 		        }
 		        else if(!strcmp((const char *)text, "gre"))
 		        {
-		        	strcpy((char *)track->language, "Greek");
+				strcpy((char *)track->language, "Greek");
 		        }
 		        else if(!strcmp((const char *)text, "hun"))
 		        {
-		        	strcpy((char *)track->language, "Hungarian");
+				strcpy((char *)track->language, "Hungarian");
 		        }
 		        else if(!strcmp((const char *)text, "ita"))
 		        {
-		        	strcpy((char *)track->language, "Italian");
+				strcpy((char *)track->language, "Italian");
 		        }
 		        else if(!strcmp((const char *)text, "jpn"))
 		        {
-		        	strcpy((char *)track->language, "Japanese");
+				strcpy((char *)track->language, "Japanese");
 		        }
 		        else if(!strcmp((const char *)text, "jae"))
 		        {
-		        	strcpy((char *)track->language, "Japanese-en");
+				strcpy((char *)track->language, "Japanese-en");
 		        }
 		        else if(!strcmp((const char *)text, "kor"))
 		        {
-		        	strcpy((char *)track->language, "Korean");
+				strcpy((char *)track->language, "Korean");
 		        }
 		        else if(!strcmp((const char *)text, "nor"))
 		        {
-		        	strcpy((char *)track->language, "Norwegian");
+				strcpy((char *)track->language, "Norwegian");
 		        }
 		        else if(!strcmp((const char *)text, "por"))
 		        {
-		        	strcpy((char *)track->language, "Portuguese");
+				strcpy((char *)track->language, "Portuguese");
 		        }
 		        else if(!strcmp((const char *)text, "rom"))
 		        {
-		        	strcpy((char *)track->language, "Romanian");
+				strcpy((char *)track->language, "Romanian");
 		        }
 		        else if(!strcmp((const char *)text, "rus"))
 		        {
-		        	strcpy((char *)track->language, "Russian");
+				strcpy((char *)track->language, "Russian");
 		        }
 		        else if(!strcmp((const char *)text, "ser"))
 		        {
-		        	strcpy((char *)track->language, "Serbian");
+				strcpy((char *)track->language, "Serbian");
 		        }
 		        else if(!strcmp((const char *)text, "slova"))
 		        {
-		        	strcpy((char *)track->language, "Slovak");
+				strcpy((char *)track->language, "Slovak");
 		        }
 		        else if(!strcmp((const char *)text, "slove"))
 		        {
-		        	strcpy((char *)track->language, "Slovene");
+				strcpy((char *)track->language, "Slovene");
 		        }
 		        else if(!strcmp((const char *)text, "spa"))
 		        {
-		        	strcpy((char *)track->language, "Spanish");
+				strcpy((char *)track->language, "Spanish");
 		        }
 		        else if(!strcmp((const char *)text, "swe"))
 		        {
-		        	strcpy((char *)track->language, "Swedish");
+				strcpy((char *)track->language, "Swedish");
 		        }
 		        else if(!strcmp((const char *)text, "ukr"))
 		        {
-		        	strcpy((char *)track->language, "Ukrainian");
+				strcpy((char *)track->language, "Ukrainian");
 		        }
 		        else
 		        {
-		        	CDX_LOGD("track->language = %p", track->language);
-		        	strcpy((char *)track->language, "und");
-		        	//memcpy(track->language, text, ADECODER_MAX_LANG_CHAR_SIZE);
+				CDX_LOGD("track->language = %p", track->language);
+				strcpy((char *)track->language, "und");
+				//memcpy(track->language, text, ADECODER_MAX_LANG_CHAR_SIZE);
 		        }
 
 		        free(text);
@@ -1722,37 +1722,37 @@ cdx_int32 matroska_add_stream (MatroskaDemuxContext *matroska)
        //  we do not need the track name add to language
     if(track_name)
     {
-    	cdx_int32 i;
-    	cdx_int32 name_len = strlen((char *)track_name) + 2;
+	cdx_int32 i;
+	cdx_int32 name_len = strlen((char *)track_name) + 2;
         if((strcmp((const char *)track->language, "und"))==0)
         {
             memcpy(track->language, track_name, (ADECODER_MAX_LANG_CHAR_SIZE-2));
         }
-    	else if(name_len<=ADECODER_MAX_LANG_CHAR_SIZE)
-    	{
-    		for(i=0; i<ADECODER_MAX_LANG_CHAR_SIZE-name_len; i++)
-    		{
-    			track->language[ADECODER_MAX_LANG_CHAR_SIZE-2-i] = track->language[ADECODER_MAX_LANG_CHAR_SIZE-name_len-1-i];
-    		}
+	else if(name_len<=ADECODER_MAX_LANG_CHAR_SIZE)
+	{
+		for(i=0; i<ADECODER_MAX_LANG_CHAR_SIZE-name_len; i++)
+		{
+			track->language[ADECODER_MAX_LANG_CHAR_SIZE-2-i] = track->language[ADECODER_MAX_LANG_CHAR_SIZE-name_len-1-i];
+		}
 
-    		for(i=0; i<name_len-2; i++)
-    		{
-    			track->language[i] = track_name[i];
-    		}
-    		track->language[name_len-2] = 0x2d;
-    		//track->language[name_len-1] = 0x2d;
-    	}
-    	else
-    	{
-    		memcpy(track->language, track_name, (ADECODER_MAX_LANG_CHAR_SIZE-2));
-    	}
-    	CDX_LOGD("-- name_len = %d, language = %s", name_len, track->language);
-    	free(track_name);
-    	track_name = NULL;
+		for(i=0; i<name_len-2; i++)
+		{
+			track->language[i] = track_name[i];
+		}
+		track->language[name_len-2] = 0x2d;
+		//track->language[name_len-1] = 0x2d;
+	}
+	else
+	{
+		memcpy(track->language, track_name, (ADECODER_MAX_LANG_CHAR_SIZE-2));
+	}
+	CDX_LOGD("-- name_len = %d, language = %s", name_len, track->language);
+	free(track_name);
+	track_name = NULL;
     }
 
     free(track_name);
-    	track_name = NULL;
+	track_name = NULL;
     if (track->type && matroska->num_tracks < MAX_STREAMS) {
         matroska->tracks[matroska->num_tracks++] = track;
     } else {
@@ -1773,7 +1773,7 @@ cdx_int32 matroska_parse_tracks (MatroskaDemuxContext *matroska)
 
     while (res == 0) 
     {
-    	id = ebml_peek_id(matroska, &matroska->level_up);
+	id = ebml_peek_id(matroska, &matroska->level_up);
         if (!id) 
         {
             res = AVERROR(EIO);
@@ -1820,7 +1820,7 @@ cdx_int32 matroska_parse_index (MatroskaDemuxContext *matroska)
 
     while (res == 0)
     {
-    	id = ebml_peek_id(matroska, &matroska->level_up);
+	id = ebml_peek_id(matroska, &matroska->level_up);
         if (!id) {
             res = AVERROR(EIO);
             break;
@@ -1838,7 +1838,7 @@ cdx_int32 matroska_parse_index (MatroskaDemuxContext *matroska)
         {
             // one single index entry ('point')
             case CDX_MATROSKA_ID_POINTENTRY:
-            	res = ebml_read_master(matroska, &id);
+		res = ebml_read_master(matroska, &id);
                 if (res < 0)
                     break;
 
@@ -1849,7 +1849,7 @@ cdx_int32 matroska_parse_index (MatroskaDemuxContext *matroska)
 
                 while (res == 0) 
                 {
-                	id = ebml_peek_id(matroska, &matroska->level_up);
+			id = ebml_peek_id(matroska, &matroska->level_up);
                     if (!id) {
                         res = AVERROR(EIO);
                         break;
@@ -1872,12 +1872,12 @@ cdx_int32 matroska_parse_index (MatroskaDemuxContext *matroska)
 
                         // position in the file + track to which it belongs
                         case CDX_MATROSKA_ID_CUETRACKPOSITION:
-                        	res = ebml_read_master(matroska, &id);
+				res = ebml_read_master(matroska, &id);
                             if (res < 0)
                                 break;
 
                             while (res == 0) {
-                            	id = ebml_peek_id (matroska, &matroska->level_up);
+				id = ebml_peek_id (matroska, &matroska->level_up);
                                 if (!id) {
                                     res = AVERROR(EIO);
                                     break;
@@ -2028,7 +2028,7 @@ cdx_int32 matroska_parse_seekhead (MatroskaDemuxContext *matroska)
 
     while (res == 0) 
     {
-    	id = ebml_peek_id(matroska, &matroska->level_up);
+	id = ebml_peek_id(matroska, &matroska->level_up);
         if (!id) {
             res = AVERROR(EIO);
             break;
@@ -2049,7 +2049,7 @@ cdx_int32 matroska_parse_seekhead (MatroskaDemuxContext *matroska)
 
                 while (res == 0) 
                 {
-                	id = ebml_peek_id(matroska, &matroska->level_up);
+			id = ebml_peek_id(matroska, &matroska->level_up);
                     if (!id) {
                         res = AVERROR(EIO);
                         break;
@@ -2128,14 +2128,14 @@ cdx_int32 matroska_parse_seekhead (MatroskaDemuxContext *matroska)
                         switch (id) 
                         {
                             case CDX_MATROSKA_ID_CUES:
-                            	res = matroska_parse_index(matroska);
+				res = matroska_parse_index(matroska);
                                 if (matroska->num_indexes || !res || FEOF(matroska)) {
                                     matroska->index_parsed = 1;
                                     res = 0;
                                 }
                                 break;
                             case CDX_MATROSKA_ID_TAGS:
-                            	res = ebml_read_skip(matroska);
+				res = ebml_read_skip(matroska);
 								if (!res || FEOF(matroska)) {
                                     res = 0;
                                 }
@@ -2232,11 +2232,11 @@ static int split_xiph_header(unsigned char *codec_priv, int codec_priv_size,
     for(lacing_fill_2=0; lacing_fill_2*0xff<header_len[2]; lacing_fill_2++);
 
     *extradata_size =  27 + lacing_fill_0 + header_len[0]
-    	       		+  27 + lacing_fill_1 + header_len[1]
-        	    		  + lacing_fill_2 + header_len[2];
+			+  27 + lacing_fill_1 + header_len[1]
+				  + lacing_fill_2 + header_len[2];
     OggHeader = *extradata = PHY_MALLOC(*extradata_size, 0);
     if(OggHeader == NULL)
-    	return AVERROR(ENOMEM);
+	return AVERROR(ENOMEM);
     for(i=0; i<26; i++)
     {
        OggHeader[i] = 0;
@@ -2248,14 +2248,14 @@ static int split_xiph_header(unsigned char *codec_priv, int codec_priv_size,
     OggHeader += 27;
     for(i=0; i<lacing_fill; i++)
     {
-    	if(i!=(lacing_fill-1))
-    	{
-    		OggHeader[i] = 0xff;
-    	}
-    	else
-    	{
-    		OggHeader[i] = header_len[0] - (lacing_fill-1)*0xff;
-    	}
+	if(i!=(lacing_fill-1))
+	{
+		OggHeader[i] = 0xff;
+	}
+	else
+	{
+		OggHeader[i] = header_len[0] - (lacing_fill-1)*0xff;
+	}
     }
     OggHeader += lacing_fill;
 
@@ -2273,28 +2273,28 @@ static int split_xiph_header(unsigned char *codec_priv, int codec_priv_size,
     lacing_fill = lacing_fill_1;
     for(i=0; i<lacing_fill; i++)
     {
-    	if(i!=(lacing_fill-1))
-    	{
-    		OggHeader[i] = 0xff;
-    	}
-    	else
-    	{
-    		OggHeader[i] = header_len[1] - (lacing_fill-1)*0xff;
-    	}
+	if(i!=(lacing_fill-1))
+	{
+		OggHeader[i] = 0xff;
+	}
+	else
+	{
+		OggHeader[i] = header_len[1] - (lacing_fill-1)*0xff;
+	}
     }
     OggHeader += lacing_fill;
 
     lacing_fill = lacing_fill_2;
     for(i=0; i<lacing_fill; i++)
     {
-    	if(i!=(lacing_fill-1))
-    	{
-    		OggHeader[i] = 0xff;
-    	}
-    	else
-    	{
-    		OggHeader[i] = header_len[2] - lacing_fill*0xff - 1;
-    	}
+	if(i!=(lacing_fill-1))
+	{
+		OggHeader[i] = 0xff;
+	}
+	else
+	{
+		OggHeader[i] = header_len[2] - lacing_fill*0xff - 1;
+	}
     }
     OggHeader += lacing_fill;
 
@@ -2323,11 +2323,11 @@ static int mkvParseOggPrivData(unsigned char *codec_priv, int codec_priv_size,
     int len2;
     
     if(codec_priv[2] != 0xff)
-    	len2 = codec_priv[2];  // 0x03 packet length
+	len2 = codec_priv[2];  // 0x03 packet length
     else
     {
-    	len2 = codec_priv[2] + codec_priv[3];  // 0x03 packet length
-    	offset ++;
+	len2 = codec_priv[2] + codec_priv[3];  // 0x03 packet length
+	offset ++;
     }
     
     int len3 = codec_priv_size-len1-len2-3 -offset;
@@ -2390,7 +2390,7 @@ cdx_int32 matroska_read_header (struct CdxMkvParser *p)
     // The next thing is a segment.
     while (1) 
     {
-    	id = ebml_peek_id(matroska, &last_level);
+	id = ebml_peek_id(matroska, &last_level);
         if (!id)
             return AVERROR(EIO);
         if (id == CDX_MATROSKA_ID_SEGMENT)
@@ -2410,10 +2410,10 @@ cdx_int32 matroska_read_header (struct CdxMkvParser *p)
     // we've found our segment, start reading the different contents in here
     while (res == 0) 
     {
-    	id = ebml_peek_id(matroska, &matroska->level_up);
+	id = ebml_peek_id(matroska, &matroska->level_up);
         if (!id) 
         {
-        	CDX_LOGW("--- error, id=%d", id);
+		CDX_LOGW("--- error, id=%d", id);
             res = AVERROR(EIO);
             break;
         } 
@@ -2429,7 +2429,7 @@ cdx_int32 matroska_read_header (struct CdxMkvParser *p)
             case CDX_MATROSKA_ID_INFO: 
             {
                 CDX_LOGD("segment info");
-            	res = ebml_read_master(matroska, &id);
+		res = ebml_read_master(matroska, &id);
                 if (res < 0)
                     break;
                 res = matroska_parse_info(matroska);
@@ -2440,7 +2440,7 @@ cdx_int32 matroska_read_header (struct CdxMkvParser *p)
             case CDX_MATROSKA_ID_TRACKS: 
             {
                 CDX_LOGD("track");
-            	res = ebml_read_master(matroska, &id);
+		res = ebml_read_master(matroska, &id);
                 if (res < 0)
                     break;
                 res = matroska_parse_tracks(matroska);
@@ -2451,7 +2451,7 @@ cdx_int32 matroska_read_header (struct CdxMkvParser *p)
             case CDX_MATROSKA_ID_CUES: 
             {
                 if (!matroska->index_parsed) {
-                	res = ebml_read_master(matroska, &id);
+			res = ebml_read_master(matroska, &id);
                     if (res < 0)
                         break;
                     res = matroska_parse_index(matroska);
@@ -2463,7 +2463,7 @@ cdx_int32 matroska_read_header (struct CdxMkvParser *p)
             // file index (if seekable, seek to Cues/Tags to parse it)
             case CDX_MATROSKA_ID_SEEKHEAD: 
             {
-            	res = ebml_read_master(matroska, &id);
+		res = ebml_read_master(matroska, &id);
                 if (res < 0)
                     break;
                 res = matroska_parse_seekhead(matroska);
@@ -2491,24 +2491,24 @@ cdx_int32 matroska_read_header (struct CdxMkvParser *p)
     if (ebml_peek_id(matroska, NULL) != CDX_MATROSKA_ID_CLUSTER) 
     {
         int tmp = MkvResyncWithoutSeekBack(p);
-    	if(tmp < 0)
-    	{
-    		if(tmp == -2)
-    		{
-    			CDX_LOGE("resync io error");
-    			return AVERROR_IO;
-    		}
-    		
-    		if(FEOF(matroska))
-    		{
-    			return AVERROR_EOS;
-    		}
-    		else
-    		{
-    			CDX_LOGE("resync io error");
-    			return AVERROR_IO;
-    		}
-    	}
+	if(tmp < 0)
+	{
+		if(tmp == -2)
+		{
+			CDX_LOGE("resync io error");
+			return AVERROR_IO;
+		}
+
+		if(FEOF(matroska))
+		{
+			return AVERROR_EOS;
+		}
+		else
+		{
+			CDX_LOGE("resync io error");
+			return AVERROR_IO;
+		}
+	}
     }
     
     {
@@ -2581,16 +2581,16 @@ cdx_int32 matroska_read_header (struct CdxMkvParser *p)
             // Set the FourCC from the CodecID. This is the MS compatibility mode which stores a BITMAPINFOHEADER in the CodecPrivate.
             if ((codec_id == CODEC_ID_V_UNKNOWN) && (track->codec_priv_size >= 40) &&  (track->codec_priv != NULL))
             {
-            	if(track->codec_priv_size < 40)
-            	{
-            		CDX_LOGW("-- invalid BITMAPINFOHEADER");
-            	}
-            	else
-            	{
+		if(track->codec_priv_size < 40)
+		{
+			CDX_LOGW("-- invalid BITMAPINFOHEADER");
+		}
+		else
+		{
 		            /*********************************************************
-		            		// V_MS/VFW/FOURCC, the real extradata is after the structure below
-		            		// and the biCompression is the real codec ID
-		            		typedef struct
+					// V_MS/VFW/FOURCC, the real extradata is after the structure below
+					// and the biCompression is the real codec ID
+					typedef struct
 					ATTR_PACKED
 					{
 					    uint32_t   biSize;
@@ -2605,7 +2605,7 @@ cdx_int32 matroska_read_header (struct CdxMkvParser *p)
 					    uint32_t   biClrUsed;
 					    uint32_t   biClrImportant;
 					} BITMAPINFOHEADER;
-		            		***********************************************************/
+					***********************************************************/
 	                MatroskaVideoTrack *vtrack = (MatroskaVideoTrack *) track;
 
 	                // Offset of biCompression. Stored in LE.
@@ -2657,8 +2657,8 @@ cdx_int32 matroska_read_header (struct CdxMkvParser *p)
                 int cbSize = CDX_AV_RL16(track->codec_priv+16);
                 if(cbSize >= 22 && tag == 0xfffe)
                 {
-                	//* TODO
-                	CDX_LOGW("-- we should deal it");
+			//* TODO
+			CDX_LOGW("-- we should deal it");
                 }
 
                 int size = track->codec_priv_size - 18;
@@ -2750,7 +2750,7 @@ cdx_int32 matroska_read_header (struct CdxMkvParser *p)
                     track->codec_priv_size = 0;
                     if(audiotrack->sub_packet_h != 6)
                     {
-                    	continue;
+			continue;
                     }
                 } 
                 else if (codec_id == CODEC_ID_RA_288) 
@@ -2781,14 +2781,14 @@ cdx_int32 matroska_read_header (struct CdxMkvParser *p)
                 extradata[7] = (audiotrack->samplerate>>24) & 0xff;
                 if(codec_id == CODEC_ID_SIPRO)
                 {
-                	extradata[8] = extradata[9] = extradata[10] = extradata[11] = 0;
+			extradata[8] = extradata[9] = extradata[10] = extradata[11] = 0;
                 }
                 else
                 {
-                	extradata[8] = (audiotrack->samplerate>> 0) & 0xff;
-                	extradata[9] = (audiotrack->samplerate>> 8) & 0xff;
-                	extradata[10] = (audiotrack->samplerate>>16) & 0xff;
-                	extradata[11] = (audiotrack->samplerate>>24) & 0xff;
+			extradata[8] = (audiotrack->samplerate>> 0) & 0xff;
+			extradata[9] = (audiotrack->samplerate>> 8) & 0xff;
+			extradata[10] = (audiotrack->samplerate>>16) & 0xff;
+			extradata[11] = (audiotrack->samplerate>>24) & 0xff;
                 }
                 extradata[12] = (audiotrack->bitdepth>>0) & 0xff;
                 extradata[13] = (audiotrack->bitdepth>>8) & 0xff;
@@ -2812,35 +2812,35 @@ cdx_int32 matroska_read_header (struct CdxMkvParser *p)
                 extradata[31] = (track->codec_priv_size>>24) & 0xff;
 
                 if(track->codec_priv_size)
-                	memcpy(extradata+32, track->codec_priv+extradata_offset, track->codec_priv_size);
+			memcpy(extradata+32, track->codec_priv+extradata_offset, track->codec_priv_size);
             }
 
             if(codec_id == CODEC_ID_VORBIS)
             {
-            	#if OGG_HEADER
-            	// this code got the ogg header in CDX1.0, not uesd now
-            	if(split_xiph_header(track->codec_priv, track->codec_priv_size,
-            		&extradata, &extradata_size)==-1)
-            	{
-            		codec_id = CODEC_ID_NONE;
-            		continue;
-            	}
-        		#endif
+		#if OGG_HEADER
+		// this code got the ogg header in CDX1.0, not uesd now
+		if(split_xiph_header(track->codec_priv, track->codec_priv_size,
+			&extradata, &extradata_size)==-1)
+		{
+			codec_id = CODEC_ID_NONE;
+			continue;
+		}
+			#endif
                 
                 if(mkvParseOggPrivData(track->codec_priv, track->codec_priv_size,
-            		   &extradata, &extradata_size) < 0)
-    		    {
-    		        codec_id = CODEC_ID_NONE;
-            		continue;
-    		    }
+			   &extradata, &extradata_size) < 0)
+		    {
+		        codec_id = CODEC_ID_NONE;
+			continue;
+		    }
 
-            	matroska->ogg_pageno = 2;
+		matroska->ogg_pageno = 2;
 				matroska->ogg_uflag = 0;
             }
 
             if(codec_id == CODEC_ID_WMV3 || codec_id == CODEC_ID_WMV2)
             {
-            	extradata = PHY_MALLOC(4, 0);
+		extradata = PHY_MALLOC(4, 0);
                 if(extradata == NULL)
                     return AVERROR(ENOMEM);
                 extradata_size = 4;
@@ -2851,7 +2851,7 @@ cdx_int32 matroska_read_header (struct CdxMkvParser *p)
             {
                 if(track->codec_priv_size > 0x28)
                 {
-                	extradata = PHY_MALLOC(track->codec_priv_size-0x28, 0);
+			extradata = PHY_MALLOC(track->codec_priv_size-0x28, 0);
                     if(extradata == NULL)
                         return AVERROR(ENOMEM);
                     extradata_size = track->codec_priv_size-0x28;
@@ -2866,7 +2866,7 @@ cdx_int32 matroska_read_header (struct CdxMkvParser *p)
 #if 0
             if(codec_id == CODEC_ID_WMAV1 || codec_id == CODEC_ID_WMAV2)
             {
-            	extradata = PHY_MALLOC(28, 0);
+		extradata = PHY_MALLOC(28, 0);
                 if(extradata == NULL)
                    return AVERROR(ENOMEM);
                 extradata_size = 28;
@@ -2875,13 +2875,13 @@ cdx_int32 matroska_read_header (struct CdxMkvParser *p)
 
             if(codec_id == CODEC_ID_WMAPRO)
             {
-            	extradata = PHY_MALLOC(28, 0);
+		extradata = PHY_MALLOC(28, 0);
                 if(extradata == NULL)
                    return AVERROR(ENOMEM);
                 extradata_size = 28;
                 memcpy(extradata, track->codec_priv, 28);
                 *(extradata+22) = *(track->codec_priv+32);
-    			*(extradata+23) = *(track->codec_priv+33);
+			*(extradata+23) = *(track->codec_priv+33);
             }
 #endif
 			// Apply some sanity checks.
@@ -2958,10 +2958,10 @@ cdx_int32 matroska_read_header (struct CdxMkvParser *p)
 				
                 if(track->codec_priv)
 				    track->block_size_type = (track->codec_priv[4]&0x3)+1;
-    			matroska->hasVideo = 1;
+			matroska->hasVideo = 1;
 
-    			//matroska->v2st[v] = i;
-    			//v++;
+			//matroska->v2st[v] = i;
+			//v++;
             } 
             else if (track->type == MATROSKA_TRACK_TYPE_AUDIO) 
             {
@@ -2974,13 +2974,13 @@ cdx_int32 matroska_read_header (struct CdxMkvParser *p)
                 matroska->hasAudio = 1;
 
                 //matroska->a2st[a] = i;
-    			//a++;
+			//a++;
             } 
             else if (track->type == MATROSKA_TRACK_TYPE_SUBTITLE) 
             {
                 st->codec_type = CODEC_TYPE_SUBTITLE;
                 //matroska->s2st[s] = i;
-    			//s++;
+			//s++;
             }
         }
         res = 0;
@@ -3047,18 +3047,18 @@ cdx_int32 matroska_read_header (struct CdxMkvParser *p)
 					if(ssa_header != 0)
 					{
 						if(ssa_header[0] == 0xfe && ssa_header[1] == 0xff)
-    					{
-        					matroska->SubTitledata_encode_type[p->nhasSubTitle] = SUBTITLE_TEXT_FORMAT_UTF16BE;
-    					}
-    					else if(ssa_header[0] == 0xff && ssa_header[1] == 0xfe)
-    					{
-        					matroska->SubTitledata_encode_type[p->nhasSubTitle] = SUBTITLE_TEXT_FORMAT_UTF16LE;
-    					}
-    					else if(ssa_header[0] == 0xef && ssa_header[1] == 0xbb && ssa_header[2] == 0xbf)
-    					{
-        					matroska->SubTitledata_encode_type[p->nhasSubTitle] = SUBTITLE_TEXT_FORMAT_UTF8;
-    					}
-    				}
+					{
+						matroska->SubTitledata_encode_type[p->nhasSubTitle] = SUBTITLE_TEXT_FORMAT_UTF16BE;
+					}
+					else if(ssa_header[0] == 0xff && ssa_header[1] == 0xfe)
+					{
+						matroska->SubTitledata_encode_type[p->nhasSubTitle] = SUBTITLE_TEXT_FORMAT_UTF16LE;
+					}
+					else if(ssa_header[0] == 0xef && ssa_header[1] == 0xbb && ssa_header[2] == 0xbf)
+					{
+						matroska->SubTitledata_encode_type[p->nhasSubTitle] = SUBTITLE_TEXT_FORMAT_UTF8;
+					}
+				}
 				}
                 //add by yaosen 
                 else if(track->codec_id == CODEC_ID_DVD_SUBTITLE)
@@ -3070,8 +3070,8 @@ cdx_int32 matroska_read_header (struct CdxMkvParser *p)
                 }
                 else if(track->codec_id == CODEC_ID_PGS)
                 {
-                	matroska->SubTitleCodecType[p->nhasSubTitle] = SUBTITLE_CODEC_PGS;
-                	matroska->SubTitledata_encode_type[p->nhasSubTitle] = SUBTITLE_TEXT_FORMAT_UNKNOWN;
+			matroska->SubTitleCodecType[p->nhasSubTitle] = SUBTITLE_CODEC_PGS;
+			matroska->SubTitledata_encode_type[p->nhasSubTitle] = SUBTITLE_TEXT_FORMAT_UNKNOWN;
                 }
                 
 				if (strlen((char *)track->language) <= MAX_SUBTITLE_LANG_SIZE)
@@ -3210,7 +3210,7 @@ cdx_int32 ebml_read_binary_part (MatroskaDemuxContext *matroska, cdx_uint32 *id,
 		
 		if(CdxStreamSeekAble(pb))
 		{
-    		CdxStreamSeek(matroska->fp, (*size)-4, SEEK_CUR);
+		CdxStreamSeek(matroska->fp, (*size)-4, SEEK_CUR);
 		}
 		else
 		{
@@ -3226,7 +3226,7 @@ cdx_int32 ebml_read_binary_part (MatroskaDemuxContext *matroska, cdx_uint32 *id,
 		
 		if(CdxStreamSeekAble(pb))
 		{
-    		CdxStreamSeek(matroska->fp, (cdx_uint32)(*size)-4, SEEK_CUR);
+		CdxStreamSeek(matroska->fp, (cdx_uint32)(*size)-4, SEEK_CUR);
 		}
 		else
 		{
@@ -3268,7 +3268,7 @@ cdx_int32 ebml_read_binary_part (MatroskaDemuxContext *matroska, cdx_uint32 *id,
 		matroska->vDataPos = CdxStreamTell(matroska->fp);
 		if(CdxStreamSeekAble(pb))
 		{
-    		CdxStreamSeek(matroska->fp, (cdx_uint32)(*size)-4, SEEK_CUR);
+		CdxStreamSeek(matroska->fp, (cdx_uint32)(*size)-4, SEEK_CUR);
 		}
 		else
 		{
@@ -3458,7 +3458,7 @@ cdx_int32 matroska_parse_block_header(MatroskaDemuxContext *matroska)
 				{
 				    // if the blocktime is right, we add it to pts directly
 			        if(1 || matroska->tracks[matroska->track]->codec_id == CODEC_ID_VP8 ||
-			        	matroska->tracks[matroska->track]->codec_id == CODEC_ID_VP9	)
+					matroska->tracks[matroska->track]->codec_id == CODEC_ID_VP9	)
 			        {
 			            if(((cdx_int64)matroska->cluster_time + block_time)>=0)
 			            {
@@ -3471,7 +3471,7 @@ cdx_int32 matroska_parse_block_header(MatroskaDemuxContext *matroska)
 			        }
 			        else
 			        {
-			        	// get the dts, not used now
+					// get the dts, not used now
 						matroska->frame_num_between_kframe++;
 						if(matroska->blk_duration > 16000000&&matroska->blk_duration < 60000000)
 						{
@@ -3643,7 +3643,7 @@ cdx_int32 matroska_parse_blockgroup (MatroskaDemuxContext *matroska)
 
     while (res == 0) 
     {
-    	id = ebml_peek_id(matroska, &matroska->level_up);
+	id = ebml_peek_id(matroska, &matroska->level_up);
         if (!id) 
         {
             res = AVERROR(EIO);
@@ -3710,10 +3710,10 @@ cdx_int32 matroska_parse_cluster (MatroskaDemuxContext *matroska)
 
     while (res == 0) 
     {
-    	id = ebml_peek_id(matroska, &matroska->level_up);
+	id = ebml_peek_id(matroska, &matroska->level_up);
         if (!id) 
         {
-        	matroska->parsing_cluster = 0;
+		matroska->parsing_cluster = 0;
             res = AVERROR(EIO);
             break;
         } 
@@ -3744,7 +3744,7 @@ cdx_int32 matroska_parse_cluster (MatroskaDemuxContext *matroska)
 
             // a group of blocks inside a cluster
             case CDX_MATROSKA_ID_BLOCKGROUP:
-            	res = ebml_read_master(matroska, &id);
+		res = ebml_read_master(matroska, &id);
                 if (res < 0)
                     break;
                 res = matroska_parse_blockgroup(matroska);
@@ -3847,14 +3847,14 @@ static void ra_bitcopy(cdx_uint8 *toPtr, cdx_uint32  ulToBufSize, cdx_uint8  *fr
             *(offsetTo) = ((*offsetTo) & leftMask[8-(numMod-offsetToModLeft)])
                 + (alignWord >> offsetToModLeft);
         }
-       	else // have fewer input bits than free space in current output byte be careful not to overwrite extra bits already in output byte
+	else // have fewer input bits than free space in current output byte be careful not to overwrite extra bits already in output byte
         {
             endWord = *(offsetTo) & leftMask[8-(numMod+offsetToMod)];
             *(offsetTo) &= rightMask[offsetToMod];
             *(offsetTo) += ((alignWord << offsetToMod) + endWord);
         }
         return; // finished, return to calling function
-  	}
+	}
 
     if (bitOffsetFrom%4 == 0 && bitOffsetTo%4 == 0)	// byte-packing done here is optimized for the common case of nibble-alignment
     {
@@ -3902,9 +3902,9 @@ static void ra_bitcopy(cdx_uint8 *toPtr, cdx_uint32  ulToBufSize, cdx_uint8  *fr
     }
     else // this code can handle all source and destination buffer offsets
     {
-    	// take the first 8 desired bits from the input buffer, store them
-    	// in alignWord, then break up alignWord into two pieces to
-    	// fit in the free space in two consecutive output buffer bytes
+	// take the first 8 desired bits from the input buffer, store them
+	// in alignWord, then break up alignWord into two pieces to
+	// fit in the free space in two consecutive output buffer bytes
 
         for (j=0; j<jMax; j++)
         {
@@ -3956,8 +3956,8 @@ static void ra_bitcopy(cdx_uint8 *toPtr, cdx_uint32  ulToBufSize, cdx_uint8  *fr
 /******************************************************************
  function RASL_DeInterleave
  input: *buf          :rawdata pointer;
- 		ulBufSize     :ulSuperBlockSize;
- 		type          :pInfo->usFlavorIndex
+		ulBufSize     :ulSuperBlockSize;
+		type          :pInfo->usFlavorIndex
  ******************************************************************/
 static void RASL_DeInterleave(cdx_uint8 *buf, cdx_uint32 ulBufSize, cdx_int32 type)
 {
@@ -4022,32 +4022,32 @@ cdx_int32 matroska_parse_block_info(MatroskaDemuxContext *matroska)
              st->codec_id == CODEC_ID_ATRAC3)
 	{
         MatroskaAudioTrack *audiotrack = (MatroskaAudioTrack *)matroska->tracks[matroska->track];
-        cdx_int32 sps 	= audiotrack->sub_packet_size;
-        cdx_int32 cfs 	= audiotrack->coded_framesize;
-        cdx_int32 h 	= audiotrack->sub_packet_h;
-        cdx_int32 w 	= audiotrack->frame_size;
-        cdx_int32 y 	= matroska->sub_packet_cnt;
+        cdx_int32 sps	= audiotrack->sub_packet_size;
+        cdx_int32 cfs	= audiotrack->coded_framesize;
+        cdx_int32 h	= audiotrack->sub_packet_h;
+        cdx_int32 w	= audiotrack->frame_size;
+        cdx_int32 y	= matroska->sub_packet_cnt;
         cdx_int32 x;
 
         if(matroska->buf==NULL)
         {
-        	matroska->buf = PHY_MALLOC(w*h, 0);
-        	if (matroska->buf == NULL)
+		matroska->buf = PHY_MALLOC(w*h, 0);
+		if (matroska->buf == NULL)
                 return AVERROR(ENOMEM);
-        	matroska->buf_size = w*h;
+		matroska->buf_size = w*h;
         }
         else if(matroska->buf_size < w*h)
         {
-        	PHY_FREE(matroska->buf);
-        	matroska->buf = PHY_MALLOC(w*h, 0);
-        	if (matroska->buf == NULL)
+		PHY_FREE(matroska->buf);
+		matroska->buf = PHY_MALLOC(w*h, 0);
+		if (matroska->buf == NULL)
                 return AVERROR(ENOMEM);
-        	matroska->buf_size = w*h;
+		matroska->buf_size = w*h;
         }
 
         if(matroska->is_keyframe)
         {
-        	matroska->sub_packet_cnt = 0;
+		matroska->sub_packet_cnt = 0;
         }
 
         if (matroska->sub_packet_cnt == 0)
@@ -4070,7 +4070,7 @@ cdx_int32 matroska_parse_block_info(MatroskaDemuxContext *matroska)
         }
         else
         {
-          	matroska->t_size = 0;
+		matroska->t_size = 0;
         }
         matroska->r_size = 0;
         matroska->lace_cnt = matroska->laces;
@@ -4078,28 +4078,28 @@ cdx_int32 matroska_parse_block_info(MatroskaDemuxContext *matroska)
     else if (st->codec_id == CODEC_ID_SIPRO)
 	{
         MatroskaAudioTrack *audiotrack = (MatroskaAudioTrack *)matroska->tracks[matroska->track];
-        cdx_int32 h 	= audiotrack->sub_packet_h;
-        cdx_int32 w 	= audiotrack->frame_size;
+        cdx_int32 h	= audiotrack->sub_packet_h;
+        cdx_int32 w	= audiotrack->frame_size;
 
         if(matroska->buf==NULL)
         {
-        	matroska->buf = PHY_MALLOC(w*h, 0);
-        	if (matroska->buf == NULL)
+		matroska->buf = PHY_MALLOC(w*h, 0);
+		if (matroska->buf == NULL)
                 return AVERROR(ENOMEM);
-        	matroska->buf_size = w*h;
+		matroska->buf_size = w*h;
         }
         else if(matroska->buf_size < w*h)
         {
-        	PHY_FREE(matroska->buf);
-        	matroska->buf = PHY_MALLOC(w*h, 0);
-        	if (matroska->buf == NULL)
+		PHY_FREE(matroska->buf);
+		matroska->buf = PHY_MALLOC(w*h, 0);
+		if (matroska->buf == NULL)
                 return AVERROR(ENOMEM);
-        	matroska->buf_size = w*h;
+		matroska->buf_size = w*h;
         }
 
         if(matroska->is_keyframe)
         {
-        	matroska->sub_packet_cnt = 0;
+		matroska->sub_packet_cnt = 0;
         }
 
         if (matroska->sub_packet_cnt == 0)
@@ -4110,7 +4110,7 @@ cdx_int32 matroska_parse_block_info(MatroskaDemuxContext *matroska)
         memcpy(matroska->buf+matroska->sub_packet_cnt*w, matroska->data_parse, w);
 
         if (++matroska->sub_packet_cnt >= h) {
-        	RASL_DeInterleave(matroska->buf, h*w, st->extradata[18]);
+		RASL_DeInterleave(matroska->buf, h*w, st->extradata[18]);
             matroska->sub_packet_cnt = 0;
 			matroska->t_size = h*w;
 			matroska->time_stamp = matroska->time_stamp0;
@@ -4118,7 +4118,7 @@ cdx_int32 matroska_parse_block_info(MatroskaDemuxContext *matroska)
         }
         else
         {
-          	matroska->t_size = 0;
+		matroska->t_size = 0;
         }
         matroska->r_size = 0;
         matroska->lace_cnt = matroska->laces;
@@ -4127,94 +4127,94 @@ cdx_int32 matroska_parse_block_info(MatroskaDemuxContext *matroska)
 #if OGG_HEADER
     else if(st->codec_id == CODEC_ID_VORBIS)
     {
-       	cdx_int32 lacing_fill;
-       	cdx_int32 pading_len;
-       	cdx_int32 pading_cnt;
+	cdx_int32 lacing_fill;
+	cdx_int32 pading_len;
+	cdx_int32 pading_cnt;
 
-    	matroska->r_size = 0;
+	matroska->r_size = 0;
 		matroska->t_size = 0;
 		matroska->pkt_data = matroska->data_parse;
 		matroska->data_parse += matroska->t_size;
 		matroska->lace_cnt++;
-       	pading_len = 27;
-       	matroska->pkt_data -= 512;
-       	for(pading_cnt=0; pading_cnt<26; pading_cnt++)
-    	{
-    		matroska->pkt_data[pading_cnt] = 0;
-    	}
-    	pading_cnt = 27;
-       	matroska->pkt_data[0] = 0x4f;
-    	matroska->pkt_data[1] = 0x67;
-    	matroska->pkt_data[2] = 0x67;
-    	matroska->pkt_data[3] = 0x53;
-    	matroska->pkt_data[5] = matroska->ogg_uflag;
-    	matroska->pkt_data[0x12] = (matroska->ogg_pageno >>  0) & 0xff;
-    	matroska->pkt_data[0x13] = (matroska->ogg_pageno >>  8) & 0xff;
-    	matroska->pkt_data[0x14] = (matroska->ogg_pageno >> 16) & 0xff;
-    	matroska->pkt_data[0x15] = (matroska->ogg_pageno >> 24) & 0xff;
-    	matroska->ogg_pageno++;
-       	for(matroska->lace_cnt=0; matroska->lace_cnt < matroska->laces; matroska->lace_cnt++)
-       	{
-       		matroska->t_size += matroska->lace_size[matroska->lace_cnt];
-       		for(lacing_fill=0; lacing_fill*0xff<(cdx_int32)matroska->lace_size[matroska->lace_cnt]; lacing_fill++);
-       		pading_len += lacing_fill;
-       		if(pading_len>=(255+27))
-       		{
-       			matroska->t_size = 0;
-       			matroska->data_rdy = 0;
-       			matroska->lace_cnt = matroska->laces;
-       			return -1;
-       		}
+	pading_len = 27;
+	matroska->pkt_data -= 512;
+	for(pading_cnt=0; pading_cnt<26; pading_cnt++)
+	{
+		matroska->pkt_data[pading_cnt] = 0;
+	}
+	pading_cnt = 27;
+	matroska->pkt_data[0] = 0x4f;
+	matroska->pkt_data[1] = 0x67;
+	matroska->pkt_data[2] = 0x67;
+	matroska->pkt_data[3] = 0x53;
+	matroska->pkt_data[5] = matroska->ogg_uflag;
+	matroska->pkt_data[0x12] = (matroska->ogg_pageno >>  0) & 0xff;
+	matroska->pkt_data[0x13] = (matroska->ogg_pageno >>  8) & 0xff;
+	matroska->pkt_data[0x14] = (matroska->ogg_pageno >> 16) & 0xff;
+	matroska->pkt_data[0x15] = (matroska->ogg_pageno >> 24) & 0xff;
+	matroska->ogg_pageno++;
+	for(matroska->lace_cnt=0; matroska->lace_cnt < matroska->laces; matroska->lace_cnt++)
+	{
+		matroska->t_size += matroska->lace_size[matroska->lace_cnt];
+		for(lacing_fill=0; lacing_fill*0xff<(cdx_int32)matroska->lace_size[matroska->lace_cnt]; lacing_fill++);
+		pading_len += lacing_fill;
+		if(pading_len>=(255+27))
+		{
+			matroska->t_size = 0;
+			matroska->data_rdy = 0;
+			matroska->lace_cnt = matroska->laces;
+			return -1;
+		}
 
-    		for(; pading_cnt<pading_len; pading_cnt++)
-    		{
-    			if(pading_cnt!=(pading_len-1))
-    			{
-    				matroska->pkt_data[pading_cnt] = 0xff;
-    			}
-    			else
-    			{
-    				matroska->pkt_data[pading_cnt] = matroska->lace_size[matroska->lace_cnt] - (lacing_fill-1)*0xff;
-    			}
-    		}
-    	}
-    	if(matroska->pkt_data[pading_cnt-1]==0xff)
-    	{
-    		matroska->ogg_uflag = 1;
-    	}
-    	else
-    	{
-    		matroska->ogg_uflag = 0;
-    	}
-    	matroska->pkt_data[26] = pading_len - 27;
-    	//if(matroska->ogg_uflag == 0)
-    	//{
-    	//	matroska->ogg_granulepos += 1024;
-    	//	matroska->pkt_data[0x6] = (matroska->ogg_granulepos >>  0) & 0xff;
-    	//	matroska->pkt_data[0x7] = (matroska->ogg_granulepos >>  8) & 0xff;
-    	//	matroska->pkt_data[0x8] = (matroska->ogg_granulepos >> 16) & 0xff;
-    	//	matroska->pkt_data[0x9] = (matroska->ogg_granulepos >> 24) & 0xff;
-    	//	matroska->pkt_data[0xa] = (matroska->ogg_granulepos >> 32) & 0xff;
-    	//	matroska->pkt_data[0xb] = (matroska->ogg_granulepos >> 40) & 0xff;
-    	//	matroska->pkt_data[0xc] = (matroska->ogg_granulepos >> 48) & 0xff;
-    	//	matroska->pkt_data[0xd] = (matroska->ogg_granulepos >> 56) & 0xff;
-    	//}
+		for(; pading_cnt<pading_len; pading_cnt++)
+		{
+			if(pading_cnt!=(pading_len-1))
+			{
+				matroska->pkt_data[pading_cnt] = 0xff;
+			}
+			else
+			{
+				matroska->pkt_data[pading_cnt] = matroska->lace_size[matroska->lace_cnt] - (lacing_fill-1)*0xff;
+			}
+		}
+	}
+	if(matroska->pkt_data[pading_cnt-1]==0xff)
+	{
+		matroska->ogg_uflag = 1;
+	}
+	else
+	{
+		matroska->ogg_uflag = 0;
+	}
+	matroska->pkt_data[26] = pading_len - 27;
+	//if(matroska->ogg_uflag == 0)
+	//{
+	//	matroska->ogg_granulepos += 1024;
+	//	matroska->pkt_data[0x6] = (matroska->ogg_granulepos >>  0) & 0xff;
+	//	matroska->pkt_data[0x7] = (matroska->ogg_granulepos >>  8) & 0xff;
+	//	matroska->pkt_data[0x8] = (matroska->ogg_granulepos >> 16) & 0xff;
+	//	matroska->pkt_data[0x9] = (matroska->ogg_granulepos >> 24) & 0xff;
+	//	matroska->pkt_data[0xa] = (matroska->ogg_granulepos >> 32) & 0xff;
+	//	matroska->pkt_data[0xb] = (matroska->ogg_granulepos >> 40) & 0xff;
+	//	matroska->pkt_data[0xc] = (matroska->ogg_granulepos >> 48) & 0xff;
+	//	matroska->pkt_data[0xd] = (matroska->ogg_granulepos >> 56) & 0xff;
+	//}
 		matroska->t_size += pading_len;
 		matroska->pkt_data += (512 - pading_len);
 		for(pading_cnt=0; pading_cnt<pading_len; pading_cnt++)
-    	{
-    		matroska->pkt_data[pading_cnt] = matroska->pkt_data[pading_len + pading_cnt - 512];
-    	}
+	{
+		matroska->pkt_data[pading_cnt] = matroska->pkt_data[pading_len + pading_cnt - 512];
+	}
     }
     #endif
     
     else
     {
-    	matroska->slice_num 	= matroska->data_parse[0] + 1;   //for rmvb
-		matroska->slice_cnt 	= 0;                             //for rmvb
-		matroska->slice_len 	= 0;                             //for rmvb and 264
-		matroska->slice_offset 	= 1+(matroska->slice_num<<3);    //for rmvb
-    	matroska->r_size = 0;
+	matroska->slice_num	= matroska->data_parse[0] + 1;   //for rmvb
+		matroska->slice_cnt	= 0;                             //for rmvb
+		matroska->slice_len	= 0;                             //for rmvb and 264
+		matroska->slice_offset	= 1+(matroska->slice_num<<3);    //for rmvb
+	matroska->r_size = 0;
 		matroska->t_size = matroska->lace_size[matroska->lace_cnt];
 		matroska->pkt_data = matroska->data_parse;
 		matroska->data_parse += matroska->t_size;
@@ -4223,7 +4223,7 @@ cdx_int32 matroska_parse_block_info(MatroskaDemuxContext *matroska)
     
     if(matroska->t_size<0 || matroska->t_size>4*1024*1024)
     {
-    	return AVERROR(EIO);
+	return AVERROR(EIO);
     }
 
     return res;
@@ -4518,13 +4518,13 @@ cdx_int32 matroska_read_close (struct CdxMkvParser *p)
 		{
 		    if(st->extradata)
 		    {
-		    	PHY_FREE(st->extradata);
-		    	st->extradata = NULL;
+			PHY_FREE(st->extradata);
+			st->extradata = NULL;
 		    }
 		    if(st->index_entries)
 		    {
-		    	PHY_FREE(st->index_entries);
-		    	st->index_entries = NULL;
+			PHY_FREE(st->index_entries);
+			st->index_entries = NULL;
 		    }
 		    free(st);
 		    matroska->streams[stream] = 0;
@@ -4563,9 +4563,9 @@ cdx_int32 matroska_read_close (struct CdxMkvParser *p)
     for (n = 0; n < matroska->num_tracks; n++) {
         MatroskaTrack *track = matroska->tracks[n];
         if(track->codec_priv)
-    	{
-        	free(track->codec_priv);
-        	track->codec_priv = NULL;
+	{
+		free(track->codec_priv);
+		track->codec_priv = NULL;
         }
         if(track->comp_settings)
 		{
@@ -4647,7 +4647,7 @@ static int MkvGetClusterTimeCode(struct CdxMkvParser *p, cdx_uint64* num)
 			    {
 				    if(CdxStreamRead(matroska->fp, &t[n], size-n) < (size-n))
 				    {
-				    	return AVERROR(EIO); // EOS or actual I/O error
+					return AVERROR(EIO); // EOS or actual I/O error
 				    }
 				}
 				
@@ -4741,7 +4741,7 @@ static int MkvFindCluster(struct CdxMkvParser *p, cdx_uint64* num)
     {
 	    if(CdxStreamRead(matroska->fp, &t[n], size-n) < (size-n))
 	    {
-	    	return -1; 
+		return -1;
 	    }
 	}
 	
@@ -5007,7 +5007,7 @@ int CdxMatroskaOpen(struct CdxMkvParser *p)
     matroska->fileEndPst = CdxStreamSize(matroska->fp);
     if(matroska->fileEndPst == 0)
     {
-    	CDX_LOGD("can not get the stream size ");
+	CDX_LOGD("can not get the stream size ");
 	    matroska->fileEndPst = 0x7fffffffffffff;
     }
     CDX_LOGD("file size = %lld", matroska->fileEndPst);
@@ -5023,21 +5023,21 @@ int CdxMatroskaOpen(struct CdxMkvParser *p)
 	ret = matroska_read_header(p);
     if(ret < 0)
     {
-    	CDX_LOGW("read header failed: ret = %d", ret);
+	CDX_LOGW("read header failed: ret = %d", ret);
         return ret;
     }
 
     if(p->hasAudio == 0 && matroska->hasAudio != 0)
     {
-    	p->hasAudio = 0;
+	p->hasAudio = 0;
     }
 
     if(p->hasVideo == 0 && matroska->hasVideo != 0)
     {
-    	p->hasVideo = 0;
+	p->hasVideo = 0;
     }
 
-    p->nhasAudio 	= 0;
+    p->nhasAudio	= 0;
     p->nhasVideo	= p->hasVideo;
 
     p->nVidPtsOffset = 0;
@@ -5045,15 +5045,15 @@ int CdxMatroskaOpen(struct CdxMkvParser *p)
 
     if(p->hasVideo)
     {
-    	MatroskaTrack *track = matroska->tracks[matroska->VideoTrackIndex];
-    	MatroskaVideoTrack *videotrack = (MatroskaVideoTrack *)track;
-        p->vFormat.nWidth 			= (cdx_uint16)videotrack->pixel_width;
-        p->vFormat.nHeight 			= (cdx_uint16)videotrack->pixel_height;
-        p->vFormat.nFrameRate 		= videotrack->frame_rate;
+	MatroskaTrack *track = matroska->tracks[matroska->VideoTrackIndex];
+	MatroskaVideoTrack *videotrack = (MatroskaVideoTrack *)track;
+        p->vFormat.nWidth			= (cdx_uint16)videotrack->pixel_width;
+        p->vFormat.nHeight			= (cdx_uint16)videotrack->pixel_height;
+        p->vFormat.nFrameRate		= videotrack->frame_rate;
         if(!p->vFormat.nFrameRate)
         {
-        	if( track->default_duration)
-        		p->vFormat.nFrameRate = 1000000*1000/(track->default_duration/1000);
+		if( track->default_duration)
+			p->vFormat.nFrameRate = 1000000*1000/(track->default_duration/1000);
         }
         p->total_frames = matroska->segment_duration;
 
@@ -5063,7 +5063,7 @@ int CdxMatroskaOpen(struct CdxMkvParser *p)
 		}
 		else
 		{
-        	matroska->video_direct_copy = 1;
+		matroska->video_direct_copy = 1;
         }
 
         switch (track->codec_id)
@@ -5072,26 +5072,26 @@ int CdxMatroskaOpen(struct CdxMkvParser *p)
             {
                 CDX_LOGV("video bitstream type: XVID\n");
                 p->vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_XVID;
-    			p->vFormat.pCodecSpecificData = (void *)matroska->streams[p->VideoStreamIndex]->extradata;
-    			p->vFormat.nCodecSpecificDataLen = matroska->streams[p->VideoStreamIndex]->extradata_size;
+			p->vFormat.pCodecSpecificData = (void *)matroska->streams[p->VideoStreamIndex]->extradata;
+			p->vFormat.nCodecSpecificDataLen = matroska->streams[p->VideoStreamIndex]->extradata_size;
                 break;
             }
 
             case CODEC_ID_MSMPEG4V2:
             {
-            	CDX_LOGV("video bitstream type: XVID\n");
+		CDX_LOGV("video bitstream type: XVID\n");
                 p->vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_MSMPEG4V2;
-    			p->vFormat.pCodecSpecificData = (void *)matroska->streams[p->VideoStreamIndex]->extradata;
-    			p->vFormat.nCodecSpecificDataLen = matroska->streams[p->VideoStreamIndex]->extradata_size;
+			p->vFormat.pCodecSpecificData = (void *)matroska->streams[p->VideoStreamIndex]->extradata;
+			p->vFormat.nCodecSpecificDataLen = matroska->streams[p->VideoStreamIndex]->extradata_size;
                 break;
             }
 
             case CODEC_ID_MSMPEG4V3:
             {
-            	CDX_LOGV("video bitstream type: XVID\n");
+		CDX_LOGV("video bitstream type: XVID\n");
                 p->vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_DIVX3;
-    			p->vFormat.pCodecSpecificData = (void *)matroska->streams[p->VideoStreamIndex]->extradata;
-    			p->vFormat.nCodecSpecificDataLen = matroska->streams[p->VideoStreamIndex]->extradata_size;
+			p->vFormat.pCodecSpecificData = (void *)matroska->streams[p->VideoStreamIndex]->extradata;
+			p->vFormat.nCodecSpecificDataLen = matroska->streams[p->VideoStreamIndex]->extradata_size;
                 break;
             }
 
@@ -5099,8 +5099,8 @@ int CdxMatroskaOpen(struct CdxMkvParser *p)
             {
                 CDX_LOGV("video bitstream type: XVID\n");
                 p->vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_DIVX4;
-    			p->vFormat.pCodecSpecificData = (void *)matroska->streams[p->VideoStreamIndex]->extradata;
-    			p->vFormat.nCodecSpecificDataLen = matroska->streams[p->VideoStreamIndex]->extradata_size;
+			p->vFormat.pCodecSpecificData = (void *)matroska->streams[p->VideoStreamIndex]->extradata;
+			p->vFormat.nCodecSpecificDataLen = matroska->streams[p->VideoStreamIndex]->extradata_size;
                 break;
             }
 
@@ -5108,8 +5108,8 @@ int CdxMatroskaOpen(struct CdxMkvParser *p)
             {
                 CDX_LOGV("video bitstream type: XVID\n");
                 //set video extradata size
-    			p->vFormat.pCodecSpecificData = (void *)matroska->streams[p->VideoStreamIndex]->extradata;
-    			p->vFormat.nCodecSpecificDataLen = matroska->streams[p->VideoStreamIndex]->extradata_size;
+			p->vFormat.pCodecSpecificData = (void *)matroska->streams[p->VideoStreamIndex]->extradata;
+			p->vFormat.nCodecSpecificDataLen = matroska->streams[p->VideoStreamIndex]->extradata_size;
                 p->vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_DIVX5;
                 break;
             }
@@ -5135,17 +5135,17 @@ int CdxMatroskaOpen(struct CdxMkvParser *p)
             case CODEC_ID_MPEG2VIDEO:
             {
                 CDX_LOGV("video bitstream type: XVID\n");
-    			p->vFormat.pCodecSpecificData = (void *)matroska->streams[p->VideoStreamIndex]->extradata;
-    			p->vFormat.nCodecSpecificDataLen = matroska->streams[p->VideoStreamIndex]->extradata_size;
+			p->vFormat.pCodecSpecificData = (void *)matroska->streams[p->VideoStreamIndex]->extradata;
+			p->vFormat.nCodecSpecificDataLen = matroska->streams[p->VideoStreamIndex]->extradata_size;
                 p->vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_MPEG2;
                 break;
             }
 
             case CODEC_ID_MPEG1VIDEO:
             {
-            	CDX_LOGD("video bitstream type: MPEG1\n");
-    			p->vFormat.pCodecSpecificData = (void *)matroska->streams[p->VideoStreamIndex]->extradata;
-    			p->vFormat.nCodecSpecificDataLen = matroska->streams[p->VideoStreamIndex]->extradata_size;
+		CDX_LOGD("video bitstream type: MPEG1\n");
+			p->vFormat.pCodecSpecificData = (void *)matroska->streams[p->VideoStreamIndex]->extradata;
+			p->vFormat.nCodecSpecificDataLen = matroska->streams[p->VideoStreamIndex]->extradata_size;
                 p->vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_MPEG1;
                 break;
             }
@@ -5153,46 +5153,46 @@ int CdxMatroskaOpen(struct CdxMkvParser *p)
             case CODEC_ID_RV10:
             case CODEC_ID_RV20:
             {
-            	CDX_LOGV("video bitstream type: RXG2\n");
-            	matroska->video_direct_copy = 0;
-            	p->vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_RXG2;
-            	break;
+		CDX_LOGV("video bitstream type: RXG2\n");
+		matroska->video_direct_copy = 0;
+		p->vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_RXG2;
+		break;
             }
 
             case CODEC_ID_RV30:
             case CODEC_ID_RV40:
             {
-            	CDX_LOGD("video bitstream type: RMVB89\n");
-            	matroska->video_direct_copy = 0;
-            	p->vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_RX;
-            	break;
+		CDX_LOGD("video bitstream type: RMVB89\n");
+		matroska->video_direct_copy = 0;
+		p->vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_RX;
+		break;
             }
 
             case CODEC_ID_WMV3:
             {
-            	CDX_LOGV("video bitstream type: wmv3\n");
-            	p->vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_WMV3;
-            	p->vFormat.nCodecSpecificDataLen = matroska->streams[p->VideoStreamIndex]->extradata_size;
+		CDX_LOGV("video bitstream type: wmv3\n");
+		p->vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_WMV3;
+		p->vFormat.nCodecSpecificDataLen = matroska->streams[p->VideoStreamIndex]->extradata_size;
                 p->vFormat.pCodecSpecificData = (void *)matroska->streams[p->VideoStreamIndex]->extradata;
-            	break;
+		break;
             }
 
             case CODEC_ID_VC1:
             {
-            	CDX_LOGV("video bitstream type: vc1\n");
-            	p->vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_WMV1;
-            	p->vFormat.nCodecSpecificDataLen = matroska->streams[p->VideoStreamIndex]->extradata_size;
+		CDX_LOGV("video bitstream type: vc1\n");
+		p->vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_WMV1;
+		p->vFormat.nCodecSpecificDataLen = matroska->streams[p->VideoStreamIndex]->extradata_size;
                 p->vFormat.pCodecSpecificData = (void *)matroska->streams[p->VideoStreamIndex]->extradata;
-            	break;
+		break;
             }
 
             case CODEC_ID_WMV2:
             {
-            	CDX_LOGV("video bitstream type: wmv2\n");
-            	p->vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_WMV2;
-            	p->vFormat.nCodecSpecificDataLen = matroska->streams[p->VideoStreamIndex]->extradata_size;
+		CDX_LOGV("video bitstream type: wmv2\n");
+		p->vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_WMV2;
+		p->vFormat.nCodecSpecificDataLen = matroska->streams[p->VideoStreamIndex]->extradata_size;
                 p->vFormat.pCodecSpecificData = (void *)matroska->streams[p->VideoStreamIndex]->extradata;
-            	break;
+		break;
             }
             case CODEC_ID_VP8:
             {
@@ -5221,30 +5221,30 @@ int CdxMatroskaOpen(struct CdxMkvParser *p)
 
             default:
             {
-            	p->vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_UNKNOWN;
-            	p->hasVideo = 0;
-            	break;
+		p->vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_UNKNOWN;
+		p->hasVideo = 0;
+		break;
             }
         }
     }
 
     if(p->hasAudio)
     {
-    	cdx_int32 i;
-    	for (i = 0; i < matroska->num_tracks; i++) 
-    	{
+	cdx_int32 i;
+	for (i = 0; i < matroska->num_tracks; i++)
+	{
 			MatroskaTrack *track = matroska->tracks[i];
 			if (track->type == MATROSKA_TRACK_TYPE_AUDIO) 
 			{
 				MatroskaAudioTrack *audiotrack = (MatroskaAudioTrack *)track;
-        		cdx_int32 stream_index = track->stream_index;
-        		AudioStreamInfo *aFormat=&p->aFormat_arry[p->nhasAudio];
+			cdx_int32 stream_index = track->stream_index;
+			AudioStreamInfo *aFormat=&p->aFormat_arry[p->nhasAudio];
 
 				p->AudioTrackIndex[p->nhasAudio] = i;
-				aFormat->nChannelNum 		= audiotrack->channels;
-			    aFormat->nBitsPerSample 	    = audiotrack->bitdepth;
-			    aFormat->nAvgBitrate 		= audiotrack->bitrate;
-			    aFormat->nMaxBitRate 		= audiotrack->bitrate;
+				aFormat->nChannelNum		= audiotrack->channels;
+			    aFormat->nBitsPerSample	    = audiotrack->bitdepth;
+			    aFormat->nAvgBitrate		= audiotrack->bitrate;
+			    aFormat->nMaxBitRate		= audiotrack->bitrate;
 			    aFormat->nSampleRate	        = audiotrack->samplerate;
 			    aFormat->nBlockAlign        = audiotrack->block_align;
 			    //aFormat->eSubCodecFormat = track->codec_id;
@@ -5254,100 +5254,100 @@ int CdxMatroskaOpen(struct CdxMkvParser *p)
 			        case CODEC_ID_MP2:
 			        case CODEC_ID_MP3:
 			            CDX_LOGV("audio bitstream type: CDX_AUDIO_MP3!\n");
-			            aFormat->eCodecFormat 	= AUDIO_CODEC_FORMAT_MP3;
+			            aFormat->eCodecFormat	= AUDIO_CODEC_FORMAT_MP3;
 			            aFormat->eSubCodecFormat = 0;
-			            aFormat->nCodecSpecificDataLen 	= 0;
-			            aFormat->pCodecSpecificData 	= 0;
+			            aFormat->nCodecSpecificDataLen	= 0;
+			            aFormat->pCodecSpecificData		= 0;
                         p->nhasAudio ++;
 			            break;
 			        case CODEC_ID_WMAV1:
 			        case CODEC_ID_WMAV2:
 			            CDX_LOGV("audio bitstream type: AUDIO_WMA!\n");
-			            aFormat->eCodecFormat 	= AUDIO_CODEC_FORMAT_WMA_STANDARD;
+			            aFormat->eCodecFormat	= AUDIO_CODEC_FORMAT_WMA_STANDARD;
 			            aFormat->eSubCodecFormat = audiotrack->tag;
-			            aFormat->nCodecSpecificDataLen 	= matroska->streams[stream_index]->extradata_size;
-			            aFormat->pCodecSpecificData 	= matroska->streams[stream_index]->extradata;
+			            aFormat->nCodecSpecificDataLen	= matroska->streams[stream_index]->extradata_size;
+			            aFormat->pCodecSpecificData		= matroska->streams[stream_index]->extradata;
                         p->nhasAudio ++;
 			            break;
 			        case CODEC_ID_WMAPRO:
-			        	CDX_LOGV("audio bitstream type: AUDIO_WMA!\n");
-			            aFormat->eCodecFormat 	= AUDIO_CODEC_FORMAT_WMA_STANDARD;
+					CDX_LOGV("audio bitstream type: AUDIO_WMA!\n");
+			            aFormat->eCodecFormat	= AUDIO_CODEC_FORMAT_WMA_STANDARD;
 			            aFormat->eSubCodecFormat = audiotrack->tag;
 			            CDX_LOGD("---- CODEC_ID_WMAPRO codec_tag = %d", audiotrack->tag);
-			            aFormat->nCodecSpecificDataLen 	= matroska->streams[stream_index]->extradata_size;
-			            aFormat->pCodecSpecificData 	= matroska->streams[stream_index]->extradata;
+			            aFormat->nCodecSpecificDataLen	= matroska->streams[stream_index]->extradata_size;
+			            aFormat->pCodecSpecificData		= matroska->streams[stream_index]->extradata;
                         p->nhasAudio ++;
 			            break;
 			        case CODEC_ID_AC3:
 			            CDX_LOGV("audio bitstream type: CDX_AUDIO_AC3!\n");
-			            aFormat->eCodecFormat 	= AUDIO_CODEC_FORMAT_AC3;
+			            aFormat->eCodecFormat	= AUDIO_CODEC_FORMAT_AC3;
 			            aFormat->eSubCodecFormat = 0;
-			            aFormat->nCodecSpecificDataLen 	= 0;
-			            aFormat->pCodecSpecificData 	= 0;
+			            aFormat->nCodecSpecificDataLen	= 0;
+			            aFormat->pCodecSpecificData		= 0;
                         p->nhasAudio ++;
 			            break;
 			        case CODEC_ID_DTS:
 			            CDX_LOGV("audio bitstream type: CDX_AUDIO_DTS!\n");
-			            aFormat->eCodecFormat 	= AUDIO_CODEC_FORMAT_DTS;
+			            aFormat->eCodecFormat	= AUDIO_CODEC_FORMAT_DTS;
 			            aFormat->eSubCodecFormat = 0;
-			            aFormat->nCodecSpecificDataLen 	= 0;
-			            aFormat->pCodecSpecificData 	= 0;
+			            aFormat->nCodecSpecificDataLen	= 0;
+			            aFormat->pCodecSpecificData		= 0;
                         p->nhasAudio ++;
 			            break;
 			        case CODEC_ID_AAC:
 			            CDX_LOGV("audio bitstream type: CDX_AUDIO_MPEG_AAC_LC!\n");
-			            aFormat->eCodecFormat 	= AUDIO_CODEC_FORMAT_MPEG_AAC_LC;
+			            aFormat->eCodecFormat	= AUDIO_CODEC_FORMAT_MPEG_AAC_LC;
 			            aFormat->eSubCodecFormat = 0;
-			            aFormat->nCodecSpecificDataLen 	= matroska->streams[stream_index]->extradata_size;
-			            aFormat->pCodecSpecificData 	= matroska->streams[stream_index]->extradata;
+			            aFormat->nCodecSpecificDataLen	= matroska->streams[stream_index]->extradata_size;
+			            aFormat->pCodecSpecificData		= matroska->streams[stream_index]->extradata;
                         p->nhasAudio ++;
 			            break;
 			        case CODEC_ID_COOK:
-			      	    CDX_LOGV("audio bitstream type: CDX_AUDIO_COOK!\n");
-			            aFormat->eCodecFormat 	= AUDIO_CODEC_FORMAT_COOK;
+				    CDX_LOGV("audio bitstream type: CDX_AUDIO_COOK!\n");
+			            aFormat->eCodecFormat	= AUDIO_CODEC_FORMAT_COOK;
 			            aFormat->eSubCodecFormat = 0;
-			            aFormat->nCodecSpecificDataLen 	= matroska->streams[stream_index]->extradata_size;
-			            aFormat->pCodecSpecificData 	= matroska->streams[stream_index]->extradata;
+			            aFormat->nCodecSpecificDataLen	= matroska->streams[stream_index]->extradata_size;
+			            aFormat->pCodecSpecificData		= matroska->streams[stream_index]->extradata;
                         p->nhasAudio ++;
 			            break;
 			        case CODEC_ID_VORBIS:
 			            CDX_LOGV("audio bitstream type: CDX_AUDIO_DTS!\n");
-			            aFormat->eCodecFormat 	= AUDIO_CODEC_FORMAT_OGG;
+			            aFormat->eCodecFormat	= AUDIO_CODEC_FORMAT_OGG;
 			            aFormat->eSubCodecFormat = 0;
-			            aFormat->nCodecSpecificDataLen 	= matroska->streams[stream_index]->extradata_size;
-			            aFormat->pCodecSpecificData 	= matroska->streams[stream_index]->extradata;
+			            aFormat->nCodecSpecificDataLen	= matroska->streams[stream_index]->extradata_size;
+			            aFormat->pCodecSpecificData		= matroska->streams[stream_index]->extradata;
                         p->nhasAudio ++;
 			            break;
 			        case CODEC_ID_ATRAC3:
 			            CDX_LOGV("audio bitstream type: CDX_AUDIO_ATRC!\n");
-			            aFormat->eCodecFormat 	= AUDIO_CODEC_FORMAT_ATRC;
+			            aFormat->eCodecFormat	= AUDIO_CODEC_FORMAT_ATRC;
 			            aFormat->eSubCodecFormat = 0;
-			            aFormat->nCodecSpecificDataLen 	= matroska->streams[stream_index]->extradata_size;
-			            aFormat->pCodecSpecificData 	= matroska->streams[stream_index]->extradata;
+			            aFormat->nCodecSpecificDataLen	= matroska->streams[stream_index]->extradata_size;
+			            aFormat->pCodecSpecificData		= matroska->streams[stream_index]->extradata;
                         p->nhasAudio ++;
 			            break;
 			        case CODEC_ID_FLAC:
-			      	    CDX_LOGV("audio bitstream type: CDX_AUDIO_FLAC!\n");
-			            aFormat->eCodecFormat 	= AUDIO_CODEC_FORMAT_FLAC;
+				    CDX_LOGV("audio bitstream type: CDX_AUDIO_FLAC!\n");
+			            aFormat->eCodecFormat	= AUDIO_CODEC_FORMAT_FLAC;
 			            aFormat->eSubCodecFormat = 0;
-			            aFormat->nCodecSpecificDataLen 	= matroska->streams[stream_index]->extradata_size;
-			            aFormat->pCodecSpecificData 	= matroska->streams[stream_index]->extradata;
+			            aFormat->nCodecSpecificDataLen	= matroska->streams[stream_index]->extradata_size;
+			            aFormat->pCodecSpecificData		= matroska->streams[stream_index]->extradata;
                         p->nhasAudio ++;
 			            break;
 			        case CODEC_ID_SIPRO:
-			        	CDX_LOGV("audio bitstream type: CDX_AUDIO_SIPR!\n");
-			            aFormat->eCodecFormat 	= AUDIO_CODEC_FORMAT_SIPR;
+					CDX_LOGV("audio bitstream type: CDX_AUDIO_SIPR!\n");
+			            aFormat->eCodecFormat	= AUDIO_CODEC_FORMAT_SIPR;
 			            aFormat->eSubCodecFormat = 0;
-			            aFormat->nCodecSpecificDataLen 	= matroska->streams[stream_index]->extradata_size;
-			            aFormat->pCodecSpecificData 	= matroska->streams[stream_index]->extradata;
+			            aFormat->nCodecSpecificDataLen	= matroska->streams[stream_index]->extradata_size;
+			            aFormat->pCodecSpecificData		= matroska->streams[stream_index]->extradata;
                         p->nhasAudio ++;
-			          	break;
+					break;
 			        /*case CODEC_ID_RA_288:
 			            CDX_LOGV("audio bitstream type: CDX_AUDIO_RA!\n");
-			            aFormat->eCodecFormat 	= CDX_AUDIO_RA;
+			            aFormat->eCodecFormat	= CDX_AUDIO_RA;
 			            aFormat->eSubCodecFormat = 0;
-			            aFormat->eAudioBitstreamSource 	= CDX_MEDIA_FILE_FMT_MKV;
-			            aFormat->nCodecSpecificDataLen 	= matroska->streams[stream_index]->extradata_size;
+			            aFormat->eAudioBitstreamSource	= CDX_MEDIA_FILE_FMT_MKV;
+			            aFormat->nCodecSpecificDataLen	= matroska->streams[stream_index]->extradata_size;
 			            aFormat->pCodecSpecificData	= matroska->streams[stream_index]->extradata;
                         p->nhasAudio ++;
 			            break;*/
@@ -5356,35 +5356,35 @@ int CdxMatroskaOpen(struct CdxMkvParser *p)
 			        case CODEC_ID_PCM_S16LE:
 			        case CODEC_ID_PCM_U16LE:
 			            CDX_LOGV("audio bitstream type: CDX_AUDIO_PCM!\n");
-			            aFormat->eCodecFormat 	= AUDIO_CODEC_FORMAT_PCM;
+			            aFormat->eCodecFormat	= AUDIO_CODEC_FORMAT_PCM;
 			            aFormat->eSubCodecFormat = WAVE_FORMAT_PCM | ABS_EDIAN_FLAG_LITTLE;
-			            aFormat->nCodecSpecificDataLen 	= 0;
-			            aFormat->pCodecSpecificData 	= 0;
+			            aFormat->nCodecSpecificDataLen	= 0;
+			            aFormat->pCodecSpecificData		= 0;
                         p->nhasAudio ++;
 			            break;
 			        case CODEC_ID_PCM_MULAW:
 			            CDX_LOGV("audio bitstream type: CDX_AUDIO_PCM!\n");
-			            aFormat->eCodecFormat 	= AUDIO_CODEC_FORMAT_PCM;
+			            aFormat->eCodecFormat	= AUDIO_CODEC_FORMAT_PCM;
 			            aFormat->eSubCodecFormat = WAVE_FORMAT_MULAW | ABS_EDIAN_FLAG_LITTLE;
-			            aFormat->nCodecSpecificDataLen 	= 0;
-			            aFormat->pCodecSpecificData 	= 0;
+			            aFormat->nCodecSpecificDataLen	= 0;
+			            aFormat->pCodecSpecificData		= 0;
                         p->nhasAudio ++;
 			            break;
 					case CODEC_ID_PCM_ALAW:
 			            CDX_LOGV("audio bitstream type: CDX_AUDIO_PCM!\n");
-			            aFormat->eCodecFormat 	= AUDIO_CODEC_FORMAT_PCM;
+			            aFormat->eCodecFormat	= AUDIO_CODEC_FORMAT_PCM;
 			            aFormat->eSubCodecFormat = WAVE_FORMAT_ALAW | ABS_EDIAN_FLAG_LITTLE;
-			            aFormat->nCodecSpecificDataLen 	= 0;
-			            aFormat->pCodecSpecificData 	= 0;
+			            aFormat->nCodecSpecificDataLen	= 0;
+			            aFormat->pCodecSpecificData		= 0;
                         p->nhasAudio ++;
 			            break;
 					case CODEC_ID_ADPCM_MS:
 			        case CODEC_ID_ADPCM_IMA_WAV:
 			            CDX_LOGV("audio bitstream type: CDX_AUDIO_ADPCM!\n");
-			            aFormat->eCodecFormat 	= AUDIO_CODEC_FORMAT_PCM;
+			            aFormat->eCodecFormat	= AUDIO_CODEC_FORMAT_PCM;
 			            aFormat->eSubCodecFormat = WAVE_FORMAT_DVI_ADPCM | ABS_EDIAN_FLAG_LITTLE;
-			            aFormat->nCodecSpecificDataLen 	= matroska->streams[stream_index]->extradata_size;
-			            aFormat->pCodecSpecificData 	= matroska->streams[stream_index]->extradata;
+			            aFormat->nCodecSpecificDataLen	= matroska->streams[stream_index]->extradata_size;
+			            aFormat->pCodecSpecificData		= matroska->streams[stream_index]->extradata;
                         p->nhasAudio ++;
 			            break;
 			        default:
@@ -5393,7 +5393,7 @@ int CdxMatroskaOpen(struct CdxMkvParser *p)
 			    }
 			    if(p->nhasAudio >= MAX_AUDIO_STREAM_NUM)
 			    {
-			    	break;
+				break;
 			    }
 			}
 		}
@@ -5417,16 +5417,16 @@ int CdxMatroskaOpen(struct CdxMkvParser *p)
 	        p->aFormat.nChannelNum           = p->aFormat_arry[i].nChannelNum;
 	        p->aFormat.nBitsPerSample        = p->aFormat_arry[i].nBitsPerSample;
 	        p->aFormat.nAvgBitrate           = p->aFormat_arry[i].nAvgBitrate;
-	        p->aFormat.nMaxBitRate 		     = p->aFormat_arry[i].nAvgBitrate;
+	        p->aFormat.nMaxBitRate		     = p->aFormat_arry[i].nAvgBitrate;
 	        p->aFormat.nSampleRate           = p->aFormat_arry[i].nSampleRate;
 	        p->aFormat.eCodecFormat          = p->aFormat_arry[i].eCodecFormat;
 	        p->aFormat.eSubCodecFormat       = p->aFormat_arry[i].eSubCodecFormat;
 	        p->aFormat.eAudioBitstreamSource = p->aFormat_arry[i].eAudioBitstreamSource;
 	        p->aFormat.nCodecSpecificDataLen = p->aFormat_arry[i].nCodecSpecificDataLen;
-	        p->aFormat.pCodecSpecificData 	 = p->aFormat_arry[i].pCodecSpecificData;
-	        matroska->a_Header_size 		     = p->aFormat.nCodecSpecificDataLen;
-	        matroska->a_Header 				 = (unsigned char*)p->aFormat.pCodecSpecificData;
-    	}
+	        p->aFormat.pCodecSpecificData	 = p->aFormat_arry[i].pCodecSpecificData;
+	        matroska->a_Header_size			     = p->aFormat.nCodecSpecificDataLen;
+	        matroska->a_Header				 = (unsigned char*)p->aFormat.pCodecSpecificData;
+	}
     }
 
     //if(p->hasSubTitle)
@@ -5447,28 +5447,28 @@ int CdxMatroskaOpen(struct CdxMkvParser *p)
     if((p->vFormat.eCodecFormat == VIDEO_CODEC_FORMAT_XVID) && (p->vFormat.nCodecSpecificDataLen == 0))
     {
     	
-    	int64_t offset = CdxStreamTell(matroska->fp);
-    	CdxStreamSeek(matroska->fp, 0, SEEK_SET);
-    	CDX_LOGD("------ here, offset = %llx", offset);
+	int64_t offset = CdxStreamTell(matroska->fp);
+	CdxStreamSeek(matroska->fp, 0, SEEK_SET);
+	CDX_LOGD("------ here, offset = %llx", offset);
 
 		unsigned int id;
-    	id = CdxStreamGetBE32(matroska->fp);
+	id = CdxStreamGetBE32(matroska->fp);
 
 		//find the Cluster 
-    	while(CdxStreamTell(matroska->fp) < 4096)
-    	{
+	while(CdxStreamTell(matroska->fp) < 4096)
+	{
             if(id == CDX_MATROSKA_ID_CLUSTER)
-    		{
-    			break;
-    		}
+		{
+			break;
+		}
 
-    		id = (id<<8) | CdxStreamGetU8(matroska->fp);
-    	}
+		id = (id<<8) | CdxStreamGetU8(matroska->fp);
+	}
 
         if(id != CDX_MATROSKA_ID_CLUSTER)
-    	{
-    		goto seek_back;
-    	}
+	{
+		goto seek_back;
+	}
 
 		cdx_uint64 length;
 		int res = 0;
@@ -5479,18 +5479,18 @@ int CdxMatroskaOpen(struct CdxMkvParser *p)
 	    char* buf = NULL;
 		CDX_LOGD("--- offset: %llx", CdxStreamTell(matroska->fp));
 
-    	// read the length of cluster
+	// read the length of cluster
 		ebml_read_num(matroska, 8, &length);
 		CDX_LOGD("cluster length = %llx", length);
 
-    	while (res == 0) 
+	while (res == 0)
 	    {
-        	read = ebml_read_num(matroska, 4, &total); 
+		read = ebml_read_num(matroska, 4, &total);
 			id = (cdx_uint32)(total | (1 << (read * 7)));
-	    	CDX_LOGD("--- id = %x, total = %llx, read = %d, pos = %llx", id, total, read, CdxStreamTell(matroska->fp));
+		CDX_LOGD("--- id = %x, total = %llx, read = %d, pos = %llx", id, total, read, CdxStreamTell(matroska->fp));
 	        if (res < 0) 
 	        {
-	        	CDX_LOGE("--- id = %x", id);
+			CDX_LOGE("--- id = %x", id);
 	            goto seek_back;
 	        } 
 
@@ -5499,7 +5499,7 @@ int CdxMatroskaOpen(struct CdxMkvParser *p)
 		         // cluster timecode
 	            case CDX_MATROSKA_ID_CLUSTERTIMECODE: 
 	            {
-	            	CDX_LOGD("--- TimeCode offset = %llx", CdxStreamTell(matroska->fp));
+			CDX_LOGD("--- TimeCode offset = %llx", CdxStreamTell(matroska->fp));
 	                cdx_uint64 num;
 	                if (( ebml_read_num(matroska, 8, &rlength)) < 0)
 				        goto seek_back;
@@ -5692,22 +5692,22 @@ cdx_int16 CdxMatroskaRead(struct CdxMkvParser *p)
 	{
         if(ret!=0)
         {
-        	if(p->hasIndex)
-        	{
-        		matroska->time_stamp_offset -= matroska->streams[matroska->VideoStreamIndex]->pts/1000;
-        		ret = matroska_find_keyframe(p, 0, 2, 0);       		
-        		if(ret==0)
-        		{
-        			if(CdxStreamSeek(matroska->fp, p->pos, SEEK_SET) < 0)
-        				return -1;
-        		}
-        		else if(ret == 1)
-        		{
-        			CDX_LOGD("&&&& eos");
-        			return AVERROR_EOS;
-        		}
-        		matroska->time_stamp_error = 1;
-        	}
+		if(p->hasIndex)
+		{
+			matroska->time_stamp_offset -= matroska->streams[matroska->VideoStreamIndex]->pts/1000;
+			ret = matroska_find_keyframe(p, 0, 2, 0);
+			if(ret==0)
+			{
+				if(CdxStreamSeek(matroska->fp, p->pos, SEEK_SET) < 0)
+					return -1;
+			}
+			else if(ret == 1)
+			{
+				CDX_LOGD("&&&& eos");
+				return AVERROR_EOS;
+			}
+			matroska->time_stamp_error = 1;
+		}
         }
         //if(ret!=0)
         //	return ret;
@@ -5717,41 +5717,41 @@ cdx_int16 CdxMatroskaRead(struct CdxMkvParser *p)
 	    ret = matroska_read_packet(p);
 	    if(ret < 0)
         {
-        	if(FEOF(matroska))
-        	{
-        		return AVERROR_EOS;
-        	}
-        	
-        	if(p->exitFlag == 1)
-        	{
-        		return AVERROR_IO;
-        	}
-        	CDX_LOGD("-- resync");
-        	tmp = MkvResync(p);
-        	if(tmp < 0)
-        	{
-        		if(tmp == -2)
-        		{
-        			CDX_LOGE("resync io error");
-        			return AVERROR_IO;
-        		}
-        		
-        		if(FEOF(matroska))
+		if(FEOF(matroska))
+		{
+			return AVERROR_EOS;
+		}
+
+		if(p->exitFlag == 1)
+		{
+			return AVERROR_IO;
+		}
+		CDX_LOGD("-- resync");
+		tmp = MkvResync(p);
+		if(tmp < 0)
+		{
+			if(tmp == -2)
+			{
+				CDX_LOGE("resync io error");
+				return AVERROR_IO;
+			}
+
+			if(FEOF(matroska))
 				{
 					return AVERROR_EOS;
 				}
-        		else
-        		{
-        			CDX_LOGE("resync io error");
-        			return AVERROR_IO;
-        		}
-        	}
+			else
+			{
+				CDX_LOGE("resync io error");
+				return AVERROR_IO;
+			}
+		}
 
-        	//check it again, because  maybe eos in resync
-        	if(FEOF(matroska))
-        	{
-        		return AVERROR_EOS;
-        	}
+		//check it again, because  maybe eos in resync
+		if(FEOF(matroska))
+		{
+			return AVERROR_EOS;
+		}
         }        
 	}while(ret != 0);
 
@@ -5812,53 +5812,53 @@ int CdxMatroskaSeek(struct CdxMkvParser *p, cdx_int64  timeUs)
 		CdxStreamSeek(matroska->fp, jump_file_pos, SEEK_SET);
 
 		unsigned int id;
-    	id = CdxStreamGetBE32(matroska->fp);
-    	cdx_uint8 data;
-    	int number0 = 0;
+	id = CdxStreamGetBE32(matroska->fp);
+	cdx_uint8 data;
+	int number0 = 0;
 
 		//find the Cluster 
-    	while(CdxStreamTell(matroska->fp) < matroska->fileEndPst)
-    	{
+	while(CdxStreamTell(matroska->fp) < matroska->fileEndPst)
+	{
             if(id == CDX_MATROSKA_ID_CLUSTER)
-    		{
-    			break;
-    		}
+		{
+			break;
+		}
 
-    		if(p->exitFlag == 1)
-    		{
-    			return -2;
-    		}
+		if(p->exitFlag == 1)
+		{
+			return -2;
+		}
 
-    		if(CdxStreamRead(matroska->fp, &data, 1) < 1)
-    		{
-    			return -1;
-    		}
-    		id = (id<<8) | data;
-    		if(id == 0)
-    		{
-    			number0 ++;
-    		}
-    		else
-    		{
-    			number0 = 0;
-    		}
+		if(CdxStreamRead(matroska->fp, &data, 1) < 1)
+		{
+			return -1;
+		}
+		id = (id<<8) | data;
+		if(id == 0)
+		{
+			number0 ++;
+		}
+		else
+		{
+			number0 = 0;
+		}
 
-    		if(number0 > 10000)
-    		{
-    			CDX_LOGE("the file has 10000 bytes 0x00, maybe file mailfald");
-    			return -1;
-    		}
-    	}
-    	
-    	if(CdxStreamTell(matroska->fp) == matroska->fileEndPst)
+		if(number0 > 10000)
+		{
+			CDX_LOGE("the file has 10000 bytes 0x00, maybe file mailfald");
+			return -1;
+		}
+	}
+
+	if(CdxStreamTell(matroska->fp) == matroska->fileEndPst)
 		{
 			CDX_LOGE("cannot find Cluster id, eos");
 		}
-    	CdxStreamSeek(matroska->fp, -4, SEEK_CUR);
-    	cdx_uint64 tell = CdxStreamTell(matroska->fp);
-    	CDX_LOGD("id = %x, pos = %lld(%llx)", id, tell, tell);
+	CdxStreamSeek(matroska->fp, -4, SEEK_CUR);
+	cdx_uint64 tell = CdxStreamTell(matroska->fp);
+	CDX_LOGD("id = %x, pos = %lld(%llx)", id, tell, tell);
 
-    	    // do the seek
+	    // do the seek
 		matroska->num_levels = matroska->num_levels_bak;
 		matroska->peek_id = 0;
 		matroska->frame_num_between_kframe = 1;
@@ -5877,4 +5877,3 @@ int CdxMatroskaSeek(struct CdxMkvParser *p, cdx_int64  timeUs)
 
     return 0;
 }
-

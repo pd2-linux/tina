@@ -150,4 +150,3 @@ cdx_uint32 CdxStrSplit(AwPoolT *pool, cdx_char *str, char sepa, CdxListT *itemLi
     }
     return itemNum;
 }
-

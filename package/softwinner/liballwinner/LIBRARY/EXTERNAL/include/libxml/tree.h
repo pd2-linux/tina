@@ -1249,4 +1249,3 @@ XMLPUBFUN xmlNodePtr XMLCALL
 #endif
 
 #endif /* __XML_TREE_H__ */
-

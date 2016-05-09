@@ -147,4 +147,3 @@ cdx_char *CdxEncodeBase64(AwPoolT *pool, const cdx_void *_data, cdx_size size)
     }
     return out;
 }
-

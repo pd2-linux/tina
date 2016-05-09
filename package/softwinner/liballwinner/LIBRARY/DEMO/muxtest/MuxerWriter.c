@@ -189,4 +189,3 @@ void CdxWriterDestroy(CdxWriterT *writer)
     }
     free(muxer_writer);
 }
-

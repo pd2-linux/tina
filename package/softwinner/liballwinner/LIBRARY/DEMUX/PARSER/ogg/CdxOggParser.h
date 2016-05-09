@@ -625,7 +625,7 @@ struct CdxOggParserS
     char     hasVideo;               //video flag, =0:no video bitstream; >0:video bitstream count
     char     hasAudio;               //audio flag, =0:no audio bitstream; >0:audio bitstream count
     char     hasSubTitle;            //lyric flag, =0:no lyric bitstream; >0:lyric bitstream count
-    long long 	  pos;//
+    long long	  pos;//
 
     intptr_t nb_chapters;
     AVChapter **chapters;

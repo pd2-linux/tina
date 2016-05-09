@@ -642,74 +642,74 @@ static const char ID3V1GENRE[148+2][22]=
 	"Rock&Roll",
 	"HardRock",
  /* Extended genres */
- 	"Folk",
- 	"Folk-Rock",
- 	"NationalFolk",
- 	"Swing",
- 	"FastFusion",
- 	"Bebob",
- 	"Latin",
- 	"Revival",
- 	"Celtic",
- 	"Bluegrass",
- 	"Avantgarde",
- 	"GothicRock",
- 	"ProgessiveRock",
- 	"PsychedelicRock",
- 	"SymphonicRock",
- 	"SlowRock",
- 	"BigBand",
- 	"Chorus",
- 	"EasyListening",
- 	"Acoustic",
- 	"Humour",
- 	"Speech",
- 	"Chanson",
- 	"Opera",
- 	"ChamberMusic",
- 	"Sonata",
- 	"Symphony",
- 	"BootyBass",
- 	"Primus",
- 	"PornGroove",
- 	"Satire",
- 	"SlowJam",
- 	"Club",
- 	"Tango",
- 	"Samba",
- 	"Folklore",
- 	"Ballad",
- 	"PowerBallad",
- 	"RhythmicSoul",
- 	"Freestyle",
- 	"Duet",
- 	"PunkRock",
- 	"DrumSolo",
- 	"Acapella",
- 	"Euro-House",
- 	"DanceHall",
- 	"Goa",
- 	"Drum&Bass",
- 	"Club-House",
- 	"Hardcore",
- 	"Terror",
- 	"Indie",
- 	"BritPop",
- 	"Negerpunk",
- 	"PolskPunk",
- 	"Beat",
- 	"ChristianGangstaRap",
- 	"HeavyMetal",
- 	"BlackMetal",
- 	"Crossover",
- 	"ContemporaryChristian",
- 	"ChristianRock",
- 	"Merengue",
- 	"Salsa",
- 	"TrashMetal",
- 	"Anime",
- 	"JPop",
- 	"Synthpop",
+	"Folk",
+	"Folk-Rock",
+	"NationalFolk",
+	"Swing",
+	"FastFusion",
+	"Bebob",
+	"Latin",
+	"Revival",
+	"Celtic",
+	"Bluegrass",
+	"Avantgarde",
+	"GothicRock",
+	"ProgessiveRock",
+	"PsychedelicRock",
+	"SymphonicRock",
+	"SlowRock",
+	"BigBand",
+	"Chorus",
+	"EasyListening",
+	"Acoustic",
+	"Humour",
+	"Speech",
+	"Chanson",
+	"Opera",
+	"ChamberMusic",
+	"Sonata",
+	"Symphony",
+	"BootyBass",
+	"Primus",
+	"PornGroove",
+	"Satire",
+	"SlowJam",
+	"Club",
+	"Tango",
+	"Samba",
+	"Folklore",
+	"Ballad",
+	"PowerBallad",
+	"RhythmicSoul",
+	"Freestyle",
+	"Duet",
+	"PunkRock",
+	"DrumSolo",
+	"Acapella",
+	"Euro-House",
+	"DanceHall",
+	"Goa",
+	"Drum&Bass",
+	"Club-House",
+	"Hardcore",
+	"Terror",
+	"Indie",
+	"BritPop",
+	"Negerpunk",
+	"PolskPunk",
+	"Beat",
+	"ChristianGangstaRap",
+	"HeavyMetal",
+	"BlackMetal",
+	"Crossover",
+	"ContemporaryChristian",
+	"ChristianRock",
+	"Merengue",
+	"Salsa",
+	"TrashMetal",
+	"Anime",
+	"JPop",
+	"Synthpop",
 	"Remix",
 	"Cover"
 };
@@ -945,18 +945,18 @@ cdx_int32 ID3PsrGetLanguageEncoding(cdx_int8* ulcomm)
 
    while(*uLanguage!=0)
    {
-   	if((*uLanguage>64)&&(*uLanguage<91))
-   	  *uLanguage +=32;
-   	uLanguage++;
+	if((*uLanguage>64)&&(*uLanguage<91))
+	  *uLanguage +=32;
+	uLanguage++;
    }
    uLanguage = ulcomm;
    for(i=0;i<545;i++)
    {
-   	 if(!strcmp(uLanguage,ISO_639_2_Code[i].language))//==
-   	 	{
+	 if(!strcmp(uLanguage,ISO_639_2_Code[i].language))//==
+		{
 			ret =ISO_639_2_Code[i].coding;
-   	 		break;
-   		}
+			break;
+		}
    }
    return ret;
 }
@@ -988,7 +988,7 @@ cdx_uint32	ID3PsrShowBs(cdx_int32 skipLen,cdx_int32 ByteLen,Id3ParserImplS *id3)
 		data = *ptr++;
 		RetVal = (RetVal<<8)|(data&0xff);
 	}
- 	CdxStreamSeek(id3->stream,offset,SEEK_SET);
+	CdxStreamSeek(id3->stream,offset,SEEK_SET);
 
 	
 	return	RetVal;
@@ -1669,13 +1669,13 @@ static cdx_int32 __Id3ParserControl(CdxParserT *parser, cdx_int32 cmd, void *par
     case CDX_PSR_CMD_DISABLE_AUDIO:
     case CDX_PSR_CMD_DISABLE_VIDEO:
     case CDX_PSR_CMD_SWITCH_AUDIO:
-    	break;
+	break;
     case CDX_PSR_CMD_SET_FORCESTOP:
-    	CdxParserForceStop(impl->child);
+	CdxParserForceStop(impl->child);
       break;
     case CDX_PSR_CMD_CLR_FORCESTOP:
-    	CdxParserClrForceStop(impl->child);
-    	break;
+	CdxParserClrForceStop(impl->child);
+	break;
     default :
         CDX_LOGW("not implement...(%d)", cmd);
         break;
@@ -1717,7 +1717,7 @@ static cdx_int32 __Id3ParserGetMediaInfo(CdxParserT *parser, CdxMediaInfoT *medi
 	/*load the id3 infomation*/
 	if(impl->mAlbum_sz < 64 && impl->mAlbum)
 	{
-    	memcpy(mediaInfo->album,impl->mAlbum,impl->mAlbum_sz);
+	memcpy(mediaInfo->album,impl->mAlbum,impl->mAlbum_sz);
 		mediaInfo->albumsz = impl->mAlbum_sz;
 		mediaInfo->albumCharEncode = (cdx_int32)impl->mAlbumCharEncode;
 	}
@@ -1748,7 +1748,7 @@ static cdx_int32 __Id3ParserGetMediaInfo(CdxParserT *parser, CdxMediaInfoT *medi
     /*I have APIC length and location, do u wanna it????*/
 	if(impl->pAlbumArt != NULL && impl->pAlbumArt->lenth>0)
 	{
-    	CDX_LOGE("How many pic ?: %d",impl->pAlbumArtid);
+	CDX_LOGE("How many pic ?: %d",impl->pAlbumArtid);
 		mediaInfo->nAlbumArtBufSize = impl->pAlbumArt->lenth;
 		mediaInfo->pAlbumArtBuf = impl->pAlbumArt->addr;
 	}
@@ -1791,7 +1791,7 @@ static cdx_int32 __Id3ParserGetStatus(CdxParserT *parser)
     struct Id3ParserImplS *impl = NULL;
 	impl = CdxContainerOf(parser, struct Id3ParserImplS, base);
 
-   	return impl->child?CdxParserGetStatus(impl->child):impl->mErrno;
+	return impl->child?CdxParserGetStatus(impl->child):impl->mErrno;
 }
 
 static cdx_int32 __Id3ParserClose(CdxParserT *parser)

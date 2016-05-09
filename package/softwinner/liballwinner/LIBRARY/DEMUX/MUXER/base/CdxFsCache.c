@@ -521,4 +521,3 @@ cdx_int32 DeinitFsCacheThreadContext(CdxFsWriter *p_fs_writer)
     free(p_fs_writer);
     return 0;
 }
-
