@@ -12,6 +12,8 @@ extern "C" {
 
 void start_wifi_scan_thread(void *args);
 void stop_wifi_scan_thread();
+void pause_wifi_scan_thread();
+void resume_wifi_scan_thread();
 int  update_scan_results();
 int  get_scan_results_inner(char *results, int *len);
 int get_key_mgmt(const char *ssid, int key_mgmt_info[]);

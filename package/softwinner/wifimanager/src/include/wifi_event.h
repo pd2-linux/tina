@@ -39,7 +39,7 @@ void set_scan_start_flag();
 int  get_scan_status();
 int add_wifi_event_callback_inner(tWifi_event_callback pcb);
 int call_event_callback_function(tWIFI_EVENT wifi_event, char *buf, int event_label);
-
+int reset_wifi_event_callback();
 #if __cplusplus
 };  // extern "C"
 #endif

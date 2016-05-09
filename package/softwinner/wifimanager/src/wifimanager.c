@@ -35,14 +35,30 @@ static int aw_wifi_is_ap_connected(char *ssid, int *len)
     return wpa_conf_is_ap_connected(ssid, len);
 }
 
-static int aw_wifi_scan()
+static int aw_wifi_scan(int event_label)
 {
+    int ret = 0;
+    tWIFI_MACHINE_STATE wifi_machine_state;
+    
     if(gwifi_state == WIFIMG_WIFI_DISABLED){
         return -1;
     }
 
+    wifi_machine_state = get_wifi_machine_state();
+    if(wifi_machine_state != CONNECTED_STATE && wifi_machine_state != DISCONNECTED_STATE){
+        ret = -1;
+        event_code = WIFIMG_DEV_BUSING_EVENT;
+        goto end;
+    } 
+
     update_scan_results();
-    return 0;
+
+end:
+    if(ret != WIFI_MANAGER_SUCCESS){
+        call_event_callback_function(event_code, NULL, event_label);
+    }   
+    
+    return ret;
 }
 
 static int aw_wifi_get_scan_results(char *result, int *len)
@@ -587,6 +603,9 @@ static int aw_wifi_connect_ap_key_mgmt(const char *ssid, tKEY_MGMT key_mgmt, con
         goto end;
     }
     
+    /* pause scan thread */
+    pause_wifi_scan_thread();
+
     /* ensure wifi disconnect */
     state = get_wifi_machine_state();
     if(state == CONNECTED_STATE){
@@ -599,6 +618,10 @@ end:
     if(ret != 0){
         call_event_callback_function(event_code, NULL, event_label);
     }
+
+    /* resume scan thread */
+    resume_wifi_scan_thread();
+
     return ret;
 }
 
@@ -645,12 +668,15 @@ static int aw_wifi_connect_ap(const char *ssid, const char *passwd, int event_la
                 goto end;
             }
         }
-        
+       
+        /* pase scan thread */
+        pause_wifi_scan_thread();
+
         /* ensure disconnected */
         state = get_wifi_machine_state();
         if (state == CONNECTED_STATE){
             aw_wifi_disconnect_ap(0x7fffffff);
-        }
+        } 
 
 	      ret = wifi_connect_ap_inner(ssid, WIFIMG_NONE, passwd, event_label);
 	  }else{
@@ -663,6 +689,9 @@ static int aw_wifi_connect_ap(const char *ssid, const char *passwd, int event_la
                 goto end;
             }
         }
+        
+        /* pause scan thread */
+        pause_wifi_scan_thread();
 
         /* ensure disconnected */
         state = get_wifi_machine_state();
@@ -690,6 +719,10 @@ end:
     if(ret != 0){
         call_event_callback_function(event_code, NULL, event_label);
     }
+
+    /* resume scan thread */ 
+    resume_wifi_scan_thread();
+
     return ret;
 }
 
@@ -947,7 +980,7 @@ int aw_wifi_off(const aw_wifi_interface_t *p_wifi_interface)
     const aw_wifi_interface_t *p_aw_wifi_intf = &aw_wifi_interface;
     
     if(p_aw_wifi_intf != p_wifi_interface){
-    	  call_event_callback_function(WIFIMG_WIFI_OFF_FAILED, NULL, 0);
+    	call_event_callback_function(WIFIMG_WIFI_OFF_FAILED, NULL, 0);
         return -1;
     }
 	
@@ -955,10 +988,10 @@ int aw_wifi_off(const aw_wifi_interface_t *p_wifi_interface)
         return 0;
     }
     
-	  stop_wifi_scan_thread();
+	stop_wifi_scan_thread();
     wifi_close_supplicant_connection();
     wifi_stop_supplicant(0);
-    call_event_callback_function(WIFIMG_WIFI_OFF_SUCCESS, NULL, 0);
+    reset_wifi_event_callback();
     gwifi_state = WIFIMG_WIFI_DISABLED;
     return 0;
 }

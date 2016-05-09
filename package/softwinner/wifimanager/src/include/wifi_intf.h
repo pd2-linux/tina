@@ -49,7 +49,7 @@ typedef void (*tWifi_event_callback)(tWIFI_EVENT wifi_event, void *buf, int even
 typedef struct{
     int (*add_event_callback)(tWifi_event_callback pcb);
     int (*is_ap_connected)(char *ssid, int *len);
-    int (*start_scan)(void);
+    int (*start_scan)(int event_label);
     int (*get_scan_results)(char *result, int *len);
     int (*connect_ap)(const char *ssid, const char *passwd, int event_label);
     int (*connect_ap_key_mgmt)(const char *ssid, tKEY_MGMT key_mgnt, const char *passwd, int event_label);

@@ -22,6 +22,7 @@ extern void start_udhcpc_thread(void *args);
 tWifi_event_callback wifi_event_callback[MAX_CALLBCAKS_COUNT] = {NULL};
 int wifi_event_callback_index = 0;
 
+static pthread_t event_thread_id;
 static int wifi_event_inner = AP_DISCONNECTED;
 static int scan_complete = 0;
 static int assoc_reject_count = 0;
@@ -202,6 +203,7 @@ void *event_handle_thread(void* args)
 	  
     for(;;){
         int nread = wifi_wait_for_event(buf, sizeof(buf));
+        printf("evnet thread nread=%d\n", nread);
         if (nread > 0) {
             ret = dispatch_event(buf, nread);
             if(ret == 1){
@@ -212,19 +214,14 @@ void *event_handle_thread(void* args)
         }
     }
     
-    pthread_exit(NULL);
-    printf("event handle thread exit!\n");	
+    pthread_exit(NULL);	
 }
 
 void wifi_event_loop(tWifi_event_callback pcb)
 {
-    pthread_t thread_id;
-    
     /* initial */
-    wifi_event_inner = AP_DISCONNECTED;
-    
-    
-    pthread_create(&thread_id, NULL, &event_handle_thread, NULL);
+    wifi_event_inner = AP_DISCONNECTED;   
+    pthread_create(&event_thread_id, NULL, &event_handle_thread, NULL);
 }
 
 tWIFI_EVENT_INNER  get_cur_wifi_event()
@@ -376,6 +373,15 @@ int add_wifi_event_callback_inner(tWifi_event_callback pcb)
     
     wifi_event_callback[wifi_event_callback_index]=pcb;
     wifi_event_callback_index++;
+    return 0;
+}
+
+int reset_wifi_event_callback()
+{
+    int i=0;
+    for(i=0; i<wifi_event_callback_index; i++){
+        wifi_event_callback[i]=NULL;
+    }
     return 0;
 }
 
