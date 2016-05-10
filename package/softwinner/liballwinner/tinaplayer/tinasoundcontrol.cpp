@@ -117,7 +117,7 @@ namespace aw{
 			loge("snd_pcm_hw_params_set_period_size_near fail , MSGTR_AO_ALSA_UnableToSetPeriodSize");
 			return ret;
 		} else {
-			logd("alsa-init: chunksize set to %d", sc->chunk_size);
+			logd("alsa-init: chunksize set to %ld", sc->chunk_size);
 		}
         if ((ret = snd_pcm_hw_params_set_periods_near(sc->alsa_handler,
                 sc->alsa_hwparams, (unsigned int*)&sc->alsa_fragcount, NULL)) < 0)
@@ -303,7 +303,7 @@ namespace aw{
 			}
 			sc->sound_status = STATUS_PAUSE;
 		}else{
-			logd("TinaSoundDevicePause(): pause in an invalid status",sc->sound_status);
+			logd("TinaSoundDevicePause(): pause in an invalid status,status = %d",sc->sound_status);
 		}
 		pthread_mutex_unlock(&sc->mutex);
 		return ret;
@@ -377,7 +377,7 @@ namespace aw{
 			//notify:snd_pcm_delay means the cache has how much data(the cache has been filled with pcm data),
 			//snd_pcm_avail_update means the free cache,  
 			if ((ret = snd_pcm_delay(sc->alsa_handler, &delay)) < 0){
-				loge("TinaSoundDeviceGetCachedTime(),ret = %d , delay = %d",ret,delay);
+				loge("TinaSoundDeviceGetCachedTime(),ret = %d , delay = %ld",ret,delay);
 				return ret;
 			}
 			//logd("TinaSoundDeviceGetCachedTime(),snd_pcm_delay>>> delay = %d",delay);

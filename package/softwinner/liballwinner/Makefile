@@ -89,7 +89,6 @@ define Package/tinaplayerdemo/description
 endef
 
 define Build/Prepare
-	$(warning ***********Build/Prepare***************)
 	mkdir -p $(PKG_BUILD_DIR)
 	$(CP) -r ./LIBRARY $(PKG_BUILD_DIR)/
 	$(CP) -r ./awrecorder $(PKG_BUILD_DIR)/
@@ -103,15 +102,12 @@ define Build/Prepare
 endef
 
 define Build/Configure
-	$(warning ***********Build/Configure***************)
-	$(warning **********TINA_CHIP_TYPE = $(TINA_CHIP_TYPE)********in Build/Configure)
-	$(warning **********TINA_PRODUCT_TYPE = $(TINA_PRODUCT_TYPE)********in Build/Configure)
+	$(info **********TINA_CHIP_TYPE = $(TINA_CHIP_TYPE)********in Build/Configure)
 	cd $(PKG_BUILD_DIR); ./LIBRARY/configure --tool-chain=ucgnueabi --cedarx-path=$(PKG_BUILD_DIR) --chip=$(TINA_CHIP_TYPE) --product=$(TINA_PRODUCT_TYPE)
 	
 endef
 
 define Build/Compile
-	$(warning ***********Build/Compile***************)
 	$(MAKE) -C $(PKG_BUILD_DIR)/LIBRARY \
 		ARCH="$(TARGET_ARCH)" \
 		AR="$(TARGET_AR)" \
@@ -142,7 +138,6 @@ define Build/Compile
 endef
 
 define Build/InstallDev
-	$(warning ***********Build/InstallDev***************)
 	mkdir -p $(PKG_INSTALL_DIR)
 	$(INSTALL_DIR) $(PKG_INSTALL_DIR)/usr/lib
 	$(INSTALL_DIR) $(PKG_INSTALL_DIR)/usr/bin
@@ -186,13 +181,11 @@ endif
 	## tinaplayer
 	-cp $(PKG_BUILD_DIR)/tinaplayer/tinaplayer.h                                 $(PKG_INSTALL_DIR)/usr/include/allwinner/
 	#########################################################################################
-	$(warning ***********in Build/InstallDev : 1 = $(1)***************)
 	$(CP) $(PKG_INSTALL_DIR)/usr $(1)/usr
 # the targets should be copy to $(1),for global symbol for other package
 endef
 
 define Package/liballwinner/install
-	$(warning ***********Package/liballwinner/install***************)
 	$(INSTALL_DIR) $(1)/usr/lib/
 	$(INSTALL_DIR) $(1)/usr/bin/
 	############################################################
@@ -206,7 +199,6 @@ define Package/liballwinner/install
 endef
 
 define Package/recoderdemo/install
-	$(warning ***********Package/recoderdemo/install***************)
 	$(INSTALL_DIR) $(1)/usr/lib/
 	$(INSTALL_DIR) $(1)/usr/bin/
 ifneq ($(TINA_PRODUCT_TYPE),loudspeaker)
@@ -215,7 +207,6 @@ endif
 endef
 
 define Package/tinaplayerdemo/install
-	$(warning ***********Package/tinaplayerdemo/install***************)
 	$(INSTALL_DIR) $(1)/usr/lib/
 	$(INSTALL_DIR) $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/demo/tinaplayerdemo/tinaplayerdemo          			 $(1)/usr/bin/

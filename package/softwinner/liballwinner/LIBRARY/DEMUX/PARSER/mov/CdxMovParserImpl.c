@@ -5,8 +5,8 @@
 #include <stdint.h>
 
 #if (CONFIG_HAVE_ZLIB == OPTION_HAVE_ZLIB)
-#include <zconf.h>
-#include <zlib.h>
+#include <zlib/zconf.h>
+#include <zlib/zlib.h>
 #endif
 
 #define KEY_FRAME_PTS_CHECK     (0)
