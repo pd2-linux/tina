@@ -544,11 +544,11 @@ int wifi_wait_on_socket(char *buf, size_t buflen)
         if (match != NULL) {
             nread -= (match + 1 - buf);
             memmove(buf, match + 1, nread + 1);
-            printf("supplicant generated event without interface - %s\n", buf);
+            //printf("supplicant generated event without interface - %s\n", buf);
         }
     } else {
         /* let the event go as is! */
-        printf("supplicant generated event without interface and without message level - %s\n", buf);
+        //printf("supplicant generated event without interface and without message level - %s\n", buf);
     }
 
     return nread;

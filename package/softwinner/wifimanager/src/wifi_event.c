@@ -122,9 +122,6 @@ static int dispatch_event(const char *event_str, int nread)
         return 0;
     }
     
-    printf("event CTRL-EVENT-%s\n", event_name);
-    
-    
     /*
      * Map event name into event enum
     */
@@ -203,7 +200,6 @@ void *event_handle_thread(void* args)
 	  
     for(;;){
         int nread = wifi_wait_for_event(buf, sizeof(buf));
-        printf("evnet thread nread=%d\n", nread);
         if (nread > 0) {
             ret = dispatch_event(buf, nread);
             if(ret == 1){
