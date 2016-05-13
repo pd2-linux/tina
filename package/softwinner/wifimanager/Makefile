@@ -25,7 +25,7 @@ endef
 define Package/wifimanager-demo
   $(call Package/wifimanager/Default)
   TITLE:=Tina wifi app demo
-  DEPENDS := wifimanager +libwifimanager
+  DEPENDS := wifimanager +wifimanager
 endef
 
 define Package/wifimanager/description

@@ -71,7 +71,7 @@ static void handle_event(int event, char * remainder) {
             break;
         
         case UNKNOWN:
-            printf("unknown event!\n");
+            //printf("unknown event!\n");
             break;
     }
 }
@@ -105,7 +105,7 @@ static int dispatch_event(const char *event_str, int nread)
             }
         }
         
-        printf("EVENT, not care!\n");
+        //printf("EVENT, not care!\n");
         return 0;
     }
     

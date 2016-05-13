@@ -227,7 +227,7 @@ void *wifi_scan_thread(void *args)
             }
         }
 
-        printf("scan stauts2 %d\n", get_scan_status());
+        printf("scan stauts %d\n", get_scan_status());
         if(get_scan_status() == 1){
             strncpy(cmd, "SCAN_RESULTS", 15);
             cmd[15] = '\0';
