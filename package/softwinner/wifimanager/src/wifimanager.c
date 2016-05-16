@@ -790,6 +790,9 @@ static int aw_wifi_connect_ap_auto(int event_label)
         return -1;
     }
 
+    /* pase scan thread */
+    pause_wifi_scan_thread();
+
     wifi_machine_state = get_wifi_machine_state();
 	  if(wifi_machine_state != CONNECTED_STATE
 	  	  && wifi_machine_state != DISCONNECTED_STATE){
@@ -822,6 +825,10 @@ end:
     if(ret != 0){
     	  call_event_callback_function(event_code, NULL, event_label);
     }
+
+    /* resume scan thread */ 
+    resume_wifi_scan_thread();
+    
     return ret;
 }
 
@@ -837,7 +844,10 @@ static int aw_wifi_disconnect_ap(int event_label)
     }
     
     disconnecting = 1;
-    
+   
+    /* pase scan thread */
+    pause_wifi_scan_thread();
+
     /* check wifi state machine */
     wifi_machine_state = get_wifi_machine_state();
     if(wifi_machine_state == CONNECTING_STATE
@@ -892,6 +902,10 @@ end:
     if(ret != 0){
     	  call_event_callback_function(event_code, NULL, event_label);
     }
+
+    /* resume scan thread */ 
+    resume_wifi_scan_thread();
+
     return ret;
 }
 
