@@ -48,8 +48,11 @@ prepare_env(){
     if [ x$flag != x"boot-recovery" ]; then
         #current shell process is busybox, so busybox is already in dram
         #backup other needed tools
-
         UPGRADE_ROOT=/tmp/upgrade_root
+        [ -f $UPGRADE_ROOT/bin/busybox ] && {
+            upgrade_log "env already prepared!!"
+            return 0
+        }
         rm -rf $UPGRADE_ROOT
         mkdir -p $UPGRADE_ROOT/bin
         mkdir -p $UPGRADE_ROOT/sbin
@@ -75,6 +78,7 @@ prepare_env(){
         
         export PATH=$UPGRADE_ROOT/bin/:$UPGRADE_ROOT/sbin/:$PATH
         export LD_LIBRARY_PATH=$UPGRADE_ROOT/lib
+        
     fi
 }
 check_img_md5(){
