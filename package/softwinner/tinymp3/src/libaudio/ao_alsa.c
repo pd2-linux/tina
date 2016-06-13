@@ -43,7 +43,8 @@
 static snd_pcm_t *alsa_handle = NULL;
 static snd_pcm_hw_params_t *alsa_params = NULL;
 
-static char *alsa_out_dev = "default";
+//static char *alsa_out_dev = "default";
+static char *alsa_out_dev = "plug:dmix";
 
 static void stop(void);
 
@@ -95,8 +96,8 @@ static int start(ao_format_t *fmt)
 		goto err_pcm_hw_params;
 	}
 
-	/* close hardware resampling */
-	snd_pcm_hw_params_set_rate_resample(alsa_handle, alsa_params, 0);
+	/* open hardware resampling */
+	snd_pcm_hw_params_set_rate_resample(alsa_handle, alsa_params, 1);
 	/* set the interleaved read/write format */
 	snd_pcm_hw_params_set_access(alsa_handle, alsa_params, SND_PCM_ACCESS_RW_INTERLEAVED);
 
