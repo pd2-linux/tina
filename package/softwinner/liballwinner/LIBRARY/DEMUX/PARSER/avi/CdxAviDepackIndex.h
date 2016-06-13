@@ -55,3 +55,4 @@ extern cdx_int32 InitialPsrIndxTableReader(ODML_SUPERINDEX_READER *pReader, AviF
 extern void DeinitialPsrIndxTableReader(ODML_SUPERINDEX_READER *pReader);
 
 #endif  /* _CDX_AVI_DEPACK_INDEX_H_ */
+

@@ -98,3 +98,4 @@ extern cdx_int16 AviExit(CdxAviParserImplT *p);
 //extern CDX_S16 AVI_build_idx(struct FILE_PARSER *p, CedarXDataSourceDesc *datasrc_desc);
 
 #endif  //_FILE_PARSER_H_
+

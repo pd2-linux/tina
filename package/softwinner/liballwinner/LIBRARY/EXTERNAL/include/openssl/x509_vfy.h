@@ -183,7 +183,7 @@ DECLARE_STACK_OF(X509_VERIFY_PARAM)
 struct x509_store_st
 	{
 	/* The following is a cache of trusted certs */
-	int cache;	/* if true, stash any hits */
+	int cache; 	/* if true, stash any hits */
 	STACK_OF(X509_OBJECT) *objs;	/* Cache of all objects */
 
 	/* These are external lookup methods */
@@ -257,7 +257,7 @@ struct x509_store_ctx_st      /* X509_STORE_CTX */
 	/* The following is built up */
 	int valid;		/* if 0, rebuild chain */
 	int last_untrusted;	/* index of last untrusted cert */
-	STACK_OF(X509) *chain;		/* chain of X509s - built up and trusted */
+	STACK_OF(X509) *chain; 		/* chain of X509s - built up and trusted */
 	X509_POLICY_TREE *tree;	/* Valid policy tree */
 
 	int explicit_policy;	/* Require explicit policy value */
@@ -564,3 +564,4 @@ const X509_POLICY_NODE *
 }
 #endif
 #endif
+

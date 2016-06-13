@@ -60,7 +60,7 @@ static cdx_int32 Resync(CdxStreamProbeDataT *p){
 	//off64_t *inout_pos, off64_t *post_id3_pos, uint32_t *out_header) {
 	cdx_int64  inout_pos,post_id3_pos;
 	cdx_uint32 out_header,match_header;
-	cdx_uint8 *source = (cdx_uint8 *)p->buf;
+ 	cdx_uint8 *source = (cdx_uint8 *)p->buf;
 	
 	post_id3_pos = 0;
     inout_pos = 0;
@@ -909,6 +909,7 @@ static cdx_bool Mp3HeadResync(CdxParserT *parser, cdx_uint32 matchHeader, cdx_in
     int mSampleRate, mNumChannels, mBitRate;
 
     mp3 = (MP3ParserImpl *)parser;
+	CDX_LOGD("************Mp3HeadResync*************");
     if (!mp3) {
         CDX_LOGE("Mp3 file parser lib has not been initiated!");
         return ret;
@@ -1176,7 +1177,7 @@ static int CdxMp3ParserGetMediaInfo(CdxParserT *parser, CdxMediaInfoT *mediaInfo
 #if 0	
 	if(mp3->mAlbum_sz < 32 && mp3->mAlbum)
 	{
-	memcpy(mediaInfo->album,mp3->mAlbum,mp3->mAlbum_sz);
+    	memcpy(mediaInfo->album,mp3->mAlbum,mp3->mAlbum_sz);
 		mediaInfo->albumsz = mp3->mAlbum_sz;
 		mediaInfo->albumCharEncode = (cdx_int32)mp3->mAlbumCharEncode;
 	}
@@ -1223,11 +1224,12 @@ static int CdxMp3ParserControl(CdxParserT *parser, cdx_int32 cmd, void *param)
         case CDX_PSR_CMD_DISABLE_AUDIO:
         case CDX_PSR_CMD_DISABLE_VIDEO:
         case CDX_PSR_CMD_SWITCH_AUDIO:
-		break;
+        	break;
         case CDX_PSR_CMD_SET_FORCESTOP:
         {
         	mp3->mErrno = PSR_USER_CANCEL;
 			mp3->exitFlag = 1;
+			CDX_LOGD("******in mp3parser,CDX_PSR_CMD_SET_FORCESTOP>>>CdxStreamForceStop()*********");
         	CdxStreamForceStop(mp3->stream);
           break;
         }
@@ -1255,7 +1257,7 @@ static int CdxMp3ParserPrefetch(CdxParserT *parser, CdxPacketT *pkt)
 
     cdx_int64 nReadPos = CdxStreamTell(mp3->stream);
     if (nReadPos >= mp3->mFileSize && mp3->mFileSize > 0) {
-	CDX_LOGD("Flie EOS");
+    	CDX_LOGD("Flie EOS");
         mp3->mErrno = PSR_EOS;
         return -1;
     }
@@ -1270,7 +1272,7 @@ static int CdxMp3ParserPrefetch(CdxParserT *parser, CdxPacketT *pkt)
         mp3->mSeeking = 0;
     }
     
-	//CDX_LOGV("pkt->pts %lld", pkt->pts);
+   	//CDX_LOGV("pkt->pts %lld", pkt->pts);
     return 0;
 }
 
@@ -1357,7 +1359,7 @@ static int CdxMp3ParserSeekTo(CdxParserT *parser, cdx_int64 timeUs)
         mp3->mCurrentPos = mp3->mFileSize;
 		CdxStreamSeek(mp3->stream, mp3->mCurrentPos, SEEK_SET);
 		mp3->mSeeking   = 1;
-	mp3->mSeekingTime = mCurrentTimeUs;
+    	mp3->mSeekingTime = mCurrentTimeUs;
 		goto Exit;
     }
 

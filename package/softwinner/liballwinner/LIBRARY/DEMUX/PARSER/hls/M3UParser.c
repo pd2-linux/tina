@@ -478,7 +478,7 @@ void destoryPlaylistItems(PlaylistItem *p)
         {
             if (p->itemMeta.mAtom[i].mType == kTypeString)
             {
-		destoryAString(p->itemMeta.mAtom[i].u.stringValue);
+            	destoryAString(p->itemMeta.mAtom[i].u.stringValue);
 				/*p->itemMeta.mAtom[i].name不用释放，因为它不是动态分配的，*/
 				/*err = parseMetaDataDuration(&line, &itemMeta, "durationUs");中meta->mAtom[meta->mNumAtom].mName=key;*/
             }
@@ -514,7 +514,7 @@ void destoryPlaylist(Playlist *playList)
         {
             if (curPlayList->mMeta.mAtom[i].mType == kTypeString)
             {
-		destoryAString(curPlayList->mMeta.mAtom[i].u.stringValue);
+            	destoryAString(curPlayList->mMeta.mAtom[i].u.stringValue);
             }       
         }
 		if(curPlayList->mIsVariantPlaylist)
@@ -671,7 +671,7 @@ status_t parseCipherInfo(AString *line, AMessage *meta, const AString *baseURI, 
 					|| val[0] != '"'
 					|| val[len - 1] != '"') 
 			{
-				CDX_LOGE("Expected quoted string for URI, got '%s' instead.", val);
+  				CDX_LOGE("Expected quoted string for URI, got '%s' instead.", val);
 				err = ERROR_MALFORMED;
 				goto _err;
 			}
@@ -1270,7 +1270,7 @@ status_t M3u8Parse(const void *_data, cdx_uint32 size, Playlist **P, const char 
         
         while(isspace(data[offsetData-1]))
         {           
-		--offsetData;
+        	--offsetData;
         }/*offsetData的前一个位置data[offsetData-1]是有效字符，不会是'\r'和'\n'，data[offsetData]是'\r'或'\n'，offsetData - offset是有效字符的个数*/
 		if ((offsetData - offset)<=0)        /*说明是空行*/
 		{
@@ -1407,7 +1407,7 @@ status_t M3u8Parse(const void *_data, cdx_uint32 size, Playlist **P, const char 
 				mIsVariantPlaylist = 1;
                 err = parseStreamInf(&line, &itemMeta, playList);
             } 
-		else if (startsWith(line.mData,"#EXT-X-BYTERANGE"))
+           	else if (startsWith(line.mData,"#EXT-X-BYTERANGE")) 
 			{
                 if (playList->mIsVariantPlaylist)
                 {
@@ -1449,8 +1449,8 @@ status_t M3u8Parse(const void *_data, cdx_uint32 size, Playlist **P, const char 
 
         if (!startsWith(line.mData,"#")) /*不是空行，不是标签，不是注释，是URL*/
         {
-		cdx_int64 durationUs = 0;
-		cdx_int64 bandwidth = 0;
+        	cdx_int64 durationUs = 0;
+        	cdx_int64 bandwidth = 0;
 
             if (!playList->mIsVariantPlaylist)
             {
@@ -1548,3 +1548,5 @@ _err:
 	return err;
 	
 }
+
+

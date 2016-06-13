@@ -171,8 +171,8 @@ typedef struct ssl2_state_st
 	const unsigned char *wpend_buf;
 
 	int wpend_off;	/* offset to data to write */
-	int wpend_len;	/* number of bytes passwd to write */
-	int wpend_ret;	/* number of bytes to return to caller */
+	int wpend_len; 	/* number of bytes passwd to write */
+	int wpend_ret; 	/* number of bytes to return to caller */
 
 	/* buffer raw data */
 	int rbuf_left;
@@ -269,3 +269,4 @@ typedef struct ssl2_state_st
 }
 #endif
 #endif
+

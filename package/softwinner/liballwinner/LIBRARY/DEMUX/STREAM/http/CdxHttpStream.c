@@ -11,7 +11,7 @@
 #include <stdint.h>
 
 #define PROBE_DATA_LEN_DEFAULT (128*1024) 
-#define MAX_STREAM_BUF_SIZE (2*1024*1024)
+#define MAX_STREAM_BUF_SIZE (2*1024*1024)//(5*1024*1024)
 #define PROTECT_AREA_SIZE (512*1024)  //should not too big
 #define TEMP_HTTP_DATA_BUF (PROBE_DATA_LEN_DEFAULT + 4096)
 #define RE_CONNECT_TIME (3600) //* unit: second
@@ -509,11 +509,11 @@ static cdx_int32 CdxHttpStreamingStart(CdxHttpStreamImplT *impl)
 
     do
     {
-	if(impl->forceStopFlag)
-	{
-		CDX_LOGD("forcestop");
-		goto err_out;
-	}
+    	if(impl->forceStopFlag)
+    	{
+    		CDX_LOGD("forcestop");
+    		goto err_out;
+    	}
         if (redirect == 1)
         {
             CdxStreamClose(impl->tcpStream);
@@ -1288,8 +1288,8 @@ static cdx_int32 SetDataSourceFields(CdxDataSourceT * source, CdxHttpStreamImplT
             memset(impl->pHttpHeader, 0x00, sizeof(CdxHttpHeaderFieldT));
             for(i = 0; i < impl->nHttpHeaderSize; i++)
             {
-		if(0 == strcasecmp(pHttpHeaders->pHttpHeader[i].key, "Set-Cookie"))
-		{
+            	if(0 == strcasecmp(pHttpHeaders->pHttpHeader[i].key, "Set-Cookie"))
+            	{
 					impl->pHttpHeader[i].key = (const char*)Pstrdup(impl->pool, "Cookie");
 				}
 				else
@@ -1778,7 +1778,7 @@ static cdx_int32 __CdxHttpStreamControl(CdxStreamT *stream, cdx_int32 cmd, void 
     switch(cmd)
     {
         case STREAM_CMD_GET_CACHESTATE:
-		return GetCacheState((struct StreamCacheStateS *)param, stream);
+    		return GetCacheState((struct StreamCacheStateS *)param, stream);
 
         case STREAM_CMD_SET_FORCESTOP:
             //CDX_LOGV("xxx STREAM_CMD_SET_FORCESTOP");
@@ -1796,9 +1796,9 @@ static cdx_int32 __CdxHttpStreamControl(CdxStreamT *stream, cdx_int32 cmd, void 
 
         case STREAM_CMD_SET_ISHLS:
         {
-		CDX_LOGD("======= set ishls");
-		impl->isHls = 1;
-		return 0;
+        	CDX_LOGD("======= set ishls");
+        	impl->isHls = 1;
+        	return 0;
         }
 
         default:
@@ -2083,12 +2083,12 @@ static cdx_int32 __CdxHttpStreamGetMetaData(CdxStreamT *stream, const cdx_char *
     }
     else if(strcmp(key, "statusCode") == 0)
     {
-	if(httpHdr)
-	{
-	CDX_LOGD("++++++ statusCode in http: %d", httpHdr->statusCode);
-	*pVal = (void*)&httpHdr->statusCode;
-	CDX_LOGD("++++++ *pVal = %p", *pVal);
-	}
+    	if(httpHdr)
+    	{
+    	CDX_LOGD("++++++ statusCode in http: %d", httpHdr->statusCode);
+    	*pVal = (void*)&httpHdr->statusCode;
+    	CDX_LOGD("++++++ *pVal = %p", *pVal);
+    	}
     }
     else
     {
@@ -2399,7 +2399,7 @@ void *GetNetworkData(void *pArg)
 
         if(impl->ioState == CDX_IO_STATE_OK) //after seek may io error or eos.
         {
-		cdx_bool isEos = 0;
+        	cdx_bool isEos = 0;
             ret = StreamRead(impl, impl->bufWritePtr, restSize, &isEos);//read data from network.
             if(ret < 0)
             {
@@ -2801,3 +2801,4 @@ CdxStreamCreatorT httpStreamCtor =
 {
     .create = __CdxHttpStreamCreate
 };
+

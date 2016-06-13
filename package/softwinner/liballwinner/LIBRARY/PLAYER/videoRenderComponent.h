@@ -55,3 +55,4 @@ int VideoRenderCompSetVideoStreamInfo(VideoRenderComp* v, VideoStreamInfo* pStre
 int VideoRenderCompSetLayerCtlOps(VideoRenderComp* v, LayerControlOpsT* ops);
 
 #endif
+

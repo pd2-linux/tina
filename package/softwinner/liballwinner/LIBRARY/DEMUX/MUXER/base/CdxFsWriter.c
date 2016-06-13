@@ -119,3 +119,4 @@ cdx_int32 FileWriter(CdxWriterT *p_writer, const cdx_int8 *buffer, cdx_int32 siz
 #endif
     return total_writen;
 }
+

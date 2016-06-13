@@ -274,3 +274,4 @@ cdx_void CdxBufferDestroy(CdxBufferT *buf)
     __CdxBufferDecRef(buf);
     return ;
 }
+

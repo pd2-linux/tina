@@ -46,3 +46,4 @@ void setMessage(AwMessage* msg,
                 uintptr_t        param7 = 0);
 
 #endif
+

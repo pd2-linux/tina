@@ -10,10 +10,10 @@ extern "C" {
 #ifndef _VENCODER_H_
 #define _VENCODER_H_
 
-#define  DATA_TIME_LENGTH			24
-#define  INFO_LENGTH				64
-#define  GPS_PROCESS_METHOD_LENGTH	100
-#define  DESCRIPTOR_INFO			128
+#define  DATA_TIME_LENGTH 			24
+#define  INFO_LENGTH 				64
+#define  GPS_PROCESS_METHOD_LENGTH 	100
+#define  DESCRIPTOR_INFO 			128
 
 
 
@@ -62,7 +62,7 @@ typedef struct EXIFInfo
 	unsigned char* ThumbAddrVir;
 	unsigned int   ThumbLen;
 
-    int			   Orientation;  //value can be 0,90,180,270 degree
+    int   		   Orientation;  //value can be 0,90,180,270 degree
 	rational_t	   ExposureTime; //tag 0x829A
 	rational_t	   FNumber; //tag 0x829D
 	short		   ISOSpeed;//tag 0x8827
@@ -72,7 +72,7 @@ typedef struct EXIFInfo
 	srational_t    ExposureBiasValue; //tag 0x9204
 
 	short		   MeteringMode; //tag 0x9207
-	short		   FlashUsed;	//tag 0x9209
+	short		   FlashUsed; 	//tag 0x9209
 	rational_t	   FocalLength; //tag 0x920A
 
 	rational_t	   DigitalZoomRatio; // tag 0xA404
@@ -87,13 +87,13 @@ typedef struct EXIFInfo
 	long           gps_timestamp;
 	unsigned char  gpsProcessingMethod[GPS_PROCESS_METHOD_LENGTH];
 
-	unsigned char  CameraSerialNum[128];	//tag 0xA431 (exif 2.3 version)
-	short		   FocalLengthIn35mmFilm;	// tag 0xA405
+	unsigned char  CameraSerialNum[128]; 	//tag 0xA431 (exif 2.3 version)
+	short	   	   FocalLengthIn35mmFilm; 	// tag 0xA405
 
-	unsigned char  ImageName[128];			//tag 0x010D
-	unsigned char  ImageDescription[128];	//tag 0x010E
-	short		   ImageWidth;				//tag 0xA002
-	short		   ImageHeight;				//tag 0xA003
+	unsigned char  ImageName[128]; 			//tag 0x010D
+	unsigned char  ImageDescription[128]; 	//tag 0x010E
+	short 		   ImageWidth; 				//tag 0xA002
+	short 		   ImageHeight; 			//tag 0xA003
 }EXIFInfo;
 
 typedef struct VencRect
@@ -171,7 +171,7 @@ typedef struct VencBaseConfig
 	unsigned int		nDstWidth;
 	unsigned int		nDstHeight;
 	unsigned int        nStride;
-	VENC_PIXEL_FMT		eInputFormat;
+	VENC_PIXEL_FMT  	eInputFormat;
 	struct ScMemOpsS *memops;
 }VencBaseConfig;
 
@@ -183,7 +183,7 @@ typedef enum VENC_H264PROFILETYPE
 {
     VENC_H264ProfileBaseline  = 66,         /**< Baseline profile */
     VENC_H264ProfileMain      = 77,         /**< Main profile */
-    VENC_H264ProfileHigh      = 100,		/**< High profile */
+    VENC_H264ProfileHigh      = 100,   		/**< High profile */
 }VENC_H264PROFILETYPE;
 
 
@@ -237,7 +237,7 @@ typedef struct VencHeaderData
 typedef struct VencROIConfig
 {
 	int                     bEnable;
-	int				index; /* (0~3) */
+	int                		index; /* (0~3) */
 	int                     nQPoffset;
 	VencRect                sRect;
 }VencROIConfig;
@@ -245,13 +245,13 @@ typedef struct VencROIConfig
 typedef struct VencInputBuffer
 {
 	unsigned long  nID;
-	long long	   nPts;
+	long long  	   nPts;
 	unsigned int   nFlag;
 	unsigned char* pAddrPhyY;
 	unsigned char* pAddrPhyC;
 	unsigned char* pAddrVirY;
 	unsigned char* pAddrVirC;
-	int		   bEnableCorp;
+	int 		   bEnableCorp;
 	VencRect       sCropInfo;
 
 	int			   ispPicVar;
@@ -260,7 +260,7 @@ typedef struct VencInputBuffer
 
 typedef struct FrameInfo
 {
-	int		CurrQp;
+	int         	CurrQp;
 	int             avQp;
 	int             nGopIndex;
 	int             nFrameIndex;
@@ -270,7 +270,7 @@ typedef struct FrameInfo
 typedef struct VencOutputBuffer
 {
 	int			   nID;
-	long long	   nPts;
+	long long  	   nPts;
 	unsigned int   nFlag;
 	unsigned int   nSize0;
 	unsigned int   nSize1;
@@ -292,7 +292,7 @@ typedef struct VencH264FixQP
 {
 	int                     bEnable;
 	int                     nIQp;
-	int					nPQp;
+	int 					nPQp;
 }VencH264FixQP;
 
 #define EXTENDED_SAR 255
@@ -306,21 +306,21 @@ typedef struct VencH264AspectRatio
 typedef enum VENC_COLOR_SPACE
 {
 	RESERVED0	= 0,
-    VENC_BT709  = 1,				/* bt709 */
+    VENC_BT709  = 1,     			/* bt709 */
     RESERVED1	= 2,
     RESERVED2	= 3,
     RESERVED3	= 4,
-    VENC_BT601  = 5,				/* bt601-625 default use this colorspace */
-    BT601_525   = 6,				/* bt601-525 */
+    VENC_BT601  = 5,     			/* bt601-625 default use this colorspace */
+    BT601_525   = 6,     			/* bt601-525 */
     RESERVED4	= 7,
     VENC_YCC	= 8,				/* YCC: full range BT.601  */
 }VENC_COLOR_SPACE;
 
 typedef enum VENC_VIDEO_FORMAT
 {
-    COMPONENT		= 0,				/* component */
-    PAL				= 1,				/* pal*/
-    NTSC			= 2,				/* ntsc */
+    COMPONENT   	= 0,     			/* component */
+    PAL   			= 1,     			/* pal*/
+    NTSC			= 2,     			/* ntsc */
     SECAM			= 3,				/* secam  */
     MAC				= 4,				/* mac  */
     DEFAULT			= 5,				/* Unspecified video format  */
@@ -361,8 +361,8 @@ typedef struct VencSize
 typedef struct VencH264Param
 {
 	VencH264ProfileLevel	sProfileLevel;
-	int			bEntropyCodingCABAC; /* 0:CAVLC 1:CABAC*/
-	VencQPRange			sQPRange;
+	int                 	bEntropyCodingCABAC; /* 0:CAVLC 1:CABAC*/
+	VencQPRange   			sQPRange;
 	int                     nFramerate; /* fps*/
 	int                     nBitrate;   /* bps*/
 	int                     nMaxKeyInterval;
@@ -371,7 +371,7 @@ typedef struct VencH264Param
 
 typedef struct VencCheckColorFormat
 {
-	int				index;
+	int                		index;
 	VENC_PIXEL_FMT          eColorFormat;
 }VencCheckColorFormat;
 
@@ -408,21 +408,21 @@ typedef struct VencBitRateRange
 typedef enum VENC_INDEXTYPE
 {
 	VENC_IndexParamBitrate				= 0x0,		/**< reference type: int */
-	VENC_IndexParamFramerate,				/**< reference type: int */
-	VENC_IndexParamMaxKeyInterval,				/**< reference type: int */
-	VENC_IndexParamIfilter,					/**< reference type: int */
-	VENC_IndexParamRotation,				/**< reference type: int */
-	VENC_IndexParamSliceHeight,				/**< reference type: int */
-	VENC_IndexParamForceKeyFrame,				/**< reference type: int (write only)*/
-	VENC_IndexParamMotionDetectEnable,		/**< reference type: MotionParam(write only) */
-	VENC_IndexParamMotionDetectStatus,		/**< reference type: int(read only) */
-	VENC_IndexParamRgb2Yuv,					/**< reference type: VENC_COLOR_SPACE */
-	VENC_IndexParamYuv2Yuv,					/**< reference type: VENC_YUV2YUV */
+	VENC_IndexParamFramerate,                		/**< reference type: int */
+	VENC_IndexParamMaxKeyInterval,           		/**< reference type: int */
+	VENC_IndexParamIfilter,                  		/**< reference type: int */            
+	VENC_IndexParamRotation,                 		/**< reference type: int */
+	VENC_IndexParamSliceHeight,              		/**< reference type: int */
+	VENC_IndexParamForceKeyFrame,            		/**< reference type: int (write only)*/
+	VENC_IndexParamMotionDetectEnable,             	/**< reference type: MotionParam(write only) */
+	VENC_IndexParamMotionDetectStatus,             	/**< reference type: int(read only) */
+	VENC_IndexParamRgb2Yuv,             			/**< reference type: VENC_COLOR_SPACE */
+	VENC_IndexParamYuv2Yuv,             			/**< reference type: VENC_YUV2YUV */
 	VENC_IndexParamROIConfig,						/**< reference type: VencROIConfig */
-	VENC_IndexParamStride,				    /**< reference type: int */
+	VENC_IndexParamStride,              		    /**< reference type: int */
 	VENC_IndexParamColorFormat,                     /**< reference type: VENC_PIXEL_FMT */
-	VENC_IndexParamSize,					/**< reference type: VencSize(read only) */
-	VENC_IndexParamSetVbvSize,			/**< reference type: setVbvSize(write only) */
+	VENC_IndexParamSize,                     		/**< reference type: VencSize(read only) */
+	VENC_IndexParamSetVbvSize,                     	/**< reference type: setVbvSize(write only) */
 	VENC_IndexParamVbvInfo,							/**< reference type: getVbvInfo(read only) */
 	VENC_IndexParamSuperFrameConfig,                /**< reference type: VencSuperFrameConfig */ 
 	VENC_IndexParamSetPSkip,						/**< reference type: unsigned int */ 
@@ -433,9 +433,9 @@ typedef enum VENC_INDEXTYPE
 
 	/* H264 param */
 	VENC_IndexParamH264Param,						/**< reference type: VencH264Param */
-	VENC_IndexParamH264SPSPPS,			/**< reference type: VencHeaderData (read only)*/
+	VENC_IndexParamH264SPSPPS,                    	/**< reference type: VencHeaderData (read only)*/
 	VENC_IndexParamH264QPRange			= 0x100,	/**< reference type: VencQPRange */
-	VENC_IndexParamH264ProfileLevel,		/**< reference type: VencProfileLevel */
+	VENC_IndexParamH264ProfileLevel,              	/**< reference type: VencProfileLevel */
 	VENC_IndexParamH264EntropyCodingCABAC,			/**< reference type: int(0:CAVLC 1:CABAC) */
 	VENC_IndexParamH264CyclicIntraRefresh,			/**< reference type: VencCyclicIntraRefresh */
 	VENC_IndexParamH264FixQP,						/**< reference type: VencH264FixQP */
@@ -446,8 +446,8 @@ typedef enum VENC_INDEXTYPE
 
 	/* jpeg param */
 	VENC_IndexParamJpegQuality			= 0x200,	/**< reference type: int (1~100) */
-	VENC_IndexParamJpegExifInfo,			/**< reference type: EXIFInfo */
-	VENC_IndexParamJpegEncMode,			/**< reference type: 0:jpeg; 1:motion_jepg */
+	VENC_IndexParamJpegExifInfo,                  	/**< reference type: EXIFInfo */
+	VENC_IndexParamJpegEncMode,                  	/**< reference type: 0:jpeg; 1:motion_jepg */
 
 	/* VP8 param */
 	VENC_IndexParamVP8Param,
@@ -461,7 +461,7 @@ typedef enum VENC_INDEXTYPE
 typedef enum VENC_RESULT_TYPE
 {
     VENC_RESULT_ERROR             = -1,
-    VENC_RESULT_OK		  = 0,
+    VENC_RESULT_OK             	  = 0,
     VENC_RESULT_NO_FRAME_BUFFER   = 1,
     VENC_RESULT_BITSTREAM_IS_FULL = 2,
 }VENC_RESULT_TYPE;
@@ -475,7 +475,7 @@ typedef struct JpegEncInfo
 	unsigned char*  pAddrPhyC;
 	unsigned char*  pAddrVirY;
 	unsigned char*  pAddrVirC;
-	int		    bEnableCorp;
+	int 		    bEnableCorp;
 	VencRect        sCropInfo;
 	int				quality;
 }JpegEncInfo;

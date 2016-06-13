@@ -117,7 +117,7 @@ static void PrintDemoUsage(void)
     while(i < num)
     {
         logd("%s %-32s  %s", ArgumentMapping[i].Short, ArgumentMapping[i].Name,
-			ArgumentMapping[i].Description);
+        		ArgumentMapping[i].Description);
         i++;
     }
 }
@@ -146,33 +146,33 @@ void ParseArgument(DecDemo *Decoder, char *argument, char *value)
 //    int len = strlen(value);
     int len = 0;
     if(len > DEMO_FILE_NAME_LEN)
-	return;
+    	return;
     arg = GetArgument(argument);
     switch(arg)
     {
         case HELP:
-		PrintDemoUsage();
+        	PrintDemoUsage();
             exit(-1);
         case INPUT:
-		sprintf(Decoder->pInputFile, "file://");
-		sscanf(value, "%2048s", Decoder->pInputFile + 7);
-		logd(" get input file: %s ", Decoder->pInputFile);
+        	sprintf(Decoder->pInputFile, "file://");
+        	sscanf(value, "%2048s", Decoder->pInputFile + 7);
+        	logd(" get input file: %s ", Decoder->pInputFile);
             break;
         case DECODE_FRAME_NUM:
-		sscanf(value, "%d", &Decoder->nFinishNum);
+        	sscanf(value, "%d", &Decoder->nFinishNum);
             break;
         case SAVE_FRAME_START:
-		sscanf(value, "%d", &Decoder->nSavePictureStartNumber);
+        	sscanf(value, "%d", &Decoder->nSavePictureStartNumber);
             break;
         case SAVE_FRAME_NUM:
-		sscanf(value, "%d", &Decoder->nSavePictureNumber);
+        	sscanf(value, "%d", &Decoder->nSavePictureNumber);
             break;
         case COST_DRAM_THREAD_NUM:
-		sscanf(value, "%d", &Decoder->nDramCostThreadNum);
+        	sscanf(value, "%d", &Decoder->nDramCostThreadNum);
             break;
         case SAVE_FRAME_FILE:
-		sscanf(value, "%2048s", Decoder->pOutputFile);
-		logd(" get output file: %s ", Decoder->pOutputFile);
+        	sscanf(value, "%2048s", Decoder->pOutputFile);
+        	logd(" get output file: %s ", Decoder->pOutputFile);
             break;
         case INVALID:
         default:
@@ -872,9 +872,9 @@ int main(int argc, char** argv)
     }
     else
     {
-	logd(" we need more arguments ");
-	PrintDemoUsage();
-	return 0;
+    	logd(" we need more arguments ");
+    	PrintDemoUsage();
+    	return 0;
     }
 
 	nRet = initDecoder(&Decoder);
@@ -920,3 +920,5 @@ int main(int argc, char** argv)
 	logd(" demo decoder exit successful");
 	return 0;
 }
+
+

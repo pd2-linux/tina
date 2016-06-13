@@ -19,3 +19,4 @@
 #define _CHECK_STREAM_PARA_H_
 extern CDX_S32 CheckAudioStreamInfo2(struct FILE_PARSER *pAviPsr);
 #endif  /* _CHECK_STREAM_PARA_H_ */
+

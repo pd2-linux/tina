@@ -289,9 +289,9 @@ void *AwPalloc(AwPoolT *pool, int size, char *file, int line)
     {
         CdxListNodeT *pbNode = NULL;
         struct PoolMemoryS *pm = NULL;
-	for (pbNode = &pool->current->node;
+    	for (pbNode = &pool->current->node;
              pbNode != (CdxListNodeT *)&pool->pdList; 
-	     pbNode = pbNode->next)
+    	     pbNode = pbNode->next)
         {
             pd = CdxListEntry(pbNode, struct PoolDataS, node);
             if ((int)(pd->end - pd->last) >= pmSize)
@@ -439,3 +439,4 @@ void AwPoolReset(void)
     }
     return ;
 }
+

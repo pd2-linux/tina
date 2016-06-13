@@ -223,8 +223,6 @@ LOCAL_CFLAGS += -DCONFIG_CC=$(CONFIG_CC)
 ########## configure CONFIG_OS ##########
 LOCAL_CFLAGS += -DCONFIG_OS=$(CONFIG_OS)
 
-########## configure CONFIG_CHIP##########
-LOCAL_CFLAGS += -DCONFIG_CHIP=$(CONFIG_CHIP)
 
 ########## configure CONFIG_ALI_YUNOS ##########
 CONFIG_ALI_YUNOS = $(OPTION_ALI_YUNOS_NO)
@@ -327,10 +325,10 @@ ifeq ($(CONFIG_OS), $(OPTION_OS_LINUX))
 		include $(CONFIG_CEDARX_PATH)/LIBRARY/config/R16_linux_config.mk   # R16
 	else ifeq  ($(CONFIG_CHIP),$(OPTION_CHIP_C500))
 		include $(CONFIG_CEDARX_PATH)/LIBRARY/config/C500_linux_config.mk   # c500
-	else ifeq  ($(CONFIG_CHIP),$(OPTION_CHIP_R8))
-		include $(CONFIG_CEDARX_PATH)/LIBRARY/config/R8_linux_config.mk   # R8
 	else
 		 $(warning $(CONFIG_CHIP))
 	endif
 endif
 ###################################end define####################################
+
+

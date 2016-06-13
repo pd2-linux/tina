@@ -63,3 +63,4 @@ struct PsrIdx1TableReader{
 //extern cdx_int32 initial_psr_idx1_table_reader(struct psr_idx1_table_reader *preader, AVI_FILE_IN *avi_in, cdx_int32 stream_index);
 //extern void deinitial_psr_idx1_table_reader(struct psr_idx1_table_reader *preader);
 #endif  /* _AVI_IDX1_H_ */
+

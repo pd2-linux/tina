@@ -192,7 +192,7 @@ extern "C" {
 /* codes 110-114 are from RFC3546 */
 #define TLS1_AD_UNSUPPORTED_EXTENSION	110
 #define TLS1_AD_CERTIFICATE_UNOBTAINABLE 111
-#define TLS1_AD_UNRECOGNIZED_NAME	112
+#define TLS1_AD_UNRECOGNIZED_NAME 	112
 #define TLS1_AD_BAD_CERTIFICATE_STATUS_RESPONSE 113
 #define TLS1_AD_BAD_CERTIFICATE_HASH_VALUE 114
 #define TLS1_AD_UNKNOWN_PSK_IDENTITY	115	/* fatal */
@@ -440,7 +440,7 @@ SSL_CTX_callback_ctrl(ssl,SSL_CTRL_SET_TLSEXT_TICKET_KEY_CB,(void (*)(void))cb)
 #define TLS1_CK_DH_RSA_WITH_SEED_SHA                    0x03000098
 #define TLS1_CK_DHE_DSS_WITH_SEED_SHA                   0x03000099
 #define TLS1_CK_DHE_RSA_WITH_SEED_SHA                   0x0300009A
-#define TLS1_CK_ADH_WITH_SEED_SHA			0x0300009B
+#define TLS1_CK_ADH_WITH_SEED_SHA                	0x0300009B
 
 /* TLS v1.2 GCM ciphersuites from RFC5288 */
 #define TLS1_CK_RSA_WITH_AES_128_GCM_SHA256		0x0300009C
@@ -676,7 +676,7 @@ SSL_CTX_callback_ctrl(ssl,SSL_CTRL_SET_TLSEXT_TICKET_KEY_CB,(void (*)(void))cb)
 #define TLS_CT_DSS_FIXED_DH		4
 #define TLS_CT_ECDSA_SIGN		64
 #define TLS_CT_RSA_FIXED_ECDH		65
-#define TLS_CT_ECDSA_FIXED_ECDH		66
+#define TLS_CT_ECDSA_FIXED_ECDH 	66
 #define TLS_CT_GOST94_SIGN		21
 #define TLS_CT_GOST01_SIGN		22
 /* when correcting this number, correct also SSL3_CT_NUMBER in ssl3.h (see

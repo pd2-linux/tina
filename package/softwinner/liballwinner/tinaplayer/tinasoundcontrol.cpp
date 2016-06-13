@@ -10,21 +10,22 @@ namespace aw{
 	static int openSoundDevice(SoundCtrlContext* sc, bool isOpenForPlay ,int mode);
 	static int closeSoundDevice(SoundCtrlContext* sc);
 	static int setSoundDeviceParams(SoundCtrlContext* sc);
+
 	static int openSoundDevice(SoundCtrlContext* sc , bool isOpenForPlay,int mode)
 	{
 		int ret = 0;
-		logd("openSoundDevice()");
+		logd("openSoundDevice() in dmix style");
 		if(!sc->alsa_handler){
 			if(isOpenForPlay){
-				if((ret = snd_pcm_open(&sc->alsa_handler, "default",SND_PCM_STREAM_PLAYBACK ,mode))<0){
+				//if((ret = snd_pcm_open(&sc->alsa_handler, "default",SND_PCM_STREAM_PLAYBACK ,mode))<0){
 					//if use dimix func,use the below parms open the sound card
-				//if((ret = snd_pcm_open(&sc->alsa_handler, "plug:dmix",SND_PCM_STREAM_PLAYBACK ,mode))<0){	
+				if((ret = snd_pcm_open(&sc->alsa_handler, "plug:dmix",SND_PCM_STREAM_PLAYBACK ,mode))<0){
 					loge("open audio device failed:%s, errno = %d",strerror(errno),errno);
 					if(errno == 16){//the device is busy,sleep 2 second and try again
 						sleep(2);
-						if((ret = snd_pcm_open(&sc->alsa_handler, "default",SND_PCM_STREAM_PLAYBACK ,mode))<0){
+						//if((ret = snd_pcm_open(&sc->alsa_handler, "default",SND_PCM_STREAM_PLAYBACK ,mode))<0){
 							//if use dimix func,use the below parms open the sound card
-						//if((ret = snd_pcm_open(&sc->alsa_handler, "plug:dmix",SND_PCM_STREAM_PLAYBACK ,mode))<0){
+						if((ret = snd_pcm_open(&sc->alsa_handler, "plug:dmix",SND_PCM_STREAM_PLAYBACK ,mode))<0){
 							loge("second open audio device failed:%s, errno = %d",strerror(errno),errno);
 						}
 					}
@@ -220,7 +221,7 @@ namespace aw{
 				if((ret = snd_pcm_pause(sc->alsa_handler, 0))<0){
 					loge("snd_pcm_pause failed:%s",strerror(errno));
 					pthread_mutex_unlock(&sc->mutex);
-					return ret;
+			return ret;
 				}
 			}else{
 				if ((ret = snd_pcm_prepare(sc->alsa_handler)) < 0) 
@@ -278,6 +279,7 @@ namespace aw{
 	}
 
 	int TinaSoundDevicePause(SoundCtrl* s){
+		
 		SoundCtrlContext* sc;
 	sc = (SoundCtrlContext*)s;
 		pthread_mutex_lock(&sc->mutex);
@@ -307,6 +309,9 @@ namespace aw{
 		}
 		pthread_mutex_unlock(&sc->mutex);
 		return ret;
+		//int ret = 0;
+		//ret = TinaSoundDeviceStop(s);
+		//return ret;
 	}
 
 	int TinaSoundDeviceWrite(SoundCtrl* s, void* pData, int nDataSize){

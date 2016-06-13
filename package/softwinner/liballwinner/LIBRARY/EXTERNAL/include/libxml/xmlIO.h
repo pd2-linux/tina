@@ -306,24 +306,24 @@ XMLPUBFUN int XMLCALL
  * Default 'file://' protocol callbacks 
  */
 XMLPUBFUN int XMLCALL	
-	xmlFileMatch			(const char *filename);
+	xmlFileMatch 			(const char *filename);
 XMLPUBFUN void * XMLCALL	
-	xmlFileOpen			(const char *filename);
+	xmlFileOpen 			(const char *filename);
 XMLPUBFUN int XMLCALL	
-	xmlFileRead			(void * context,
+	xmlFileRead 			(void * context, 
 					 char * buffer, 
 					 int len);
 XMLPUBFUN int XMLCALL	
-	xmlFileClose			(void * context);
+	xmlFileClose 			(void * context);
 
 /**
  * Default 'http://' protocol callbacks 
  */
 #ifdef LIBXML_HTTP_ENABLED
 XMLPUBFUN int XMLCALL	
-	xmlIOHTTPMatch			(const char *filename);
+	xmlIOHTTPMatch 			(const char *filename);
 XMLPUBFUN void * XMLCALL	
-	xmlIOHTTPOpen			(const char *filename);
+	xmlIOHTTPOpen 			(const char *filename);
 #ifdef LIBXML_OUTPUT_ENABLED
 XMLPUBFUN void * XMLCALL	
 	xmlIOHTTPOpenW			(const char * post_uri,
@@ -334,7 +334,7 @@ XMLPUBFUN int XMLCALL
 					 char * buffer, 
 					 int len);
 XMLPUBFUN int XMLCALL	
-	xmlIOHTTPClose			(void * context);
+	xmlIOHTTPClose 			(void * context);
 #endif /* LIBXML_HTTP_ENABLED */
 
 /**
@@ -342,15 +342,15 @@ XMLPUBFUN int XMLCALL
  */
 #ifdef LIBXML_FTP_ENABLED 
 XMLPUBFUN int XMLCALL	
-	xmlIOFTPMatch			(const char *filename);
+	xmlIOFTPMatch 			(const char *filename);
 XMLPUBFUN void * XMLCALL	
-	xmlIOFTPOpen			(const char *filename);
+	xmlIOFTPOpen 			(const char *filename);
 XMLPUBFUN int XMLCALL 	
 	xmlIOFTPRead			(void * context, 
 					 char * buffer, 
 					 int len);
 XMLPUBFUN int XMLCALL 	
-	xmlIOFTPClose			(void * context);
+	xmlIOFTPClose 			(void * context);
 #endif /* LIBXML_FTP_ENABLED */
 
 #ifdef __cplusplus

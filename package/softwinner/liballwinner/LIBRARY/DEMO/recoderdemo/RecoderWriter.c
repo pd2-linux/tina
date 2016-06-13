@@ -189,3 +189,4 @@ void CdxWriterDestroy(CdxWriterT *writer)
     }
     free(recoder_writer);
 }
+

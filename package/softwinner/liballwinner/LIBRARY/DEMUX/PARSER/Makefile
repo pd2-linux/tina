@@ -90,6 +90,8 @@ ifeq ($(CONFIG_HAVE_LIVE555), $(OPTION_HAVE_LIVE555))
 SourcePath +=       ./remux
 endif
                        
+SourcePath := $(filter-out $(MpgPath), $(SourcePath))
+                       
 VPATH := $(SourcePath)
 
 ## set the source files.
@@ -234,3 +236,5 @@ ifneq ($(MAKECMDGOALS),cleanall)
 endif
 endif
 endif
+
+

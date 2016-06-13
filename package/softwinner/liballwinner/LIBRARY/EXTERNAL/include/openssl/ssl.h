@@ -243,9 +243,9 @@ extern "C" {
 #define SSL_TXT_kRSA		"kRSA"
 #define SSL_TXT_kDHr		"kDHr" /* no such ciphersuites supported! */
 #define SSL_TXT_kDHd		"kDHd" /* no such ciphersuites supported! */
-#define SSL_TXT_kDH		"kDH"  /* no such ciphersuites supported! */
+#define SSL_TXT_kDH 		"kDH"  /* no such ciphersuites supported! */
 #define SSL_TXT_kEDH		"kEDH"
-#define SSL_TXT_kKRB5		"kKRB5"
+#define SSL_TXT_kKRB5     	"kKRB5"
 #define SSL_TXT_kECDHr		"kECDHr"
 #define SSL_TXT_kECDHe		"kECDHe"
 #define SSL_TXT_kECDH		"kECDH"
@@ -258,7 +258,7 @@ extern "C" {
 #define	SSL_TXT_aDSS		"aDSS"
 #define	SSL_TXT_aDH		"aDH" /* no such ciphersuites supported! */
 #define	SSL_TXT_aECDH		"aECDH"
-#define SSL_TXT_aKRB5		"aKRB5"
+#define SSL_TXT_aKRB5     	"aKRB5"
 #define SSL_TXT_aECDSA		"aECDSA"
 #define SSL_TXT_aPSK            "aPSK"
 #define SSL_TXT_aGOST94	"aGOST94"
@@ -274,7 +274,7 @@ extern "C" {
 #define SSL_TXT_EECDH		"EECDH" /* same as "kEECDH:-AECDH" */
 #define SSL_TXT_AECDH		"AECDH"
 #define SSL_TXT_ECDSA		"ECDSA"
-#define SSL_TXT_KRB5		"KRB5"
+#define SSL_TXT_KRB5      	"KRB5"
 #define SSL_TXT_PSK             "PSK"
 #define SSL_TXT_SRP		"SRP"
 
@@ -443,11 +443,11 @@ struct ssl_method_st
 
 /* Lets make this into an ASN.1 type structure as follows
  * SSL_SESSION_ID ::= SEQUENCE {
- *	version			INTEGER,	-- structure version number
- *	SSLversion		INTEGER,	-- SSL version number
- *	Cipher			OCTET STRING,	-- the 3 byte cipher ID
- *	Session_ID		OCTET STRING,	-- the Session ID
- *	Master_key		OCTET STRING,	-- the master key
+ *	version 		INTEGER,	-- structure version number
+ *	SSLversion 		INTEGER,	-- SSL version number
+ *	Cipher 			OCTET STRING,	-- the 3 byte cipher ID
+ *	Session_ID 		OCTET STRING,	-- the Session ID
+ *	Master_key 		OCTET STRING,	-- the master key
  *	KRB5_principal		OCTET STRING	-- optional Kerberos principal
  *	Key_Arg [ 0 ] IMPLICIT	OCTET STRING,	-- the optional Key argument
  *	Time [ 1 ] EXPLICIT	INTEGER,	-- optional Start Time
@@ -924,7 +924,7 @@ struct ssl_ctx_st
 	int (*tlsext_ticket_key_cb)(SSL *ssl,
 					unsigned char *name, unsigned char *iv,
 					EVP_CIPHER_CTX *ectx,
-					HMAC_CTX *hctx, int enc);
+ 					HMAC_CTX *hctx, int enc);
 
 	/* certificate status request info */
 	/* Callback for status request */
@@ -1157,7 +1157,7 @@ struct ssl_st
 	int rstate;	/* where we are when reading */
 
 	BUF_MEM *init_buf;	/* buffer used during init */
-	void *init_msg;		/* pointer to handshake message body, set by ssl3_get_message() */
+	void *init_msg;   	/* pointer to handshake message body, set by ssl3_get_message() */
 	int init_num;		/* amount read/written */
 	int init_off;		/* amount read/written */
 
@@ -1170,7 +1170,7 @@ struct ssl_st
 	struct dtls1_state_st *d1; /* DTLSv1 variables */
 
 	int read_ahead;		/* Read as many input bytes as possible
-				 * (for non-blocking reads) */
+	               	 	 * (for non-blocking reads) */
 
 	/* callback that allows applications to peek at protocol messages */
 	void (*msg_callback)(int write_p, int version, int content_type, const void *buf, size_t len, SSL *ssl, void *arg);
@@ -1676,7 +1676,7 @@ const SSL_CIPHER *SSL_get_current_cipher(const SSL *s);
 int	SSL_CIPHER_get_bits(const SSL_CIPHER *c,int *alg_bits);
 char *	SSL_CIPHER_get_version(const SSL_CIPHER *c);
 const char *	SSL_CIPHER_get_name(const SSL_CIPHER *c);
-unsigned long	SSL_CIPHER_get_id(const SSL_CIPHER *c);
+unsigned long 	SSL_CIPHER_get_id(const SSL_CIPHER *c);
 
 int	SSL_get_fd(const SSL *s);
 int	SSL_get_rfd(const SSL *s);
@@ -1837,11 +1837,11 @@ char *SSL_get_srp_userinfo(SSL *s);
 #endif
 
 void	SSL_free(SSL *ssl);
-int	SSL_accept(SSL *ssl);
-int	SSL_connect(SSL *ssl);
-int	SSL_read(SSL *ssl,void *buf,int num);
-int	SSL_peek(SSL *ssl,void *buf,int num);
-int	SSL_write(SSL *ssl,const void *buf,int num);
+int 	SSL_accept(SSL *ssl);
+int 	SSL_connect(SSL *ssl);
+int 	SSL_read(SSL *ssl,void *buf,int num);
+int 	SSL_peek(SSL *ssl,void *buf,int num);
+int 	SSL_write(SSL *ssl,const void *buf,int num);
 long	SSL_ctrl(SSL *ssl,int cmd, long larg, void *parg);
 long	SSL_callback_ctrl(SSL *, int, void (*)(void));
 long	SSL_CTX_ctrl(SSL_CTX *ctx,int cmd, long larg, void *parg);

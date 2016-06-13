@@ -17,3 +17,4 @@ Deinterlace *DeinterlaceCreate()
 #endif
     return di;
 }
+

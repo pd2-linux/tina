@@ -30,9 +30,9 @@ int main(int argc, char** argv)
 
     if(argc < 2)
     {
-	printf("Usage:\n");
-	printf("demoretriver filename \n");
-	return -1;
+    	printf("Usage:\n");
+    	printf("demoretriver filename \n");
+    	return -1;
     }
 
     AwRetriever* demoRetriver;
@@ -40,15 +40,15 @@ int main(int argc, char** argv)
 
     if(NULL == demoRetriver)
     {
-	printf("create failed\n");
-	return -1;
+    	printf("create failed\n");
+    	return -1;
     }
 
     ret = AwRetrieverSetDataSource(demoRetriver, argv[1]);
     if(ret < 0)
     {
-	printf("set datasource failed\n");
-	return -1;
+    	printf("set datasource failed\n");
+    	return -1;
     }
     printf("AwRetrieverSetDataSource end");
 
@@ -58,7 +58,7 @@ int main(int argc, char** argv)
     int height;
     AwRetrieverGetMetaData(demoRetriver, METADATA_VIDEO_HEIGHT, &height);
     	
-	int duration;
+  	int duration;
     AwRetrieverGetMetaData(demoRetriver, METADATA_DURATION, &duration);
 
     printf("get metadata: w(%d), h(%d), duration(%d)\n", width, height, duration);
@@ -77,3 +77,4 @@ int main(int argc, char** argv)
 	
 	return 0;
 }
+

@@ -28,3 +28,4 @@ int CdcGetSysinfoChipId(void);
 #endif
 
 #endif
+

@@ -92,3 +92,5 @@ cdx_int64 CalcAviSubChunkPts(cdx_uint8 *buf, cdx_int64 *duration);
 extern cdx_int16 GetNextChunkHead(CdxStreamT *pf, AviChunkT *chunk, cdx_uint32 *length);
 
 #endif  /* _CDX_AVI_FILE_IN_H_ */
+
+

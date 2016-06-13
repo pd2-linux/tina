@@ -67,7 +67,7 @@ extern "C"
 #define  MAX_TEXTLINE				3
 #define  MAX_FONTHEIGHT				36
 #define  SUB_DISPLAY				0
-#define  FONT_SIZE_UNIT			16
+#define  FONT_SIZE_UNIT         	16
 #define  DEFAULT_TEXT_SIZE          24
 
 #define  SUB_SHOW_NEW_VALID         1
@@ -147,7 +147,7 @@ namespace android
 	
 	static size_t subLineBreak(const char cText[], const char cStop[], const SkPaint& paint, SkScalar margin,size_t *drawCount, int specialEffectFlag, SkScalar* lineWidth)
 	{
-	    const char*			pStart =NULL;
+	    const char* 		pStart =NULL;
         #if(CONFIG_OS_VERSION == OPTION_OS_VERSION_ANDROID_4_2)        
 	    SkAutoGlyphCache    ac(paint, NULL);
         #else
@@ -159,7 +159,7 @@ namespace android
 	    SkAutoKern          autokern;
 	    size_t				count = 0;
 	    const char* pWord_start = NULL;
-	    int         prevWS		= true;
+	    int         prevWS 		= true;
 	    int			isbreak		= false;
         int         forbidBreakFlag = 0;
         const char* pPrevText    = NULL;
@@ -180,9 +180,9 @@ namespace android
 
 	    while (cText < cStop)
 	    {   
-	        pPrevText	= cText;
-	        uni		= SkUTF8_NextUnichar(&cText);
-	        currWS		= is_ws_(uni);
+	        pPrevText 	= cText;
+	        uni 		= SkUTF8_NextUnichar(&cText);
+	        currWS 		= is_ws_(uni);
 	        const SkGlyph&  mGlyph = cache->getUnicharMetrics(uni);
 
             if (!currWS && prevWS)
@@ -194,20 +194,20 @@ namespace android
 	        
 	        if(uni == 0x0D)
 	        {
-			breaktext			= cText;
-			nextuni = SkUTF8_NextUnichar(&breaktext);
-			if(nextuni == 0x0A)
-			{
-				isbreak = true;
-			}
-			else
-			{
+	        	breaktext 			= cText;
+	        	nextuni = SkUTF8_NextUnichar(&breaktext);
+	        	if(nextuni == 0x0A)
+	        	{
+	        		isbreak = true;
+	        	}
+	        	else
+	        	{ 
                     count += SkUTF8_CountUTF8Bytes(pPrevText);
-			}
+	        	}
 	        }
 	        else
 	        {
-			count += SkUTF8_CountUTF8Bytes(pPrevText);
+	        	count += SkUTF8_CountUTF8Bytes(pPrevText);
 	        }
  
            
@@ -218,7 +218,7 @@ namespace android
 	        {
 	            if (currWS) // eat the rest of the whitespace
 	            {   
-			*drawCount = count;
+	            	*drawCount = count;
 	                while (cText < cStop && is_ws_(SkUTF8_ToUnichar(cText)))
 	                {
 	                    cText += SkUTF8_CountUTF8Bytes(cText);
@@ -249,7 +249,7 @@ namespace android
         
 	    if(cText >= cStop)
 	    {
-		*drawCount = count;
+	    	*drawCount = count;
 	    }
 		return cText - pStart;
 	}
@@ -1033,7 +1033,7 @@ namespace android
 	int CedarXSubRender::cedarxSubSetYPercent(int index,int percent)
 	{
 		size_t			count;
-		int			i;
+		int 			i;
 
 		count = mCedarXSubs.size();
 		if(index > (int)count)
@@ -1637,7 +1637,7 @@ namespace android
         mStartDispx = lastDispx;
         mStartDispy = lastDispy;
         
-        mMaxWidth		= mScreenWidth;
+        mMaxWidth 		= mScreenWidth;
         //mMaxHeight      = mMaxTextLine*mMaxFontHeight;
         mMaxHeight = mScreenHeight;
         mPosX = 0;
@@ -1998,10 +1998,10 @@ namespace android
         sp<IBinder> dtoken(SurfaceComposerClient::getBuiltInDisplay(ISurfaceComposer::eDisplayIdMain));
         SurfaceComposerClient::getDisplayInfo(dtoken, &mDisplayInfo);
 
-	mScreenWidth	= mDisplayInfo.w;
-	mScreenHeight	= mDisplayInfo.h;
+    	mScreenWidth	= mDisplayInfo.w;
+    	mScreenHeight	= mDisplayInfo.h;
 
-		mMaxWidth		= mScreenWidth;
+		mMaxWidth 		= mScreenWidth;
 
         if(mScreenHeight >= 1080)
         {
@@ -2061,7 +2061,7 @@ namespace android
 		if(mSurfaceControl != NULL)
 		{
 			SurfaceComposerClient::openGlobalTransaction();
-			mTopBaseLayer	= TOPBASELAYER * LAYER_MULTIPLIER + LAYER_OFFSET + 2 + index;
+			mTopBaseLayer 	= TOPBASELAYER * LAYER_MULTIPLIER + LAYER_OFFSET + 2 + index;
 			mBottomBaseLayer= BOTTOMBASELAYER * LAYER_MULTIPLIER + LAYER_OFFSET  - 10 + index;
 			mLayer			= mTopBaseLayer;
 			logd("3@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ %d %d", mPosX, mPosY);
@@ -2146,10 +2146,10 @@ namespace android
 		
 		if (SurfaceControl::isValid(mSurfaceControl)) 
 		{
-		mSurfaceControl->clear();
-	}
+        	mSurfaceControl->clear();
+    	}
     	
-	logd("CedarXSub::~CedarXSub4!\n");
+    	logd("CedarXSub::~CedarXSub4!\n");
 	}
   //************************************************************************************************************//
   //*********************************************************************************************************** //
@@ -2157,8 +2157,8 @@ namespace android
     int CedarXSub::startRenderRegion(int startx, int starty, int endx, int endy)
 	{
 		ANativeWindow_Buffer nativeWindowBuffer;
-		status_t				err;
-		SkBitmap				mBitmap;
+		status_t 				err;
+		SkBitmap 				mBitmap;
 		sp<Surface>				mSurface;  
         Region                 dirtyRegion;
         Rect                   dirty;
@@ -2211,9 +2211,9 @@ namespace android
 	int CedarXSub::startRender()
 	{
 #if(CONFIG_OS_VERSION == OPTION_OS_VERSION_ANDROID_4_2)      
-        Surface::SurfaceInfo	info;
-		status_t				err;
-		SkBitmap				mBitmap;
+        Surface::SurfaceInfo 	info;
+		status_t 				err;
+		SkBitmap 				mBitmap;
 		sp<Surface>				mSurface;  
 		
 		mSurface	= mSurfaceControl->getSurface();
@@ -2250,8 +2250,8 @@ namespace android
 		return  NO_ERROR;
 #else
         ANativeWindow_Buffer nativeWindowBuffer;
-		status_t				err;
-		SkBitmap				mBitmap;
+		status_t 				err;
+		SkBitmap 				mBitmap;
 		sp<Surface>				mSurface;  
 		mSurface	= mSurfaceControl->getSurface();
 		err = mSurface->lock(&nativeWindowBuffer, NULL/*false*/);
@@ -2307,7 +2307,7 @@ namespace android
 	
 	int CedarXSub::endRender()
 	{
-		status_t				err;
+		status_t 				err;
 		sp<Surface>				mSurface;  
 		
 		mSurface	= mSurfaceControl->getSurface();
@@ -2440,7 +2440,7 @@ namespace android
 		{
 			logw("input para error!\n");
 			
-			return	-1;
+			return 	-1;
 		}
 		
 		mSubMode = 0;
@@ -2544,9 +2544,9 @@ namespace android
 	int	CedarXSubRender::updateSubPara(sub_item_inf *sub_info) 
 	{
 		sub_pre = sub_info;
-        int				count = 0;
+        int			  	count = 0;
 		size_t			size;
-		sub_item_inf	*current;
+		sub_item_inf 	*current;
 		sp<CedarXSub>	cedarXSub;
         int             dispStartx = 0;
         int             dispStarty = 0;

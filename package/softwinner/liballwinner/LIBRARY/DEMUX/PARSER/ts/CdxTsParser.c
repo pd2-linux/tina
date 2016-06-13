@@ -504,8 +504,8 @@ void parseAdaptationField(TSParser *mTSParser, CdxBitReaderT *br, unsigned PID)
             // The number of bytes received by this parser up to and
             // including the final byte of this PCR_ext field.
             size_t byte_offset_from_start = 
-		mTSParser->mNumTSPacketsParsed * mTSParser->mRawPacketSize
-		+ byteOffsetFromStartOfTSPacket;
+            	mTSParser->mNumTSPacketsParsed * mTSParser->mRawPacketSize 
+            	+ byteOffsetFromStartOfTSPacket;
 
 /*
             for (size_t i = 0; i < TSParser->programCount; ++i)
@@ -1061,7 +1061,7 @@ static cdx_int32 VerifyStream(Stream *mStream, unsigned stream_id)//类似于new_pe
 		break;
 
 	case CDX_STREAM_TYPE_UNKOWN:
-	logw("========== careful, streamType is 0, maybe  error");
+    	logw("========== careful, streamType is 0, maybe  error");
         codec_type = TYPE_AUDIO;
         codec_id   = AUDIO_CODEC_FORMAT_AC3;
 		break;
@@ -1098,9 +1098,9 @@ static cdx_int32 VerifyStream(Stream *mStream, unsigned stream_id)//类似于new_pe
         codec_id   = SUBTITLE_CODEC_PGS;//
         break;
     case CDX_STREAM_TYPE_VIDEO_AVS:
-	codec_type = TYPE_VIDEO;
-	codec_id   = VIDEO_CODEC_FORMAT_AVS;
-	break;
+    	codec_type = TYPE_VIDEO;
+    	codec_id   = VIDEO_CODEC_FORMAT_AVS;
+    	break;
     case CDX_STREAM_TYPE_PRIVATE_DATA:
         if(!mStream->mProgram->videoCount)
         {
@@ -1114,40 +1114,40 @@ static cdx_int32 VerifyStream(Stream *mStream, unsigned stream_id)//类似于new_pe
             DestroyStream(mStream);
             return -1;
         }
-        else if (stream_id >= 0xc0 && stream_id <= 0xdf)	//* according to iso13818-1 Table 2-18 "Stream_id assignments", CXC.
+        else if (stream_id >= 0xc0 && stream_id <= 0xdf) 	//* according to iso13818-1 Table 2-18 "Stream_id assignments", CXC.
         {
             codec_type = TYPE_AUDIO;
             codec_id   = AUDIO_CODEC_FORMAT_MP2;
         } 
         else if (stream_id == 0xbd) 
         {
-		if(SeemToBeMvc(mStream->mProgram))
-		{
-			codec_type = TYPE_AUDIO;
-			codec_id   = AUDIO_CODEC_FORMAT_PCM;
-		}
-		else
-		{
-			codec_type = TYPE_AUDIO;
-			codec_id   = AUDIO_CODEC_FORMAT_AC3;
-		}
+        	if(SeemToBeMvc(mStream->mProgram))
+        	{
+        		codec_type = TYPE_AUDIO;
+        		codec_id   = AUDIO_CODEC_FORMAT_PCM;
+        	}
+        	else
+        	{
+        		codec_type = TYPE_AUDIO;
+        		codec_id   = AUDIO_CODEC_FORMAT_AC3;
+        	}
         }
         else if(stream_id == 0xfd)      //* stream id for BD
         {
-		if(SeemToBeMvc(mStream->mProgram))
-		{
-			codec_type = TYPE_AUDIO;
-			codec_id = AUDIO_CODEC_FORMAT_AC3;
-		}
-		else
-		{
-			codec_type = TYPE_VIDEO;
-			codec_id   = VIDEO_CODEC_FORMAT_WMV3;
-		}
+        	if(SeemToBeMvc(mStream->mProgram))
+        	{
+        		codec_type = TYPE_AUDIO;
+        		codec_id = AUDIO_CODEC_FORMAT_AC3;
+        	}
+        	else
+        	{
+        		codec_type = TYPE_VIDEO;
+        		codec_id   = VIDEO_CODEC_FORMAT_WMV3;
+        	}
         }
         else if(stream_id >= 0xe0 && stream_id <= 0xef && !mStream->mProgram->videoCount)	//* according to iso13818-1 Table 2-18 "Stream_id assignments", CXC.
         {
-		codec_type = TYPE_VIDEO;
+        	codec_type = TYPE_VIDEO;
             if(mStream->mStreamType == CDX_STREAM_TYPE_PRIVATE_DATA)
             {
                 codec_id   = VIDEO_CODEC_FORMAT_H265;
@@ -2141,7 +2141,7 @@ status_t parseProgramMap(Program *program, CdxBitReaderT *br)
     //CDX_FORCE_CHECK(table_id == 0x02u);
     if(table_id != 0x02u)
     {
-	CDX_LOGE("should not be here.");
+    	CDX_LOGE("should not be here.");
 		return OK;
     }
 
@@ -2407,7 +2407,7 @@ void parseProgramAssociationTable(TSParser *mTSParser, CdxBitReaderT *br)
     //CDX_FORCE_CHECK(table_id == 0x00u);
     if(table_id != 0x00u)
     {
-	CDX_LOGE("should not be here.");
+    	CDX_LOGE("should not be here.");
 		return ;
     }
     unsigned section_syntax_indictor = CdxBitReaderGetBits(br, 1);
@@ -3498,10 +3498,10 @@ cdx_int64 ProbePTS(cdx_uint8* data, cdx_uint32 data_size, TSParser *mTSParser)
             p += p[0] + 1;
         }
         
-	/* if past the end of packet, ignore */
-	p_end = pkt + 188;
-	if (p >= p_end)
-		continue;
+    	/* if past the end of packet, ignore */
+    	p_end = pkt + 188;
+    	if (p >= p_end)
+        	continue;
        
         for(; p < p_end - 13; p++)
         {
@@ -3599,10 +3599,10 @@ cdx_int64 ProbeLastPTS(cdx_uint8* data, cdx_uint32 data_size, TSParser *mTSParse
             p += p[0] + 1;
         }
         
-	/* if past the end of packet, ignore */
-	p_end = pkt + 188;
-	if (p >= p_end)
-		continue;
+    	/* if past the end of packet, ignore */
+    	p_end = pkt + 188;
+    	if (p >= p_end)
+        	continue;
        
         for(; p < p_end - 13; p++)
         {
@@ -3692,12 +3692,12 @@ cdx_int32 ProbeByteRate(cdx_uint8* buf, cdx_uint32 buf_size, TSParser *mTSParser
                     CDX_LOGE("CdxStreamSeek fail");
                     return -1;
                 }
-		data_size = CdxStreamRead(cdxStream, buf, buf_size);
+            	data_size = CdxStreamRead(cdxStream, buf, buf_size);
                 if(data_size < 0)
                 {
                     return -1;
                 }
-		final_pts = ProbeLastPTS(buf, data_size, mTSParser);
+            	final_pts = ProbeLastPTS(buf, data_size, mTSParser);
             }
 
             if(pts[i] > 0)
@@ -3730,9 +3730,9 @@ cdx_int32 ProbeByteRate(cdx_uint8* buf, cdx_uint32 buf_size, TSParser *mTSParser
                 
 #if 0
                 if(j == block_num && final_pts > last_pts)//
-			byte_rate = mTSParser->fileValidSize * 1000 /(final_pts - first_pts) *90;
+                	byte_rate = mTSParser->fileValidSize * 1000 /(final_pts - first_pts) *90;
                 else
-			byte_rate = block_size*1000*(ptsIndex[j-1] - ptsIndex[0]) / (last_pts - first_pts)*90;
+                	byte_rate = block_size*1000*(ptsIndex[j-1] - ptsIndex[0]) / (last_pts - first_pts)*90;
 #else
                 //mTSParser->curProgram->mFirstPTS已经获取到了
                 if(ptsIndex[j-1] == block_num - 1 && final_pts > 0)//ptsIndex[j-1] == block_num - 1 与j == block_num不等价
@@ -4447,10 +4447,10 @@ _GetES:
 			}
             if(!mTSParser->currentES)
             {
-		if(mTSParser->mIslastSegment)
-		{
+            	if(mTSParser->mIslastSegment)
+            	{
 					ret = SubmitLastData(mTSParser);
-		}
+            	}
 				else
 				{
 					mTSParser->mErrno = PSR_EOS;
@@ -5343,10 +5343,10 @@ cdx_int32 TSControl(CdxParserT *parser, cdx_int32 cmd, void *param)
 	TSParser *mTSParser = (TSParser *)parser;
     switch(cmd)
     {
-	case CDX_PSR_CMD_SWITCH_AUDIO:
-	case CDX_PSR_CMD_SWITCH_SUBTITLE:
-		CDX_LOGI(" Ts parser is not support switch stream yet!!!");
-		break;
+    	case CDX_PSR_CMD_SWITCH_AUDIO:
+    	case CDX_PSR_CMD_SWITCH_SUBTITLE:
+    		CDX_LOGI(" Ts parser is not support switch stream yet!!!");
+    		break;
         case CDX_PSR_CMD_SET_DURATION://目前没有用
             mTSParser->durationMs = *(cdx_uint64 *)param;
             break;
@@ -5361,7 +5361,7 @@ cdx_int32 TSControl(CdxParserT *parser, cdx_int32 cmd, void *param)
 			mTSParser->mIslastSegment = 0;
             if(mTSParser->mClrInfo == 1)
             {
-			ResetCacheBuffer(&mTSParser->mCacheBuffer);
+    			ResetCacheBuffer(&mTSParser->mCacheBuffer);
                 ResetStreamsInProgram(mTSParser->curProgram);
                 ResetPSISection(mTSParser);
                 mTSParser->mClrInfo = 0;
@@ -5454,10 +5454,10 @@ cdx_int32 TSControl(CdxParserT *parser, cdx_int32 cmd, void *param)
 			{
 				return CdxStreamGetMetaData(mTSParser->cdxStream, "extra-data", (void **)param);
 			}
-		return 0;
+        	return 0;
 		}
         default:
-		break;
+        	break;
     }
 	return ret;
 }
@@ -5524,10 +5524,10 @@ cdx_int64 FindNextPTS(TSParser *mTSParser, cdx_uint8* data, cdx_uint32 data_size
             p += p[0] + 1;
         }
         
-	/* if past the end of packet, ignore */
-	p_end = pkt + 188;
-	if (p >= p_end)
-		continue;
+    	/* if past the end of packet, ignore */
+    	p_end = pkt + 188;
+    	if (p >= p_end)
+        	continue;
        
         for(; p < p_end - 13; p++)
         {
@@ -5553,8 +5553,8 @@ cdx_int64 FindNextPTS(TSParser *mTSParser, cdx_uint8* data, cdx_uint32 data_size
         
         if(ptsFound)
         {
-		*pts_pos = pkt - data;
-		break;
+        	*pts_pos = pkt - data;
+        	break;
         }
     }
     
@@ -5695,33 +5695,33 @@ cdx_int32 SeekToTime(TSParser *mTSParser, cdx_int64 timeUs, cdx_uint32 mode)
 #if 0
     else if(mTSParser->seekMethod == 3)
     {
-	int64	first_pts;
-	int64	last_pts;
-	CDX_U32	tmp_size;
-	CDX_S32	read_size;
-	CDX_U8	*tmp_buf;
+    	int64 	first_pts;
+    	int64 	last_pts;
+    	CDX_U32	tmp_size;
+    	CDX_S32	read_size;
+    	CDX_U8	*tmp_buf;
 
-	if(timeUs >= ts->total_time_in_ms || timeUs < 0)
-		return -1;
+    	if(timeUs >= ts->total_time_in_ms || timeUs < 0)
+    		return -1;
 
-	tmp_buf = (CDX_U8 *)malloc(MAX_NETWORK_SEEK_SIZE);
-	if(tmp_buf == NULL)
-		return -1;
-	tmp_size = MAX_NETWORK_SEEK_SIZE;
+    	tmp_buf = (CDX_U8 *)malloc(MAX_NETWORK_SEEK_SIZE);
+    	if(tmp_buf == NULL)
+    		return -1;
+    	tmp_size = MAX_NETWORK_SEEK_SIZE;
 
-	file_pos = ts->byte_rate * timeUs / 1000;
-	file_pos -= tmp_size / 2;//预期file_pos前后的一个范围
-	if(file_pos < 0)
-		file_pos = 0;
-	file_pos -= (file_pos % ts->raw_packet_size);
-	cdx_seek(ts->pb, file_pos, SEEK_SET);
-	read_size = cdx_read(tmp_buf, 1, tmp_size, ts->pb);
-	if(read_size <= 0)
-		return -1;
-	first_pts = probe_pts(tmp_buf, read_size, ts->raw_packet_size, ts->parent);
-	last_pts  = probe_last_pts(tmp_buf, read_size, ts->raw_packet_size, ts->parent);
-	if(first_pts > 0 && last_pts > 0)
-	{
+    	file_pos = ts->byte_rate * timeUs / 1000;
+    	file_pos -= tmp_size / 2;//预期file_pos前后的一个范围
+    	if(file_pos < 0)
+    		file_pos = 0;
+    	file_pos -= (file_pos % ts->raw_packet_size);
+    	cdx_seek(ts->pb, file_pos, SEEK_SET);
+    	read_size = cdx_read(tmp_buf, 1, tmp_size, ts->pb);
+    	if(read_size <= 0)
+    		return -1;
+    	first_pts = probe_pts(tmp_buf, read_size, ts->raw_packet_size, ts->parent);
+    	last_pts  = probe_last_pts(tmp_buf, read_size, ts->raw_packet_size, ts->parent);
+    	if(first_pts > 0 && last_pts > 0)
+    	{
 			if(timeUs < first_pts)
 			{
 				file_pos -= (first_pts - timeUs) * ts->byte_rate / 1000;
@@ -5736,14 +5736,14 @@ cdx_int32 SeekToTime(TSParser *mTSParser, cdx_int64 timeUs, cdx_uint32 mode)
 			}
 
 			file_pos -= file_pos % ts->raw_packet_size;
-	}
-	if(file_pos < 0)
-		file_pos = 0;
-	LOGV("timeUs %lld, first_pts %lld, last pts %lld", timeUs, first_pts, last_pts);
-	if(tmp_buf)
-		free(tmp_buf);
-	cdx_seek(ts->pb, file_pos, SEEK_SET);
-	return 0;
+    	}
+    	if(file_pos < 0)
+    		file_pos = 0;
+    	LOGV("timeUs %lld, first_pts %lld, last pts %lld", timeUs, first_pts, last_pts);
+    	if(tmp_buf)
+    		free(tmp_buf);
+    	cdx_seek(ts->pb, file_pos, SEEK_SET);
+    	return 0;
     }
 #endif
 _exit:
@@ -6041,3 +6041,4 @@ CdxParserCreatorT tsParserCtor =
 	.create = TSParserOpen,
 	.probe = TSParserProbe
 };
+

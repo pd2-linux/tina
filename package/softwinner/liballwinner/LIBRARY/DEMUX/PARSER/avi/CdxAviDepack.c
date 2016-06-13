@@ -1053,20 +1053,20 @@ cdx_int32 SetFileParserVideoInfo(CdxAviParserImplT *p)
         }
         switch (strmHdr->fccHandler)
         {
-		case CDX_MMIO_FOURCC('m','p','g','4'):			//MSMPEGV1
+        	case CDX_MMIO_FOURCC('m','p','g','4'):			//MSMPEGV1
 			{
                 CDX_LOGV("video bitstream type: DIVX1!");
                 p->aviFormat.vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_MSMPEG4V1;
                 break;
 			}
-		case CDX_MMIO_FOURCC('d','i','v','2'):			//MSMPEGV2
-		case CDX_MMIO_FOURCC('D','I','V','2'):
-		case CDX_MMIO_FOURCC('M','P','4','2'):
-		{
+        	case CDX_MMIO_FOURCC('d','i','v','2'):			//MSMPEGV2
+        	case CDX_MMIO_FOURCC('D','I','V','2'):
+        	case CDX_MMIO_FOURCC('M','P','4','2'):
+        	{
                 CDX_LOGV("video bitstream type: DIVX2!");
                 p->aviFormat.vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_MSMPEG4V2;
-			break;
-		}
+        		break;
+        	}
             case CDX_MMIO_FOURCC('d','i','v','3'):
             case CDX_MMIO_FOURCC('D','I','V','3'):
             case CDX_MMIO_FOURCC('d','i','v','4'):
@@ -1187,16 +1187,16 @@ cdx_int32 SetFileParserVideoInfo(CdxAviParserImplT *p)
             case CDX_MMIO_FOURCC('F', 'L', 'V', '1'):
             {
                 p->aviFormat.vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_SORENSSON_H263;
-		break;
+            	break;
             }
 
 
             case CDX_MMIO_FOURCC('x','2','6','4'):
             case CDX_MMIO_FOURCC('X','2','6','4'):
             case CDX_MMIO_FOURCC('h','2','6','4'):
-		case CDX_MMIO_FOURCC('H','2','6','4'):
-		case CDX_MMIO_FOURCC('A','V','C','1'):
-		case CDX_MMIO_FOURCC('a','v','c','1'):
+           	case CDX_MMIO_FOURCC('H','2','6','4'):
+           	case CDX_MMIO_FOURCC('A','V','C','1'):
+           	case CDX_MMIO_FOURCC('a','v','c','1'):
             {
                 CDX_LOGV("video bitstream type: H264.");
                 p->aviFormat.vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_H264;
@@ -1344,11 +1344,11 @@ cdx_int32 SetFileParserVideoInfo(CdxAviParserImplT *p)
                     }
 
                     case CDX_MMIO_FOURCC('x','2','6','4'):
-			case CDX_MMIO_FOURCC('X','2','6','4'):
-			case CDX_MMIO_FOURCC('h','2','6','4'):
-			case CDX_MMIO_FOURCC('H','2','6','4'):
-			case CDX_MMIO_FOURCC('A','V','C','1'):
-			case CDX_MMIO_FOURCC('a','v','c','1'):
+            		case CDX_MMIO_FOURCC('X','2','6','4'):
+            		case CDX_MMIO_FOURCC('h','2','6','4'):
+            		case CDX_MMIO_FOURCC('H','2','6','4'):
+            		case CDX_MMIO_FOURCC('A','V','C','1'):
+            		case CDX_MMIO_FOURCC('a','v','c','1'):
                     {
                         p->aviFormat.vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_H264;
                        if(aviIn->sInfo[p->videoStreamIndex]->strf->length<=40)
@@ -1462,13 +1462,13 @@ cdx_int32 SetFileParserVideoInfo(CdxAviParserImplT *p)
     for(lacing_fill_2=0; lacing_fill_2*0xff<header_len[2]; lacing_fill_2++);
 
     *extradata_size =  27 + lacing_fill_0 + header_len[0]
-			+  27 + lacing_fill_1 + header_len[1]
-				  + lacing_fill_2 + header_len[2];
+    	       		+  27 + lacing_fill_1 + header_len[1]
+        	    		  + lacing_fill_2 + header_len[2];
     OggHeader = *extradata = malloc(*extradata_size);
     if(OggHeader == NULL)
     {
         CDX_LOGE("malloc failed.");
-	return -1;
+    	return -1;
     }
     for(i=0; i<26; i++)
     {
@@ -1481,14 +1481,14 @@ cdx_int32 SetFileParserVideoInfo(CdxAviParserImplT *p)
     OggHeader += 27;
     for(i=0; i<lacing_fill; i++)
     {
-	if(i!=(lacing_fill-1))
-	{
-		OggHeader[i] = 0xff;
-	}
-	else
-	{
-		OggHeader[i] = header_len[0] - (lacing_fill-1)*0xff;
-	}
+    	if(i!=(lacing_fill-1))
+    	{
+    		OggHeader[i] = 0xff;
+    	}
+    	else
+    	{
+    		OggHeader[i] = header_len[0] - (lacing_fill-1)*0xff;
+    	}
     }
     OggHeader += lacing_fill;
 
@@ -1506,28 +1506,28 @@ cdx_int32 SetFileParserVideoInfo(CdxAviParserImplT *p)
     lacing_fill = lacing_fill_1;
     for(i=0; i<lacing_fill; i++)
     {
-	if(i!=(lacing_fill-1))
-	{
-		OggHeader[i] = 0xff;
-	}
-	else
-	{
-		OggHeader[i] = header_len[1] - (lacing_fill-1)*0xff;
-	}
+    	if(i!=(lacing_fill-1))
+    	{
+    		OggHeader[i] = 0xff;
+    	}
+    	else
+    	{
+    		OggHeader[i] = header_len[1] - (lacing_fill-1)*0xff;
+    	}
     }
     OggHeader += lacing_fill;
 
     lacing_fill = lacing_fill_2;
     for(i=0; i<lacing_fill; i++)
     {
-	if(i!=(lacing_fill-1))
-	{
-		OggHeader[i] = 0xff;
-	}
-	else
-	{
-		OggHeader[i] = header_len[2] - lacing_fill*0xff - 1;
-	}
+    	if(i!=(lacing_fill-1))
+    	{
+    		OggHeader[i] = 0xff;
+    	}
+    	else
+    	{
+    		OggHeader[i] = header_len[2] - lacing_fill*0xff - 1;
+    	}
     }
     OggHeader += lacing_fill;
 
@@ -1994,11 +1994,11 @@ cdx_int32 AVIGetSubStreamInfo(SubStreamInfoT *pSubStreamInfo, AviStreamInfoT *pA
 
         switch(psbsFmt->biCompression)
         {
-		case CDX_MMIO_FOURCC('D','X','S','A'):
+        	case CDX_MMIO_FOURCC('D','X','S','A'):
             case CDX_MMIO_FOURCC('D','X','S','B'):
             {
                 //CDX_LOGD("xxxxx XSUB.");
-			break;
+        		break;
             }
             default:
             {
@@ -2077,7 +2077,7 @@ cdx_int16 AviOpen(CdxAviParserImplT *impl)//(struct FILE_PARSER *p, CedarXDataSo
         {
             if(impl->hasVideo < 2)  // may have two stream
             {
-		impl->videoStreamIndexArray[(cdx_uint8)impl->hasVideo] = strmIndex;
+            	impl->videoStreamIndexArray[(cdx_uint8)impl->hasVideo] = strmIndex;
 				impl->videoStreamIndex = strmIndex;
 				impl->hasVideo++;
             }
@@ -2749,7 +2749,7 @@ cdx_int16 AviExit(CdxAviParserImplT *p)
     AviFileInT *aviIn = (AviFileInT *)p->privData;
     if(aviIn)
     {
-	AviFileInDeinitial(aviIn);
+    	AviFileInDeinitial(aviIn);
         free(aviIn);
         p->privData = NULL;
     }

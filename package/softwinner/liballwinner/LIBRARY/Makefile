@@ -47,32 +47,26 @@ install:
 ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABI))
 	-cp EXTERNAL/lib32/lgnueabi/libnormal_audio.so  install/lib/
 	-cp EXTERNAL/lib32/lgnueabi/libpostprocess.so  install/lib/
-	-cp EXTERNAL/lib32/lgnueabi/libcdc_adecoder.so  install/lib/
-	-cp EXTERNAL/lib32/lgnueabi/libcdc_aencoder.so  install/lib/
 	-cp EXTERNAL/lib32/lgnueabi/liblive555.so  install/lib/
 	-cp libcedarc/library/lib32/lgnueabi/*.so      install/lib/
 	
 	-mkdir -p install/external/
-	-cp EXTERNAL/lib32/lgnueabi/*.so                  install/external/
+	-cp EXTERNAL/lib32/lgnueabi/*.so                  install/lib/
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_UCGNUEABI))
 	-cp EXTERNAL/lib32/uclgnueabi/libnormal_audio.so  install/lib/
 	-cp EXTERNAL/lib32/uclgnueabi/libpostprocess.so  install/lib/
 	-cp EXTERNAL/lib32/uclgnueabi/liblive555.so  install/lib/
-	-cp EXTERNAL/lib32/uclgnueabi/libcdc_adecoder.so  install/lib/
-	-cp EXTERNAL/lib32/uclgnueabi/libcdc_aencoder.so  install/lib/
 	-cp libcedarc/library/lib32/uclgnueabi/*.so      install/lib/
 	
 	-mkdir -p install/external/
-	-cp EXTERNAL/lib32/uclgnueabi/*.so                  install/external/
+	-cp EXTERNAL/lib32/uclgnueabi/*.so                  install/lib/
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_UCGNUEABI))
 	-cp EXTERNAL/lib32/linuxgnueabi/libnormal_audio.so  install/lib/
 	-cp EXTERNAL/lib32/linuxgnueabi/libpostprocess.so  install/lib/
-	-cp EXTERNAL/lib32/linuxgnueabi/libcdc_adecoder.so  install/lib/
-        -cp EXTERNAL/lib32/linuxgnueabi/libcdc_aencoder.so  install/lib/
 	-cp EXTERNAL/lib32/linuxgnueabi/liblive555.so  install/lib/
 	-cp libcedarc/library/lib32/linuxgnueabi/*.so      install/lib/
 	
@@ -84,8 +78,6 @@ endif
 ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI))
 	-cp EXTERNAL/lib32/muslgnueabi/libnormal_audio.so  install/lib/
 	-cp EXTERNAL/lib32/muslgnueabi/libpostprocess.so  install/lib/
-	-cp EXTERNAL/lib32/muslgnueabi/libcdc_adecoder.so  install/lib/
-	-cp EXTERNAL/lib32/muslgnueabi/libcdc_aencoder.so  install/lib/
 	-cp EXTERNAL/lib32/muslgnueabi/liblive555.so  install/lib/
 	-cp libcedarc/library/lib32/muslgnueabi/*.so      install/lib/
 	
@@ -134,3 +126,4 @@ endif
 	$(STRIP) install/bin/*
 
 .PHONY: all clean cleanall install
+

@@ -180,7 +180,7 @@ cdx_uint32 EndianConvert(cdx_uint32 x, cdx_int32 n)
     }
     else if(n==3)
     {
-	return (a[0]<<16) | (a[1]<<8) | (a[2]);
+    	return (a[0]<<16) | (a[1]<<8) | (a[2]);
     }
     else if(n==2)
     {
@@ -191,7 +191,7 @@ cdx_uint32 EndianConvert(cdx_uint32 x, cdx_int32 n)
 }
 cdx_int16 FlvGetString(CdxStreamT *stream, cdx_char *buffer)
 {	
-	cdx_uint32			   re;
+	cdx_uint32 			   re;
     cdx_int16              stringLength = 0;
     
 	re = CdxStreamRead(stream, &stringLength, 2);
@@ -310,30 +310,30 @@ static cdx_int16 FlvFindNextValidTag(struct VdecFlvIn* s)
         if(len != RESYNC_BUFFER_SIZE)
         {
             CDX_LOGE("read failed.");
-		break;
+        	break;
         }
 
         for(i = 0; i < RESYNC_BUFFER_SIZE - 15; i++)
         {
-		if(buf[i+4] != 0x8 && buf[i+4] != 0x9 && buf[i+4] != 0x12)	//* check tag type.
-			continue;
+        	if(buf[i+4] != 0x8 && buf[i+4] != 0x9 && buf[i+4] != 0x12)	//* check tag type.
+        		continue;
 
-		if(buf[i+12] != 0 || buf[i+13] != 0 || buf[i+14] != 0)		//* check streamID.
-			continue;
+        	if(buf[i+12] != 0 || buf[i+13] != 0 || buf[i+14] != 0)		//* check streamID.
+        		continue;
 
-		//* it seems to be a valid tag (according to the tag type and stream id value).
-		ret = CdxStreamSeek(s->fp, i-RESYNC_BUFFER_SIZE, STREAM_SEEK_CUR); //* seek backward to the tag position.
-		if(ret < 0)
-		{
+        	//* it seems to be a valid tag (according to the tag type and stream id value).
+        	ret = CdxStreamSeek(s->fp, i-RESYNC_BUFFER_SIZE, STREAM_SEEK_CUR); //* seek backward to the tag position.
+        	if(ret < 0)
+        	{
                 CDX_LOGE("Seek failed.");
                 break;
-		}
-		done = 1;
-		break;
+        	}
+        	done = 1;
+        	break;
         }
 
         if(done)
-		break;
+        	break;
 	}
 
 	if(buf)
@@ -380,14 +380,14 @@ cdx_int32 GetTotalTimeFromEnd(struct VdecFlvIn *s)
 
         if(last_tag_size >= MAX_CHUNK_BUF_SIZE)
         {
-		CDX_LOGE("The last tag is invalid!");
+        	CDX_LOGE("The last tag is invalid!");
             goto _err0;
         }
         //jump to the beginning of the last tag
         result = CdxStreamSeek(s->fp, (cdx_int32)(0-(last_tag_size+8)), STREAM_SEEK_CUR);
         if(result)
         {
-		CDX_LOGE("Seek to the last tag header failed!");
+        	CDX_LOGE("Seek to the last tag header failed!");
             goto _err0;
         }
         //read the last tag header to get total time
@@ -406,14 +406,14 @@ cdx_int32 GetTotalTimeFromEnd(struct VdecFlvIn *s)
         tmpret = CheckTagValid(&s->tag, last_tag_size);
         if(tmpret != 0)
         {
-		CDX_LOGE(" -------------- tag invalid");
+        	CDX_LOGE(" -------------- tag invalid");
             goto _err0;
         }
         if(8 == s->tag.tagType || 9 == s->tag.tagType)  //8:audio, 9:video, 18:script data
         {
-		CDX_LOGV(" -------------- time stamp before convert = %x", s->tag.timeStamp);
+        	CDX_LOGV(" -------------- time stamp before convert = %x", s->tag.timeStamp);
             nTotalTime = EndianConvert(s->tag.timeStamp, 3);
-		CDX_LOGV(" -------------- time stamp after convert = %x", nTotalTime);
+        	CDX_LOGV(" -------------- time stamp after convert = %x", nTotalTime);
             break;
         }
         else
@@ -422,7 +422,7 @@ cdx_int32 GetTotalTimeFromEnd(struct VdecFlvIn *s)
             result = CdxStreamSeek(s->fp, (0-(cdx_int32)sizeof(FlvTagsT)), STREAM_SEEK_CUR);
             if(result)
             {
-		CDX_LOGE("seek fail");
+            	CDX_LOGE("seek fail");
                 goto _err0;
             }
         }
@@ -470,14 +470,14 @@ cdx_int32 GetTotalTimeFromHead(struct VdecFlvIn *s)
     len = CdxStreamRead(s->fp, prevTag, sizeof(FlvTagsT));
     if(len != sizeof(FlvTagsT))//end of file
     {
-	CDX_LOGE("Try to get first flv tag failed! perhaps file end");
+    	CDX_LOGE("Try to get first flv tag failed! perhaps file end");
         goto _err0;
     }
 
     tmpret = CdxStreamSeek(s->fp, (EndianConvert(prevTag->dataSize,3)-1), STREAM_SEEK_CUR);
     if(tmpret)
     {
-	CDX_LOGE("Seek to second tag head fail! first tag is wrong or file wrong!");
+    	CDX_LOGE("Seek to second tag head fail! first tag is wrong or file wrong!");
         goto _err0;
     }
 
@@ -485,7 +485,7 @@ cdx_int32 GetTotalTimeFromHead(struct VdecFlvIn *s)
     len = CdxStreamRead(s->fp, curTag, sizeof(FlvTagsT));
     if(len != sizeof(FlvTagsT))//end of file
     {
-	CDX_LOGE("Try to get second flv tag failed! perhaps file end.");
+    	CDX_LOGE("Try to get second flv tag failed! perhaps file end.");
         goto _err0;
     }
     tmpret = CheckTagValid(prevTag, EndianConvert(curTag->preTagsize,4));
@@ -502,7 +502,7 @@ cdx_int32 GetTotalTimeFromHead(struct VdecFlvIn *s)
     }
     else
     {
-	CDX_LOGE("prevTag invalid\n");
+    	CDX_LOGE("prevTag invalid\n");
         goto _err0;
     }
 
@@ -513,10 +513,10 @@ cdx_int32 GetTotalTimeFromHead(struct VdecFlvIn *s)
         len = CdxStreamRead(s->fp, nextTag,sizeof(FlvTagsT));
         if(len != sizeof(FlvTagsT))//end of file
         {
-		CDX_LOGV("Try to get flv tag failed! perhaps file end.");
+        	CDX_LOGV("Try to get flv tag failed! perhaps file end.");
             if(len >= 4)
             {
-		CDX_LOGV("can verify curTag.");
+            	CDX_LOGV("can verify curTag.");
                 tmpret = CheckTagValid(curTag, EndianConvert(nextTag->preTagsize,4));
                 if(0 == tmpret)
                 {
@@ -526,7 +526,7 @@ cdx_int32 GetTotalTimeFromHead(struct VdecFlvIn *s)
                 }
                 else
                 {
-			CDX_LOGV("curTag invalid, use prevTag.");
+                	CDX_LOGV("curTag invalid, use prevTag.");
                     nTotalTime = EndianConvert(prevTag->timeStamp, 3);
                     uLastTagheadPst = prevTagHeadPst;
                     goto _quit;
@@ -534,7 +534,7 @@ cdx_int32 GetTotalTimeFromHead(struct VdecFlvIn *s)
             }
             else
             {
-		CDX_LOGV("only can use prevTag.");
+            	CDX_LOGV("only can use prevTag.");
                 nTotalTime = EndianConvert(prevTag->timeStamp, 3);
                 uLastTagheadPst = prevTagHeadPst;
                 goto _quit;
@@ -549,7 +549,7 @@ cdx_int32 GetTotalTimeFromHead(struct VdecFlvIn *s)
                 tmpret = CdxStreamSeek(s->fp, (cdx_int32)(EndianConvert(nextTag->dataSize,3)-1), STREAM_SEEK_CUR);
                 if(tmpret)
                 {
-			CDX_LOGV("Seek to next tag head fail! cur tag is last tag!");
+                	CDX_LOGV("Seek to next tag head fail! cur tag is last tag!");
                     nTotalTime = EndianConvert(curTag->timeStamp, 3);
                     uLastTagheadPst = curTagHeadPst;
                     goto _quit;
@@ -570,7 +570,7 @@ cdx_int32 GetTotalTimeFromHead(struct VdecFlvIn *s)
             }
             else
             {
-		CDX_LOGV("curTag invalid, use prevTag.");
+            	CDX_LOGV("curTag invalid, use prevTag.");
                 nTotalTime = EndianConvert(prevTag->timeStamp, 3);
                 uLastTagheadPst = prevTagHeadPst;
                 goto _quit;
@@ -602,8 +602,8 @@ cdx_int32 FlvGetTotalTime(struct VdecFlvIn *s)
 
     if(s->fileSize > SMALL_FLVFILE_SIZE)
     {
-	CDX_LOGI("filesize[%lld] > [%d]byte, don't get total time from head!",
-	                          (cdx_int64)s->fileSize, SMALL_FLVFILE_SIZE);
+    	CDX_LOGI("filesize[%lld] > [%d]byte, don't get total time from head!", 
+    	                          (cdx_int64)s->fileSize, SMALL_FLVFILE_SIZE);
         result =  -1;
         goto _err0;
     }
@@ -954,7 +954,7 @@ cdx_int16 FlvBuildKeyFrameIndex(struct VdecFlvIn *s)
 			}
 				
 			case Keyframes:
-		{
+          	{
 				len = CdxStreamRead(s->fp, &type, 1);
 				if(len != 1 || type != CDX_AMF_DATA_TYPE_OBJECT)
 				{
@@ -1237,50 +1237,50 @@ cdx_int16 FlvReaderOpenFile(CdxFlvParserImplT *impl)//struct FILE_PARSER *p,Ceda
     if(!s->isNetworkStream)
     {
 	    if((s->durationMode == 0 || s->totalTime == 0) && s->seekAble == 1)
-	{
-		//try to get the last tag size
-	    result = CdxStreamSeek(s->fp, -4, STREAM_SEEK_END);
-	    if(result)
-	    {
-	        CDX_LOGE("Seek to the last tag failed!");
-	        return -1;
-	    }
-	    result = CdxStreamRead(s->fp, &last_tag_size, 4);
-	    if(result != 4)
-	    {
-	        CDX_LOGE("Get the last tag size failed!");
-	        return -1;
-	    }
-	    last_tag_size = EndianConvert(last_tag_size, 4);
-	    if(last_tag_size >= MAX_CHUNK_BUF_SIZE)
-	    {
-	        CDX_LOGW("The last tag is invalid!\n");
-	        goto _skip_check_file_end;
-	    }
-	    //jump to the beginning of the last tag
-	    result = CdxStreamSeek(s->fp, (0-(last_tag_size+8)), STREAM_SEEK_END);//preTagsize(2)
-	    if(result)
-	    {
-	        CDX_LOGW("Seek to the last tag header failed!");
-	        goto _skip_check_file_end;
-	    }
-	    //read the last tag header to get total time
-	    s->lastTagHeadPos = CdxStreamTell(s->fp);
-	    len = CdxStreamRead(s->fp, &s->tag, sizeof(FlvTagsT));
-	    if(len != sizeof(FlvTagsT))//end of file
-	    {
-	        CDX_LOGW("Read last tag head failed!");
-	        s->lastTagHeadPos = 0xffffffff;
-	        goto _skip_check_file_end;
-	    }
+    	{
+    		//try to get the last tag size
+    	    result = CdxStreamSeek(s->fp, -4, STREAM_SEEK_END);
+    	    if(result)
+    	    {
+    	        CDX_LOGE("Seek to the last tag failed!");
+    	        return -1;
+    	    }
+    	    result = CdxStreamRead(s->fp, &last_tag_size, 4);
+    	    if(result != 4)
+    	    {
+    	        CDX_LOGE("Get the last tag size failed!");
+    	        return -1;
+    	    }
+    	    last_tag_size = EndianConvert(last_tag_size, 4);
+    	    if(last_tag_size >= MAX_CHUNK_BUF_SIZE)
+    	    {
+    	        CDX_LOGW("The last tag is invalid!\n");
+    	        goto _skip_check_file_end;
+    	    }
+    	    //jump to the beginning of the last tag
+    	    result = CdxStreamSeek(s->fp, (0-(last_tag_size+8)), STREAM_SEEK_END);//preTagsize(2)
+    	    if(result)
+    	    {
+    	        CDX_LOGW("Seek to the last tag header failed!");
+    	        goto _skip_check_file_end;
+    	    }
+    	    //read the last tag header to get total time
+    	    s->lastTagHeadPos = CdxStreamTell(s->fp);
+    	    len = CdxStreamRead(s->fp, &s->tag, sizeof(FlvTagsT));
+    	    if(len != sizeof(FlvTagsT))//end of file
+    	    {
+    	        CDX_LOGW("Read last tag head failed!");
+    	        s->lastTagHeadPos = 0xffffffff;
+    	        goto _skip_check_file_end;
+    	    }
 
-	//    s->tag.dataSize = EndianConvert(s->tag.dataSize,3);
-	//    if(last_tag_size == (s->tag.dataSize+sizeof(FlvTagsT)-4-1))
-	//    {
-	//        s->totalTime = EndianConvert(s->tag.timeStamp, 3);
-	//    }
-
-		 FlvGetTotalTime(s);
+    	//    s->tag.dataSize = EndianConvert(s->tag.dataSize,3);
+    	//    if(last_tag_size == (s->tag.dataSize+sizeof(FlvTagsT)-4-1))
+    	//    {
+    	//        s->totalTime = EndianConvert(s->tag.timeStamp, 3);
+    	//    }
+        
+       		 FlvGetTotalTime(s);
         }
         
         if(s->lastTagHeadPos == 0xffffffff) //* for local file seek from end, we need lastTagHeadPos.
@@ -1453,15 +1453,15 @@ cdx_int16 FlvReaderOpenFile(CdxFlvParserImplT *impl)//struct FILE_PARSER *p,Ceda
                 //impl->aFormat.pCodecSpecificData = (char *)(s->dataChunk.buffer + 1);
                 if(impl->aFormat.nCodecSpecificDataLen)
                 {
-			impl->aFormat.pCodecSpecificData= (cdx_int8 *)malloc(impl->aFormat.nCodecSpecificDataLen);
-			if(impl->aFormat.pCodecSpecificData != NULL)
-			{
-				memcpy(impl->aFormat.pCodecSpecificData, s->dataChunk.buffer + 1, impl->aFormat.nCodecSpecificDataLen);
-			}
+                	impl->aFormat.pCodecSpecificData= (cdx_int8 *)malloc(impl->aFormat.nCodecSpecificDataLen);
+                	if(impl->aFormat.pCodecSpecificData != NULL)
+                	{
+                		memcpy(impl->aFormat.pCodecSpecificData, s->dataChunk.buffer + 1, impl->aFormat.nCodecSpecificDataLen);
+                	}
                 }
                 else
                 {
-			impl->aFormat.pCodecSpecificData = 0;
+                	impl->aFormat.pCodecSpecificData = 0;
                 }
                 impl->aFormat.nSampleRate = 0;
                 impl->aFormat.nChannelNum = 0;
@@ -1524,13 +1524,13 @@ cdx_int16 FlvReaderOpenFile(CdxFlvParserImplT *impl)//struct FILE_PARSER *p,Ceda
                     char *videoTotalData = (char *)malloc(s->tag.dataSize);
                     if(videoTotalData == NULL)
                     {
-			CDX_LOGE("malloc failed.");
-			if(tempBuf)
-			{
-						free(tempBuf);
-						tempBuf = NULL;
-			}
-			return -1;
+                    	CDX_LOGE("malloc failed.");
+                    	if(tempBuf)
+                    	{
+        					free(tempBuf);
+        					tempBuf = NULL;
+                    	}
+                    	return -1;
                     }else
                     {
                         memcpy(videoTotalData, (char *)&s->videoTag, sizeof(FlvVideoTagsT));
@@ -1552,8 +1552,8 @@ cdx_int16 FlvReaderOpenFile(CdxFlvParserImplT *impl)//struct FILE_PARSER *p,Ceda
                                         CDX_LOGE("malloc failed.");
                                         if(videoTotalData)
                                         {
-						free(videoTotalData);
-						videoTotalData = NULL;
+                                        	free(videoTotalData);
+                                        	videoTotalData = NULL;
                                         }
                                         return -1;
                                     }
@@ -1578,14 +1578,14 @@ cdx_int16 FlvReaderOpenFile(CdxFlvParserImplT *impl)//struct FILE_PARSER *p,Ceda
 	                            CDX_LOGE("malloc failed.");
                                 if(videoTotalData)
                                 {
-					free(videoTotalData);
-					videoTotalData = NULL;
+                                	free(videoTotalData);
+                                	videoTotalData = NULL;
                                 }
 	                            return -1;
 	                        }
 	                        memcpy(impl->tempBuf, (char *)s->dataChunk.buffer+1, impl->tempBufLen);
 	                    }
-			}
+                	}
                 }
 
                 #if 0
@@ -1641,7 +1641,7 @@ cdx_int16 FlvReaderOpenFile(CdxFlvParserImplT *impl)//struct FILE_PARSER *p,Ceda
     {
         if(s->videoTag.codecID == 2)//Sorenson H.263
         {
-		impl->vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_SORENSSON_H263;
+        	impl->vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_SORENSSON_H263;
             //impl->vFormat.eCompressionSubFormat = CEDARV_MPEG4_SUB_FORMAT_SORENSSON_H263;
             c = (s->videoTag.PicSize0<<1) | s->videoTag.picSize1;
             switch(c)
@@ -2070,8 +2070,8 @@ begin:
 */
 	   if(s->tag.dataSize == 0 && s->tag.streamID == 0 && 
 	                    (s->tag.tagType == 8 || s->tag.tagType == 9 || s->tag.tagType == 0x12))
-	{
-		result = CdxStreamSeek(s->fp, -1, STREAM_SEEK_CUR);
+    	{
+    		result = CdxStreamSeek(s->fp, -1, STREAM_SEEK_CUR);
             if(result < 0)
             {
                 CDX_LOGE("Seek failed.");
@@ -2079,7 +2079,7 @@ begin:
             }
 
             continue;
-	}
+    	}
 
 		if(s->tag.tagType == 0x12 && s->tag.dataSize < MAX_CHUNK_BUF_SIZE)
 		{
@@ -2153,20 +2153,20 @@ begin:
         else
         {
             //unknown tag data, skip it
-		if(s->tag.tagType == 0x12 && s->tag.streamID == 0 && s->tag.dataSize < MAX_CHUNK_BUF_SIZE)
-		{
-			//* script tag.
-			result = CdxStreamSeek(s->fp, (cdx_int32)(s->tag.dataSize-1), STREAM_SEEK_CUR);
-		}
-		else
-		{
-			//* invalid tag.
-			if(s->isNetworkStream && s->fileSize == -1)	//* http live program, should not quit.
-			{
-				//* try to find the next valid tag.
-				result = FlvFindNextValidTag(s);
-			}
-		}
+        	if(s->tag.tagType == 0x12 && s->tag.streamID == 0 && s->tag.dataSize < MAX_CHUNK_BUF_SIZE)
+        	{
+        		//* script tag.
+        		result = CdxStreamSeek(s->fp, (cdx_int32)(s->tag.dataSize-1), STREAM_SEEK_CUR);
+        	}
+        	else
+        	{
+        		//* invalid tag.
+        		if(s->isNetworkStream && s->fileSize == -1)	//* http live program, should not quit.
+        		{
+        			//* try to find the next valid tag.
+        			result = FlvFindNextValidTag(s);
+        		}
+        	}
             if(result < 0)
             {
                 CDX_LOGE("Skip data tag failed!");
@@ -2305,51 +2305,51 @@ static cdx_int32 __CdxFlvParserPrefetch(CdxParserT *parser, CdxPacketT *pkt)
                 goto __exit;
             }
 	    
-		impl->curChunkInfo.nChkType = tmpFlvIn->tag.tagType;
-		impl->curChunkInfo.nTotSize = tmpFlvIn->tag.dataSize;
-		impl->curChunkInfo.nReadSize = 0;
-		impl->curChunkInfo.nTimeStamp = tmpFlvIn->tag.timeStamp;
-		if(impl->bDiscardAud && tmpFlvIn->tag.tagType == CDX_TagAudio)
+	    	impl->curChunkInfo.nChkType = tmpFlvIn->tag.tagType;
+	    	impl->curChunkInfo.nTotSize = tmpFlvIn->tag.dataSize;
+	    	impl->curChunkInfo.nReadSize = 0;
+	    	impl->curChunkInfo.nTimeStamp = tmpFlvIn->tag.timeStamp;
+	    	if(impl->bDiscardAud && tmpFlvIn->tag.tagType == CDX_TagAudio)
             {
-			if(impl->curChunkInfo.nTotSize)
-			{
-				if(CdxStreamSeek(tmpFlvIn->fp, impl->curChunkInfo.nTotSize, STREAM_SEEK_CUR) < 0)
-				{
-				CDX_LOGW("seek file failed when skip bitstream!\n");
-				impl->mErrno = PSR_UNKNOWN_ERR;
-				ret = -1;
-				goto __exit;
-				}
-			}
-			//clear current chunk information
-			impl->curChunkInfo.nChkType = CDX_TagUnknown;
+    			if(impl->curChunkInfo.nTotSize)
+    			{
+        			if(CdxStreamSeek(tmpFlvIn->fp, impl->curChunkInfo.nTotSize, STREAM_SEEK_CUR) < 0)
+        			{
+            			CDX_LOGW("seek file failed when skip bitstream!\n");
+            			impl->mErrno = PSR_UNKNOWN_ERR;
+            			ret = -1;
+            			goto __exit;
+        			}
+    			}
+    			//clear current chunk information
+    			impl->curChunkInfo.nChkType = CDX_TagUnknown;
             }
             else
             {
-		break;
+            	break;
             }
 	    }
 	
-	if(tmpFlvIn->tag.tagType == CDX_TagVideo)
-	{
-		tmpFlvIn->lastFrmPts = tmpFlvIn->tag.timeStamp;
-		tmpFlvIn->lastFrmPos = CdxStreamTell(tmpFlvIn->fp) - sizeof(FlvTagsT); // Tag header pos
+    	if(tmpFlvIn->tag.tagType == CDX_TagVideo)
+    	{
+        	tmpFlvIn->lastFrmPts = tmpFlvIn->tag.timeStamp;
+        	tmpFlvIn->lastFrmPos = CdxStreamTell(tmpFlvIn->fp) - sizeof(FlvTagsT); // Tag header pos
 	        if((tmpFlvIn->tag.codecType & 0xf0) == 0x10)
-	    {
-		    tmpFlvIn->lastKeyFrmPts = tmpFlvIn->tag.timeStamp;
-		    tmpFlvIn->lastKeyFrmPos = tmpFlvIn->lastFrmPos;
-		    pkt->flags |= KEY_FRAME;
-		    //CDX_LOGV("keyfream pts: %u", tmpFlvIn->tag.timeStamp);
-		}
-
-		pkt->type = CDX_MEDIA_VIDEO;
-		pkt->flags = 0;//major video
-
-	}
-	else if(tmpFlvIn->tag.tagType == CDX_TagAudio)
-	{
-		pkt->type = CDX_MEDIA_AUDIO;
-	}
+    	    {
+        	    tmpFlvIn->lastKeyFrmPts = tmpFlvIn->tag.timeStamp;
+        	    tmpFlvIn->lastKeyFrmPos = tmpFlvIn->lastFrmPos;
+        	    pkt->flags |= KEY_FRAME;
+        	    //CDX_LOGV("keyfream pts: %u", tmpFlvIn->tag.timeStamp);
+        	}
+        	
+        	pkt->type = CDX_MEDIA_VIDEO;
+        	pkt->flags = 0;//major video
+			
+    	}
+    	else if(tmpFlvIn->tag.tagType == CDX_TagAudio)
+    	{
+    		pkt->type = CDX_MEDIA_AUDIO;
+    	}
 		
 	   //CDX_LOGV("Get Chunk Information, type:%x, size:%d", impl->curChunkInfo.nChkType, impl->curChunkInfo.nTotSize);
     }
@@ -2357,14 +2357,14 @@ static cdx_int32 __CdxFlvParserPrefetch(CdxParserT *parser, CdxPacketT *pkt)
     {
         if(CdxStreamSeekAble(impl->stream))
         {
-		result = CdxStreamSeek(tmpFlvIn->fp, (cdx_uint32)tmpFlvIn->header.dataOffset, STREAM_SEEK_SET);
-		if(result < 0)
-	    {
-	        CDX_LOGW("Try to read next tag failed!");
+        	result = CdxStreamSeek(tmpFlvIn->fp, (cdx_uint32)tmpFlvIn->header.dataOffset, STREAM_SEEK_SET);
+        	if(result < 0)
+    	    {
+    	        CDX_LOGW("Try to read next tag failed!");
                 impl->mErrno = PSR_UNKNOWN_ERR;
                 ret = -1;
                 goto __exit;
-	    }
+    	    }
 	    }
 	    //look for the first video tag, the timestamp should always be zero
 	    while(1)
@@ -2385,10 +2385,10 @@ static cdx_int32 __CdxFlvParserPrefetch(CdxParserT *parser, CdxPacketT *pkt)
 	
 			if(tmpFlvIn->tag.tagType == CDX_TagVideo)
 			{
-	        if((tmpFlvIn->tag.codecType & 0xf0) == 0x10)
-		    {
-		    pkt->flags |= KEY_FRAME;
-		}
+    	        if((tmpFlvIn->tag.codecType & 0xf0) == 0x10)
+        	    {
+            	    pkt->flags |= KEY_FRAME;
+            	}
 				break;
 			}
 			else
@@ -2399,7 +2399,7 @@ static cdx_int32 __CdxFlvParserPrefetch(CdxParserT *parser, CdxPacketT *pkt)
 	            {
 	                CDX_LOGW("Try to read next tag failed!");
 	                impl->mStatus = CDX_FLV_IDLE;
-			    return -1;
+	        	    return -1;
 	            }
 	        #endif
                 char *tempBuf = malloc(dataSize);
@@ -2433,10 +2433,10 @@ static cdx_int32 __CdxFlvParserPrefetch(CdxParserT *parser, CdxPacketT *pkt)
     
     }
 
-	pkt->length = impl->curChunkInfo.nTotSize + 2*1024;//keep enough buffer
-	pkt->pts = (cdx_int64)(impl->curChunkInfo.nTimeStamp)*1000;
+   	pkt->length = impl->curChunkInfo.nTotSize + 2*1024;//keep enough buffer
+   	pkt->pts = (cdx_int64)(impl->curChunkInfo.nTimeStamp)*1000;
     pkt->flags |= (FIRST_PART|LAST_PART);
-	memcpy(&impl->pkt, pkt, sizeof(CdxPacketT));
+   	memcpy(&impl->pkt, pkt, sizeof(CdxPacketT));
     
 __exit:
     pthread_mutex_lock(&impl->lock);
@@ -2474,36 +2474,36 @@ HEVC_vps_sps_pps_state: //for Breakpoint play
         case 1: //get third video tag
         {
             while(1)
-	    {
-	        len = CdxStreamRead(tmpFlvIn->fp, &tmpFlvIn->tag, sizeof(FlvTagsT));
-	        if(len != sizeof(FlvTagsT))//end of file
-	        {
-	            CDX_LOGW("Try to read next tag failed!");
-	            impl->mErrno = PSR_UNKNOWN_ERR;
+       	    {
+       	        len = CdxStreamRead(tmpFlvIn->fp, &tmpFlvIn->tag, sizeof(FlvTagsT));
+       	        if(len != sizeof(FlvTagsT))//end of file
+       	        {
+       	            CDX_LOGW("Try to read next tag failed!");
+       	            impl->mErrno = PSR_UNKNOWN_ERR;
                     if(CdxStreamEos(tmpFlvIn->fp))
                         impl->mErrno = PSR_EOS;
                     ret = -1;
                     goto __exit1;
-	        }
+       	        }
 
-	        dataSize = EndianConvert(tmpFlvIn->tag.dataSize, 3) - 1;
+       	        dataSize = EndianConvert(tmpFlvIn->tag.dataSize, 3) - 1;
 
-			if(tmpFlvIn->tag.tagType == 9)
-			{
-				break;
-			}
-			else
-			{
-	            result = CdxStreamSeek(tmpFlvIn->fp, (cdx_int64)dataSize, STREAM_SEEK_CUR);
-	            if(result)
-	            {
-	                CDX_LOGW("Try to read next tag failed!");
-	                impl->mErrno = PSR_UNKNOWN_ERR;
-	                ret = -1;
-	                goto __exit;
-	            }
-	        }
-	    }
+       			if(tmpFlvIn->tag.tagType == 9)
+       			{
+       				break;
+       			}
+       			else
+       			{
+       	            result = CdxStreamSeek(tmpFlvIn->fp, (cdx_int64)dataSize, STREAM_SEEK_CUR);
+       	            if(result)
+       	            {
+       	                CDX_LOGW("Try to read next tag failed!");
+       	                impl->mErrno = PSR_UNKNOWN_ERR;
+       	                ret = -1;
+       	                goto __exit;
+       	            }
+       	        }
+       	    }
             break;
         }
         default:
@@ -2522,9 +2522,9 @@ HEVC_vps_sps_pps_state: //for Breakpoint play
     impl->curChunkInfo.nTimeStamp = EndianConvert(tmpFlvIn->tag.timeStamp, 3);
     pkt->type = CDX_MEDIA_VIDEO;
     pkt->flags |= (FIRST_PART|LAST_PART);  
-	pkt->length = impl->curChunkInfo.nTotSize + 2*1024;
-	pkt->pts = (cdx_int64)(impl->curChunkInfo.nTimeStamp)*1000;
-	memcpy(&impl->pkt, pkt, sizeof(CdxPacketT));
+   	pkt->length = impl->curChunkInfo.nTotSize + 2*1024;
+   	pkt->pts = (cdx_int64)(impl->curChunkInfo.nTimeStamp)*1000;
+   	memcpy(&impl->pkt, pkt, sizeof(CdxPacketT));
     
 __exit1:
     pthread_mutex_lock(&impl->lock);
@@ -3075,14 +3075,14 @@ static cdx_int32 __CdxFlvParserRead(CdxParserT *parser, CdxPacketT *pkt)
 			{
 			    if(CdxStreamSeekAble(stream))
 			    {
-				result = CdxStreamSeek(stream, impl->startPos, STREAM_SEEK_SET);
-				if(result)
-			{
-				CDX_LOGW("Try to read next tag failed!");
-				return -1;
-			}
-			}
-		}
+    				result = CdxStreamSeek(stream, impl->startPos, STREAM_SEEK_SET);
+        			if(result)
+    	    		{
+    	        		CDX_LOGW("Try to read next tag failed!");
+    	        		return -1;
+    	    		}
+	    		}
+	    	}       
 	    }
     }
 
@@ -3708,11 +3708,11 @@ static cdx_int32 __CdxFlvParserControl(CdxParserT *parser, cdx_int32 cmd, void *
 	    {
             return FlvGetCacheState(impl, param);
 	    }
-	default:
-	{
-	    CDX_LOGW("cmd(%d) not support yet...", cmd);
-		break;
-	}
+    	default:
+    	{
+    	    CDX_LOGW("cmd(%d) not support yet...", cmd);
+    		break;
+    	}
     }
   
 	return CDX_SUCCESS;

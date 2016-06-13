@@ -52,3 +52,4 @@ void setMessage(AwMessage* msg,
                 int        param7 = 0);
 
 #endif
+

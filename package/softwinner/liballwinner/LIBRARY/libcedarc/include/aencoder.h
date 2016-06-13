@@ -71,3 +71,4 @@ int ReturnAudioFrameBuffer(AudioEncoder *pEncoder, char *pOutBuf,
 #endif
 
 #endif // AUDIO_ENC_API_H
+

@@ -98,9 +98,9 @@ static cdx_int32 AwSpecialStreamParserPrefetch(CdxParserT *parser, CdxPacketT *p
     logv("  special parser get data stream index: %d, size: %d, ret: %d", nStreamIndex, nLen, ret);
     if(nLen <= 0)
     {
-	/* end of file */
+    	/* end of file */
         ret = -1;
-	specialStreamParser->bEndofStream = 1;
+    	specialStreamParser->bEndofStream = 1;
         goto _exit;
     }
 
@@ -126,9 +126,9 @@ static cdx_int32 AwSpecialStreamParserRead(CdxParserT *parser, CdxPacketT *pkt)
 	SpecialStreamParser *specialStreamParser = (SpecialStreamParser*)parser;
     if(specialStreamParser->status != CDX_PSR_PREFETCHED)
     {
-	CDX_LOGE("status != CDX_PSR_PREFETCHED, we can not read!");
+    	CDX_LOGE("status != CDX_PSR_PREFETCHED, we can not read!");
         specialStreamParser->mErrno = PSR_INVALID_OPERATION;
-	return -1;
+    	return -1;
     }
     pthread_mutex_lock(&specialStreamParser->statusLock);
     if(specialStreamParser->forceStop)
@@ -155,8 +155,8 @@ static cdx_int32 AwSpecialStreamParserRead(CdxParserT *parser, CdxPacketT *pkt)
 
     if(specialStreamParser->bEndofStream)
     {
-	specialStreamParser->bEndofStream = 0;
-	specialStreamParser->mErrno = PSR_EOS;
+    	specialStreamParser->bEndofStream = 0;
+    	specialStreamParser->mErrno = PSR_EOS;
     }
     specialStreamParser->status = CDX_PSR_IDLE;
     return 0;
@@ -221,16 +221,16 @@ static int AwSpecialStreamParserControl(CdxParserT *parser, int cmd, void *param
     (void)param;
     switch(cmd)
     {
-	case CDX_PSR_CMD_SWITCH_AUDIO:
-	case CDX_PSR_CMD_SWITCH_SUBTITLE:
-		CDX_LOGI(" awts parser is not support switch stream yet!!!");
-		break;
+    	case CDX_PSR_CMD_SWITCH_AUDIO:
+    	case CDX_PSR_CMD_SWITCH_SUBTITLE:
+    		CDX_LOGI(" awts parser is not support switch stream yet!!!");
+    		break;
         case CDX_PSR_CMD_SET_FORCESTOP:
             return 0;
         case CDX_PSR_CMD_CLR_FORCESTOP:
             return 0;
         default:
-		break;
+        	break;
     }
 	return 0;
 }
@@ -274,7 +274,7 @@ static cdx_int32 AwSpecialStreamParserClose(CdxParserT *parser)
     pthread_mutex_destroy(&specialStreamParser->statusLock);
     pthread_mutex_destroy(&specialStreamParser->refLock);
     if(specialStreamParser->pSpecialStreamBuf)
-	CdxFree(specialStreamParser->pSpecialStreamBuf);
+    	CdxFree(specialStreamParser->pSpecialStreamBuf);
 	free(specialStreamParser);
 	return 0;
 }
@@ -291,11 +291,11 @@ int AwSpecialStreamParserInit(CdxParserT *parser)
 }
 static struct CdxParserOpsS awSpecialStreamParserOps =
 {
-    .control		= AwSpecialStreamParserControl,
-    .prefetch		= AwSpecialStreamParserPrefetch,
-    .read			= AwSpecialStreamParserRead,
-    .getMediaInfo	= AwSpecialStreamParserGetMediaInfo,
-    .close			= AwSpecialStreamParserClose,
+    .control 		= AwSpecialStreamParserControl,
+    .prefetch 		= AwSpecialStreamParserPrefetch,
+    .read 			= AwSpecialStreamParserRead,
+    .getMediaInfo 	= AwSpecialStreamParserGetMediaInfo,
+    .close 			= AwSpecialStreamParserClose,
     .attribute		= AwSpecialStreamParserAttribute,
     .getStatus		= AwSpecialStreamParserGetStatus,
     .init			= AwSpecialStreamParserInit,
@@ -352,5 +352,6 @@ cdx_uint32 AwSpecialStreamParserProbe(CdxStreamProbeDataT *probeData)
 CdxParserCreatorT specialStreamParserCtor =
 {
     .create	= AwSpecialStreamParserOpen,
-    .probe	= AwSpecialStreamParserProbe
+    .probe 	= AwSpecialStreamParserProbe
 };
+

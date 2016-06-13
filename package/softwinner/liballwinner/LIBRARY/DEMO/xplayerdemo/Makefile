@@ -69,7 +69,7 @@ SourceIncludePath = $(foreach dir,$(SourcePath),-I$(dir)) \
 					-I../../../xplayer
 
 ## set compile flags
-CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -Wall -O2 -ldl -g
+CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -Wall -O2 -ldl
 
 ## set link flags
 LoadFlags = $(CONFIG_FOR_LINK)
@@ -172,3 +172,5 @@ ifneq ($(MAKECMDGOALS),cleanall)
 endif
 endif
 endif
+
+

@@ -141,16 +141,16 @@ int CdxStreamOpen(CdxDataSourceT *source, pthread_mutex_t *mutex, cdx_bool *exit
 	
     if(exit && *exit)
     {
-	CDX_LOGW("open stream user cancel.");
+    	CDX_LOGW("open stream user cancel.");
         if(mutex) pthread_mutex_unlock(mutex);
-	return -1;
+    	return -1;
     }
     *stream = CdxStreamCreate(source);
 	if(mutex) pthread_mutex_unlock(mutex);
     if (!*stream)
     {
-	CDX_LOGW("open stream failure.");
-	return -1;
+    	CDX_LOGW("open stream failure.");
+    	return -1;
     }
 	int ret;
 	while(streamTasks)
@@ -165,3 +165,4 @@ int CdxStreamOpen(CdxDataSourceT *source, pthread_mutex_t *mutex, cdx_bool *exit
 	}
     return CdxStreamConnect(*stream);
 }
+

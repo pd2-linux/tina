@@ -48,7 +48,7 @@ typedef struct AudioRenderCompContext
     int                         bMute;
 	
 	int                         bForceWriteToDeviceFlag;
-	float						volume;
+	float 						volume;
 }AudioRenderCompContext;
 
 
@@ -65,8 +65,8 @@ static int SoundCallback(void* pUserData, int eMessageId, void* param)
     
     if(eMessageId == MESSAGE_ID_SOUND_NOTIFY_BUFFER)
     {
-	if(p->callback)
-		p->callback(p->pUserData, PLAYER_AUDIO_RENDER_NOTIFY_AUDIO_BUFFER, param);
+    	if(p->callback)
+    		p->callback(p->pUserData, PLAYER_AUDIO_RENDER_NOTIFY_AUDIO_BUFFER, param);
     }
     
     return 0;
@@ -429,8 +429,8 @@ static void* AudioRenderThread(void* arg)
     unsigned int            nSampleRate;
     unsigned int            nChannelNum;
     unsigned int            nBitsPerSample;
-    unsigned int			nNewSampleRate;
-    unsigned int			nNewChannelNum;
+    unsigned int 			nNewSampleRate;
+    unsigned int 			nNewChannelNum;
     unsigned int            nFrameSize;
     unsigned int            nBitRate;
 	unsigned int			nNewBitRate;
@@ -445,7 +445,7 @@ static void* AudioRenderThread(void* arg)
     nChannelNum     = 0;
     nBitsPerSample  = 16;
     nNewSampleRate  = 0;
-    nNewChannelNum	= 0;
+    nNewChannelNum 	= 0;
     nFrameSize      = 0;
     nBitRate        = 0;
 	nNewBitRate		= 0;
@@ -755,13 +755,13 @@ process_message:
                     }
                 }
                 else
-		{
-		    if(p->pRawSndCtrl == NULL)
-			{
-				if(p->pRawSndCtrlOps->SoundDeviceInit_raw)
-				{
-					p->pRawSndCtrl = p->pRawSndCtrlOps->SoundDeviceInit_raw(&raw_data,p->pDecComp,AudioDecRawSendCmdToHalClbk);
-				}
+            	{
+            	    if(p->pRawSndCtrl == NULL)
+        	    	{
+        	    		if(p->pRawSndCtrlOps->SoundDeviceInit_raw)
+        	    		{
+                			p->pRawSndCtrl = p->pRawSndCtrlOps->SoundDeviceInit_raw(&raw_data,p->pDecComp,AudioDecRawSendCmdToHalClbk);
+                		}
 
                         if(p->pRawSndCtrl)
                         {
@@ -775,7 +775,7 @@ process_message:
             ret = AudioDecCompGetAudioSampleRate(p->pDecComp,&nNewSampleRate,&nNewChannelNum,&nNewBitRate);
             if(ret == 0)
             {
-		logv("$$$$$$$%d, %d, %d, %d, %d, %d, %d", nNewSampleRate, nSampleRate, nNewChannelNum, nChannelNum,
+            	logv("$$$$$$$%d, %d, %d, %d, %d, %d, %d", nNewSampleRate, nSampleRate, nNewChannelNum, nChannelNum,
 					nNewBitRate, nBitRate, audioInfoNotified); 
 				if((nNewSampleRate != nSampleRate) || (nNewChannelNum != nChannelNum) || (nNewBitRate != nBitRate) || !audioInfoNotified)
 				{
@@ -787,24 +787,24 @@ process_message:
 					ret = p->callback(p->pUserData, PLAYER_AUDIO_RENDER_NOTIFY_AUDIO_INFO, (void*)nAudioInfo);
 					audioInfoNotified = 1;
 				}
-		if((nNewSampleRate != nSampleRate) || (nNewChannelNum != nChannelNum))
-		{
-		    logw("sample rate change from %d to %d.", nSampleRate, nNewSampleRate);
-		    logw("channel num change from %d to %d.", nChannelNum, nNewChannelNum);
-			ret = p->pSoundCtrlOps->SoundDeviceStop(p->pSoundCtrl);
-			if(ret == 0)
-			{
-				p->pSoundCtrlOps->SoundDeviceSetFormat(p->pSoundCtrl, nNewSampleRate, nNewChannelNum);
+            	if((nNewSampleRate != nSampleRate) || (nNewChannelNum != nChannelNum))
+            	{
+            	    logw("sample rate change from %d to %d.", nSampleRate, nNewSampleRate);
+            	    logw("channel num change from %d to %d.", nChannelNum, nNewChannelNum);
+            		ret = p->pSoundCtrlOps->SoundDeviceStop(p->pSoundCtrl);
+            		if(ret == 0)
+            		{
+            			p->pSoundCtrlOps->SoundDeviceSetFormat(p->pSoundCtrl, nNewSampleRate, nNewChannelNum);
                         nSampleRate = nNewSampleRate;
-				nChannelNum = nNewChannelNum;
+            			nChannelNum = nNewChannelNum;
                         nFrameSize  = nChannelNum*nBitsPerSample/8;
-				if(bFirstFrameSend == 1)
-				{
-					logw("start sound devide again because samplaRate or channelNum change");
-					p->pSoundCtrlOps->SoundDeviceStart(p->pSoundCtrl);
-				}
-			}
-		}
+            			if(bFirstFrameSend == 1)
+            			{
+            				logw("start sound devide again because samplaRate or channelNum change");
+            				p->pSoundCtrlOps->SoundDeviceStart(p->pSoundCtrl);
+            			}
+            		}
+            	}
             }
 
             //**********************************************************
@@ -833,9 +833,9 @@ process_message:
                 
                 logd("start sound device.");
 				if(p->pRawSndCtrl)
-		{
-			//SoundDeviceStart_raw(p->pRawSndCtrl);   we have open once   dont need open pcm again
-		}
+    	    	{
+            		//SoundDeviceStart_raw(p->pRawSndCtrl);   we have open once   dont need open pcm again
+    	    	}
 				else
 				{
 					p->pSoundCtrlOps->SoundDeviceStart(p->pSoundCtrl);
@@ -883,9 +883,9 @@ process_message:
             while(nPcmDataLen > 0)
             {
 				if(p->pRawSndCtrl)
-		{
-			nWritten = p->pRawSndCtrlOps->SoundDeviceWrite_raw(p->pRawSndCtrl,pPcmData, nPcmDataLen);
-		}
+    	    	{
+            		nWritten = p->pRawSndCtrlOps->SoundDeviceWrite_raw(p->pRawSndCtrl,pPcmData, nPcmDataLen);
+    	    	}
 				else
 				{
 					nWritten = p->pSoundCtrlOps->SoundDeviceWrite(p->pSoundCtrl, pPcmData, nPcmDataLen);
@@ -1075,3 +1075,4 @@ int AudioRenderCompGetVolume(AudioRenderComp* a, float *volume)
 	}
 	return p->pSoundCtrlOps->SoundDeviceGetVolume(p->pSoundCtrl, volume);
 }
+

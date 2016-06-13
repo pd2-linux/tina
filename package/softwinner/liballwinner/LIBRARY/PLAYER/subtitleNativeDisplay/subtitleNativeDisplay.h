@@ -70,7 +70,7 @@ namespace android
 		    void    subSetSpacing(SkScalar mMul, SkScalar mAdd);
 		
 		    void    drawText(SkCanvas*, const char text[], size_t len, const SkPaint&, SkScalar textHeight, int specialEffectFlag);
-		    int		countLines(const char* text, size_t len, const SkPaint&, SkScalar width,  SkScalar* subTextWidth, int specialEffectFlag);
+		    int 	countLines(const char* text, size_t len, const SkPaint&, SkScalar width,  SkScalar* subTextWidth, int specialEffectFlag);
             int     getLastXPos();
             int     getLastYPos();
             int     getTextVerInf(const char *text, size_t len, const SkPaint& paint,SkScalar* subTextHeight,SkScalar* subTextWidth,SkScalar* textBoxHeight, int textBoxStartx,
@@ -89,21 +89,21 @@ namespace android
 		public:
 			CedarXSub(int index, int userSetFontColor, int userSetFontSize, int userSetFontStyle, int userSetYpercent);
 			~CedarXSub();
-			int					setPosition(int posX,int posY);
+			int	 				setPosition(int posX,int posY);
 			int					setPositionYPercent(int percent);
-			int				setTextColor(int color);
-			int				getTextColor();
-			int				getPositionX();
-			int				getPositionY();
-			int				setFontSize(int fontSize);
-			int				getFontSize();
-			int				setCharset(int Charset);
-			int				getCharset();
-			int				getWidth();
-			int				getHeight();
-			int				updatePara(sub_item_inf *sub_info, int initSetFontColor, int initSetFontSize, int initSetFontStyle, int Ypercent);
-			int				Show();
-			int				Hide();
+			int  				setTextColor(int color);
+			int  				getTextColor();
+			int  				getPositionX();
+			int  				getPositionY();
+			int  				setFontSize(int fontSize);
+			int  				getFontSize();
+			int  				setCharset(int Charset);
+			int  				getCharset();
+			int  				getWidth();
+			int  				getHeight();
+			int  				updatePara(sub_item_inf *sub_info, int initSetFontColor, int initSetFontSize, int initSetFontStyle, int Ypercent);
+			int  				Show();
+			int  				Hide();
 			int					setBackColor(int color);
 			int					getBackColor();
 			int					setLayer(int layer);
@@ -113,7 +113,7 @@ namespace android
 			int					setZorderBottom();
 			int					setZorderTop();
 			int					setFontStyle(int style);
-			int				getFontStyle();
+			int 				getFontStyle();
             int                 setTextBox(sub_item_inf* sub_info, int count,int startx,int starty, int endx, int endy, int lastDispx, int lastDispy, int yPercent);
             int                 getTextBox(int* startx, int *starty, int* endx, int* endy, int* lastDispx, int* lastDispy);
             int                 setSubInf(sub_item_inf *sub_info,int startx, int starty, int endx, int endy, int lastDispx, int lastDispy, int newSubShowFlag, int yPercent);
@@ -135,13 +135,13 @@ namespace android
 			int					generateBitmap(sub_item_inf *sub_info);	
 			int					mapDecToRender(int deccharset);		
             int                 startRenderRegion(int startx, int starty, int endx, int endy);
-			int				mCharset;
-			int				mFontSize;
+			int  				mCharset;
+			int  				mFontSize;
 			int					mSaveCount;
 			unsigned int        mTextColor;
 			int					mTextAlign;
 			int					mSubMode;
-			SkCanvas*		mCanvas;
+			SkCanvas*   		mCanvas;
 			CedarXSubTextBox*	mTextBox;    
 			sp<SurfaceControl>	mSurfaceControl;
 			sp<SurfaceComposerClient> mSurfaceClient;
@@ -157,7 +157,7 @@ namespace android
 			int					mTopBaseLayer;
 			int					mBottomBaseLayer;
 			int					mMaxWidth;
-			int				mMaxHeight;
+			int 				mMaxHeight;
 			int					mWidth;
 			int					mHeight;
 			int					mDisplay;
@@ -204,27 +204,27 @@ namespace android
     class CedarXSubRender
     {
         public:
-		CedarXSubRender();
-		~CedarXSubRender();
+        	CedarXSubRender();
+        	~CedarXSubRender();
 
-			int		cedarxSubShow();
-			int		cedarxSubHide(unsigned int systemTime, unsigned int* hasSubShowFlag);
-			int		cedarxSubSetPosition(int index,int positionx,int positiony);
-			int		cedarxSubSetYPercent(int index,int percent);
-			int		cedarxSubGetPositionX(int index);
+			int 		cedarxSubShow();
+			int 		cedarxSubHide(unsigned int systemTime, unsigned int* hasSubShowFlag);
+			int 		cedarxSubSetPosition(int index,int positionx,int positiony);
+			int 		cedarxSubSetYPercent(int index,int percent);
+			int 		cedarxSubGetPositionX(int index);
 			int			cedarxSubGetPositionY(int index);
-			int		cedarxSubSetFontColor(int color);
-			int		cedarxSubGetFontColor();
+			int 		cedarxSubSetFontColor(int color);
+			int 		cedarxSubGetFontColor();
 			int			cedarxSubSetBackColor(int color);
 			int			cedarxSubGetBackColor();
-			int		cedarxSubSetFontSize(int size);
-			int		cedarxSubGetFontSize();
-			int		cedarxSubSetCharset(int charset);
-			int		cedarxSubGetCharset();
-			int		cedarxSubGetHeight(int index);
-			int		cedarxSubGetWidth(int index);
-			int		cedarxSubSetDisplay(int display);
-			int		cedarxSubGetDisplay();
+			int 		cedarxSubSetFontSize(int size);
+			int 		cedarxSubGetFontSize();
+			int 		cedarxSubSetCharset(int charset);
+			int 		cedarxSubGetCharset();
+			int 		cedarxSubGetHeight(int index);
+			int 		cedarxSubGetWidth(int index);
+			int 		cedarxSubSetDisplay(int display);
+			int 		cedarxSubGetDisplay();
 			int			cedarxSubSetZorderBottom();
 			int			cedarxSubSetZorderTop();
 			int			cedarxSubSetAlign(int align);
@@ -234,8 +234,8 @@ namespace android
 			int         cedarxSubGetFontStyle();
 			int			updateSubPara(sub_item_inf *sub_info);
         private:
-            int							mDisplay;
-            int							mPid;
+            int 						mDisplay;
+            int 						mPid;
             Vector<sp<CedarXSub> >		mCedarXSubs;
             int							mBaseLayer;	
             int                mUserSetFontColor;

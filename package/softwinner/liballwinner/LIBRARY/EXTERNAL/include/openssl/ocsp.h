@@ -204,7 +204,7 @@ struct ocsp_responder_id_st
 	int type;
 	union   {
 		X509_NAME* byName;
-		ASN1_OCTET_STRING *byKey;
+        	ASN1_OCTET_STRING *byKey;
 		} value;
 	};
 

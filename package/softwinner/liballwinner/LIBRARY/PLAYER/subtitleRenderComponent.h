@@ -42,3 +42,4 @@ int SubtitleRenderCompSwitchStream(SubtitleRenderComp* s, int nStreamIndex);
 #endif
 
 #endif
+

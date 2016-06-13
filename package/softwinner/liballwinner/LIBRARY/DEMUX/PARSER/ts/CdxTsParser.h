@@ -57,7 +57,7 @@
 
 
 #define SUPPORT_SUBTITLE_DVB		(0)
-#if	SUPPORT_SUBTITLE_DVB
+#if 	SUPPORT_SUBTITLE_DVB	
 #define CDX_STREAM_TYPE_SUBTITLE_DVB    0x100
 #endif
 #define CDX_STREAM_TYPE_VIDEO_AVS		0x42
@@ -405,3 +405,4 @@ struct StreamS
 };
 
 #endif
+

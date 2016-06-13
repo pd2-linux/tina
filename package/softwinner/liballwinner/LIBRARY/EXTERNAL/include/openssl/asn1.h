@@ -207,7 +207,7 @@ typedef struct asn1_const_ctx_st
 #define ASN1_OBJECT_FLAG_DYNAMIC	 0x01	/* internal use */
 #define ASN1_OBJECT_FLAG_CRITICAL	 0x02	/* critical x509v3 object id */
 #define ASN1_OBJECT_FLAG_DYNAMIC_STRINGS 0x04	/* internal use */
-#define ASN1_OBJECT_FLAG_DYNAMIC_DATA	 0x08	/* internal use */
+#define ASN1_OBJECT_FLAG_DYNAMIC_DATA 	 0x08	/* internal use */
 typedef struct asn1_object_st
 	{
 	const char *sn,*ln;
@@ -796,10 +796,10 @@ void		ASN1_STRING_free(ASN1_STRING *a);
 int		ASN1_STRING_copy(ASN1_STRING *dst, const ASN1_STRING *str);
 ASN1_STRING *	ASN1_STRING_dup(const ASN1_STRING *a);
 ASN1_STRING *	ASN1_STRING_type_new(int type );
-int		ASN1_STRING_cmp(const ASN1_STRING *a, const ASN1_STRING *b);
+int 		ASN1_STRING_cmp(const ASN1_STRING *a, const ASN1_STRING *b);
   /* Since this is used to store all sorts of things, via macros, for now, make
      its data void * */
-int		ASN1_STRING_set(ASN1_STRING *str, const void *data, int len);
+int 		ASN1_STRING_set(ASN1_STRING *str, const void *data, int len);
 void		ASN1_STRING_set0(ASN1_STRING *str, void *data, int len);
 int ASN1_STRING_length(const ASN1_STRING *x);
 void ASN1_STRING_length_set(ASN1_STRING *x, int n);
@@ -826,7 +826,7 @@ int ASN1_BIT_STRING_set_asc(ASN1_BIT_STRING *bs, char *name, int value,
 				BIT_STRING_BITNAME *tbl);
 
 int		i2d_ASN1_BOOLEAN(int a,unsigned char **pp);
-int		d2i_ASN1_BOOLEAN(int *a,const unsigned char **pp,long length);
+int 		d2i_ASN1_BOOLEAN(int *a,const unsigned char **pp,long length);
 
 DECLARE_ASN1_FUNCTIONS(ASN1_INTEGER)
 int		i2c_ASN1_INTEGER(ASN1_INTEGER *a,unsigned char **pp);
@@ -857,8 +857,8 @@ int ASN1_GENERALIZEDTIME_set_string(ASN1_GENERALIZEDTIME *s, const char *str);
 
 DECLARE_ASN1_FUNCTIONS(ASN1_OCTET_STRING)
 ASN1_OCTET_STRING *	ASN1_OCTET_STRING_dup(const ASN1_OCTET_STRING *a);
-int	ASN1_OCTET_STRING_cmp(const ASN1_OCTET_STRING *a, const ASN1_OCTET_STRING *b);
-int	ASN1_OCTET_STRING_set(ASN1_OCTET_STRING *str, const unsigned char *data, int len);
+int 	ASN1_OCTET_STRING_cmp(const ASN1_OCTET_STRING *a, const ASN1_OCTET_STRING *b);
+int 	ASN1_OCTET_STRING_set(ASN1_OCTET_STRING *str, const unsigned char *data, int len);
 
 DECLARE_ASN1_FUNCTIONS(ASN1_VISIBLESTRING)
 DECLARE_ASN1_FUNCTIONS(ASN1_UNIVERSALSTRING)

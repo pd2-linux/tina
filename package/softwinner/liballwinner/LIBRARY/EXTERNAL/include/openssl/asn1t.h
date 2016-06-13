@@ -131,19 +131,19 @@ extern "C" {
  
 /* This pair helps declare a SEQUENCE. We can do:
  *
- *	ASN1_SEQUENCE(stname) = {
- *		... SEQUENCE components ...
- *	} ASN1_SEQUENCE_END(stname)
+ * 	ASN1_SEQUENCE(stname) = {
+ * 		... SEQUENCE components ...
+ * 	} ASN1_SEQUENCE_END(stname)
  *
- *	This will produce an ASN1_ITEM called stname_it
+ * 	This will produce an ASN1_ITEM called stname_it
  *	for a structure called stname.
  *
- *	If you want the same structure but a different
+ * 	If you want the same structure but a different
  *	name then use:
  *
- *	ASN1_SEQUENCE(itname) = {
- *		... SEQUENCE components ...
- *	} ASN1_SEQUENCE_END_name(stname, itname)
+ * 	ASN1_SEQUENCE(itname) = {
+ * 		... SEQUENCE components ...
+ * 	} ASN1_SEQUENCE_END_name(stname, itname)
  *
  *	This will create an item called itname_it using
  *	a structure called stname.
@@ -233,11 +233,11 @@ extern "C" {
 
 /* This pair helps declare a CHOICE type. We can do:
  *
- *	ASN1_CHOICE(chname) = {
- *		... CHOICE options ...
- *	ASN1_CHOICE_END(chname)
+ * 	ASN1_CHOICE(chname) = {
+ * 		... CHOICE options ...
+ * 	ASN1_CHOICE_END(chname)
  *
- *	This will produce an ASN1_ITEM called chname_it
+ * 	This will produce an ASN1_ITEM called chname_it
  *	for a structure called chname. The structure
  *	definition must look like this:
  *	typedef struct {
@@ -249,7 +249,7 @@ extern "C" {
  *	} chname;
  *	
  *	the name of the selector must be 'type'.
- *	to use an alternative selector name use the
+ * 	to use an alternative selector name use the
  *      ASN1_CHOICE_END_selector() version.
  */
 

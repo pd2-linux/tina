@@ -175,7 +175,7 @@ typedef struct X509_name_entry_st
 	ASN1_OBJECT *object;
 	ASN1_STRING *value;
 	int set;
-	int size;	/* temp variable */
+	int size; 	/* temp variable */
 	} X509_NAME_ENTRY;
 
 DECLARE_STACK_OF(X509_NAME_ENTRY)
@@ -348,7 +348,7 @@ typedef struct x509_cert_pair_st {
 
 
 /* trust_flags values */
-#define	X509_TRUST_DYNAMIC	1
+#define	X509_TRUST_DYNAMIC 	1
 #define	X509_TRUST_DYNAMIC_NAME	2
 
 /* check_trust return codes */
@@ -619,8 +619,8 @@ extern "C" {
 #define		X509_get_signature_type(x) EVP_PKEY_type(OBJ_obj2nid((x)->sig_alg->algorithm))
 
 #define		X509_CRL_get_version(x) ASN1_INTEGER_get((x)->crl->version)
-#define		X509_CRL_get_lastUpdate(x) ((x)->crl->lastUpdate)
-#define		X509_CRL_get_nextUpdate(x) ((x)->crl->nextUpdate)
+#define 	X509_CRL_get_lastUpdate(x) ((x)->crl->lastUpdate)
+#define 	X509_CRL_get_nextUpdate(x) ((x)->crl->nextUpdate)
 #define		X509_CRL_get_issuer(x) ((x)->crl->issuer)
 #define		X509_CRL_get_REVOKED(x) ((x)->crl->revoked)
 
@@ -638,7 +638,7 @@ void *X509_CRL_get_meth_data(X509_CRL *crl);
 
 /* This one is only used so that a binary form can output, as in
  * i2d_X509_NAME(X509_get_X509_PUBKEY(x),&buf) */
-#define		X509_get_X509_PUBKEY(x) ((x)->cert_info->key)
+#define 	X509_get_X509_PUBKEY(x) ((x)->cert_info->key)
 
 
 const char *X509_verify_cert_error_string(long n);
@@ -814,7 +814,7 @@ DSA *		d2i_DSA_PUBKEY(DSA **a,const unsigned char **pp,
 #endif
 #ifndef OPENSSL_NO_EC
 int		i2d_EC_PUBKEY(EC_KEY *a, unsigned char **pp);
-EC_KEY		*d2i_EC_PUBKEY(EC_KEY **a, const unsigned char **pp,
+EC_KEY 		*d2i_EC_PUBKEY(EC_KEY **a, const unsigned char **pp,
 			long length);
 #endif
 
@@ -903,19 +903,19 @@ int ASN1_item_sign(const ASN1_ITEM *it, X509_ALGOR *algor1, X509_ALGOR *algor2,
 	void *data, EVP_PKEY *pkey, const EVP_MD *type);
 int ASN1_item_sign_ctx(const ASN1_ITEM *it,
 		X509_ALGOR *algor1, X509_ALGOR *algor2,
-		ASN1_BIT_STRING *signature, void *asn, EVP_MD_CTX *ctx);
+	     	ASN1_BIT_STRING *signature, void *asn, EVP_MD_CTX *ctx);
 #endif
 
-int		X509_set_version(X509 *x,long version);
-int		X509_set_serialNumber(X509 *x, ASN1_INTEGER *serial);
+int 		X509_set_version(X509 *x,long version);
+int 		X509_set_serialNumber(X509 *x, ASN1_INTEGER *serial);
 ASN1_INTEGER *	X509_get_serialNumber(X509 *x);
-int		X509_set_issuer_name(X509 *x, X509_NAME *name);
+int 		X509_set_issuer_name(X509 *x, X509_NAME *name);
 X509_NAME *	X509_get_issuer_name(X509 *a);
-int		X509_set_subject_name(X509 *x, X509_NAME *name);
+int 		X509_set_subject_name(X509 *x, X509_NAME *name);
 X509_NAME *	X509_get_subject_name(X509 *a);
-int		X509_set_notBefore(X509 *x, const ASN1_TIME *tm);
-int		X509_set_notAfter(X509 *x, const ASN1_TIME *tm);
-int		X509_set_pubkey(X509 *x, EVP_PKEY *pkey);
+int 		X509_set_notBefore(X509 *x, const ASN1_TIME *tm);
+int 		X509_set_notAfter(X509 *x, const ASN1_TIME *tm);
+int 		X509_set_pubkey(X509 *x, EVP_PKEY *pkey);
 EVP_PKEY *	X509_get_pubkey(X509 *x);
 ASN1_BIT_STRING * X509_get0_pubkey_bitstr(const X509 *x);
 int		X509_certificate_type(X509 *x,EVP_PKEY *pubkey /* optional */);
@@ -1003,20 +1003,20 @@ int		X509_REQ_print_ex(BIO *bp, X509_REQ *x, unsigned long nmflag, unsigned long
 int		X509_REQ_print(BIO *bp,X509_REQ *req);
 #endif
 
-int		X509_NAME_entry_count(X509_NAME *name);
-int		X509_NAME_get_text_by_NID(X509_NAME *name, int nid,
+int 		X509_NAME_entry_count(X509_NAME *name);
+int 		X509_NAME_get_text_by_NID(X509_NAME *name, int nid,
 			char *buf,int len);
 int		X509_NAME_get_text_by_OBJ(X509_NAME *name, ASN1_OBJECT *obj,
 			char *buf,int len);
 
 /* NOTE: you should be passsing -1, not 0 as lastpos.  The functions that use
  * lastpos, search after that position on. */
-int		X509_NAME_get_index_by_NID(X509_NAME *name,int nid,int lastpos);
-int		X509_NAME_get_index_by_OBJ(X509_NAME *name,ASN1_OBJECT *obj,
+int 		X509_NAME_get_index_by_NID(X509_NAME *name,int nid,int lastpos);
+int 		X509_NAME_get_index_by_OBJ(X509_NAME *name,ASN1_OBJECT *obj,
 			int lastpos);
 X509_NAME_ENTRY *X509_NAME_get_entry(X509_NAME *name, int loc);
 X509_NAME_ENTRY *X509_NAME_delete_entry(X509_NAME *name, int loc);
-int		X509_NAME_add_entry(X509_NAME *name,X509_NAME_ENTRY *ne,
+int 		X509_NAME_add_entry(X509_NAME *name,X509_NAME_ENTRY *ne,
 			int loc, int set);
 int X509_NAME_add_entry_by_OBJ(X509_NAME *name, ASN1_OBJECT *obj, int type,
 			unsigned char *bytes, int len, int loc, int set);
@@ -1031,9 +1031,9 @@ int X509_NAME_add_entry_by_txt(X509_NAME *name, const char *field, int type,
 X509_NAME_ENTRY *X509_NAME_ENTRY_create_by_OBJ(X509_NAME_ENTRY **ne,
 			ASN1_OBJECT *obj, int type,const unsigned char *bytes,
 			int len);
-int		X509_NAME_ENTRY_set_object(X509_NAME_ENTRY *ne,
+int 		X509_NAME_ENTRY_set_object(X509_NAME_ENTRY *ne,
 			ASN1_OBJECT *obj);
-int		X509_NAME_ENTRY_set_data(X509_NAME_ENTRY *ne, int type,
+int 		X509_NAME_ENTRY_set_data(X509_NAME_ENTRY *ne, int type,
 			const unsigned char *bytes, int len);
 ASN1_OBJECT *	X509_NAME_ENTRY_get_object(X509_NAME_ENTRY *ne);
 ASN1_STRING *	X509_NAME_ENTRY_get_data(X509_NAME_ENTRY *ne);

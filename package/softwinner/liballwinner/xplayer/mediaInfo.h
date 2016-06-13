@@ -53,26 +53,7 @@ typedef struct MEDIAINFO
     AudioStreamInfo*    pAudioStreamInfo;
     SubtitleStreamInfo* pSubtitleStreamInfo;
     
-    cdx_uint8   album[64];
-    cdx_int32   albumsz;
-    cdx_int32   albumCharEncode;
-
-    cdx_uint8   author[64];
-    cdx_int32   authorsz;
-    cdx_int32   authorCharEncode;
-
-    cdx_uint8   genre[64];
-    cdx_int32   genresz;
-    cdx_int32   genreCharEncode;
-
-    cdx_uint8   title[64];
-    cdx_int32   titlesz;
-    cdx_int32   titleCharEncode;
-
-    cdx_uint8   year[64];
-    cdx_int32   yearsz;
-    cdx_int32   yearCharEncode;
-
 }MediaInfo;
 
 #endif
+

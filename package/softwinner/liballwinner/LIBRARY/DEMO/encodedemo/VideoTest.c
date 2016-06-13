@@ -12,8 +12,8 @@
 
 typedef struct
 {
-    char			intput_file[256];
-    char			output_file[256];
+    char 			intput_file[256];
+    char 			output_file[256];
 
 	unsigned int  encode_frame_num;
 	unsigned int  encode_format;
@@ -118,7 +118,7 @@ static void PrintDemoUsage(void)
     while(i < num)
     {
         printf("%s %-32s %s", ArgumentMapping[i].Short, ArgumentMapping[i].Name,
-			ArgumentMapping[i].Description);
+        		ArgumentMapping[i].Description);
 		printf("\n");
         i++;
     }
@@ -134,32 +134,32 @@ void ParseArgument(encode_param_t *encode_param, char *argument, char *value)
 	if(arg != HELP)
 		len = strlen(value);
     if(len > DEMO_FILE_NAME_LEN)
-	return;
+    	return;
 	
     switch(arg)
     {
         case HELP:
-		PrintDemoUsage();
+        	PrintDemoUsage();
             exit(-1);
         case INPUT:
 			memset(encode_param->intput_file, 0, sizeof(encode_param->intput_file));
-		sscanf(value, "%255s", encode_param->intput_file);
-		logd(" get input file: %s ", encode_param->intput_file);
+        	sscanf(value, "%255s", encode_param->intput_file);
+        	logd(" get input file: %s ", encode_param->intput_file);
             break;
         case ENCODE_FRAME_NUM:
-		sscanf(value, "%u", &encode_param->encode_frame_num);
+        	sscanf(value, "%u", &encode_param->encode_frame_num);
             break;
         case ENCODE_FORMAT:
-		sscanf(value, "%u", &encode_param->encode_format);
+        	sscanf(value, "%u", &encode_param->encode_format);
             break;
         case OUTPUT:
 			memset(encode_param->output_file, 0, sizeof(encode_param->output_file));
-		sscanf(value, "%255s", encode_param->output_file);
-		logd(" get output file: %s ", encode_param->output_file);
+        	sscanf(value, "%255s", encode_param->output_file);
+        	logd(" get output file: %s ", encode_param->output_file);
             break;
 		case SRC_SIZE:
-		sscanf(value, "%u", &encode_param->src_size);
-		logd(" get src_size: %dp ", encode_param->src_size);
+        	sscanf(value, "%u", &encode_param->src_size);
+        	logd(" get src_size: %dp ", encode_param->src_size);
 			if(encode_param->src_size == 1080)
 			{
 				encode_param->src_width = 1920;
@@ -183,8 +183,8 @@ void ParseArgument(encode_param_t *encode_param, char *argument, char *value)
 			}
             break;
 		case DST_SIZE:
-		sscanf(value, "%u", &encode_param->dst_size);
-		logd(" get dst_size: %dp ", encode_param->dst_size);
+        	sscanf(value, "%u", &encode_param->dst_size);
+        	logd(" get dst_size: %dp ", encode_param->dst_size);
 			if(encode_param->dst_size == 1080)
 			{
 				encode_param->dst_width = 1920;
@@ -282,14 +282,14 @@ int main(int argc, char** argv)
 	//VencCyclicIntraRefresh sIntraRefresh;
 	unsigned char *uv_tmp_buffer = NULL;
 
-	VencSuperFrameConfig	sSuperFrameCfg;
+	VencSuperFrameConfig 	sSuperFrameCfg;
 	//VencH264AspectRatio		sAspectRatio;
 
 	struct ScMemOpsS* memops = MemAdapterGetOpsS();
     if(memops == NULL)
     {
-	printf("MemAdapterGetOpsS failed\n");
-	return -1;
+    	printf("MemAdapterGetOpsS failed\n");
+    	return -1;
     }
     CdcMemOpen(memops);
 
@@ -331,9 +331,9 @@ int main(int argc, char** argv)
     }
     else
     {
-	printf(" we need more arguments ");
-	PrintDemoUsage();
-	return 0;
+    	printf(" we need more arguments ");
+    	PrintDemoUsage();
+    	return 0;
     }
 	
 #if 0
@@ -399,7 +399,7 @@ int main(int argc, char** argv)
 
 	strcpy((char*)exifinfo.CameraMake,		"allwinner make test");
 	strcpy((char*)exifinfo.CameraModel,		"allwinner model test");
-	strcpy((char*)exifinfo.DateTime,		"2014:02:21 10:54:05");
+	strcpy((char*)exifinfo.DateTime, 		"2014:02:21 10:54:05");
 	strcpy((char*)exifinfo.gpsProcessingMethod,  "allwinner gps");
 
 	exifinfo.Orientation = 0;
@@ -477,7 +477,7 @@ int main(int argc, char** argv)
 	//int jpeg_mode = 1;
 	if(encode_param.encode_format == VENC_CODEC_JPEG)
 	{
-		VideoEncSetParameter(pVideoEnc, VENC_IndexParamJpegExifInfo, &exifinfo);
+	  	VideoEncSetParameter(pVideoEnc, VENC_IndexParamJpegExifInfo, &exifinfo);
 		VideoEncSetParameter(pVideoEnc, VENC_IndexParamJpegQuality, &quality);
 		//VideoEncSetParameter(pVideoEnc, VENC_IndexParamJpegEncMode, &jpeg_mode);
 	}

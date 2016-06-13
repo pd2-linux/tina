@@ -218,7 +218,7 @@ int CdxListIsSingular(const struct CdxListS *list);
  */
 #define CdxListForEachEntry(pos, list, member)				\
 	for (pos = CdxListEntry((list)->head, typeof(*pos), member);	\
-	     &pos->member != (struct CdxListNodeS *)(list);	\
+	     &pos->member != (struct CdxListNodeS *)(list); 	\
 	     pos = CdxListEntry(pos->member.next, typeof(*pos), member))
 
 /**
@@ -229,7 +229,7 @@ int CdxListIsSingular(const struct CdxListS *list);
  */
 #define CdxListForEachEntryReverse(pos, list, member)			\
 	for (pos = CdxListEntry((list)->tail, typeof(*pos), member);	\
-	     &pos->member != (struct CdxListNodeS *)(list);	\
+	     &pos->member != (struct CdxListNodeS *)(list); 	\
 	     pos = CdxListEntry(pos->member.prev, typeof(*pos), member))
 
 /**
@@ -242,7 +242,7 @@ int CdxListIsSingular(const struct CdxListS *list);
 #define CdxListForEachEntrySafe(pos, n, list, member)			\
 	for (pos = CdxListEntry((list)->head, typeof(*pos), member),	\
 		n = CdxListEntry(pos->member.next, typeof(*pos), member);	\
-	     &pos->member != (struct CdxListNodeS *)(list);					\
+	     &pos->member != (struct CdxListNodeS *)(list); 					\
 	     pos = n, n = CdxListEntry(n->member.next, typeof(*n), member))
 
 /**
@@ -258,7 +258,7 @@ int CdxListIsSingular(const struct CdxListS *list);
 #define CdxListForEachEntrySafeReverse(pos, n, list, member)		\
 	for (pos = CdxListEntry((list)->prev, typeof(*pos), member),	\
 		n = CdxListEntry(pos->member.prev, typeof(*pos), member);	\
-	     &pos->member != (struct CdxListNodeS *)(list);					\
+	     &pos->member != (struct CdxListNodeS *)(list); 					\
 	     pos = n, n = CdxListEntry(n->member.prev, typeof(*n), member))
 
 #endif

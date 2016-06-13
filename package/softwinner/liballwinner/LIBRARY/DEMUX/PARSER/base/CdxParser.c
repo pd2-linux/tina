@@ -6,6 +6,8 @@
 
 #include <CdxStream.h>
 #include <dlfcn.h>
+#include <sys/time.h>
+
 
 struct CdxParserNodeS
 {
@@ -115,14 +117,14 @@ static struct ParserUriKeyInfoS mkvKeyInfo =
     {NULL}   /*attribute*/
 };
 
-extern CdxParserCreatorT mpgParserCtor;
-static struct ParserUriKeyInfoS mpgKeyInfo =
-{
-    "mpg",
-    {NULL},  /*scheme*/ 
-    {".vob", ".mpg", ".mpeg"}, /*suffix*/
-    {NULL}   /*attribute*/
-};
+//extern CdxParserCreatorT mpgParserCtor;
+//static struct ParserUriKeyInfoS mpgKeyInfo =
+//{
+//    "mpg",
+//    {NULL},  /*scheme*/ 
+//    {".vob", ".mpg", ".mpeg"}, /*suffix*/
+//    {NULL}   /*attribute*/
+//};
 
 extern CdxParserCreatorT bdParserCtor;
 static struct ParserUriKeyInfoS bdKeyInfo =
@@ -396,7 +398,7 @@ cdx_void AwParserInit(cdx_void)
 //	AwParserRegister(&envParserCtor, CDX_PARSER_ENV, &envKeyInfo);
 #endif
 
-    AwParserRegister(&mpgParserCtor, CDX_PARSER_MPG, &mpgKeyInfo);
+//    AwParserRegister(&mpgParserCtor, CDX_PARSER_MPG, &mpgKeyInfo);
 
 #endif
 
@@ -614,16 +616,16 @@ int CdxParserOpen(CdxStreamT *stream, cdx_uint32 flags, pthread_mutex_t *mutex, 
 	pthread_mutex_lock(mutex);
     if(exit && *exit)
     {
-	CDX_LOGW("open parser user cancel.");
+    	CDX_LOGW("open parser user cancel.");
         pthread_mutex_unlock(mutex);
-	return -1;
+    	return -1;
     }
     *parser = CdxParserCreate(stream, flags);
 	pthread_mutex_unlock(mutex);
     if(!*parser)
     {
-	CDX_LOGW("should not be here.");
-	return -1;
+    	CDX_LOGW("should not be here.");
+    	return -1;
     }
 	int ret;
 	while(parserTasks)
@@ -644,14 +646,20 @@ int CdxParserPrepare(CdxDataSourceT *source, cdx_uint32 flags, pthread_mutex_t *
 {
     
     CDX_LOGD("source uri '%s'", source->uri);
+	struct timeval time1,time2,time3;
+	gettimeofday(&time1, NULL);
+	logd("in CdxParserPrepare() >>>  time1 = %ld seconds  %ld useconds",time1.tv_sec, time1.tv_usec);
     int ret = CdxStreamOpen(source, mutex, exit, stream, streamTasks);
     if (ret < 0)
     {
         CDX_LOGE("open stream fail, uri(%s)", source->uri);
         goto out;
     }
-
+	gettimeofday(&time2, NULL);
+	logd("in CdxParserPrepare() >>>  time2 = %ld seconds  %ld useconds",time2.tv_sec, time2.tv_usec);
     ret = CdxParserOpen(*stream, flags, mutex, exit, parser, parserTasks);
+	gettimeofday(&time3, NULL);
+	logd("in CdxParserPrepare() >>>  time3 = %ld seconds  %ld useconds",time3.tv_sec, time3.tv_usec);
     if (ret < 0)
     {
         CDX_LOGE("open parser fail, uri(%s)", source->uri);
@@ -661,3 +669,4 @@ int CdxParserPrepare(CdxDataSourceT *source, cdx_uint32 flags, pthread_mutex_t *
 out:
     return ret;
 }
+

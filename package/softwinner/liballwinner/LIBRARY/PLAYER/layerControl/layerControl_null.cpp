@@ -337,3 +337,4 @@ LayerControlOpsT* __GetLayerControlOps()
 {
     return &mLayerControlOps;
 }
+

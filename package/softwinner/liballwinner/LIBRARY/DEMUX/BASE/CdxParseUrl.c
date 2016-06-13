@@ -652,3 +652,4 @@ CdxUrlT *CdxUrlRedirect(CdxUrlT **url, char *pRedir)
    *url = res;
    return res;
 }
+

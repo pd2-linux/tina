@@ -102,3 +102,4 @@ NewLayerControlOpsT* __GetNewLayerControlOps();
 	
 
 #endif
+

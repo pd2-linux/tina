@@ -46,7 +46,7 @@ ifneq ($(DependFilePath),wildcard($(DependFilePath)))
 a := $(shell mkdir -p $(DependFilePath))
 endif
 			
-SourceIncludePath :=	-I../../CODEC/VIDEO/DECODER/include/ \
+SourceIncludePath := 	-I../../CODEC/VIDEO/DECODER/include/ \
 	                    -I../../MEMORY/include/    \
 	                    -I../../VE/include/        \
 	                    -I../../DEMUX/BASE/include/ \

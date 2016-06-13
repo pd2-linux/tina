@@ -13,14 +13,14 @@ typedef enum
 
 typedef enum
 {
-    OK								= 0,
-	err_unknown					= -1,
-    ERROR_MALFORMED				= -2,
-    ERROR_maxNumAtom_too_little		= -3,
-    err_no_memory					= -4,
-    err_URL						= -5,
+    OK 								= 0,
+	err_unknown 					= -1,
+    ERROR_MALFORMED 				= -2,
+    ERROR_maxNumAtom_too_little 	= -3,
+    err_no_memory 					= -4,
+    err_URL 						= -5,
     err_no_bandwidth				= -6,
-    err_allocateBigBuffer			= -7,
+    err_allocateBigBuffer 			= -7,
 }status_t;
 
 //***********************************************************//
@@ -79,7 +79,7 @@ typedef enum
 {
 	TYPE_UNKNOWN	= -1,
     TYPE_AUDIO		= 0,
-    TYPE_VIDEO		= 1,
+    TYPE_VIDEO 		= 1,
     TYPE_SUBS		= 2,
 }MediaType;
 
@@ -177,3 +177,4 @@ bool M3uProbe(const char *data, cdx_uint32 size);
 void destoryPlaylist(Playlist *playList);
 int startsWith(const char* str, const char* prefix);
 #endif
+

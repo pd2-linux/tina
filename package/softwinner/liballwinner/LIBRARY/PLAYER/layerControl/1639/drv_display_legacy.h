@@ -593,17 +593,17 @@ typedef struct
 
 typedef struct
 {
-	__lcd_if_t			lcd_if;
+	__lcd_if_t   			lcd_if;
 
-	__lcd_hv_if_t			lcd_hv_if;
-	__lcd_hv_srgb_seq_t	lcd_hv_srgb_seq;
-	__lcd_hv_syuv_seq_t	lcd_hv_syuv_seq;
+	__lcd_hv_if_t		 	lcd_hv_if;
+	__lcd_hv_srgb_seq_t  	lcd_hv_srgb_seq;
+	__lcd_hv_syuv_seq_t  	lcd_hv_syuv_seq;
 	__lcd_hv_syuv_fdly_t	lcd_hv_syuv_fdly;
 
-	__lcd_lvds_if_t			lcd_lvds_if;
+	__lcd_lvds_if_t   		lcd_lvds_if;
 	__lcd_lvds_colordepth_t	lcd_lvds_colordepth; //color depth, 0:8bit; 1:6bit
-	__lcd_lvds_mode_t	lcd_lvds_mode;
-	__u32					lcd_lvds_io_polarity;
+	__lcd_lvds_mode_t   	lcd_lvds_mode;
+	__u32   				lcd_lvds_io_polarity;
 
 	__lcd_cpu_if_t			lcd_cpu_if;
 	__lcd_te_t			    lcd_cpu_te;
@@ -632,11 +632,11 @@ typedef struct
 
 	__u32   lcd_pwm_used;
 	__u32   lcd_pwm_ch;
-	__u32	lcd_pwm_freq;
-	__u32	lcd_pwm_pol;
+	__u32  	lcd_pwm_freq;
+	__u32  	lcd_pwm_pol;
 
-	__u32	lcd_rb_swap;
-	__u32	lcd_rgb_endian;
+	__u32  	lcd_rb_swap;
+	__u32  	lcd_rgb_endian;
 
 	__u32   lcd_vt;
 	__u32   lcd_ht;
@@ -650,7 +650,7 @@ typedef struct
 
 	__u32   lcd_frm;
 	__u32   lcd_gamma_en;
-	__u32	lcd_cmap_en;
+	__u32 	lcd_cmap_en;
     __u32   lcd_bright_curve_en;
     __panel_extend_para_t lcd_extend_para;
 

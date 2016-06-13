@@ -77,3 +77,4 @@ typedef struct {
 //extern cdx_int32 initial_psr_indx_table_reader(ODML_SUPERINDEX_READER *preader, AVI_FILE_IN *avi_in, cdx_int32 stream_index);
 //extern void deinitial_psr_indx_table_reader(ODML_SUPERINDEX_READER *preader);
 #endif  /* _CDX_AVI_ODML_INDX_H_ */
+

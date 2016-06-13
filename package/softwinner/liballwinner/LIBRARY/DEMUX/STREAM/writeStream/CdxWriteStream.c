@@ -140,11 +140,11 @@ static cdx_int32 __WStreamClose(CdxStreamT *stream)
 
     if(impl->cache_size > 0)
     {
-	ret = fwrite64(impl->fd, impl->cache_buf, impl->cache_size);
+    	ret = fwrite64(impl->fd, impl->cache_buf, impl->cache_size);
 	    if(ret < impl->cache_size)
 	    {
-		loge("wrie err(%d)", errno);
-		return -1;
+	    	loge("wrie err(%d)", errno);
+	    	return -1;
 	    }
     }
 
@@ -162,12 +162,12 @@ static cdx_int32 __WStreamClose(CdxStreamT *stream)
 
     if(impl->tmpBuf)
     {
-	free(impl->tmpBuf);
+    	free(impl->tmpBuf);
     }
 
     if(impl->cache_buf)
     {
-	free(impl->cache_buf);
+    	free(impl->cache_buf);
     }
 
     CdxFree(impl);
@@ -251,11 +251,11 @@ static cdx_int32 __WStreamSeek(CdxStreamT *stream, cdx_int64 offset, cdx_int32 w
 
     if(impl->cache_size > 0)
     {
-	ret = fwrite64(impl->fd, impl->cache_buf, impl->cache_size);
+    	ret = fwrite64(impl->fd, impl->cache_buf, impl->cache_size);
 	    if(ret < impl->cache_size)
 	    {
-		loge("wrie err(%d)", errno);
-		return -1;
+	    	loge("wrie err(%d)", errno);
+	    	return -1;
 	    }
 	    impl->cache_size = 0;
     }
@@ -278,7 +278,7 @@ static cdx_int32 __WStreamSeek(CdxStreamT *stream, cdx_int64 offset, cdx_int32 w
         }
         else
         {
-		SeekBeyondFileSize(impl, offset);
+        	SeekBeyondFileSize(impl, offset);
 			break;
         }
     }
@@ -295,13 +295,13 @@ static cdx_int32 __WStreamSeek(CdxStreamT *stream, cdx_int64 offset, cdx_int32 w
         }
         else if(seekPos <= impl->size)
         {
-		ret = fseek64(impl->fd, offset, SEEK_CUR);
-		break;
+        	ret = fseek64(impl->fd, offset, SEEK_CUR);
+        	break;
         }
         else
         {
-		SeekBeyondFileSize(impl, seekPos);
-		break;
+        	SeekBeyondFileSize(impl, seekPos);
+        	break;
         }
     }
     case STREAM_SEEK_END:
@@ -462,9 +462,9 @@ static int __WStreamWrite(CdxStreamT *stream, void * buf, cdx_uint32 len)
 		ret = fwrite64(impl->fd, impl->cache_buf, impl->cache_buf_size);	
 	    if(ret < impl->cache_buf_size)
 	    {
-		loge("wrie err(%d), ret: %d, len: %d", errno, ret, len);
-		CdxAtomicSet(&impl->state, WRITE_STREAM_IDLE);
-		return -1;
+	    	loge("wrie err(%d), ret: %d, len: %d", errno, ret, len);
+	    	CdxAtomicSet(&impl->state, WRITE_STREAM_IDLE);
+	    	return -1;
 	    }
 	    memcpy(impl->cache_buf, buf+remaind_size, len-remaind_size);
 
@@ -529,20 +529,20 @@ static cdx_int32 __WStreamRead(CdxStreamT *stream, cdx_void *buf, cdx_uint32 len
 
 static struct CdxStreamOpsS writeStreamOps =
 {
-	.connect		= __WStreamConnect,
-    .getProbeData	= NULL,
-    .read			= __WStreamRead,
-    .write			= __WStreamWrite,
-    .close			= __WStreamClose,
-    .getIOState			= __WStreamGetIoState,
-    .attribute		= __WStreamAttribute,
-    .control		= __WStreamControl,
-    .getMetaData	= __WStreamGetMetaData,
-    .seek			= __WStreamSeek,
-    .seekToTime			= NULL,
-    .eos		= __WStreamEos,
-    .tell			= __WStreamTell,
-    .size			= __WStreamSize,
+	.connect 		= __WStreamConnect,
+    .getProbeData 	= NULL,
+    .read 			= __WStreamRead,
+    .write 			= __WStreamWrite,
+    .close		 	= __WStreamClose,
+    .getIOState 		= __WStreamGetIoState,
+    .attribute 		= __WStreamAttribute,
+    .control 		= __WStreamControl,
+    .getMetaData 	= __WStreamGetMetaData,
+    .seek 			= __WStreamSeek,
+    .seekToTime 		= NULL,
+    .eos          	= __WStreamEos,
+    .tell 			= __WStreamTell,
+    .size 			= __WStreamSize,
 };
 
 static CdxStreamT *__WStreamCreate(CdxDataSourceT *source)
@@ -564,7 +564,7 @@ static CdxStreamT *__WStreamCreate(CdxDataSourceT *source)
     impl->cache_buf = malloc(impl->cache_buf_size);
     if(impl->cache_buf == NULL)
     {
-	loge("cannot malloc cache buf");
+    	loge("cannot malloc cache buf");
     }
 	impl->ioErr = -1;
 	CDX_LOGD("__WStreamCreate local file '%s'", source->uri);
@@ -576,3 +576,4 @@ CdxStreamCreatorT writeStreamCtor =
 {
     .create = __WStreamCreate
 };
+

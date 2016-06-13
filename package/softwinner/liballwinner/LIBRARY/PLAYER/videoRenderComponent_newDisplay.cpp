@@ -110,11 +110,11 @@ typedef struct VideoRenderCompContext
     int                  nDeinterlaceDispNum;
 	int				     nGpuBufferNum;
 	int					 bHadSetBufferToDecoderFlag;
-	VideoPicture*		 pCancelPicture[4];
+	VideoPicture* 		 pCancelPicture[4];
 	
-	VideoPicture*		 pDiOutPicture;
+	VideoPicture*   	 pDiOutPicture;
 	int					 bResetBufToDecoderFlag;
-	int				     bHadRequestReleasePicFlag;
+ 	int				     bHadRequestReleasePicFlag;
 	int					 nNeedReleaseBufferNum;
 
 }VideoRenderCompContext;
@@ -199,7 +199,7 @@ VideoRenderComp* VideoRenderCompCreate(void)
         if (p->di)
         {
             delete p->di;
-		p->di = NULL;
+    		p->di = NULL;
 		}
         free(p);
         return NULL;
@@ -879,24 +879,24 @@ process_message:
                 //* just reset nativeWindow.
 #if(CONFIG_OS == OPTION_OS_ANDROID)                
 
-		VideoPicture* pPicture = NULL;
+            	VideoPicture* pPicture = NULL;
 				int nWhileNum = 0;
 				while(1)
-		{
-			nWhileNum++;
+            	{
+            		nWhileNum++;
 					if(nWhileNum >= 100)
 					{
 						loge("get pic node time more than 100, it is wrong");
 						break;
 					}
 					
-			pPicture = p->mNewLayerOps->getBufferOwnedByGpu(p->pLayerCtrl);
-			if(pPicture == NULL)
-			{
-				break;
-			}
-			VideoDecCompReturnPicture(p->pDecComp, pPicture);
-		}
+            		pPicture = p->mNewLayerOps->getBufferOwnedByGpu(p->pLayerCtrl);
+            		if(pPicture == NULL)
+            		{
+            			break;
+            		}
+            		VideoDecCompReturnPicture(p->pDecComp, pPicture);
+            	}
 
 				p->mNewLayerOps->resetNativeWindow(p->pLayerCtrl,p->pNativeWindow);
 				VideoDecCompSetVideoFbmBufRelease(p->pDecComp);
@@ -966,9 +966,9 @@ set_nativeWindow_exit:
             //* send a message to continue the thread.
             if(p->eStatus == PLAYER_STATUS_STARTED ||
                (p->eStatus == PLAYER_STATUS_PAUSED && p->bFirstPictureShowed == 0))
-		{
-		PostRenderMessage(p->mq);
-		}
+        	{
+            	PostRenderMessage(p->mq);
+        	}
         }
         else if(msg.messageId == MESSAGE_ID_SET_3D_MODE)
         {
@@ -1133,7 +1133,7 @@ process_render:
 
 					if(p->bResolutionChange)
                     {
-			//* reopen the video engine.
+                    	//* reopen the video engine.
                         VideoDecCompReopenVideoEngine(p->pDecComp);
                         //* reopen the layer.
                         if(p->pLayerCtrl != NULL)
@@ -1147,8 +1147,8 @@ process_render:
                             if(p->pLayerCtrl != NULL)
                                 p->bNeedResetLayerParams = 1;
                         }
-                        p->bResolutionChange		  = 0;
-                        p->bHadSetLayerInfoFlag		  = 0;
+                        p->bResolutionChange    	  = 0;
+                        p->bHadSetLayerInfoFlag 	  = 0;
 						p->bHadGetVideoFbmBufInfoFlag = 0;
 						p->bHadSetBufferToDecoderFlag = 0;
 
@@ -1224,15 +1224,15 @@ step_5:
                 if(p->bDeinterlaceFlag == 0)
                 {
 #if DTMB_PRODUCT
-			if(p->bFirstPictureShowed == 0)
-			{
-				QueueBufferToShow(p, p->pPicture);
+                	if(p->bFirstPictureShowed == 0)
+                	{
+                		QueueBufferToShow(p, p->pPicture);
                             p->pPicture = NULL;
 
                             VideoPicture* pReturnPicture = NULL;
                             p->mNewLayerOps->dequeueBuffer(p->pLayerCtrl, &pReturnPicture, 0);
                             VideoDecCompReturnPicture(p->pDecComp, pReturnPicture);
-			}
+                	}
 #endif					
                     //* 6.1. wait according to the presentation time stamp.
                     if(p->bFirstPictureShowed != 0)    //* the first picture is showed unsychronized.
@@ -1275,7 +1275,7 @@ step_5:
                         //*6.2. sync process
                         if(p->bFirstPictureShowed != 0)    //* the first picture is showed unsychronized.
                         {
-				ret = ProcessVideoSync(p, p->pDiOutPicture, &msg);
+                        	ret = ProcessVideoSync(p, p->pDiOutPicture, &msg);
 							if(ret == VIDEO_RENDER_PROCESS_MESSAGE)
 							{
                                 p->mNewLayerOps->queueBuffer(p->pLayerCtrl, p->pDiOutPicture, 0);
@@ -1398,10 +1398,10 @@ static inline void NotifyVideoSizeAndSetDisplayRegion(VideoRenderCompContext* p)
         if(p->pLayerCtrl != NULL)
         {
             p->mNewLayerOps->setDisplayRegion(p->pLayerCtrl,
-			              p->pPicture->nLeftOffset,
-			              p->pPicture->nTopOffset,
-			              p->pPicture->nRightOffset - p->pPicture->nLeftOffset,
-			              p->pPicture->nBottomOffset - p->pPicture->nTopOffset);
+            		              p->pPicture->nLeftOffset,
+            		              p->pPicture->nTopOffset,
+            		              p->pPicture->nRightOffset - p->pPicture->nLeftOffset,
+            		              p->pPicture->nBottomOffset - p->pPicture->nTopOffset);
         }
 	}
     else
@@ -1419,10 +1419,10 @@ static inline void NotifyVideoSizeAndSetDisplayRegion(VideoRenderCompContext* p)
         if(p->pLayerCtrl != NULL)
         {
             p->mNewLayerOps->setDisplayRegion(p->pLayerCtrl,
-			              0,
-			              0,
-			              p->pPicture->nWidth,
-			              p->pPicture->nHeight);
+            		              0,
+            		              0,
+            		              p->pPicture->nWidth,
+            		              p->pPicture->nHeight);
         }
     }
 
@@ -1488,10 +1488,10 @@ static inline int ProcessVideoSync(VideoRenderCompContext* p,
 		 int nDispFPS = p->mNewLayerOps->getDisplayFPS(p->pLayerCtrl);
 		 if(nDispFPS <= 30)
 		 {
-		/* when disp in 24fps/30fps, SurfaceFlinger could not drop-frame correctly when video framerate larger than 2x */
-		/* so we drop it here */
-		logd("drop frame nWaitTime=%d, nDispFPS=%d, nFrameRate=%d.", nWaitTime, nDispFPS, pPicture->nFrameRate);
-		return VIDEO_RENDER_DROP_THE_PICTURE;
+        	/* when disp in 24fps/30fps, SurfaceFlinger could not drop-frame correctly when video framerate larger than 2x */
+        	/* so we drop it here */
+        	logd("drop frame nWaitTime=%d, nDispFPS=%d, nFrameRate=%d.", nWaitTime, nDispFPS, pPicture->nFrameRate);
+        	return VIDEO_RENDER_DROP_THE_PICTURE;
 		}
     }
 #endif	
@@ -1508,7 +1508,7 @@ static inline int QueueBufferToShow(VideoRenderCompContext* p,
             int64_t ptsAbs = p->pAvTimer->PtsToSystemTime(p->pAvTimer, pPicture->nPts);
             p->mNewLayerOps->setBufferTimeStamp(p->pLayerCtrl, ptsAbs);
         }
-	p->mNewLayerOps->queueBuffer(p->pLayerCtrl, pPicture, 1);
+    	p->mNewLayerOps->queueBuffer(p->pLayerCtrl, pPicture, 1);
     }
     else
     {

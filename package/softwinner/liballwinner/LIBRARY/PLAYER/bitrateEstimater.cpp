@@ -152,8 +152,8 @@ void BitrateEstimaterUpdate(BitrateEstimater* be, int64_t nPts, int nFrameLen)
             
             if(nRunLen > 0)
             {
-		nFirstPts   = ptsArr[j];
-		nLastPts    = ptsArr[j+nRunLen];
+            	nFirstPts   = ptsArr[j];
+            	nLastPts    = ptsArr[j+nRunLen];
 
                 nDuration = nLastPts - nFirstPts;
                 if(nDuration <= 0)
@@ -161,12 +161,12 @@ void BitrateEstimaterUpdate(BitrateEstimater* be, int64_t nPts, int nFrameLen)
                     logw("bitrate estimater get an invalid duration %lld", nDuration);
                     be->nWritePosLastEstimate = be->nWritePos;
                     pthread_mutex_unlock(&be->mutex);
-				return;
+        			return;
                 }
 
                 nTotalSize = 0;
                 for(i=0; i<=nRunLen; i++)
-			nTotalSize += frameLenArr[j+i];
+                	nTotalSize += frameLenArr[j+i];
 
                 nByteRate = nTotalSize*1000000/nDuration;
                 be->nBitrate = (int)(nByteRate*8);

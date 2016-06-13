@@ -293,3 +293,4 @@ void setMessage(AwMessage* msg,
     msg->params[6] = param6;
     msg->params[7] = param7;
 }
+

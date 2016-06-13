@@ -499,3 +499,4 @@ __err1_idx1_buf:
     DeinitialPsrIdx1TableReader(&aviIn->vidIdx1Reader);
     return ret;
 }
+

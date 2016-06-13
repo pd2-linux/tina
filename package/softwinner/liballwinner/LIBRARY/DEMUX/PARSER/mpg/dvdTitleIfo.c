@@ -1015,3 +1015,4 @@ cdx_int16 DvdOpenTitleFile(CdxMpgParserT *MpgParser, cdx_char *stream)
     mMpgParserCxt->mDataChunkT.bWaitingUpdateFlag = CDX_FALSE;
     return 0;
 }
+

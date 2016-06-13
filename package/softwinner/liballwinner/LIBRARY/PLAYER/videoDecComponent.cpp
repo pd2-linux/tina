@@ -192,7 +192,7 @@ int VideoDecCompDestroy(VideoDecComp* v)
     }
     
     if(p->videoStreamInfo.pCodecSpecificData)
-	free(p->videoStreamInfo.pCodecSpecificData);
+    	free(p->videoStreamInfo.pCodecSpecificData);
     //* wake up the thread if it is pending for stream data or frame buffer.
     sem_post(&p->streamDataSem);
     sem_post(&p->frameBufferSem);
@@ -629,7 +629,7 @@ int VideoDecCompStreamBufferSize(VideoDecComp* v, int nStreamIndex)
     p = (VideoDecCompContext*)v;
     if(p == NULL)
     {
-	return 0;
+    	return 0;
     }
     return VideoStreamBufferSize(p->pDecoder, nStreamIndex);
 }
@@ -643,7 +643,7 @@ int VideoDecCompStreamDataSize(VideoDecComp* v, int nStreamIndex)
     
     if(p == NULL)
     {
-	return 0;
+    	return 0;
     }
     return VideoStreamDataSize(p->pDecoder, nStreamIndex);
 }
@@ -656,7 +656,7 @@ int VideoDecCompStreamFrameNum(VideoDecComp* v, int nStreamIndex)
     p = (VideoDecCompContext*)v;
     if(p == NULL)
     {
-	return 0;
+    	return 0;
     }
     return VideoStreamFrameNum(p->pDecoder, nStreamIndex);
 }
@@ -1413,3 +1413,4 @@ static int CallbackProcess(void* pUserData, int eMessageId, void* param)
 }
 
 #endif
+

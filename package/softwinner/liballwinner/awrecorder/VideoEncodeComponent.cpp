@@ -43,16 +43,16 @@ typedef struct EncodeCompContex
 {
 	pthread_t               mThreadId;
 	int                     mThreadCreated;
-	AwMessageQueue*		        mMessageQueue;
+	AwMessageQueue* 	        mMessageQueue;
 
 	int                     mStatus;
 
 	int                     mUseAllocInputBuffer;
 
-	int				    mStartReply;
-	int				    mStopReply;
-	int				    mPauseReply;
-	int				    mResetReply;
+	int 				    mStartReply;
+	int 				    mStopReply;
+	int 				    mPauseReply;
+	int 				    mResetReply;
 
 	sem_t                   mSemStart;
 	sem_t                   mSemStop;
@@ -200,9 +200,9 @@ static void* encodeThread(void* pArg)
 {
 	EncodeCompContex   *p = (EncodeCompContex*)pArg;
 	AwMessage			 msg;
-	int				 ret;
+	int 				 ret;
 	sem_t*				 pReplySem;
-	int*					pReplyValue;
+	int*				 	pReplyValue;
 	VencInputBuffer inputBufferReturn;
 	
 	while(1)
@@ -350,13 +350,13 @@ static int setEncodeType(EncodeCompContex *p, VideoEncodeConfig* config)
     VencAllocateBufferParam bufferParam;
     //init decoder and encoder. 
     if(config->nType == VIDEO_ENCODE_H264)
-	p->mEncodeType = VENC_CODEC_H264;
+    	p->mEncodeType = VENC_CODEC_H264;
     else if(config->nType == VIDEO_ENCODE_JPEG)
-	p->mEncodeType = VENC_CODEC_JPEG;
+    	p->mEncodeType = VENC_CODEC_JPEG;
     else
     {
-	loge("not support this video encode type");
-	return -1;
+    	loge("not support this video encode type");
+    	return -1;
     }
     
     p->mFrameRate    = config->nFrameRate;
@@ -368,7 +368,7 @@ static int setEncodeType(EncodeCompContex *p, VideoEncodeConfig* config)
     p->mSrcFrameRate = config->nSrcFrameRate;
     if(p->mEncodeType != VENC_CODEC_H264 && p->mEncodeType != VENC_CODEC_JPEG)
     {
-	loge("connot support this video type, p->mEncodeType(%d)", p->mEncodeType);
+    	loge("connot support this video type, p->mEncodeType(%d)", p->mEncodeType);
         return -1;
     }
     
@@ -411,7 +411,7 @@ static int setEncodeType(EncodeCompContex *p, VideoEncodeConfig* config)
 
 		strcpy((char*)exifinfo.CameraMake,		"allwinner make test");
 		strcpy((char*)exifinfo.CameraModel,		"allwinner model test");
-		strcpy((char*)exifinfo.DateTime,		"2014:02:21 10:54:05");
+		strcpy((char*)exifinfo.DateTime, 		"2014:02:21 10:54:05");
 		strcpy((char*)exifinfo.gpsProcessingMethod,  "allwinner gps");
 
 		exifinfo.Orientation = 0;
@@ -520,7 +520,7 @@ static int setEncodeType(EncodeCompContex *p, VideoEncodeConfig* config)
 	VideoEncInit(p->pEncoder, &baseConfig);
 	if(p->mEncodeType == VENC_CODEC_H264)
 	{
-		VideoEncGetParameter(p->pEncoder, VENC_IndexParamH264SPSPPS, &p->mPpsInfo);    //VencHeaderData    spsppsInfo;
+	 	VideoEncGetParameter(p->pEncoder, VENC_IndexParamH264SPSPPS, &p->mPpsInfo);    //VencHeaderData    spsppsInfo;
 	}
 
 	if(config->bUsePhyBuf)
@@ -615,7 +615,7 @@ void VideoEncodeCompDestory(VideoEncodeComp* v)
     
     if(p->pEncoder)
     {
-	VideoEncUnInit(p->pEncoder);
+    	VideoEncUnInit(p->pEncoder);
         VideoEncDestroy(p->pEncoder);
         p->pEncoder = NULL;
     }
@@ -648,7 +648,7 @@ int VideoEncodeCompGetExtradata(VideoEncodeComp *v, unsigned char** buf, unsigne
 	*length = 0;
 	if(p->mEncodeType == VENC_CODEC_H264)
 	{
-		VideoEncGetParameter(p->pEncoder, VENC_IndexParamH264SPSPPS, &p->mPpsInfo);    //VencHeaderData    spsppsInfo;
+	 	VideoEncGetParameter(p->pEncoder, VENC_IndexParamH264SPSPPS, &p->mPpsInfo);    //VencHeaderData    spsppsInfo;
 		*length = p->mPpsInfo.nLength;
 		*buf = p->mPpsInfo.pBuffer;
 	}
@@ -901,3 +901,5 @@ int VideoEncodeCompSetCallback(VideoEncodeComp *v, VideoEncodeCallback notifier,
 	p->mUserData = pUserData;
 	return 0;
 }
+
+

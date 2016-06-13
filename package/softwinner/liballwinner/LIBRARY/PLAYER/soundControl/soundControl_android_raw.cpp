@@ -51,7 +51,7 @@ typedef struct Snd_raw_data
 
 typedef struct SoundCtrlContext_raw
 {
-    snd_raw_data				raw_data;
+    snd_raw_data	 			raw_data;    
     int64_t                     nDataSizePlayed;
     int64_t                     nFramePosOffset;
     unsigned int                nFrameSize;
@@ -121,7 +121,7 @@ SoundCtrl* SoundDeviceInit_raw(void* raw,void* hdeccomp,RawCallback callback)
 	s->config.raw_flag = s->raw_data.raw_flag;
     switch(s->raw_data.bitpersample)
     {
-	case 32:
+    	case 32:
 			s->config.format = PCM_FORMAT_S32_LE;
 			break;
 		case 24:
@@ -196,8 +196,8 @@ int SoundDeviceStart_raw(SoundCtrl* s)
     SoundCtrlContext_raw* sc;
     status_t          err;
     unsigned int      nFramePos;
-    int				  param_occupy[3]={1,0,0};
-	int			  param_release[3]={1,0,0};
+    int 			  param_occupy[3]={1,0,0};
+	int 			  param_release[3]={1,0,0};
     sc = (SoundCtrlContext_raw*)s;
     
     pthread_mutex_lock(&sc->mutex_raw);
@@ -224,7 +224,7 @@ int SoundDeviceStart_raw(SoundCtrl* s)
 		}
 		else if (sc->raw_data.nRawDataFlag == SND_SPDIF_RAW)
 		{
-		//TODO
+        	//TODO
 		}
 #endif
 #if (SOUND_DEVICE_SET_RAW_FLAG == 1)
@@ -426,25 +426,26 @@ int SoundDeviceGetCachedTime_raw(SoundCtrl* s)
 
 SoundControlOpsT mRawSoundControlOps = 
 {
-	SoundDeviceInit:			NULL,
-	SoundDeviceRelease:			NULL,
-	SoundDeviceSetFormat:			NULL,
-	SoundDeviceStart:			NULL,
-	SoundDeviceStop:			NULL,
-	SoundDevicePause:			NULL,
-	SoundDeviceWrite:			NULL,
-	SoundDeviceReset:			NULL,
-	SoundDeviceGetCachedTime:		NULL,
-	SoundDeviceInit_raw:			SoundDeviceInit_raw,
-	SoundDeviceRelease_raw:			SoundDeviceRelease_raw,
-	SoundDeviceSetFormat_raw:		SoundDeviceSetFormat_raw,
-	SoundDeviceStart_raw:			SoundDeviceStart_raw,
-	SoundDeviceStop_raw:			SoundDeviceStop_raw,
-	SoundDevicePause_raw:			SoundDevicePause_raw,
-	SoundDeviceWrite_raw:			SoundDeviceWrite_raw,
-	SoundDeviceReset_raw:			SoundDeviceReset_raw,
-	SoundDeviceGetCachedTime_raw:	SoundDeviceGetCachedTime_raw,
-	SoundDeviceSetVolume:			SoundDeviceSetVolume,
-	SoundDeviceGetVolume:		SoundDeviceGetVolume,
-	SoundDeviceSetCallback:		SoundDeviceSetCallback
+	SoundDeviceInit:          		NULL,
+	SoundDeviceRelease:       		NULL,
+	SoundDeviceSetFormat:     		NULL,
+	SoundDeviceStart:         		NULL,
+	SoundDeviceStop:          		NULL,
+	SoundDevicePause:         		NULL,
+	SoundDeviceWrite:         		NULL,
+	SoundDeviceReset:         		NULL,
+	SoundDeviceGetCachedTime: 		NULL,
+	SoundDeviceInit_raw:      		SoundDeviceInit_raw,
+	SoundDeviceRelease_raw:   		SoundDeviceRelease_raw,
+	SoundDeviceSetFormat_raw: 		SoundDeviceSetFormat_raw,
+	SoundDeviceStart_raw:     		SoundDeviceStart_raw,
+	SoundDeviceStop_raw:      		SoundDeviceStop_raw,
+	SoundDevicePause_raw:     		SoundDevicePause_raw,
+	SoundDeviceWrite_raw:     		SoundDeviceWrite_raw,
+	SoundDeviceReset_raw:     		SoundDeviceReset_raw,
+	SoundDeviceGetCachedTime_raw: 	SoundDeviceGetCachedTime_raw,
+	SoundDeviceSetVolume: 			SoundDeviceSetVolume,
+	SoundDeviceGetVolume:         	SoundDeviceGetVolume,
+	SoundDeviceSetCallback:        	SoundDeviceSetCallback
 };
+

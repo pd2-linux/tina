@@ -53,7 +53,7 @@ int CdcGetSysinfoChipId(void)
 	if(ret < 0)
 	{
 		loge("ioctl err!\n");
-	return  SI_CHIP_UNKNOWN;
+    	return  SI_CHIP_UNKNOWN;
 	}
 
 	logd("%s\n", buf);
@@ -84,3 +84,5 @@ int CdcGetSysinfoChipId(void)
 	}
 	return ret;
 }
+
+

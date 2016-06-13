@@ -878,3 +878,4 @@ void DeinitialPsrIndxTableReader(ODML_SUPERINDEX_READER *pReader)
     }
     memset(pReader, 0, sizeof(ODML_SUPERINDEX_READER));
 }
+

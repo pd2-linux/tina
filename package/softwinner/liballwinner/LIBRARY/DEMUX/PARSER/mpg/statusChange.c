@@ -459,3 +459,4 @@ cdx_uint8 MpgStatusSelectSuitPts(CdxMpgParserT *MpgParser)
     }
     return result;
 }
+

@@ -146,7 +146,6 @@ define Build/InstallDev
 	
 	## copy libraries
 	$(CP) $(PKG_BUILD_DIR)/LIBRARY/install/lib/*.so                           $(PKG_INSTALL_DIR)/usr/lib/
-	$(CP) $(PKG_BUILD_DIR)/LIBRARY/install/external/*.so                      $(PKG_INSTALL_DIR)/usr/lib/
 	$(CP) $(PKG_BUILD_DIR)/tinaplayer/libtinaplayer.so                        $(PKG_INSTALL_DIR)/usr/lib/
 
 	#################################################################
@@ -191,7 +190,6 @@ define Package/liballwinner/install
 	############################################################
 	# copy libraries
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/LIBRARY/install/lib/*.so                           $(1)/usr/lib/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/LIBRARY/install/external/*.so                      $(1)/usr/lib/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/tinaplayer/libtinaplayer.so                        $(1)/usr/lib/
 
 	cd $(1)/usr/lib/; rm -rf $(SYSTEM_LIB) $(VIDEO_DECODE_LIB)

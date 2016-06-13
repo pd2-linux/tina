@@ -50,7 +50,7 @@ typedef struct
     int mErrno;
 	cdx_uint32 flags;/*使能标志*/
 	
-	int forceStop;			/* for forceStop()*/
+	int forceStop;  		/* for forceStop()*/
     pthread_mutex_t statusLock;
     pthread_cond_t cond;
 	

@@ -137,7 +137,7 @@ enum sndrv_pcm_stream {
 
 enum sndrv_pcm_access {
 	SNDRV_PCM_ACCESS_MMAP_INTERLEAVED = 0,	/* interleaved mmap */
-	SNDRV_PCM_ACCESS_MMAP_NONINTERLEAVED,	/* noninterleaved mmap */
+	SNDRV_PCM_ACCESS_MMAP_NONINTERLEAVED, 	/* noninterleaved mmap */
 	SNDRV_PCM_ACCESS_MMAP_COMPLEX,		/* complex mmap */
 	SNDRV_PCM_ACCESS_RW_INTERLEAVED,	/* readi/writei */
 	SNDRV_PCM_ACCESS_RW_NONINTERLEAVED,	/* readn/writen */

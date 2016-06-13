@@ -188,7 +188,7 @@ void LayerRelease(LayerCtrl* l, int bKeepPictureOnScreen)
 	{
 	    if(lc->bLayerShowed == 1)
 	    {
-		lc->bLayerShowed = 0;
+	    	lc->bLayerShowed = 0;
 			
 	        ioctl(lc->fdDisplay, DISP_CMD_LAYER_CLOSE, args);
 	    }
@@ -574,7 +574,7 @@ static int dump = 0;
 	videoInfo.addr[2]			= (unsigned long)MemAdapterGetPhysicAddress(pBuf->pData2);
 	videoInfo.addr_right[0]     = (unsigned long)MemAdapterGetPhysicAddress(pBuf->pData2);
 	videoInfo.addr_right[1]     = (unsigned long)MemAdapterGetPhysicAddress(pBuf->pData3);
-	videoInfo.addr_right[2]		= 0;
+	videoInfo.addr_right[2]	  	= 0;
 	videoInfo.id                = pBuf->nID;
 	videoInfo.maf_valid         = pBuf->bMafValid;
 	videoInfo.pre_frame_valid   = pBuf->bPreFrmValid;
@@ -589,7 +589,7 @@ static int dump = 0;
     int ret = ioctl(lc->fdDisplay, DISP_CMD_VIDEO_SET_FB, args);
     if(ret)
     {
-	loge("++++ DISP_CMD_VIDEO_SET_FB failed", ret);
+    	loge("++++ DISP_CMD_VIDEO_SET_FB failed", ret);
     }
 
     if(lc->bLayerShowed == 1)
@@ -774,7 +774,7 @@ int LayerQueue3DBuffer(LayerCtrl* l, VideoPicture* pBuf0, VideoPicture* pBuf1, i
 	videoInfo.addr[2]			= (unsigned long)MemAdapterGetPhysicAddressCpu(pBuf1->pData0);
 	videoInfo.addr_right[0]     = (unsigned long)MemAdapterGetPhysicAddressCpu(pBuf1->pData0);
 	videoInfo.addr_right[1]     = (unsigned long)MemAdapterGetPhysicAddressCpu(pBuf1->pData1);
-	videoInfo.addr_right[2]		= 0;
+	videoInfo.addr_right[2]	  	= 0;
 	videoInfo.id                = pBuf0->nID;
 	videoInfo.maf_valid         = pBuf0->bMafValid;
 	videoInfo.pre_frame_valid   = pBuf0->bPreFrmValid;
@@ -889,7 +889,7 @@ static int SetLayerParam(LayerCtrlContext* lc)
     //* the picture showed will not valid because parameters changed.
     if(lc->bLayerShowed == 1)
     {
-	lc->bLayerShowed = 0;
+    	lc->bLayerShowed = 0;
 
         args[0] = DISPLAY_CHANNEL;
         args[1] = DISPLAY_LAYER;
@@ -945,13 +945,13 @@ static int SetLayerParam(LayerCtrlContext* lc)
     //* initialize the layerInfo.
     layerInfo.fb.cs_mode	 = (lc->nHeight < 720) ? DISP_BT601 : DISP_BT709;
     layerInfo.mode			 = DISP_LAYER_WORK_MODE_SCALER;
-    layerInfo.pipe		 = 0;
+    layerInfo.pipe        	 = 0;
     layerInfo.ck_enable      = 0;
     
 	if(lc->bFullScreenDisplay)
 	{
 		layerInfo.scn_win.x      = 0;
-		layerInfo.scn_win.y	 = 0;
+		layerInfo.scn_win.y 	 = 0;
 		layerInfo.scn_win.width  = lc->nScreenWidth;
 		layerInfo.scn_win.height = lc->nScreenHeight;
 	}
@@ -969,12 +969,12 @@ static int SetLayerParam(LayerCtrlContext* lc)
 		}
 		if(lc->nScreenHeight < lc->nDisplayHeight)
 		{
-			layerInfo.scn_win.y	 = 0;
+			layerInfo.scn_win.y 	 = 0;
 			layerInfo.scn_win.height = lc->nScreenHeight;	
 		}
 		else
 		{
-			layerInfo.scn_win.y	 = (lc->nScreenHeight - lc->nDisplayHeight)/2;
+			layerInfo.scn_win.y 	 = (lc->nScreenHeight - lc->nDisplayHeight)/2;
 			layerInfo.scn_win.height = lc->nDisplayHeight;
 		}
 	}
@@ -1061,7 +1061,7 @@ int LayerCtrlShowVideo(LayerCtrl* l)
     logv("xxxx show video, current show flag = %d", lc->bLayerShowed);
     if(lc->bLayerShowed == 0)
     {
-	lc->bLayerShowed = 1;
+    	lc->bLayerShowed = 1;
 		
         args[0] = DISPLAY_CHANNEL;
         args[1] = DISPLAY_LAYER;
@@ -1084,7 +1084,7 @@ int LayerCtrlHideVideo(LayerCtrl* l)
     logv("xxxx hide video, current show flag = %d", lc->bLayerShowed);
     if(lc->bLayerShowed == 1)
     {
-	lc->bLayerShowed = 0;
+    	lc->bLayerShowed = 0;
 
         args[0] = DISPLAY_CHANNEL;
         args[1] = DISPLAY_LAYER;
@@ -1161,18 +1161,18 @@ int LayerCtrlHoldLastPicture(LayerCtrl* l, int bHold)
 
 			memset(&videoInfo, 0, sizeof(disp_video_fb));
 			
-			videoInfo.interlace		= (gLastPicture->bIsProgressive?0:1);
+			videoInfo.interlace 		= (gLastPicture->bIsProgressive?0:1);
 			videoInfo.top_field_first	= gLastPicture->bTopFieldFirst;
 			videoInfo.addr[0]			= (unsigned long)MemAdapterGetPhysicAddress(gLastPicture->pData0);
 			videoInfo.addr[1]			= (unsigned long)MemAdapterGetPhysicAddress(gLastPicture->pData1);
 			videoInfo.addr[2]			= (unsigned long)MemAdapterGetPhysicAddress(gLastPicture->pData2);
-			videoInfo.addr_right[0]		= (unsigned long)MemAdapterGetPhysicAddress(gLastPicture->pData2);
-			videoInfo.addr_right[1]		= (unsigned long)MemAdapterGetPhysicAddress(gLastPicture->pData3);
-			videoInfo.addr_right[2]		= 0;
+			videoInfo.addr_right[0] 	= (unsigned long)MemAdapterGetPhysicAddress(gLastPicture->pData2);
+			videoInfo.addr_right[1] 	= (unsigned long)MemAdapterGetPhysicAddress(gLastPicture->pData3);
+			videoInfo.addr_right[2] 	= 0;
 			videoInfo.id				= gLastPicture->nID;
-			videoInfo.maf_valid		= gLastPicture->bMafValid;
+			videoInfo.maf_valid 		= gLastPicture->bMafValid;
 			videoInfo.pre_frame_valid	= gLastPicture->bPreFrmValid;
-			videoInfo.flag_addr		= (unsigned long)MemAdapterGetPhysicAddress(gLastPicture->pMafData);
+			videoInfo.flag_addr 		= (unsigned long)MemAdapterGetPhysicAddress(gLastPicture->pMafData);
 			videoInfo.flag_stride		= gLastPicture->nMafFlagStride; 
 			
 			args[0] = DISPLAY_CHANNEL;
@@ -1351,3 +1351,5 @@ LayerControlOpsT mLayerControlOps =
     LayerGetAddedPicturesCount:      LayerGetAddedPicturesCount     ,
     LayerGetDisplayFPS:              LayerGetDisplayFPS           ,  
 };
+
+

@@ -668,7 +668,7 @@ typedef struct st_dynamic_LOCK_fns {
 	} dynamic_LOCK_fns;
 /* The top-level structure */
 typedef struct st_dynamic_fns {
-	void					*static_state;
+	void 					*static_state;
 	const ERR_FNS				*err_fns;
 	const CRYPTO_EX_DATA_IMPL		*ex_data_fns;
 	dynamic_MEM_fns				mem_fns;

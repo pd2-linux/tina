@@ -411,6 +411,7 @@ static void PrintMediaInfo(CdxMediaInfoT *mediaInfo)
     for (i = 0; i < VIDEO_STREAM_LIMIT && i < program->videoNum; i++)
     {
         VideoStreamInfo *video = program->video + i;
+        CDX_UNUSE(video);
 		CDX_LOGD("***Video[%d]*** "
 				"eCodecFormat = 0x%x, "
 				"nWidth = %d, "
@@ -431,6 +432,7 @@ static void PrintMediaInfo(CdxMediaInfoT *mediaInfo)
     for (i = 0; i < AUDIO_STREAM_LIMIT && i < program->audioNum; i++)
     {
         AudioStreamInfo *audio = program->audio + i;
+        CDX_UNUSE(audio);
         CDX_LOGD("***Audio[%d]*** "
 				"eCodecFormat = 0x%x, "
 				"eSubCodecFormat = 0x%x, "
@@ -449,7 +451,7 @@ static void PrintMediaInfo(CdxMediaInfoT *mediaInfo)
     for (i = 0; i < SUBTITLE_STREAM_LIMIT && i < program->subtitleNum; i++)
     {
         SubtitleStreamInfo *subtitle = program->subtitle + i;
-
+        CDX_UNUSE(subtitle);
 		CDX_LOGD("***Subtitle[%d]*** "
 				"eCodecFormat = 0x%x, "
 				"strLang = (%s) ",
@@ -527,3 +529,4 @@ cdx_int32 probeH265RefPictureNumber(cdx_uint8* pDataBuf, cdx_uint32 nDataLen);
 #endif
 
 #endif
+

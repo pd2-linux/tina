@@ -1840,9 +1840,9 @@ static cdx_int32 OggParserRead(CdxParserT *parser, CdxPacketT *pkt)
 	CdxOggParser *oggParser = (CdxOggParser*)parser;
     if(oggParser->status != CDX_PSR_PREFETCHED)
     {
-	CDX_LOGE("status != CDX_PSR_PREFETCHED, we can not read!");
+    	CDX_LOGE("status != CDX_PSR_PREFETCHED, we can not read!");
         oggParser->mErrno = PSR_INVALID_OPERATION;
-	return -1;
+    	return -1;
     }
     if(oggParser->packetPos < oggParser->packetNum)
     {
@@ -1927,16 +1927,16 @@ static int OggParserControl(CdxParserT *parser, int cmd, void *param)
 	
     switch(cmd)
     {
-	case CDX_PSR_CMD_SWITCH_AUDIO:
-	case CDX_PSR_CMD_SWITCH_SUBTITLE:
-		CDX_LOGI("pmp parser is not support switch stream yet!!!");
-		break;
+    	case CDX_PSR_CMD_SWITCH_AUDIO:
+    	case CDX_PSR_CMD_SWITCH_SUBTITLE:
+    		CDX_LOGI("pmp parser is not support switch stream yet!!!");
+    		break;
         case CDX_PSR_CMD_SET_FORCESTOP:
             return OggParserForceStop(parser);
         case CDX_PSR_CMD_CLR_FORCESTOP:
             return OggParserClrForceStop(parser);
         default:
-		break;
+        	break;
     }
 	return 0;
 }
@@ -2092,10 +2092,10 @@ static cdx_int32 OggParserClose(CdxParserT *parser)
 
     for(i=0; i<(int)oggParser->nb_chapters; i++)
     {
-	if(oggParser->chapters[i])
-	{
-		if(oggParser->chapters[i]->metadata)
-		{
+    	if(oggParser->chapters[i])
+    	{
+    		if(oggParser->chapters[i]->metadata)
+    		{
 				if(oggParser->chapters[i]->metadata->elems)
 				{
 					for(j=0; j<oggParser->chapters[i]->metadata->count; j++)
@@ -2114,9 +2114,9 @@ static cdx_int32 OggParserClose(CdxParserT *parser)
 				}
 
 				free(oggParser->chapters[i]->metadata);
-		}
-		free(oggParser->chapters[i]);
-	}
+    		}
+    		free(oggParser->chapters[i]);
+    	}
     }
     if(oggParser->chapters)
     {
@@ -2195,11 +2195,11 @@ cdx_uint32 OggParserAttribute(CdxParserT *parser)
 			
 static struct CdxParserOpsS oggParserOps = 
 {
-    .control		= OggParserControl,
-    .prefetch		= OggParserPrefetch,
-    .read			= OggParserRead,
-    .getMediaInfo	= OggParserGetMediaInfo,
-    .close			= OggParserClose,
+    .control 		= OggParserControl,
+    .prefetch 		= OggParserPrefetch,
+    .read 			= OggParserRead,
+    .getMediaInfo 	= OggParserGetMediaInfo,
+    .close 			= OggParserClose,
     .seekTo			= OggParserSeekTo,
     .attribute		= OggParserAttribute,
     .getStatus		= OggParserGetStatus,
@@ -2257,5 +2257,6 @@ cdx_uint32 OggParserProbe(CdxStreamProbeDataT *probeData)
 CdxParserCreatorT oggParserCtor =
 {
     .create	= OggParserOpen,
-    .probe	= OggParserProbe
+    .probe 	= OggParserProbe
 };
+

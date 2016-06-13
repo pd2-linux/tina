@@ -680,3 +680,4 @@ int StreamManagerFlushStream(StreamManager* pSm, StreamFrame* pStreamFrame)
     pthread_mutex_unlock(&p->mutex);
     return 0;
 }
+

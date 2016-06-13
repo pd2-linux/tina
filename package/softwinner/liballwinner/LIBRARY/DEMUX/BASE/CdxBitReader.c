@@ -142,3 +142,5 @@ CdxBitReaderT *CdxBitReaderCreate(const cdx_uint8 *data, cdx_uint32 size)
     impl->base.ops = &gBitReaderOps;
     return &impl->base;
 }
+
+

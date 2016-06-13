@@ -1279,22 +1279,22 @@ static void* AudioDecodeThread(void* arg)
             pFrame = StreamManagerGetFrameInfo(pSm, 0);
             if(pFrame != NULL)
             {
-		if((bFirstFramePtsValid==0) && (pFrame->nPts==-1))
-		{
-			pFrame = StreamManagerRequestStream(pSm);
-			StreamManagerFlushStream(pSm, pFrame);
+            	if((bFirstFramePtsValid==0) && (pFrame->nPts==-1))
+            	{
+            		pFrame = StreamManagerRequestStream(pSm);
+            		StreamManagerFlushStream(pSm, pFrame);
 
                     if(p->bEosFlag && StreamManagerStreamFrameNum(p->pStreamManagerArr[p->nStreamSelected]) == 0)
                     {
-			logd("audio decoder notify eos.");
+                    	logd("audio decoder notify eos.");
                         p->callback(p->pUserData, PLAYER_AUDIO_DECODER_NOTIFY_EOS, NULL);
                     }
                     else
                     {
-			PostDecodeMessage(p->mq);
+                    	PostDecodeMessage(p->mq);
                     }
                     continue;
-		}
+            	}
                 ret = ParserRequestBsBuffer(p->pDecoder,
                                             pFrame->nLength,
                                             &pBuf0,
@@ -1446,3 +1446,4 @@ static void FlushStreamManagerBuffers(AudioDecCompContext* p, int64_t curTime, i
     
     return;
 }
+

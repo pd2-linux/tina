@@ -408,3 +408,4 @@ typedef struct AviVideoStreamInfo
 }AviVideoStreamInfo;
 
 #endif /* _CDX_AVI_PARSER_H_ */
+

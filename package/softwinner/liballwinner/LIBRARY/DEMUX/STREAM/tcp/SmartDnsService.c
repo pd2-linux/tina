@@ -249,3 +249,4 @@ int SDSRequest(const char *hostname, int port, struct addrinfo **pAddr, void *us
 
     return SDS_PENDING;
 }
+

@@ -4,10 +4,10 @@
 #if 0
 enum
 {
-	SUB_RENDER_ALIGN_NONE		= 0,
-	SUB_RENDER_HALIGN_LEFT		= 1,
-	SUB_RENDER_HALIGN_CENTER	= 2,
-	SUB_RENDER_HALIGN_RIGHT		= 3,
+	SUB_RENDER_ALIGN_NONE  		= 0,
+	SUB_RENDER_HALIGN_LEFT 		= 1,
+	SUB_RENDER_HALIGN_CENTER 	= 2,
+	SUB_RENDER_HALIGN_RIGHT 	= 3,
 	SUN_RENDER_HALIGN_MASK		= 0x0000000f,
 	SUB_RENDER_VALIGN_TOP		= (1 << 4),
 	SUB_RENDER_VALIGN_CENTER	= (2 << 4),
@@ -29,7 +29,7 @@ enum
 enum
 {
 	SUB_CHARSET_BITMAP              = -2,
-	SUB_CHARSET_UNKNOWN			= -1,
+	SUB_CHARSET_UNKNOWN 			= -1,
 	SUB_CHARSET_BIG5                = 0,
 	SUB_CHARSET_BIG5_HKSCS          = 1,
 	SUB_CHARSET_BOCU_1              = 2,
@@ -142,10 +142,10 @@ enum
 
 enum
 {
-	SUB_RENDER_ALIGN_NONE		= 0,
-	SUB_RENDER_HALIGN_LEFT		= 1,
-	SUB_RENDER_HALIGN_CENTER	= 2,
-	SUB_RENDER_HALIGN_RIGHT		= 3,
+	SUB_RENDER_ALIGN_NONE  		= 0,
+	SUB_RENDER_HALIGN_LEFT 		= 1,
+	SUB_RENDER_HALIGN_CENTER 	= 2,
+	SUB_RENDER_HALIGN_RIGHT 	= 3,
 	SUN_RENDER_HALIGN_MASK		= 0x0000000f,
 	SUB_RENDER_VALIGN_TOP		= (1 << 4),
 	SUB_RENDER_VALIGN_CENTER	= (2 << 4),
@@ -255,11 +255,11 @@ enum SUB_DATA_STRUCT
     SUB_DATA_STRUCT_
 };
 
-int	SubRenderCreate();
-int	SubRenderDestory();
-int	SubRenderDraw(sub_item_inf *sub_info);
-int	SubRenderShow();
-int	SubRenderHide(unsigned    int  systemTime, int* hasSubShowFlag);
+int 	SubRenderCreate();
+int 	SubRenderDestory();
+int 	SubRenderDraw(sub_item_inf *sub_info);
+int 	SubRenderShow();
+int 	SubRenderHide(unsigned    int  systemTime, int* hasSubShowFlag);
 
 int		SubRenderSetZorderTop();
 int     SubRenderSetZorderBottom();

@@ -134,3 +134,4 @@ static inline int CdcMemShutdown(struct ScMemOpsS *memops)
 #endif
 
 #endif
+

@@ -103,13 +103,13 @@ extern "C" {
 XMLPUBFUN int XMLCALL		
 		xmlXPathPopBoolean	(xmlXPathParserContextPtr ctxt);
 XMLPUBFUN double XMLCALL		
-		xmlXPathPopNumber	(xmlXPathParserContextPtr ctxt);
+    		xmlXPathPopNumber	(xmlXPathParserContextPtr ctxt);
 XMLPUBFUN xmlChar * XMLCALL	
-		xmlXPathPopString	(xmlXPathParserContextPtr ctxt);
+    		xmlXPathPopString	(xmlXPathParserContextPtr ctxt);
 XMLPUBFUN xmlNodeSetPtr XMLCALL	
-		xmlXPathPopNodeSet	(xmlXPathParserContextPtr ctxt);
+    		xmlXPathPopNodeSet	(xmlXPathParserContextPtr ctxt);
 XMLPUBFUN void * XMLCALL		
-		xmlXPathPopExternal	(xmlXPathParserContextPtr ctxt);
+    		xmlXPathPopExternal	(xmlXPathParserContextPtr ctxt);
 
 /**
  * xmlXPathReturnBoolean:
@@ -471,7 +471,7 @@ XMLPUBFUN void XMLCALL
  */
 XMLPUBFUN xmlXPathParserContextPtr XMLCALL
 		  xmlXPathNewParserContext	(const xmlChar *str,
-						 xmlXPathContextPtr ctxt);
+			  			 xmlXPathContextPtr ctxt);
 XMLPUBFUN void XMLCALL		  
 		xmlXPathFreeParserContext	(xmlXPathParserContextPtr ctxt);
 
@@ -480,7 +480,7 @@ XMLPUBFUN xmlXPathObjectPtr XMLCALL
 		valuePop			(xmlXPathParserContextPtr ctxt);
 XMLPUBFUN int XMLCALL		  
 		valuePush			(xmlXPathParserContextPtr ctxt,
-						 xmlXPathObjectPtr value);
+					 	 xmlXPathObjectPtr value);
 
 XMLPUBFUN xmlXPathObjectPtr XMLCALL 
 		xmlXPathNewString		(const xmlChar *val);

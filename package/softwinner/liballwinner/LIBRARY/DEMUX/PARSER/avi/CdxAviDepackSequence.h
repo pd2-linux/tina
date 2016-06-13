@@ -37,3 +37,4 @@ extern cdx_int32 CalcAviChunkAudioFrameNum(AudioStreamInfoT *pAudStrmInfo, cdx_i
 extern cdx_int16 AviReadSequence(CdxAviParserImplT *p);
 
 #endif  /* _AVI_DEPACK_SEQUENCE_H_ */
+

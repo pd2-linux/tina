@@ -23,7 +23,6 @@ using namespace std;
 //#include "mediaInfo.h"
 //#include "demuxComponent.h"
 //#include "awMessageQueue.h"
-#include "mediaInfo.h"
 #include <AwTypes.h>
 #include "soundControl.h"
 #include "layerControl.h"
@@ -140,7 +139,6 @@ public:
     int isPlaying();
     int seekTo(int msec);
     int setSpeed(int mSpeed);
-    MediaInfo* getMediaInfo();
 
     int getCurrentPosition(int* msec);
     int getDuration(int* msec);

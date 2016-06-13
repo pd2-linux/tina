@@ -50,3 +50,4 @@ ifeq ($(SECURE_OS_OPTEE), yes)
 else
     LOCAL_CFLAGS +=-DADJUST_ADDRESS_FOR_SECURE_OS_OPTEE=0
 endif
+

@@ -529,7 +529,7 @@ int main(int argc, char** argv)
             //* parse command.
             nCommandParam = 0;
             nCommandId = parseCommandLine(strCommandLine, &nCommandParam);
-            
+			printf("demoPlayer.mStatus = %d\n",demoPlayer.mStatus);
             //* process command.
             switch(nCommandId)
             {
@@ -610,6 +610,8 @@ int main(int argc, char** argv)
                         break;
                     }
                     
+					demoPlayer.mTinaPlayer->setLooping(1);
+
                     //* start the playback
                     if(demoPlayer.mStatus != STATUS_SEEKING)
                     {
@@ -636,6 +638,17 @@ int main(int argc, char** argv)
                 
                 case COMMAND_PAUSE:   //* pause the playback.
                 {
+					if(demoPlayer.mTinaPlayer->isPlaying() == 1){
+						if(demoPlayer.mTinaPlayer->pause() != 0)
+                        {
+                            printf("error:\n");
+                            printf("    tinaplayer::pause() return fail.\n");
+                            break;
+                        }
+						demoPlayer.mPreStatus = STATUS_PLAYING;
+                        demoPlayer.mStatus    = STATUS_PAUSED;
+						break;
+					}
                     if(demoPlayer.mStatus != STATUS_PLAYING &&
                        demoPlayer.mStatus != STATUS_SEEKING && 
                        demoPlayer.mStatus != STATUS_COMPLETED)
@@ -700,13 +713,18 @@ int main(int argc, char** argv)
                         break;
                     }
                     
-                    if(demoPlayer.mTinaPlayer->getDuration(&nDuration) == 0)
+					int ret = demoPlayer.mTinaPlayer->getDuration(&nDuration);
+					printf("nSeekTimeMs = %d , nDuration = %d\n",nSeekTimeMs,nDuration);
+                    if(ret != 0)
                     {
-                        if(nSeekTimeMs > nDuration)
-                            printf("seek time out of range, media duration = %u seconds.\n", nDuration/1000);
+			printf("getDuration fail, unable to seek!\n");
                         break;
                     }
                     
+					if(nSeekTimeMs > nDuration){
+						printf("seek time out of range, media duration = %u seconds.\n", nDuration/1000);
+						break;
+					}
                     if(demoPlayer.mSeekable == 0)
                     {
                         printf("media source is unseekable.\n");

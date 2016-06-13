@@ -42,3 +42,4 @@ int VideoEncodeCompGetExtradata(VideoEncodeComp *p, unsigned char** buf, unsigne
 
 
 #endif 
+

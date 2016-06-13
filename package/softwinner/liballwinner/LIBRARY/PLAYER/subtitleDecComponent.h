@@ -67,3 +67,4 @@ int SubtitleDecCompGetExternalFlag(SubtitleDecComp* s);
 
 
 #endif
+
