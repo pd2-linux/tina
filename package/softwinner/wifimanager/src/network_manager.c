@@ -10,7 +10,7 @@
 #include "wifi_intf.h"
 #include "wifi.h"
 
-#define WAITING_CLK_COUNTS   (50*1000*1000)
+#define WAITING_CLK_COUNTS   50
 
 /* scan thread */
 static pthread_t       scan_thread_id;
@@ -40,7 +40,7 @@ int update_scan_results()
     pthread_mutex_unlock(&thread_run_mutex);
 
     while(i <= 15){
-        usleep(200);
+        usleep(200*1000);
         if(scan_completed == 1){
             break;
         }
@@ -225,6 +225,7 @@ void *wifi_scan_thread(void *args)
             if(get_scan_status() == 1){
                 break;
             }
+            usleep(100*1000);
         }
 
         printf("scan stauts %d\n", get_scan_status());
