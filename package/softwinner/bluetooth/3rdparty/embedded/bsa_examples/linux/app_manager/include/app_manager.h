@@ -327,4 +327,17 @@ void app_mgr_set_remote_oob();
  *******************************************************************************/
 void app_mgr_set_link_policy(BD_ADDR bd_addr, tBSA_DM_LP_MASK policy_mask, BOOLEAN set);
 
+/*******************************************************************************
+ **
+ ** Function         app_mgr_sec_set_callback
+ **
+ ** Description      set security callback
+ **
+ ** Parameters       tBSA_SEC_CBACK callback
+ **
+ ** Returns          void
+ **
+ *******************************************************************************/
+void app_mgr_sec_set_callback(tBSA_SEC_CBACK pcb);
+
 #endif /* __APP_MANAGER_H__ */

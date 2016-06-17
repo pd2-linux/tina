@@ -4,18 +4,19 @@
 
 
 /* define bt app event */
-enum APP_BT_EVENT{
-    APP_AVK_CONNECTED_EVT = 0, 
-    APP_AVK_DISCONNECTED_EVT = 1, 
-    APP_AVK_START_EVT = 2,       /* stream data transfer started */
+typedef enum{
+    APP_AVK_CONNECTED_EVT = 0,
+    APP_AVK_DISCONNECTED_EVT = 1,
+    APP_AVK_START_EVT = 2,             /* stream data transfer started */
     APP_AVK_STOP_EVT = 3,	       /* stream data transfer stopped */
-    APP_AUDIO_OPEN_REQ_EVT = 4,
-    APP_HS_CONNECTED_EVT = 5,
-    APP_HS_DISCONNECTED_EVT = 6,
-    APP_HS_AUDIO_OPEN_EVT = 7,
-    APP_HS_AUDIO_CLOSE_EVT =8,
-    APP_MGR_DISC_RESULTS = 9,
-};
+    APP_AVK_CONNECT_COMPLETED_EVT = 4,
+    APP_AUDIO_OPEN_REQ_EVT = 5,
+    APP_HS_CONNECTED_EVT = 6,
+    APP_HS_DISCONNECTED_EVT = 7,
+    APP_HS_AUDIO_OPEN_EVT = 8,
+    APP_HS_AUDIO_CLOSE_EVT = 9,
+    APP_MGR_DISC_RESULTS = 10,
+}APP_BT_EVENT;
 
 int bluetooth_start(void *p, char *p_conf);
 void bluetooth_stop();
@@ -29,7 +30,7 @@ int  s_get_disc_results(char *results, int *len);
 void s_set_volume(int volume);
 void s_set_volume_up();
 void s_set_volume_down();
-void s_connect_auto();
+int  s_connect_auto();
 void s_disconnect();
 void s_avk_play();
 void s_avk_pause();

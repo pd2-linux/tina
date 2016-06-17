@@ -11,15 +11,16 @@
 #define BT_NAME_PATH_LEN   256
 
 enum BT_EVENT{
-    BT_AVK_CONNECTED_EVT = 0, 
-    BT_AVK_DISCONNECTED_EVT, 
-    BT_AVK_START_EVT,        /* stream data transfer started */
-    BT_AVK_STOP_EVT,	       /* stream data transfer stopped */
+    BT_AVK_CONNECTED_EVT = 0,
+    BT_AVK_DISCONNECTED_EVT,
+    BT_AVK_START_EVT,             /* stream data transfer started */
+    BT_AVK_STOP_EVT,	          /* stream data transfer stopped */
+    BT_AVK_CONNECT_COMPLETED_EVT,
     BT_HS_CONNECTED_EVT = 0xf0,
     BT_HS_DISCONNECTED_EVT,
     BT_HS_RING_EVT,
     BT_HS_OK_EVT,
-    BT_DISCOVER_COMPLETE, 
+    BT_DISCOVER_COMPLETE,
     BT_HS_ERROR_EVT
 };
 
@@ -45,7 +46,7 @@ public:
     int get_disc_results(char *disc_results, int *len);
     int connect_auto();
     int disconnect();
-    int reset_avk_status();   
+    int reset_avk_status();
     int avk_play();
     int avk_pause();
     int avk_previous();

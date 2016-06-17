@@ -15,6 +15,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
+#include <pthread.h>
 
 #include "buildcfg.h"
 
@@ -94,6 +95,8 @@ static void app_avk_uipc_cback(BT_HDR *p_msg);
 
 static tAvkCallback *s_pCallback = NULL;
 static tAPP_AVK_CONNECTION* pStreamingConn = NULL;
+
+static pthread_mutex_t   alsa_opt_mutex;
 //static UINT8 a_data[4096];
 //static int   next = 0;
 /*******************************************************************************
@@ -246,73 +249,78 @@ void app_avk_end(void)
     /* disable avk */
     BSA_AvkDisableInit(&disable_param);
     BSA_AvkDisable(&disable_param);
+
+    pthread_mutex_destroy(&alsa_opt_mutex);
 }
 
-static int alsa_set_pcm_params(snd_pcm_t *playback_handle, 
-                           snd_pcm_format_t format, 
+#if 0
+static int alsa_set_pcm_params(snd_pcm_t *playback_handle,
+                           snd_pcm_format_t format,
                            unsigned int channels,
                            unsigned int sample_rate)
 {
     int err;
-    int chunk_size, buffer_size; 
+    int chunk_size, buffer_size;
 	  snd_pcm_hw_params_t *hw_params;
-	  
+
 	  if((err = snd_pcm_hw_params_malloc(&hw_params)) < 0)
     {
-    	  fprintf(stderr, "cannot allocate hardware parameter structure (%s)\n",snd_strerror(err));
+	  fprintf(stderr, "cannot allocate hardware parameter structure (%s)\n",snd_strerror(err));
 		    return -1;
     }
-	  
+
     if((err = snd_pcm_hw_params_any(playback_handle, hw_params)) < 0)
-  	{
-  		fprintf(stderr, "cannot initialize hardware parameter structure (%s)\n", snd_strerror(err));
-  		return -1;
-  	}
-  
-  	if((err = snd_pcm_hw_params_set_access(playback_handle, hw_params, SND_PCM_ACCESS_RW_INTERLEAVED)) < 0)
-  	{
-  		fprintf(stderr, "cannot allocate hardware parameter structure (%s)\n",snd_strerror(err));
-  		return -1;	
-  	}
-  
-  	if((err = snd_pcm_hw_params_set_format(playback_handle, hw_params, format)) < 0)
-  	{
-  		fprintf(stderr, "cannot allocate hardware parameter structure (%s)\n",snd_strerror(err));
-  		return -1;			
-  	}
-  
-  	if((err = snd_pcm_hw_params_set_rate(playback_handle, hw_params, sample_rate, 0)) < 0)
-  	{
-  		fprintf(stderr , "cannot set sample rate (%s)\n", snd_strerror(err));
-  		return -1;
-  	}
-  		
-  	if((err = snd_pcm_hw_params_set_channels(playback_handle, hw_params, channels)) <0)
-  	{
-  		fprintf(stderr, "cannot set channel count (%s)\n", snd_strerror(err));
-  		return -1;
-  	} 
-  	
-  	snd_pcm_hw_params_get_period_size(hw_params, &chunk_size, 0);
+	{
+		fprintf(stderr, "cannot initialize hardware parameter structure (%s)\n", snd_strerror(err));
+		return -1;
+	}
+
+	if((err = snd_pcm_hw_params_set_access(playback_handle, hw_params, SND_PCM_ACCESS_RW_INTERLEAVED)) < 0)
+	{
+		fprintf(stderr, "cannot allocate hardware parameter structure (%s)\n",snd_strerror(err));
+		return -1;
+	}
+
+	if((err = snd_pcm_hw_params_set_format(playback_handle, hw_params, format)) < 0)
+	{
+		fprintf(stderr, "cannot allocate hardware parameter structure (%s)\n",snd_strerror(err));
+		return -1;
+	}
+
+	if((err = snd_pcm_hw_params_set_rate(playback_handle, hw_params, sample_rate, 0)) < 0)
+	{
+		fprintf(stderr , "cannot set sample rate (%s)\n", snd_strerror(err));
+		return -1;
+	}
+
+	if((err = snd_pcm_hw_params_set_channels(playback_handle, hw_params, channels)) <0)
+	{
+		fprintf(stderr, "cannot set channel count (%s)\n", snd_strerror(err));
+		return -1;
+	}
+
+	snd_pcm_hw_params_get_period_size(hw_params, &chunk_size, 0);
     snd_pcm_hw_params_get_buffer_size(hw_params, &buffer_size);
-  	printf("chunk_size = %d, buffer_size = %d\n", chunk_size, buffer_size);
-  	
-  	if((err = snd_pcm_hw_params(playback_handle, hw_params)) < 0)
-  	{
-  		fprintf(stderr, "cannot set parameters (%s)\n", snd_strerror(err));
-  		return -1;
-  	}
-  	
-  	snd_pcm_hw_params_free(hw_params);
-  	return 0;    	 
+	printf("chunk_size = %d, buffer_size = %d\n", chunk_size, buffer_size);
+
+	if((err = snd_pcm_hw_params(playback_handle, hw_params)) < 0)
+	{
+		fprintf(stderr, "cannot set parameters (%s)\n", snd_strerror(err));
+		return -1;
+	}
+
+	snd_pcm_hw_params_free(hw_params);
+	return 0;
 }
+#endif
 
 static void mixer_set(char* name, int value)
 {
     char cmd[100];
     sprintf(cmd,"amixer cset name='%s' %d",name,value);
-    system(cmd); 
+    system(cmd);
 }
+
 
 /*******************************************************************************
 **
@@ -353,6 +361,9 @@ static void app_avk_handle_start(tBSA_AVK_MSG *p_data, tAPP_AVK_CONNECTION *conn
             p_data->start.media_receiving.cfg.pcm.num_channel,
             p_data->start.media_receiving.cfg.pcm.bit_per_sample);
 #ifdef PCM_ALSA
+
+        pthread_mutex_lock(&alsa_opt_mutex);
+
         /* If ALSA PCM driver was already open => close it */
         if (app_avk_cb.alsa_handle != NULL)
         {
@@ -383,12 +394,15 @@ static void app_avk_handle_start(tBSA_AVK_MSG *p_data, tAPP_AVK_CONNECTION *conn
             if (status < 0)
             {
                 APP_ERROR1("snd_pcm_set_params failed: %s", snd_strerror(status));
-                exit(1);
+                pthread_mutex_unlock(&alsa_opt_mutex);
+                return;
             }
             
             /* set output */
             mixer_set("Speaker Function",2);
         }
+
+        pthread_mutex_unlock(&alsa_opt_mutex);
 #endif
     }
     else if (connection->format == BSA_AVK_CODEC_M24)
@@ -469,6 +483,8 @@ static void app_avk_cback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
             /* close alsa dev */
             if (connection->format == BSA_AVK_CODEC_PCM){
 #ifdef PCM_ALSA
+                pthread_mutex_lock(&alsa_opt_mutex);
+
                 /* If ALSA PCM driver was already open => close it */
                 if (app_avk_cb.alsa_handle != NULL)
                 {
@@ -476,6 +492,7 @@ static void app_avk_cback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
                     snd_pcm_close(app_avk_cb.alsa_handle);
                     app_avk_cb.alsa_handle = NULL;
                 }
+                pthread_mutex_unlock(&alsa_opt_mutex);
 #endif /* PCM_ALSA */
             }
         }
@@ -554,6 +571,9 @@ static void app_avk_cback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
 /* close alsa dev */
             if (connection->format == BSA_AVK_CODEC_PCM){
 #ifdef PCM_ALSA
+
+                pthread_mutex_lock(&alsa_opt_mutex);
+
                 /* If ALSA PCM driver was already open => close it */
                 if (app_avk_cb.alsa_handle != NULL)
                 {
@@ -561,6 +581,10 @@ static void app_avk_cback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
                     snd_pcm_close(app_avk_cb.alsa_handle);
                     app_avk_cb.alsa_handle = NULL;
                 }
+
+                pthread_mutex_unlock(&alsa_opt_mutex);
+
+
 #endif /* PCM_ALSA */
             }
 
@@ -587,6 +611,10 @@ static void app_avk_cback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
             /* close alsa dev */
             if (connection->format == BSA_AVK_CODEC_PCM){
 #ifdef PCM_ALSA
+
+                pthread_mutex_lock(&alsa_opt_mutex);
+
+
                 /* If ALSA PCM driver was already open => close it */
                 if (app_avk_cb.alsa_handle != NULL)
                 {
@@ -594,6 +622,9 @@ static void app_avk_cback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
                     snd_pcm_close(app_avk_cb.alsa_handle);
                     app_avk_cb.alsa_handle = NULL;
                 }
+
+                pthread_mutex_unlock(&alsa_opt_mutex);
+
 #endif /* PCM_ALSA */
             }
 
@@ -763,7 +794,28 @@ static void app_avk_cback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
         s_pCallback(event, p_data);
 }
 
-void app_avk_auto_connect(BD_ADDR bt_auto_addr)
+int app_avk_close_pcm_alsa()
+{
+    /* close alsa dev */
+#ifdef PCM_ALSA
+
+    pthread_mutex_lock(&alsa_opt_mutex);
+    /* If ALSA PCM driver was already open => close it */
+    if (app_avk_cb.alsa_handle != NULL)
+    {
+        printf("app_avk_close_pcm_alsa snd_pcm_close\n");
+        snd_pcm_close(app_avk_cb.alsa_handle);
+        app_avk_cb.alsa_handle = NULL;
+    }
+    pthread_mutex_unlock(&alsa_opt_mutex);
+
+#endif /* PCM_ALSA */
+
+    return 0;
+}
+
+
+int app_avk_auto_connect(BD_ADDR bt_auto_addr)
 {
     tBSA_STATUS status;
     int choice;
@@ -776,22 +828,22 @@ void app_avk_auto_connect(BD_ADDR bt_auto_addr)
     if (app_avk_cb.open_pending)
     {
         APP_ERROR0("already trying to connect");
-        return;
+        return -1;
     }
 
 
         /* Read the XML file which contains all the bonded devices */
         app_read_xml_remote_devices();
         app_xml_display_devices(app_xml_remote_devices_db, APP_NUM_ELEMENTS(app_xml_remote_devices_db));
-        
+
         choice = 0;
         while(choice < APP_NUM_ELEMENTS(app_xml_remote_devices_db))
         {
-        	  printf("bt %s, use %d\n", app_xml_remote_devices_db[choice].name, app_xml_remote_devices_db[choice].in_use);
-        	
+		  printf("bt %s, use %d\n", app_xml_remote_devices_db[choice].name, app_xml_remote_devices_db[choice].in_use);
+
             if (app_xml_remote_devices_db[choice].in_use != FALSE)
             {
-            	  bdcpy(bd_addr, app_xml_remote_devices_db[choice].bd_addr);
+		  bdcpy(bd_addr, app_xml_remote_devices_db[choice].bd_addr);
                 if(bt_auto_addr[0] == bd_addr[0] && bt_auto_addr[1] == bd_addr[1]
                     && bt_auto_addr[2] == bd_addr[2] && bt_auto_addr[3] == bd_addr[3]
                     && bt_auto_addr[4] == bd_addr[4] && bt_auto_addr[5] == bd_addr[5]){
@@ -804,10 +856,10 @@ void app_avk_auto_connect(BD_ADDR bt_auto_addr)
             {
                 APP_ERROR0("Device entry not in use");
             }
-            
+
             choice++;
         }
-        
+
 
     if (connect != FALSE)
     {
@@ -828,6 +880,7 @@ void app_avk_auto_connect(BD_ADDR bt_auto_addr)
                     open_param.bd_addr[3], open_param.bd_addr[4], open_param.bd_addr[5], status);
 
             app_avk_cb.open_pending = FALSE;
+            return -1;
         }
         else
         {
@@ -840,6 +893,7 @@ void app_avk_auto_connect(BD_ADDR bt_auto_addr)
             if(connection == NULL || connection->is_open == FALSE)
             {
                 printf("failure opening AV connection  \n");
+                return -1;
             }
             else
             {
@@ -863,7 +917,8 @@ void app_avk_auto_connect(BD_ADDR bt_auto_addr)
                 }
             }
         }
-    }	
+    }
+    return 0;
 }
 
 /*******************************************************************************
@@ -1312,6 +1367,9 @@ static void app_avk_uipc_cback(BT_HDR *p_msg)
     }
 
 #ifdef PCM_ALSA
+
+    pthread_mutex_lock(&alsa_opt_mutex);
+
     if (app_avk_cb.alsa_handle != NULL && p_buffer)
     {
         /* Compute number of PCM samples (contained in p_msg->len bytes) */
@@ -1345,6 +1403,8 @@ static void app_avk_uipc_cback(BT_HDR *p_msg)
         
         //next = 0;
     }
+
+    pthread_mutex_unlock(&alsa_opt_mutex);
 #endif
     GKI_freebuf(p_msg);
 }
@@ -1390,6 +1450,8 @@ int app_avk_init(tAvkCallback pcb /* = NULL */)
         APP_ERROR0("Unable to enable AVK service");
         return -1;
     }
+
+    pthread_mutex_init(&alsa_opt_mutex, NULL);
 
     return BSA_SUCCESS;
 

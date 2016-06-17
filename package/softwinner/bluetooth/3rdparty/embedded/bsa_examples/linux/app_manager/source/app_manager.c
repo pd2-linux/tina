@@ -82,13 +82,14 @@ tBSA_SEC_PASSKEY_REPLY g_passkey_reply;
 /*
  * Extern functions
  */
-extern void bta_load_conf(const char *p_path);
+extern void bta_load_addr(const char *p_path);
 
 /*
  * Local functions
  */
 int app_mgr_config(void);
 char *app_mgr_get_dual_stack_mode_desc(void);
+static tBSA_SEC_CBACK  *s_pCallback = NULL;
 
 /*******************************************************************************
  **
@@ -651,7 +652,7 @@ void app_mgr_security_callback(tBSA_SEC_EVT event, tBSA_SEC_MSG *p_data)
         APP_DEBUG1("    Numeric Value:%d", p_data->cfm_req.num_val);
         APP_DEBUG0("    You must accept or refuse using menu\n");
         bdcpy(app_sec_db_addr, p_data->cfm_req.bd_addr);
-        
+
         /* Auto accept simple Pairing*/
         app_mgr_sp_cfm_reply(TRUE, app_sec_db_addr);
         break;
@@ -815,6 +816,11 @@ void app_mgr_security_callback(tBSA_SEC_EVT event, tBSA_SEC_MSG *p_data)
         APP_ERROR1("unknown event:%d", event);
         break;
     }
+
+    /* forward the callback to registered app */
+    if(s_pCallback){
+        s_pCallback(event, p_data);
+    }
 }
 
 /*******************************************************************************
@@ -913,6 +919,22 @@ int app_mgr_sec_set_security(void)
         return -1;
     }
     return 0;
+}
+
+/*******************************************************************************
+ **
+ ** Function         app_mgr_sec_set_callback
+ **
+ ** Description      Security callback
+ **
+ ** Parameters       tBSA_SEC_CBACK callback
+ **
+ ** Returns          void
+ **
+ *******************************************************************************/
+void app_mgr_sec_set_callback(tBSA_SEC_CBACK pcb)
+{
+    s_pCallback = pcb;
 }
 
 
@@ -1219,12 +1241,12 @@ void app_mgr_set_non_connectable(void)
     if(!bd_name || !bd_name[0])
     {
         APP_ERROR0("set bt NULL name failed");
-        return; 
+        return;
     }
 
     strncpy((char *)app_xml_config.name, (char *)bd_name, BD_NAME_LEN);
     app_xml_config.name[sizeof(app_xml_config.name) - 1] = '\0';
-    	
+
     app_mgr_set_bt_config(TRUE);
     app_mgr_write_config();
 }
@@ -1333,6 +1355,12 @@ int app_mgr_config(void)
     status = app_mgr_read_config();
     if (status < 0)
     {
+        strncpy((char *)app_xml_config.name, APP_DEFAULT_BT_NAME, sizeof(app_xml_config.name));
+        app_xml_config.name[sizeof(app_xml_config.name) - 1] = '\0';
+    }
+
+    /* prevention config file damanged */
+    {
         APP_ERROR0("Creating default XML config file");
         app_xml_config.enable = TRUE;
         app_xml_config.discoverable = TRUE;
@@ -1355,7 +1383,7 @@ int app_mgr_config(void)
                 rand_seed = tv.tv_sec * tv.tv_usec * getpid();
                 app_xml_config.bd_addr[4] = rand_r(&rand_seed);
                 app_xml_config.bd_addr[5] = rand_r(&rand_seed);
-            }	
+            }
         }
         else
 #endif
@@ -1367,14 +1395,12 @@ int app_mgr_config(void)
             app_xml_config.bd_addr[4] = rand_r(&rand_seed);
             app_xml_config.bd_addr[5] = rand_r(&rand_seed);
         }
-        
-        strncpy((char *)app_xml_config.name, APP_DEFAULT_BT_NAME, sizeof(app_xml_config.name));
-        app_xml_config.name[sizeof(app_xml_config.name) - 1] = '\0';
+
         memcpy(app_xml_config.class_of_device, local_class_of_device, sizeof(DEV_CLASS));
         strncpy(app_xml_config.root_path, APP_DEFAULT_ROOT_PATH, sizeof(app_xml_config.root_path));
         app_xml_config.root_path[sizeof(app_xml_config.root_path) - 1] = '\0';
         strncpy((char *)app_xml_config.pin_code, APP_DEFAULT_PIN_CODE, APP_DEFAULT_PIN_LEN);
-        
+
         /* The following code will not work if APP_DEFAULT_PIN_LEN is 16 bytes */
         app_xml_config.pin_code[APP_DEFAULT_PIN_LEN] = '\0';
         app_xml_config.pin_len = APP_DEFAULT_PIN_LEN;

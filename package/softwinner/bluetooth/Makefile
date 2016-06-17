@@ -84,7 +84,7 @@ define Build/Compile
 		CONFIG_PREFIX="$(PKG_INSTALL_DIR)" \
 		STRIP="$(STRIP)" \
 		all
-	
+
 	#compile bt_demo
 	$(MAKE) -C $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/libbtapp/bt_test \
 		-f Makefile \
@@ -94,15 +94,17 @@ define Build/Compile
 		LDFLAGS="$(TARGET_LDFLAGS)" \
 		CONFIG_PREFIX="$(PKG_INSTALL_DIR)" \
 		all
-	$(STRIP) $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/libbtapp/bt_test/bt_demo
-	
+	$(STRIP) $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/libbtapp/bt_test/bt_test
+	$(STRIP) $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/libbtapp/bt_test/bt_connect_disconnect_test
+
 	#strip bsa_server
 	$(STRIP) $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/server/build/arm/bsa_server
-	
+
 	#copy bsa_server and apps
 	$(CP) -r $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/server/build/arm/bsa_server $(PKG_BUILD_DIR)/
-	$(CP) -r $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/libbtapp/bt_test/bt_demo $(PKG_BUILD_DIR)/
-	
+	$(CP) -r $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/libbtapp/bt_test/bt_test $(PKG_BUILD_DIR)/
+	$(CP) -r $(PKG_BUILD_DIR)/3rdparty/embedded/bsa_examples/linux/libbtapp/bt_test/bt_connect_disconnect_test $(PKG_BUILD_DIR)/
+
 endef
 
 # Specify where and how to install the program. Since we only have one file,
@@ -132,7 +134,8 @@ endef
 
 define Package/bluetooth-demo/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bt_demo $(1)/usr/bin/  
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bt_test $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bt_connect_disconnect_test $(1)/usr/bin/
 endef
 
 

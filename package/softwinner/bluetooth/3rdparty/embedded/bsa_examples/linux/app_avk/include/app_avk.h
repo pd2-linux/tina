@@ -136,10 +136,10 @@ void app_avk_deregister(void);
 **
 ** Description      Function to open AV connection
 **
-** Returns          void
+** Returns          int
 **
 *******************************************************************************/
-void app_avk_auto_connect(BD_ADDR addr);
+int app_avk_auto_connect(BD_ADDR addr);
 
 /*******************************************************************************
 **
@@ -676,5 +676,7 @@ void app_avk_reg_notfn_rsp(UINT8 volume, UINT8 rc_handle, UINT8 label, UINT8 eve
  **
  *******************************************************************************/
 UINT8 app_avk_get_label();
+
+int app_avk_close_pcm_alsa(void);
 
 #endif /* APP_AVK_H_ */
