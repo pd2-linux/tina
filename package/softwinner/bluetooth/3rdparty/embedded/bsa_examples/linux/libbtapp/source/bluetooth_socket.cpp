@@ -152,6 +152,20 @@ int c_bt::avk_pause()
     return 0;
 }
 
+int c_bt::avk_stop()
+{
+    printf("do bt cmd avk stop\n");
+    s_avk_stop();
+    return 0;
+}
+
+int c_bt::avk_close_pcm_alsa()
+{
+    printf("do bt cmd avk pcm alsa\n");
+    s_avk_close_pcm_alsa();
+    return 0;
+}
+
 int c_bt::avk_previous()
 {
     printf("do bt cmd avk previous\n");

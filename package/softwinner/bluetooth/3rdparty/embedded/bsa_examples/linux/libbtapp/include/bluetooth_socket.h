@@ -49,6 +49,8 @@ public:
     int reset_avk_status();
     int avk_play();
     int avk_pause();
+    int avk_stop();
+    int avk_close_pcm_alsa();
     int avk_previous();
     int avk_next();
     int hs_pick_up();

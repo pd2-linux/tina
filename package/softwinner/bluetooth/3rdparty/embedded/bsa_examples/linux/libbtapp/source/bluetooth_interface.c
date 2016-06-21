@@ -587,26 +587,26 @@ void s_avk_play()
 
     printf("a avk play\n");
 
-	  connection = app_avk_find_connection_by_bd_addr(cur_connected_dev);
-	  if(connection)
-	  {
+    connection = app_avk_find_connection_by_bd_addr(cur_connected_dev);
+    if(connection)
+    {
         app_avk_play_start(connection->rc_handle);
     }
     else
     {
-	  printf("Connection is NULL when playing\n");
+        printf("Connection is NULL when playing\n");
     }
 }
 
 void s_avk_pause()
 {
-	  tAPP_AVK_CONNECTION *connection = NULL;
+    tAPP_AVK_CONNECTION *connection = NULL;
 
-          printf("s avk pause\n");
+    printf("s avk pause\n");
 
-	  connection = app_avk_find_connection_by_bd_addr(cur_connected_dev);
-	  if(connection)
-	  {
+    connection = app_avk_find_connection_by_bd_addr(cur_connected_dev);
+    if(connection)
+    {
         app_avk_play_pause(connection->rc_handle);
     }
     else
@@ -629,6 +629,12 @@ void s_avk_stop()
     {
         printf("Connection is NULL when pausing\n");
     }
+}
+
+void s_avk_close_pcm_alsa()
+{
+    printf("s avk close pcm alsa\n");
+    app_avk_close_pcm_alsa();
 }
 
 void s_avk_play_previous()

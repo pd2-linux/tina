@@ -96,6 +96,16 @@ int main(int argc, char *args[]){
 
         printf("Playing music 10s\n");
         usleep(20*1000*1000);
+
+        printf("Pause playing\n");
+        c.avk_close_pcm_alsa();
+        c.avk_pause();
+        usleep(5*1000*1000);
+        
+        printf("Resume playing\n");
+        c.avk_play();
+        usleep(20*1000*1000);
+
         printf("Call disconnect\n");
         c.disconnect();
 
