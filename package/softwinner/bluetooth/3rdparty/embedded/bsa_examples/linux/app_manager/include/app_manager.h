@@ -339,5 +339,8 @@ void app_mgr_set_link_policy(BD_ADDR bd_addr, tBSA_DM_LP_MASK policy_mask, BOOLE
  **
  *******************************************************************************/
 void app_mgr_sec_set_callback(tBSA_SEC_CBACK pcb);
+void app_mgr_config_bd_name(const char *bd_name);
+void app_mgr_config_connectable(int enable);
+void app_mgr_config_discoverable(int enable);
 
 #endif /* __APP_MANAGER_H__ */

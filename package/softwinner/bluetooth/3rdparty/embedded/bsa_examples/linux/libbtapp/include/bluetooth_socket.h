@@ -10,6 +10,11 @@
 
 #define BT_NAME_PATH_LEN   256
 
+#ifndef BT_ADDR_LEN
+#define BT_ADDR_LEN     6
+typedef unsigned char BT_ADDR[BT_ADDR_LEN];
+#endif
+
 enum BT_EVENT{
     BT_AVK_CONNECTED_EVT = 0,
     BT_AVK_DISCONNECTED_EVT,
@@ -45,6 +50,7 @@ public:
     int start_discovery(int time);
     int get_disc_results(char *disc_results, int *len);
     int connect_auto();
+    int connect_dev_by_addr(BT_ADDR bt_addr);
     int disconnect();
     int reset_avk_status();
     int avk_play();

@@ -1,7 +1,10 @@
 #ifndef __BLUETOOTH_INTERFACE_H__
 #define __BLUETOOTH_INTERFACE_H__
 
-
+#ifndef BT_ADDR_LENTH
+#define BT_ADDR_LENTH     6
+typedef unsigned char S_BT_ADDR[BT_ADDR_LENTH];
+#endif
 
 /* define bt app event */
 typedef enum{
@@ -18,6 +21,7 @@ typedef enum{
     APP_MGR_DISC_RESULTS = 10,
 }APP_BT_EVENT;
 
+int bluetooth_init();
 int bluetooth_start(void *p, char *p_conf);
 void bluetooth_stop();
 void start_app_avk();
@@ -31,6 +35,7 @@ void s_set_volume(int volume);
 void s_set_volume_up();
 void s_set_volume_down();
 int  s_connect_auto();
+int  s_connect_dev_by_addr(S_BT_ADDR s_bt_addr);
 void s_disconnect();
 void s_avk_play();
 void s_avk_pause();

@@ -12,6 +12,7 @@ c_bt::c_bt(){
     bt_wd[0] = '.';
     bt_wd[1] = '\0';
     bt_on_status = 0;
+    bluetooth_init();
 }
 
 c_bt::~c_bt(){
@@ -110,6 +111,21 @@ int c_bt::connect_auto()
     printf("do bt cmd connect_auto\n");
 
     return s_connect_auto();
+}
+
+int c_bt::connect_dev_by_addr(BT_ADDR bt_addr)
+{
+    int i = 0;
+    S_BT_ADDR s_bt_addr;
+
+    printf("do bt cmd connect dev by addr %02X:%02X:%02X:%02X:%02X:%02X\n",
+                    bt_addr[0], bt_addr[1], bt_addr[2],
+                    bt_addr[3], bt_addr[4], bt_addr[5]);
+
+    for(i = 0; i < BT_ADDR_LEN; i++){
+        s_bt_addr[i] = bt_addr[i];
+    }
+    s_connect_dev_by_addr(s_bt_addr);
 }
 
 int c_bt::disconnect()

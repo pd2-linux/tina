@@ -1254,6 +1254,52 @@ void app_mgr_set_non_connectable(void)
 
 /*******************************************************************************
  **
+ ** Function         app_mgr_config_bd_name
+ **
+ ** Description      config the device bt name
+ **
+ ** Parameters
+ **
+ ** Returns          void
+ **
+ *******************************************************************************/
+ void app_mgr_config_bd_name(const char *bd_name)
+{
+    if(!bd_name || !bd_name[0])
+    {
+        APP_ERROR0("set bt NULL name failed");
+        return;
+    }
+
+    strncpy((char *)app_xml_config.name, (char *)bd_name, BD_NAME_LEN);
+    app_xml_config.name[sizeof(app_xml_config.name) - 1] = '\0';
+}
+
+void app_mgr_config_connectable(int enable)
+{
+    if(enable != 0){
+        app_xml_config.connectable = 1;
+    }else{
+        app_xml_config.connectable = 0;
+    }
+
+    return ;
+}
+
+
+void app_mgr_config_discoverable(int enable)
+{
+    if(enable != 0){
+        app_xml_config.discoverable = 1;
+    }else{
+        app_xml_config.discoverable = 0;
+    }
+
+    return ;
+}
+
+/*******************************************************************************
+ **
  ** Function         app_mgr_di_discovery
  **
  ** Description      Perform a device Id discovery
@@ -1322,6 +1368,27 @@ int app_mgr_di_discovery(void)
     return -1;
 }
 
+int app_mgr_config_init(void)
+{
+    int                 status;
+
+    status = app_mgr_read_config();
+    if (status < 0)
+    {
+        strncpy((char *)app_xml_config.name, APP_DEFAULT_BT_NAME, sizeof(app_xml_config.name));
+        app_xml_config.name[sizeof(app_xml_config.name) - 1] = '\0';
+    }
+
+    /* prevention config file damanged */
+    {
+        app_xml_config.enable = TRUE;
+        app_xml_config.discoverable = TRUE;
+        app_xml_config.connectable = TRUE;
+    }
+
+    return 0;
+}
+
 /*******************************************************************************
  **
  ** Function         app_mgr_config
@@ -1348,23 +1415,10 @@ int app_mgr_config(void)
      * The rest of the initialization function must be done
      * for application boot and when Bluetooth is restarted
      */
-
-    /* Example of function to read the XML file which contains the
-     * Local Bluetooth configuration
-     * */
-    status = app_mgr_read_config();
-    if (status < 0)
-    {
-        strncpy((char *)app_xml_config.name, APP_DEFAULT_BT_NAME, sizeof(app_xml_config.name));
-        app_xml_config.name[sizeof(app_xml_config.name) - 1] = '\0';
-    }
-
+ 
     /* prevention config file damanged */
     {
         APP_ERROR0("Creating default XML config file");
-        app_xml_config.enable = TRUE;
-        app_xml_config.discoverable = TRUE;
-        app_xml_config.connectable = TRUE;
 
 #ifdef CUSTOM_MAC_ENABLE
         /* bt config file exist */

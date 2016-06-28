@@ -923,6 +923,79 @@ int app_avk_auto_connect(BD_ADDR bt_auto_addr)
     return 0;
 }
 
+int app_avk_connect_by_addr(BD_ADDR bd_addr)
+{
+    tBSA_STATUS status;
+    int choice;
+    tBSA_AVK_OPEN open_param;
+    tAPP_AVK_CONNECTION *connection = NULL;
+
+    if (app_avk_cb.open_pending)
+    {
+        APP_ERROR0("already trying to connect");
+        return -1;
+    }
+    
+    /* Open AVK stream */
+    printf("Connecting to device %02X:%02X:%02X:%02X:%02X:%02X\n",
+                bd_addr[0], bd_addr[1], bd_addr[2],
+                bd_addr[3], bd_addr[4], bd_addr[5]);
+
+    app_avk_cb.open_pending = TRUE;
+
+    BSA_AvkOpenInit(&open_param);
+    memcpy((char *) (open_param.bd_addr), bd_addr, sizeof(BD_ADDR));
+
+    open_param.sec_mask = BSA_SEC_NONE;
+    status = BSA_AvkOpen(&open_param);
+    if (status != BSA_SUCCESS)
+    {
+        APP_ERROR1("Unable to connect to device %02X:%02X:%02X:%02X:%02X:%02X with status %d",
+                open_param.bd_addr[0], open_param.bd_addr[1], open_param.bd_addr[2],
+                open_param.bd_addr[3], open_param.bd_addr[4], open_param.bd_addr[5], status);
+
+        app_avk_cb.open_pending = FALSE;
+        return -1;
+    }
+    else
+    {
+        /* this is an active wait for demo purpose */
+        printf("waiting for AV connection to open\n");
+
+        while (app_avk_cb.open_pending == TRUE);
+
+        connection = app_avk_find_connection_by_bd_addr(open_param.bd_addr);
+        if(connection == NULL || connection->is_open == FALSE)
+        {
+            printf("failure opening AV connection  \n");
+            return -1;
+        }
+        else
+        {
+            /* Read the Remote device xml file to have a fresh view */
+            app_read_xml_remote_devices();
+
+            /* Add AV service for this devices in XML database */
+            app_xml_add_trusted_services_db(app_xml_remote_devices_db,
+                APP_NUM_ELEMENTS(app_xml_remote_devices_db), bd_addr,
+                BSA_A2DP_SERVICE_MASK | BSA_AVRCP_SERVICE_MASK);
+
+            app_xml_update_name_db(app_xml_remote_devices_db,
+                APP_NUM_ELEMENTS(app_xml_remote_devices_db), bd_addr, "test bt");
+
+            /* Update database => write to disk */
+            if (app_write_xml_remote_devices() < 0)
+            {
+                APP_ERROR0("Failed to store remote devices database");
+            }
+        }
+    }
+
+    return 0;
+}
+
+
+
 /*******************************************************************************
  **
  ** Function         app_avk_open

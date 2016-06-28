@@ -60,6 +60,7 @@ static tBSA_SEC_IO_CAP g_sp_caps = 0;
 static BD_ADDR     cur_connected_dev;        /* BdAddr of connected device */
 static BD_ADDR     last_connected_dev;       /* store connected dev last reboot */
 static void *p_cbt = NULL;
+static int bluetooth_on = 0;
 static int discoverable;
 static int connectable;
 
@@ -322,6 +323,13 @@ static void bsa_sec_callback(tBSA_SEC_EVT event, tBSA_SEC_MSG *p_data)
     }
 }
 
+int bluetooth_init()
+{
+    discoverable = 1;
+    connectable = 1;
+    app_mgr_config_init();
+}
+
 int bluetooth_start(void *p, char *p_conf)
 {
     int mode;
@@ -372,8 +380,7 @@ int bluetooth_start(void *p, char *p_conf)
         APP_INFO1("Current DualStack mode:%s", app_mgr_get_dual_stack_mode_desc());
     }
 
-    discoverable = 1;
-    connectable = 1;
+    bluetooth_on = 1;
 
     return 0;
 }
@@ -400,7 +407,11 @@ void start_app_hs()
 
 void s_set_bt_name(const char *name)
 {
-    app_mgr_set_bd_name(name);
+    if(bluetooth_on == 1){
+        app_mgr_set_bd_name(name);
+    }else{
+        app_mgr_config_bd_name(name);
+    }
 }
 
 
@@ -417,7 +428,12 @@ void s_set_discoverable(int enable)
     }else{
         discoverable=0;
     }
-    app_dm_set_visibility(discoverable, connectable);
+
+    if(bluetooth_on == 1){
+        app_dm_set_visibility(discoverable, connectable);
+    }else{
+        app_mgr_config_discoverable(discoverable);
+    }
 }
 
 void s_set_connectable(int enable)
@@ -433,7 +449,12 @@ void s_set_connectable(int enable)
     }else{
         connectable=0;
     }
-    app_dm_set_visibility(discoverable, connectable);
+
+    if(bluetooth_on == 1){
+        app_dm_set_visibility(discoverable, connectable);
+    }else{
+        app_mgr_config_connectable(connectable);
+    }
 }
 
 void s_start_discovery(int time)
@@ -537,15 +558,22 @@ int s_connect_auto()
     }
     printf("link status %d\n", link_status);
 
-    /* start avk app */
-    if(avk_start_status == 0){
-        start_app_avk();
-    }
-    usleep(500*1000);
-
     memset(last_connected_dev, 0, sizeof(last_connected_dev));
     read_connected_dev(last_connected_dev);
     return app_avk_auto_connect(last_connected_dev);
+}
+
+int s_connect_dev_by_addr(S_BT_ADDR s_bt_addr)
+{
+    int i = 0;
+    BD_ADDR bd_addr;
+
+    for(i = 0; i < BD_ADDR_LEN; i++){
+        bd_addr[i] = s_bt_addr[i];
+    }
+
+    app_avk_connect_by_addr(bd_addr);
+    return 0;
 }
 
 void s_disconnect()
@@ -579,6 +607,10 @@ void s_disconnect()
 #endif
 
     stop_app_avk();
+    usleep(500*1000);
+
+    /* start avk app */
+    start_app_avk();
 }
 
 void s_avk_play()
@@ -698,6 +730,5 @@ void stop_app_hs()
 void bluetooth_stop()
 {
     app_mgt_close();
-    discoverable = 0;
-    connectable = 0;
+    bluetooth_on = 0;
 }
