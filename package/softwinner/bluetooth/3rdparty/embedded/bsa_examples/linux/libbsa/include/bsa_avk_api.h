@@ -255,7 +255,7 @@ typedef UINT16 tBSA_AVK_CP_ID;
 typedef UINT8 tBSA_AVK_CP_SCMS_FLAG;
 
 /*Max number of simultneous AVK connections*/
-#define BSA_MAX_AVK_CONNECTIONS    3
+#define BSA_MAX_AVK_CONNECTIONS    1
 
 typedef struct
 {

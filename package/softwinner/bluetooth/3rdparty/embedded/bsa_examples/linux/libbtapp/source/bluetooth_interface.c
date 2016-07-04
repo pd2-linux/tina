@@ -602,15 +602,16 @@ void s_disconnect()
     }
 
     avk_disconnect_cmd = 1;
-#if 0
-    app_avk_close(cur_connected_dev);
-#endif
 
+    app_avk_close(cur_connected_dev);
+
+#if 0    
     stop_app_avk();
     usleep(500*1000);
 
     /* start avk app */
     start_app_avk();
+#endif
 }
 
 void s_avk_play()
