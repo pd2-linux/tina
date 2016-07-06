@@ -81,6 +81,18 @@ typedef struct
 
 } tAPP_AVK_CB;
 
+/* 
+ * Types
+ * pcm params
+ */
+typedef struct
+{
+    snd_pcm_format_t format;
+    unsigned int  num_channel;
+    unsigned int  sample_rate;
+}pcm_params;
+
+
 /* Callback to application for connection events */
 typedef void ( tAvkCallback)(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data);
 
@@ -678,5 +690,5 @@ void app_avk_reg_notfn_rsp(UINT8 volume, UINT8 rc_handle, UINT8 label, UINT8 eve
 UINT8 app_avk_get_label();
 
 int app_avk_close_pcm_alsa(void);
-
+int app_avk_reseme_pcm_alsa(void);
 #endif /* APP_AVK_H_ */

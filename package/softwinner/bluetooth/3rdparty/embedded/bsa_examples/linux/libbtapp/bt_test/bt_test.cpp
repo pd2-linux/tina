@@ -9,7 +9,7 @@ static int status = 0;
 static int playing = 0;
 c_bt c;
 
-void bt_event_f(BT_EVENT event)
+void bt_event_f(BT_EVENT event, void *reply, int *len)
 {
     switch(event)
     {
@@ -25,6 +25,7 @@ void bt_event_f(BT_EVENT event)
 	  case BT_AVK_DISCONNECTED_EVT:
 	  {
 		  printf("Media audio disconnected!\n");
+                  printf("link down reason %d\n", *(int *)reply);
 		  c.set_dev_connectable(1);
 		  c.set_dev_discoverable(1);
 		  status = 0;

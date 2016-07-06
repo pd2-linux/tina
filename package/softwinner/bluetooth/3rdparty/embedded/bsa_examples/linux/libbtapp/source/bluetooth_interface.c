@@ -46,7 +46,7 @@ extern tAPP_AVK_CB app_avk_cb;
  * Extern funtion
  * */
 extern void store_connected_dev(BD_ADDR bt_mac_addr);
-extern void bt_event_transact(void *p, APP_BT_EVENT event, char *reply, int *len);
+extern void bt_event_transact(void *p, APP_BT_EVENT event, void *reply, int *len);
 extern void read_connected_dev(BD_ADDR bt_mac_addr);
 
 /*
@@ -303,6 +303,9 @@ static BOOLEAN app_mgr_mgt_callback(tBSA_MGT_EVT event, tBSA_MGT_MSG *p_data)
 
 static void bsa_sec_callback(tBSA_SEC_EVT event, tBSA_SEC_MSG *p_data)
 {
+    int link_reason = 0;
+    int reply_len = 0;
+
     switch(event){
         case BSA_SEC_LINK_UP_EVT:
             APP_DEBUG0("BSA_SEC_LINK_UP_EVT");
@@ -310,11 +313,14 @@ static void bsa_sec_callback(tBSA_SEC_EVT event, tBSA_SEC_MSG *p_data)
             break;
 
         case BSA_SEC_LINK_DOWN_EVT:
-            APP_DEBUG1("BSA_SEC_LINK_DOWN_EVT, avk disconnect cmd %d avk connected %d", avk_disconnect_cmd, avk_connected_inner);
+            APP_DEBUG1("BSA_SEC_LINK_DOWN_EVT, avk disconnect cmd %d avk connected %d", avk_disconnect_cmd, avk_connected_inner);        
             if(avk_disconnect_cmd == 1 || avk_connected_inner == 0){
                 avk_disconnect_cmd = 0;
                 link_status = 0;
-                bt_event_transact(p_cbt, APP_AVK_DISCONNECTED_EVT, NULL, NULL);
+                link_reason = p_data->link_down.status;
+                reply_len = 4; 
+                bt_event_transact(p_cbt, APP_AVK_DISCONNECTED_EVT, (void *)&link_reason, &reply_len);
+                APP_DEBUG0("BSA_SEC_LINK_DOWN_EVT return from app!\n");
             }
             break;
 
@@ -668,6 +674,12 @@ void s_avk_close_pcm_alsa()
 {
     printf("s avk close pcm alsa\n");
     app_avk_close_pcm_alsa();
+}
+
+void s_avk_resume_pcm_alsa()
+{
+    printf("s avk resume pcm alsa\n");
+    app_avk_resume_pcm_alsa();
 }
 
 void s_avk_play_previous()

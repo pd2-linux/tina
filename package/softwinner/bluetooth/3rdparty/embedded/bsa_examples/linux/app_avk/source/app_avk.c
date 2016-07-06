@@ -84,6 +84,8 @@ tAPP_AVK_CB app_avk_cb;
 
 #ifdef PCM_ALSA
 static char *alsa_device = "default"; /* ALSA playback device */
+static pcm_params  pcm_alsa_params;
+static int pcm_alsa_close_cmd = 0;
 #endif
 
 /*
@@ -399,6 +401,11 @@ static void app_avk_handle_start(tBSA_AVK_MSG *p_data, tAPP_AVK_CONNECTION *conn
                 pthread_mutex_unlock(&alsa_opt_mutex);
                 return;
             }
+
+            /* store pcm params */
+            pcm_alsa_params.format = format;
+            pcm_alsa_params.num_channel = connection->num_channel;
+            pcm_alsa_params.sample_rate = connection->sample_rate;
             
             /* set output */
             mixer_set("Speaker Function",2);
@@ -809,8 +816,52 @@ int app_avk_close_pcm_alsa()
         snd_pcm_close(app_avk_cb.alsa_handle);
         app_avk_cb.alsa_handle = NULL;
     }
+    pcm_alsa_close_cmd = 1;
     pthread_mutex_unlock(&alsa_opt_mutex);
 
+#endif /* PCM_ALSA */
+   
+    return 0;
+}
+
+int app_avk_resume_pcm_alsa()
+{
+    int status = 0;
+
+    /* resume alsa dev  */
+#ifdef PCM_ALSA
+    pthread_mutex_lock(&alsa_opt_mutex);
+    if (pcm_alsa_close_cmd == 1 && app_avk_cb.alsa_handle == NULL){
+         /* Open ALSA driver */
+        status = snd_pcm_open(&(app_avk_cb.alsa_handle), alsa_device,
+            SND_PCM_STREAM_PLAYBACK, 0);
+        if (status < 0)
+        {
+            APP_ERROR1("snd_pcm_open failed: %s", snd_strerror(status));
+            pthread_mutex_unlock(&alsa_opt_mutex);
+            return -1;
+        }
+        else
+        {
+            APP_DEBUG0("ALSA driver opened");
+            /* Configure ALSA driver with PCM parameters */
+            status = snd_pcm_set_params(app_avk_cb.alsa_handle, pcm_alsa_params.format,
+                SND_PCM_ACCESS_RW_INTERLEAVED, pcm_alsa_params.num_channel,
+                pcm_alsa_params.sample_rate, 1, 400000);/* 0.4sec */
+            if (status < 0)
+            {
+                APP_ERROR1("snd_pcm_set_params failed: %s", snd_strerror(status));
+                pthread_mutex_unlock(&alsa_opt_mutex);
+                return -1;
+            }
+
+            /* set output */
+            mixer_set("Speaker Function",2);
+        }
+        pcm_alsa_close_cmd = 0;
+    }
+
+    pthread_mutex_unlock(&alsa_opt_mutex);
 #endif /* PCM_ALSA */
 
     return 0;
