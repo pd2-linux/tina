@@ -156,6 +156,7 @@ static void app_disc_callback(tBSA_DISC_EVT event, tBSA_DISC_MSG *p_data)
 	case BSA_DISC_CMPL_EVT: /* Discovery complete. */
         dev_nums = store_disc_results(dev_info, &len);
         //bt_event_transact(p_sbt, APP_MGR_DISC_RESULTS, buf, &len);
+        disc_flag = 1;
         break;
 
         default:
