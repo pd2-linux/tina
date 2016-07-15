@@ -191,7 +191,7 @@ uart_tx                  =
 uart_rx                  =
 
 [uart_para3]
-uart_used                = 1
+uart_used                = 0
 uart_port                = 3
 uart_type                = 4
 uart_tx                  = port:PG9<3><1><default><default>
@@ -268,8 +268,8 @@ ctp_used                 = 1
 ctp_name                 = "ft5x_ts"
 ctp_twi_id               = 1
 ctp_twi_addr             = 0x38
-ctp_screen_max_x         = 800
-ctp_screen_max_y         = 480
+ctp_screen_max_x         = 480
+ctp_screen_max_y         = 854
 ctp_revert_x_flag        = 0
 ctp_revert_y_flag        = 1
 ctp_exchange_x_y_flag    = 0
@@ -357,68 +357,71 @@ fb1_scaler_mode_enable   = 0
 [lcd0_para]
 lcd_used                 = 1
 lcd_driver_name          = "default_lcd"
-lcd_x                    = 800
-lcd_y                    = 480
-lcd_dclk_freq            = 33
+lcd_x                    = 480
+lcd_y                    = 854
+lcd_dclk_freq            = 25
 lcd_pwm_not_used         = 0
 lcd_pwm_ch               = 0
-lcd_pwm_freq             = 10000
+lcd_pwm_freq             = 30000
 lcd_pwm_pol              = 0
 lcd_if                   = 0
-lcd_hbp                  = 46
-lcd_ht                   = 1055
-lcd_vbp                  = 23
-lcd_vt                   = 1050
+lcd_hbp                  = 15
+lcd_ht                   = 525
+lcd_vbp                  = 20
+lcd_vt                   = 1840
 lcd_hv_if                = 0
 lcd_hv_smode             = 0
 lcd_hv_s888_if           = 0
 lcd_hv_syuv_if           = 0
-lcd_hv_vspw              = 0
-lcd_hv_hspw              = 0
+lcd_hv_vspw              = 5
+lcd_hv_hspw              = 10
 lcd_lvds_ch              = 0
 lcd_lvds_mode            = 0
 lcd_lvds_bitwidth        = 0
 lcd_lvds_io_cross        = 0
 lcd_cpu_if               = 0
 lcd_frm                  = 1
-lcd_io_cfg0              = 0x10000000
+lcd_io_cfg0              = 0x00000000
 lcd_gamma_correction_en  = 0
 lcd_gamma_tbl_0          = 0x00000000
 lcd_gamma_tbl_1          = 0x00010101
 lcd_gamma_tbl_255        = 0x00ffffff
 
-lcd_bl_en_used           = 1
-lcd_bl_en                = port:power1<1><0><default><1>
-
-lcd_power_used           = 1
-lcd_power                = port:power0<1><0><default><1>
+;lcd_bl_en_used           = 1
+;lcd_bl_en                = port:power1<1><0><default><1>
+;lcd_power_used           = 1
+;lcd_power                = port:power0<1><0><default><1>
 
 lcd_pwm_used             = 1
 lcd_pwm                  = port:PB02<2><0><default><default>
 
-;lcd_gpio_0               =
-;lcd_gpio_1               =
-;lcd_gpio_2               =
-;lcd_gpio_3               =
 
-lcdd0                    = port:PD00<2><0><default><default>
-lcdd1                    = port:PD01<2><0><default><default>
+lcd_gpio_0               = port:PE00<1><0><default><default>
+lcd_gpio_1               = port:PE01<1><0><default><default>
+lcd_gpio_2               = port:PE02<1><0><default><default>
+lcd_gpio_3               = port:PE03<1><0><default><default>
+
+
+
+
+;lcdd0                    = port:PD00<2><0><default><default>
+;lcdd1                    = port:PD01<2><0><default><default>
 lcdd2                    = port:PD02<2><0><default><default>
 lcdd3                    = port:PD03<2><0><default><default>
 lcdd4                    = port:PD04<2><0><default><default>
 lcdd5                    = port:PD05<2><0><default><default>
 lcdd6                    = port:PD06<2><0><default><default>
 lcdd7                    = port:PD07<2><0><default><default>
-lcdd8                    = port:PD08<2><0><default><default>
-lcdd9                    = port:PD09<2><0><default><default>
+;lcdd8                    = port:PD08<2><0><default><default>
+;lcdd9                    = port:PD09<2><0><default><default>
 lcdd10                   = port:PD10<2><0><default><default>
 lcdd11                   = port:PD11<2><0><default><default>
 lcdd12                   = port:PD12<2><0><default><default>
 lcdd13                   = port:PD13<2><0><default><default>
 lcdd14                   = port:PD14<2><0><default><default>
 lcdd15                   = port:PD15<2><0><default><default>
-lcdd16                   = port:PD16<2><0><default><default>
-lcdd17                   = port:PD17<2><0><default><default>
+;lcdd16                   = port:PD16<2><0><default><default>
+;lcdd17                   = port:PD17<2><0><default><default>
 lcdd18                   = port:PD18<2><0><default><default>
 lcdd19                   = port:PD19<2><0><default><default>
 lcdd20                   = port:PD20<2><0><default><default>
@@ -458,7 +461,7 @@ hdmi_used                = 0
 ;csi_flash_pol: the active polority of the flash light IO 0:low active 1:high active
 ;--------------------------------------------------------------------------------
 [csi0_para]
-csi_used                 = 1
+csi_used                 = 0
 csi_mode                 = 0
 csi_dev_qty              = 1
 csi_stby_mode            = 1
@@ -651,7 +654,7 @@ kp_out7                  =
 ;--------------------------------
 [usbc0]
 usb_used                 = 1
-usb_port_type            = 2
+usb_port_type            = 0
 usb_detect_type          = 1
 usb_id_gpio              = port:PG2<0><1><default><default>
 ;usb_det_vbus_gpio        = port:PG1<0><0><default><default>
@@ -859,7 +862,7 @@ spdif_din                =
 audio_used               = 1
 capture_used			 = 1
 audio_lr_change      	 = 0
-audio_pa_ctrl            = port:power0<1><0><default><1>
+audio_pa_ctrl            =  port:PG10<1><0><default><1>
 
 ;----------------------------------------------------------------------------------
 ;ir --- infra remote configuration
