@@ -59,13 +59,13 @@ size = 16384
 
 [partition]
     name         = rootfs_data
-    size         = 163840
+    size         = 8192
 
     user_type    = 0x8000
 
 [partition]
     name         = extend
-    size         = 163840
+    size         = 8192
     downloadfile = "usr.fex"
     user_type    = 0x8000
 
