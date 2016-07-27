@@ -274,7 +274,7 @@ ctp_revert_x_flag        = 0
 ctp_revert_y_flag        = 1
 ctp_exchange_x_y_flag    = 0
 
-ctp_int_port             = port:PG4<6><default><default><1>
+ctp_int_port             = port:PG0<6><default><default><1>
 ctp_wakeup               = port:PG3<1><default><default><1>
 ;ctp_io_port              = port:PH21<0><default>
 
