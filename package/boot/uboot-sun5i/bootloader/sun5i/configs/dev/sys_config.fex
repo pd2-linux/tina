@@ -873,10 +873,13 @@ ir0_rx                   = port:PB04<2><default><default><default>
 
 
 [rtc_para]
-rtc_used                 = 1
+rtc_used                 = 0
 rtc_name                 = "pcf8563"
 rtc_twi_id               = 1
-rtc_twi_addr	           = 0x51
+rtc_twi_addr	         = 0x51
+
+[humiture_para]
+sht3x_reset              = port:PF03<1><default><default><0>
 
 ;----------------------------------------------------------------------------------
 ;pmu_twi_addr           ---slave address
