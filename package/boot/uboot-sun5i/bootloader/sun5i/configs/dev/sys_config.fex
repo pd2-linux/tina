@@ -274,7 +274,7 @@ ctp_revert_x_flag        = 0
 ctp_revert_y_flag        = 1
 ctp_exchange_x_y_flag    = 0
 
-ctp_int_port             = port:PG00<6><default><default><default>
+ctp_int_port             = port:PG10<6><default><default><default>
 ctp_wakeup               = port:PG3<1><default><default><1>
 ;ctp_io_port              = port:PH21<0><default>
 
@@ -859,7 +859,7 @@ spdif_dout               =
 spdif_din                =
 
 [audio_para]
-audio_used               = 1
+audio_used               = 0
 capture_used			 = 1
 audio_lr_change      	 = 0
 audio_pa_ctrl            =  port:PG10<1><0><default><1>
