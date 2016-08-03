@@ -1048,8 +1048,13 @@ static int aw_wifi_connect_ap_auto(int event_label)
     pause_wifi_scan_thread();
 
     wifi_machine_state = get_wifi_machine_state();
-	  if(wifi_machine_state != CONNECTED_STATE
-	  	  && wifi_machine_state != DISCONNECTED_STATE){
+    if(wifi_machine_state == CONNECTED_STATE){
+        ret = -1;
+        event_code = WIFIMG_OPT_NO_USE_EVENT;
+        goto end;
+    }	
+	
+	if(wifi_machine_state != DISCONNECTED_STATE){
         ret = -1;
         event_code = WIFIMG_DEV_BUSING_EVENT;
         goto end;
@@ -1062,19 +1067,25 @@ static int aw_wifi_connect_ap_auto(int event_label)
         goto end;
     }
 
-    netid_connecting[0] = '\0';
+    /* connecting */
+    set_wifi_machine_state(CONNECTING_STATE);
+   
+	netid_connecting[0] = '\0';
     disconnecting = 0;
     connecting_ap_event_label = event_label;
 
     /* reconnected */
-	  sprintf(cmd, "%s", "RECONNECT");
+	sprintf(cmd, "%s", "RECONNECT");
     ret = wifi_command(cmd, reply, sizeof(reply));
     if(ret){
         printf("do reconnect error!\n");
         ret = -1;
         event_code = WIFIMG_CMD_OR_PARAMS_ERROR;
     }
-    
+   
+    /* check timeout */
+    start_check_connect_timeout(0);
+
 end:
     if(ret != 0){
     	  call_event_callback_function(event_code, NULL, event_label);
