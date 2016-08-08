@@ -889,6 +889,9 @@ bh1721_reset       	= port:PF1<1><default><default><0>
 [humiture_para]
 sht3x_reset              = port:PF3<1><default><default><0>
 
+[boosten_para]
+boosten_reset          = port:PE11<1><default><default><0>
+
 ;----------------------------------------------------------------------------------
 ;pmu_twi_addr           ---slave address
 ;pmu_twi_id             ---i2c bus number (0 TWI0, 1 TWI2, 2 TWI3)
