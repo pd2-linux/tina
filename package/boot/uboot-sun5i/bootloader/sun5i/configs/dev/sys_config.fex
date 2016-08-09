@@ -819,12 +819,12 @@ gy_twi_addr              = 0x00
 gy_int1                  =
 gy_int2                  =
 
-;-------------------------------------------------------------------------------
+;--------------------------------------------------------------------------------
 ;light sensor
 ;only modified "ls_used"/"ls_name"/"ls_twi_id", "ls_twi_addr"/"ls_int" not used
 ;support list : [ltr501als]
 ;               []
-;-------------------------------------------------------------------------------
+;--------------------------------------------------------------------------------
 [ls_para]
 ls_used                  = 0
 ls_name			 = "ltr501als"
@@ -838,7 +838,7 @@ ls_int                   =
 [compass_para]
 compass_used             = 0
 compass_twi_id           =
-compass_twi_addr	 =
+compass_twi_addr		 =
 compass_int              =
 
 [i2s_para]
@@ -942,7 +942,8 @@ pmu_init_adc_freqc       = 100
 pmu_init_chg_pretime     = 50
 pmu_init_chg_csttime     = 720
 
-power_start              = 3 ;任意状态下开机.最终是0
+;任意状态下开机.最终是0
+power_start              = 3 
 
 pmu_bat_para1            = 0
 pmu_bat_para2            = 0
