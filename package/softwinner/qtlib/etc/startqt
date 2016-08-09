@@ -2,7 +2,7 @@
 
 export LD_LIBRARY_PATH=/lib/qtlib
 export QT_QWS_FONTDIR=/lib/qtlib/fonts
-export QWS_DISPLAY=Transformed:Rot90
+export QWS_DISPLAY=Transformed:Rot270
 
 export TSLIB_TSDEVICE=/dev/input/event5
 export TSLIB_CONFFILE=/etc/ts.conf
