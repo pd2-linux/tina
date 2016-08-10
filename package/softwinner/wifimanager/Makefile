@@ -92,6 +92,7 @@ define Package/wifimanager-demo/install
 	$(INSTALL_DIR) $(1)/etc/wifi
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/wifi_connect_ap_test $(1)/bin	
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/wifi_on_off_test $(1)/bin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/wifi_connect_chinese_ap_test $(1)/bin
 	$(INSTALL_BIN) ./wifitest.sh $(1)/etc/wifi
 endef
 

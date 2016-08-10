@@ -10,6 +10,8 @@
 #include "wpa_supplicant_conf.h"
 #include "wifi_intf.h"
 
+#define WPA_SSID_LENTH  512
+
 extern int is_ip_exist();
 
 char netid_connecting[NET_ID_LEN+1] = {0};
@@ -20,6 +22,9 @@ tWIFI_STATE  gwifi_state = WIFIMG_WIFI_DISABLED;
 
 static tWIFI_EVENT  event_code = WIFIMG_NO_NETWORK_CONNECTING;
 static int aw_wifi_disconnect_ap(int event_label);
+static char wpa_scan_ssid[WPA_SSID_LENTH];
+static char wpa_conf_ssid[WPA_SSID_LENTH];
+static int  ssid_contain_chinese = 0;
 
 static int aw_wifi_add_event_callback(tWifi_event_callback pcb)
 {
@@ -96,6 +101,107 @@ int check_wpa_passwd(const char *passwd)
     return result;
 }
 
+/* convert app ssid which contain chinese in utf-8 to wpa scan ssid */
+static int ssid_app_to_wpa_scan(const char *app_ssid, char *scan_ssid)
+{
+    unsigned char h_val = 0, l_val = 0;
+    int i = 0;
+    int chinese_in = 0;
+
+    if(!app_ssid || !app_ssid[0])
+    {
+        printf("Error: app ssid is NULL!\n");
+        return -1;
+    }
+
+    if(!scan_ssid)
+    {
+        printf("Error: wpa ssid buf is NULL\n");
+        return -1;
+    }
+
+    i = 0;
+    while(app_ssid[i] != '\0')
+    {
+        /* ascii code */
+        if((unsigned char)app_ssid[i] <= 0x7f)
+        {
+            *(scan_ssid++) = app_ssid[i++];
+        }
+        else /* covert to wpa ssid for chinese code */
+        {
+            *(scan_ssid++) = '\\';
+            *(scan_ssid++) = 'x';
+            h_val = (app_ssid[i] & 0xf0) >> 4;
+            if((h_val >= 0) && (h_val <= 9)){
+                *(scan_ssid++) = h_val + '0';
+            }else if((h_val >= 0x0a) && (h_val <= 0x0f)){
+                *(scan_ssid++) = h_val + 'a' - 0xa;
+            }
+
+            l_val = app_ssid[i] & 0x0f;
+            if((l_val >= 0) && (l_val <= 9)){
+                *(scan_ssid++) = l_val + '0';
+            }else if((l_val >= 0x0a) && (l_val <= 0x0f)){
+                *(scan_ssid++) = l_val + 'a' - 0xa;
+            }
+            i++;
+            chinese_in = 1;
+        }
+    }
+    *scan_ssid = '\0';
+
+    if(chinese_in == 1){
+        return 1;
+    }
+
+    return 0;
+}
+
+/* convert app ssid which contain chinese in utf-8 to wpa conf ssid */
+static int ssid_app_to_wpa_conf(const char *app_ssid, char *conf_ssid)
+{
+    unsigned char h_val = 0, l_val = 0;
+    int i = 0;
+    int chinese_in = 0;
+
+    if(!app_ssid || !app_ssid[0])
+    {
+        printf("Error: app ssid is NULL!\n");
+        return -1;
+    }
+
+    if(!conf_ssid)
+    {
+        printf("Error: wpa ssid buf is NULL\n");
+        return -1;
+    }
+
+    i = 0;
+    while(app_ssid[i] != '\0')
+    {
+        h_val = (app_ssid[i] & 0xf0) >> 4;
+        if((h_val >= 0) && (h_val <= 9)){
+            *(conf_ssid++) = h_val + '0';
+        }else if((h_val >= 0x0a) && (h_val <= 0x0f)){
+            *(conf_ssid++) = h_val + 'a' - 0xa;
+        }
+
+        l_val = app_ssid[i] & 0x0f;
+        if((l_val >= 0) && (l_val <= 9)){
+            *(conf_ssid++) = l_val + '0';
+        }else if((l_val >= 0x0a) && (l_val <= 0x0f)){
+            *(conf_ssid++) = l_val + 'a' - 0xa;
+        }
+        i++;
+    }
+    *conf_ssid = '\0';
+
+    return 0;
+}
+
+
+
 /* connect visiable network */
 static int aw_wifi_add_network(const char *ssid, tKEY_MGMT key_mgmt, const char *passwd, int event_label)
 {
@@ -103,7 +209,8 @@ static int aw_wifi_add_network(const char *ssid, tKEY_MGMT key_mgmt, const char 
     char cmd[CMD_LEN+1] = {0};
     char reply[REPLY_BUF_SIZE] = {0}, netid[NET_ID_LEN+1]={0};
     tWIFI_MACHINE_STATE wifi_machine_state;
-	  
+    const char *p_ssid = NULL;
+
     if(gwifi_state == WIFIMG_WIFI_DISABLED){
         return -1;
     }
@@ -136,10 +243,30 @@ static int aw_wifi_add_network(const char *ssid, tKEY_MGMT key_mgmt, const char 
 	  
     /* remove disconnecting flag */
     disconnecting = 0;
-	  
+
+    /* convert app ssid to wpa scan ssid */
+    ret = ssid_app_to_wpa_scan(ssid, wpa_scan_ssid);
+    if(ret < 0){
+        ret = -1;
+        event_code = WIFIMG_CMD_OR_PARAMS_ERROR;
+        goto end;
+    }else if(ret > 0){
+        ssid_contain_chinese = 1;
+    }else {
+        ssid_contain_chinese = 0;
+    }
+
+    /* has no chinese code */
+    if(ssid_contain_chinese == 0){
+        p_ssid = ssid;
+    }else{
+        ssid_app_to_wpa_conf(ssid, wpa_conf_ssid);
+        p_ssid = wpa_conf_ssid;
+    }
+
     /* check already exist or connected */
     len = 3;
-    ret = wpa_conf_is_ap_exist(ssid, key_mgmt, netid, &len);
+    ret = wpa_conf_is_ap_exist(p_ssid, key_mgmt, netid, &len);
     if(ret == 1 || ret == 3){
         //network is exist or connected
         ;
@@ -158,7 +285,12 @@ static int aw_wifi_add_network(const char *ssid, tKEY_MGMT key_mgmt, const char 
     	netid[NET_ID_LEN] = '\0';
     	  
     	/* set network ssid */
-    	sprintf(cmd, "SET_NETWORK %s ssid \"%s\"", netid, ssid);
+        if(ssid_contain_chinese == 0){
+            sprintf(cmd, "SET_NETWORK %s ssid \"%s\"", netid, p_ssid);
+        }else{
+            sprintf(cmd, "SET_NETWORK %s ssid %s", netid, p_ssid);
+        }
+
     	ret = wifi_command(cmd, reply, sizeof(reply));
         if(ret){
             printf("do set network ssid error!\n");
@@ -348,8 +480,13 @@ static int wifi_connect_ap_inner(const char *ssid, tKEY_MGMT key_mgmt, const cha
     }
 	  
 	  /* set network ssid */
-	  sprintf(cmd, "SET_NETWORK %s ssid \"%s\"", netid2, ssid);
-	  ret = wifi_command(cmd, reply, sizeof(reply));
+    if(ssid_contain_chinese == 0){
+        sprintf(cmd, "SET_NETWORK %s ssid \"%s\"", netid2, ssid);
+    }else{
+        sprintf(cmd, "SET_NETWORK %s ssid %s", netid2, ssid);
+    }
+
+	ret = wifi_command(cmd, reply, sizeof(reply));
     if(ret){
         printf("do set network ssid error!\n");
 
@@ -619,7 +756,8 @@ static int aw_wifi_connect_ap_key_mgmt(const char *ssid, tKEY_MGMT key_mgmt, con
 {
 	  int ret = -1, key[4] = {0};
 	  tWIFI_MACHINE_STATE  state;
-	  
+	  const char *p_ssid = NULL;
+
 	  if(gwifi_state == WIFIMG_WIFI_DISABLED){
         return -1;
     }
@@ -637,15 +775,35 @@ static int aw_wifi_connect_ap_key_mgmt(const char *ssid, tKEY_MGMT key_mgmt, con
         event_code = WIFIMG_DEV_BUSING_EVENT;
         goto end;
     }
-    
+
+    /* convert app ssid to wpa scan ssid */
+    ret = ssid_app_to_wpa_scan(ssid, wpa_scan_ssid);
+    if(ret < 0){
+        ret = -1;
+        event_code = WIFIMG_CMD_OR_PARAMS_ERROR;
+        goto end;
+    }else if(ret > 0){
+        ssid_contain_chinese = 1;
+    }else {
+        ssid_contain_chinese = 0;
+    }
+
+    /* has no chinese code */
+    if(ssid_contain_chinese == 0){
+        p_ssid = ssid;
+    }else{
+        ssid_app_to_wpa_conf(ssid, wpa_conf_ssid);
+        p_ssid = wpa_conf_ssid;
+    }
+
     /* checking network exist at first time */
-	  get_key_mgmt(ssid, key);
+	  get_key_mgmt(wpa_scan_ssid, key);
 	  
 	  /* no password */
 	  if (key_mgmt == WIFIMG_NONE){
         if(key[0] == 0){
             update_scan_results();
-            get_key_mgmt(ssid, key);
+            get_key_mgmt(wpa_scan_ssid, key);
             if(key[0] == 0){
                 ret = -1;
                 event_code = WIFIMG_NETWORK_NOT_EXIST;
@@ -655,7 +813,7 @@ static int aw_wifi_connect_ap_key_mgmt(const char *ssid, tKEY_MGMT key_mgmt, con
 	  }else if(key_mgmt == WIFIMG_WPA_PSK || key_mgmt == WIFIMG_WPA2_PSK){
         if(key[1] == 0){
             update_scan_results();
-            get_key_mgmt(ssid, key);
+            get_key_mgmt(wpa_scan_ssid, key);
             if(key[1] == 0){
                 ret = -1;
                 event_code = WIFIMG_NETWORK_NOT_EXIST;
@@ -665,7 +823,7 @@ static int aw_wifi_connect_ap_key_mgmt(const char *ssid, tKEY_MGMT key_mgmt, con
     }else if(key_mgmt == WIFIMG_WEP){
         if(key[2] == 0){
             update_scan_results();
-            get_key_mgmt(ssid, key);
+            get_key_mgmt(wpa_scan_ssid, key);
             if(key[2] == 0){
                 ret = -1;
                 event_code = WIFIMG_NETWORK_NOT_EXIST;
@@ -687,7 +845,7 @@ static int aw_wifi_connect_ap_key_mgmt(const char *ssid, tKEY_MGMT key_mgmt, con
         aw_wifi_disconnect_ap(0x7fffffff);
     }
     
-    ret = wifi_connect_ap_inner(ssid, key_mgmt, passwd, event_label);
+    ret = wifi_connect_ap_inner(p_ssid, key_mgmt, passwd, event_label);
 
 end:
     if(ret != 0){
@@ -707,6 +865,7 @@ static int aw_wifi_connect_ap(const char *ssid, const char *passwd, int event_la
 	  int  key[4] = {0};
 	  tWIFI_MACHINE_STATE  state;
 	  tWIFI_EVENT_INNER    event;
+      const char *p_ssid = NULL;
 
     if(gwifi_state == WIFIMG_WIFI_DISABLED){
         printf("aw wifi connect ap wifi disabled\n");
@@ -729,14 +888,34 @@ static int aw_wifi_connect_ap(const char *ssid, const char *passwd, int event_la
         goto end;
     }
 
+     /* convert app ssid to wpa scan ssid */
+    ret = ssid_app_to_wpa_scan(ssid, wpa_scan_ssid);
+    if(ret < 0){
+        ret = -1;
+        event_code = WIFIMG_CMD_OR_PARAMS_ERROR;
+        goto end;
+    }else if(ret > 0){
+        ssid_contain_chinese = 1;
+    }else {
+        ssid_contain_chinese = 0;
+    }
+
+    /* has no chinese code */
+    if(ssid_contain_chinese == 0){
+        p_ssid = ssid;
+    }else{
+        ssid_app_to_wpa_conf(ssid, wpa_conf_ssid);
+        p_ssid = wpa_conf_ssid;
+    }
+
 	  /* checking network exist at first time */
-	  get_key_mgmt(ssid, key);
-	  
+	  get_key_mgmt(wpa_scan_ssid, key);
+
 	  /* no password */
 	  if(!passwd || !passwd[0]){
         if(key[0] == 0){
             update_scan_results();
-            get_key_mgmt(ssid, key);
+            get_key_mgmt(wpa_scan_ssid, key);
             if(key[0] == 0){
                 ret = -1;
                 event_code = WIFIMG_NETWORK_NOT_EXIST;
@@ -753,11 +932,11 @@ static int aw_wifi_connect_ap(const char *ssid, const char *passwd, int event_la
             aw_wifi_disconnect_ap(0x7fffffff);
         } 
 
-	      ret = wifi_connect_ap_inner(ssid, WIFIMG_NONE, passwd, event_label);
+        ret = wifi_connect_ap_inner(p_ssid, WIFIMG_NONE, passwd, event_label);
 	  }else{
         if((key[1] == 0) && (key[2] == 0)){
             update_scan_results();
-            get_key_mgmt(ssid, key);
+            get_key_mgmt(wpa_scan_ssid, key);
             if((key[1] == 0) && (key[2] == 0)){
                 ret = -1;
                 event_code = WIFIMG_NETWORK_NOT_EXIST;
@@ -777,7 +956,7 @@ static int aw_wifi_connect_ap(const char *ssid, const char *passwd, int event_la
         /* wpa-psk */
         if(key[1] == 1){
             /* try WPA-PSK */
-	          ret = wifi_connect_ap_inner(ssid, WIFIMG_WPA_PSK, passwd, event_label);
+	          ret = wifi_connect_ap_inner(p_ssid, WIFIMG_WPA_PSK, passwd, event_label);
             if(ret == 0){
                 return ret;
             }
@@ -786,7 +965,7 @@ static int aw_wifi_connect_ap(const char *ssid, const char *passwd, int event_la
 	  		/* wep */
 	  		if(key[2] == 1){
 	  		    /* try WEP */
-	  		    ret = wifi_connect_ap_inner(ssid, WIFIMG_WEP, passwd, event_label);
+                ret = wifi_connect_ap_inner(p_ssid, WIFIMG_WEP, passwd, event_label);
 	  		}
 	  }
 
@@ -869,8 +1048,13 @@ static int aw_wifi_connect_ap_auto(int event_label)
     pause_wifi_scan_thread();
 
     wifi_machine_state = get_wifi_machine_state();
-	  if(wifi_machine_state != CONNECTED_STATE
-	  	  && wifi_machine_state != DISCONNECTED_STATE){
+    if(wifi_machine_state == CONNECTED_STATE){
+        ret = -1;
+        event_code = WIFIMG_OPT_NO_USE_EVENT;
+        goto end;
+    }	
+	
+	if(wifi_machine_state != DISCONNECTED_STATE){
         ret = -1;
         event_code = WIFIMG_DEV_BUSING_EVENT;
         goto end;
@@ -883,19 +1067,25 @@ static int aw_wifi_connect_ap_auto(int event_label)
         goto end;
     }
 
-    netid_connecting[0] = '\0';
+    /* connecting */
+    set_wifi_machine_state(CONNECTING_STATE);
+   
+	netid_connecting[0] = '\0';
     disconnecting = 0;
     connecting_ap_event_label = event_label;
 
     /* reconnected */
-	  sprintf(cmd, "%s", "RECONNECT");
+	sprintf(cmd, "%s", "RECONNECT");
     ret = wifi_command(cmd, reply, sizeof(reply));
     if(ret){
         printf("do reconnect error!\n");
         ret = -1;
         event_code = WIFIMG_CMD_OR_PARAMS_ERROR;
     }
-    
+   
+    /* check timeout */
+    start_check_connect_timeout(0);
+
 end:
     if(ret != 0){
     	  call_event_callback_function(event_code, NULL, event_label);
