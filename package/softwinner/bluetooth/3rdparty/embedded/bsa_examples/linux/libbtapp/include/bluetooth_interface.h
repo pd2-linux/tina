@@ -41,6 +41,7 @@ void s_avk_play();
 void s_avk_pause();
 void s_avk_stop();
 void s_avk_close_pcm_alsa();
+void s_avk_resume_pcm_alsa();
 void s_avk_play_previous();
 void s_avk_play_next();
 void s_hs_pick_up();

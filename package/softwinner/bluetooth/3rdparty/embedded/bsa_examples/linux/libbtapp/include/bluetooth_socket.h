@@ -29,7 +29,7 @@ enum BT_EVENT{
     BT_HS_ERROR_EVT
 };
 
-typedef void (tBtCallback)(BT_EVENT event);
+typedef void (tBtCallback)(BT_EVENT event, void *reply, int *len);
 
 class c_bt
 {
@@ -57,12 +57,13 @@ public:
     int avk_pause();
     int avk_stop();
     int avk_close_pcm_alsa();
+    int avk_resume_pcm_alsa();
     int avk_previous();
     int avk_next();
     int hs_pick_up();
     int hs_hung_up();
     void set_callback(tBtCallback *pCb);
-    void event_callback(BT_EVENT bt_event);
+    void event_callback(BT_EVENT bt_event, void *reply, int *len);
     void do_test();
 };
 

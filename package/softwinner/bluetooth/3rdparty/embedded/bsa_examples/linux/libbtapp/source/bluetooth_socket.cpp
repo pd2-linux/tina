@@ -182,6 +182,13 @@ int c_bt::avk_close_pcm_alsa()
     return 0;
 }
 
+int c_bt::avk_resume_pcm_alsa()
+{
+    printf("do bt cmd avk resume pcm alsa\n");
+    s_avk_resume_pcm_alsa();
+    return 0;
+}
+
 int c_bt::avk_previous()
 {
     printf("do bt cmd avk previous\n");
@@ -213,11 +220,11 @@ void c_bt::set_callback(tBtCallback *pCb)
     pBtCb = pCb;
 }
 
-void c_bt::event_callback(BT_EVENT bt_event)
+void c_bt::event_callback(BT_EVENT bt_event, void *reply, int *len)
 {
     printf("received bt event 0x%x\n", bt_event);
     if(pBtCb){
-        pBtCb(bt_event);
+        pBtCb(bt_event, reply, len);
     }
 }
 
@@ -226,38 +233,38 @@ void c_bt::do_test()
     ;
 }
 
-extern "C" void bt_event_transact(void *p, APP_BT_EVENT event, char *reply, int *len)
+extern "C" void bt_event_transact(void *p, APP_BT_EVENT event, void *reply, int *len)
 {
     c_bt *p_c_bt = (c_bt *)p;
     switch(event)
     {
           case APP_AVK_CONNECTED_EVT:
           {
-              p_c_bt->event_callback(BT_AVK_CONNECTED_EVT);
+              p_c_bt->event_callback(BT_AVK_CONNECTED_EVT, NULL, NULL);
               break;
           }
 
           case APP_AVK_DISCONNECTED_EVT:
           {
-              p_c_bt->event_callback(BT_AVK_DISCONNECTED_EVT);
+              p_c_bt->event_callback(BT_AVK_DISCONNECTED_EVT, reply, len);
               break;
           }
 
         case APP_AVK_CONNECT_COMPLETED_EVT:
         {
-            p_c_bt->event_callback(BT_AVK_CONNECT_COMPLETED_EVT);
+            p_c_bt->event_callback(BT_AVK_CONNECT_COMPLETED_EVT, NULL, NULL);
             break;
         }
 
         case APP_AVK_START_EVT:
         {
-            p_c_bt->event_callback(BT_AVK_START_EVT);
+            p_c_bt->event_callback(BT_AVK_START_EVT, NULL, NULL);
             break;
         }
 
         case APP_AVK_STOP_EVT:
         {
-            p_c_bt->event_callback(BT_AVK_STOP_EVT);
+            p_c_bt->event_callback(BT_AVK_STOP_EVT, NULL, NULL);
             break;
         }
 

@@ -60,7 +60,7 @@ typedef UINT8 tBTA_AVK_CHNL;
 
 /* Maximun number of AVDTP signaling and AVRCP connections */
 #ifndef BTA_AVK_MAX_NUM_CONN
-#define BTA_AVK_MAX_NUM_CONN        3
+#define BTA_AVK_MAX_NUM_CONN        1
 #endif
 
 /* the index for the audio stream */

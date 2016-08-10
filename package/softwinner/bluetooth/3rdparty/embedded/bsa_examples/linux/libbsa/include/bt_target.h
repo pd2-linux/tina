@@ -963,7 +963,7 @@ and USER_HW_DISABLE_API macros */
 
 /* TRUE to include Sniff Subrating */
 #ifndef BTM_SSR_INCLUDED
-#define BTM_SSR_INCLUDED                TRUE
+#define BTM_SSR_INCLUDED                FALSE //TRUE
 #endif
 
 /* Support for BR/EDR Secure Connections */
