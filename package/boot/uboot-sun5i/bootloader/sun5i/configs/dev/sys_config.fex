@@ -789,7 +789,7 @@ wl_host_wake_invert   = 0
 ;
 ;--------------------------------------------------------------------------------
 [bt_para]
-bt_used               = 1
+bt_used               = 0
 bt_uart_id            = 1
 bt_rst_n              = port:PB04<1><default><default><0>
 ;bt_wake               = port:PL06<1><default><default><0>
