@@ -89,6 +89,7 @@ define Package/qtlib/install
 	$(INSTALL_DATA) ./etc/pointercal $(1)/etc/pointercal
 	$(INSTALL_BIN) ./etc/startqt $(1)/etc/init.d/startqt
 	$(INSTALL_BIN) ./bin/BranQt4 $(1)/bin/qtapp/BranQt4
+	$(INSTALL_BIN) ./bin/baklight $(1)/bin/qtapp/baklight
 
 endef
 
