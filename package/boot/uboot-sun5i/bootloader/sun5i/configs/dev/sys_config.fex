@@ -989,7 +989,7 @@ pmu_suspend_chgcur2      = 1200
 pmu_resume_chgcur2       = 400
 pmu_shutdown_chgcur2     = 1200
 
-pmu_suspendpwroff_vol    = 3500
+pmu_suspendpwroff_vol    = 3250
 
 pmu_batdeten		 = 1
 [recovery_key]
