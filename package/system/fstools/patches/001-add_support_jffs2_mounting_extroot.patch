@@ -1,0 +1,12 @@
+Index: source/block.c
+===================================================================
+--- source.orig/block.c	2016-08-11 14:05:17.702490700 +0800
++++ source/block.c	2016-08-11 14:09:58.795102700 +0800
+@@ -1107,6 +1107,7 @@
+ 	}
+ 	if (pr) {
+ 		if (strncmp(pr->id->name, "ext", 3) &&
++            strncmp(pr->id->name, "jffs2", 5) &&
+ 		    strncmp(pr->id->name, "ubifs", 5)) {
+ 			ERROR("extroot: unsupported filesystem %s, try ext4\n", pr->id->name);
+ 			return -1;
