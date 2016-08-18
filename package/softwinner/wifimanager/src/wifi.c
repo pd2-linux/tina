@@ -23,7 +23,7 @@ static int exit_sockets[2];
 //static const char IFACE_DIR[]           = "/data/misc/wifi/sockets";
 static const char IFACE_DIR[]           = "/etc/wifi/sockets";
 static char primary_iface[IFACE_VALUE_MAX];
-static const char SUPP_CONFIG_TEMPLATE[]= "/rom/etc/wifi/wpa_supplicant.conf";
+static const char SUPP_CONFIG_TEMPLATE[]= "/etc/wifi/wpa_supplicant_src.conf";
 static const char SUPP_CONFIG_FILE[]    = "/etc/wifi/wpa_supplicant.conf";
 static const char CONTROL_IFACE_PATH[]  = "/etc/wifi/sockets";
 
