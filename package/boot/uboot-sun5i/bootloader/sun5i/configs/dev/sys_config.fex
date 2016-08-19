@@ -182,7 +182,9 @@ uart_port                = 1
 uart_type                = 2
 uart_tx                  = port:PG3<4><1><default><default>
 uart_rx                  = port:PG4<4><1><default><default>
-uart_power               = port:PE11<1><default><default><0>
+
+[boosten_para]
+boosten_reset            = port:PE11<1><default><default><0>
 
 [uart_para2]
 uart_used                = 0
