@@ -14,7 +14,7 @@ start_service() {
         sleep 2 
     fi
     ifconfig wlan0 up
-    procd_set_param command $PROG -iwlan0 -Dnl80211 -c/etc/wifi/wpa_supplicant.conf 
+    procd_set_param command $PROG -iwlan0 -Dnl80211 -c/etc/wifi/wpa_supplicant.conf -I/etc/wifi/wpa_supplicant_overlay.conf -O/etc/wifi/sockets
     procd_close_instance 
 }
 
