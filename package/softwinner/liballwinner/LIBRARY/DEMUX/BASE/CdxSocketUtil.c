@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxSocketUtil.c
+ * Description : SocketUtil
+ * History :
+ *
+ */
+
 #include <CdxSocketUtil.h>
 
 #include <unistd.h>
@@ -148,8 +158,7 @@ cdx_int32 CdxSockIsBlocking(cdx_int32 sockfd)
     return !(flags & O_NONBLOCK);
 }
 //nRecvBufLen: socket recv buf len to set. 0: use default.
-//nRecvBufLenRet: socket recv buf len return.
-cdx_int32 CdxAsynSocket(cdx_int32 nRecvBufLen, cdx_int32 *nRecvBufLenRet)//nRecvBufLenRet always 262142 ??
+cdx_int32 CdxAsynSocket(int domain, cdx_int32 *nRecvBufLen)
 {
     cdx_int32 sockfd;
     cdx_int32 ret;
@@ -158,27 +167,32 @@ cdx_int32 CdxAsynSocket(cdx_int32 nRecvBufLen, cdx_int32 *nRecvBufLenRet)//nRecv
     cdx_int32 keepalive = 1;                            // 开启keepalive属性
     cdx_int32 keepidle = TCP_KEEP_IDLE_SECS;            // 如该连接在60秒内没有任何数据往来,则进行探测
     cdx_int32 keepinterval = TCP_KEEP_INTERVAL_SECS;    // 探测时发包的时间间隔为5 秒
-    cdx_int32 keepcount = TCP_KEEP_COUNT;               // 探测尝试的次数.如果第1次探测包就收到响应了,则后2次的不再发.
+    // 探测尝试的次数.如果第1次探测包就收到响应了,则后2次的不再发.
+    cdx_int32 keepcount = TCP_KEEP_COUNT;
 #endif
 
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    sockfd = socket(domain, SOCK_STREAM, 0);
     if(sockfd < 0)
     {
-    	CDX_LOGE("errno(%d)", errno);
-    	return -1;
+        CDX_LOGE("errno(%d)", errno);
+        return -1;
     }
 
     ret = CdxSockSetBlocking(sockfd, 0);
     CDX_FORCE_CHECK(ret == 0);
 
-    if(nRecvBufLen > 0)
+    if (nRecvBufLen != NULL)
     {
-        ret = setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, (const char*)&nRecvBufLen, sizeof(int));
-        CDX_FORCE_CHECK(ret == 0);
+        if(*nRecvBufLen > 0)
+        {
+            ret = setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF,
+                    nRecvBufLen, sizeof(*nRecvBufLen));
+            CDX_FORCE_CHECK(ret == 0);
+        }
+        ret = getsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, nRecvBufLen, &optlen);
+        //CDX_FORCE_CHECK(ret == 0);
+        //CDX_LOGV("sock recv buf len set to: %d, return %d", nRecvBufLen, *nRecvBufLenRet);
     }
-    ret = getsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, nRecvBufLenRet, &optlen);
-    //CDX_FORCE_CHECK(ret == 0);
-    //CDX_LOGV("sock recv buf len set to: %d, return %d", nRecvBufLen, *nRecvBufLenRet);
 
 #if CONFIG_KEEP_ALIVE
     setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE, (void *)&keepalive , sizeof(keepalive));
@@ -224,8 +238,6 @@ cdx_int32  CdxSockAsynConnect(cdx_int32 sockfd, const struct sockaddr *addr, soc
     struct timeval tv;
     cdx_long loopTimes = 0, i = 0;
 
-    (void)addrlen;
-    
     if (timeoutUs == 0)
     {
         loopTimes = ((cdx_ulong)(-1L))>> 1;
@@ -235,7 +247,7 @@ cdx_int32  CdxSockAsynConnect(cdx_int32 sockfd, const struct sockaddr *addr, soc
         loopTimes = timeoutUs/CDX_SELECT_TIMEOUT;
     }
 
-    ret = connect(sockfd, (struct sockaddr *)addr, sizeof(struct sockaddr));
+    ret = connect(sockfd, (struct sockaddr *)addr, addrlen);
     if (ret == 0)
     {
         //success
@@ -266,7 +278,9 @@ cdx_int32  CdxSockAsynConnect(cdx_int32 sockfd, const struct sockaddr *addr, soc
             int nError = 0;
             socklen_t nLen = sizeof(nError);
             ret = getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &nError, &nLen);
-            // if error happened, Solaris's getsockopt return -1, and set pending error to errno. Berkeley's getsockopt return 0, and set pending error to nError.
+            // if error happened, Solaris's getsockopt return -1,
+            // and set pending error to errno. Berkeley's getsockopt return 0,
+            // and set pending error to nError.
             if(ret < 0 || nError)
             {
                 if(nError)
@@ -494,7 +508,8 @@ cdx_ssize CdxSockAsynRecv(cdx_int32 sockfd, void *buf, cdx_size len,
             }
             else if (ret == 0)//socket is close by peer?
             {
-                CDX_LOGD("xxx recvSize(%ld),sockfd(%d), want to read(%lu), errno(%d), socket is closed by peer?",
+                CDX_LOGD("xxx recvSize(%ld),sockfd(%d), want to read(%lu),"
+                        "errno(%d), socket is closed by peer?",
                                         recvSize, sockfd, len, errno);
                 return recvSize;
             }
@@ -516,4 +531,3 @@ cdx_ssize CdxSockNoblockRecv(cdx_int32 sockfd, void *buf, cdx_size len)
 {
     return recv(sockfd, buf, len, 0);
 }
-

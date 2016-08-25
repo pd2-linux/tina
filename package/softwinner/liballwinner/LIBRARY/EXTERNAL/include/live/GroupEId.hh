@@ -33,9 +33,9 @@ const u_int8_t MAX_TTL = 255;
 
 class Scope {
     public:
-    	Scope(u_int8_t ttl = 0, const char* publicKey = NULL);
-    	Scope(const Scope& orig);
-    	Scope& operator=(const Scope& rightSide);
+	Scope(u_int8_t ttl = 0, const char* publicKey = NULL);
+	Scope(const Scope& orig);
+	Scope& operator=(const Scope& rightSide);
 	~Scope();
 
 	u_int8_t ttl() const
@@ -46,11 +46,11 @@ class Scope {
 	unsigned publicKeySize() const;
 
     private:
-    	void assign(u_int8_t ttl, const char* publicKey);
-    	void clean();
+	void assign(u_int8_t ttl, const char* publicKey);
+	void clean();
 
-    	u_int8_t fTTL;
-    	char* fPublicKey;
+	u_int8_t fTTL;
+	char* fPublicKey;
 };
 
 class GroupEId {

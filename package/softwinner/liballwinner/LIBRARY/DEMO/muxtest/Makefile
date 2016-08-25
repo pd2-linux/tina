@@ -69,13 +69,10 @@ CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -Wall -ldl
 ## set link flags
 LoadFlags = $(CONFIG_FOR_LINK)
 
-LoadFlags +=    -lcdc_vencoder -lcdc_aencoder \
+LoadFlags +=    -lcdc_vencoder \
                -lcdx_base -lcdx_muxer -lcdc_ve -lcdc_base\
                -lcdc_memory  -lpthread -ldl -lstdc++ -lrt 
 
-ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_UCGNUEABI))
-LoadFlags += -laacenc -lmp3enc -lpcmenc
-endif
 
 ifeq ($(CONFIG_HAVE_ZLIB), $(OPTION_HAVE_ZLIB))
 LoadFlags += -lz
@@ -110,9 +107,15 @@ LoadFlags += -L../../libcedarc/library/lib32/linuxgnueabi
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI))
-LoadFlags +=-L../../EXTERNAL/lib32/muslgnueabi
-LoadFlags += -L../../libcedarc/library/lib32/muslgnueabi
+    ifeq ($(LINUX_VERSION),$(LINUX_VERSION_3_10))
+    LoadFlags +=-L../../libcedarc/library/lib32/muslgnueabi_linux310
+    else
+    LoadFlags +=-L../../libcedarc/library/lib32/muslgnueabi
+    endif
+
+    LoadFlags +=-L../../EXTERNAL/lib32/muslgnueabi
 endif
+
 ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI64))
 LoadFlags +=-L../../EXTERNAL/lib64/muslgnueabi
 endif
@@ -162,5 +165,3 @@ ifneq ($(MAKECMDGOALS),cleanall)
 endif
 endif
 endif
-
-

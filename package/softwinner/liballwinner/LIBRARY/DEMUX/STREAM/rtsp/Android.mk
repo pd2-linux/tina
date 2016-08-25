@@ -1,27 +1,27 @@
 LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
-LIB_ROOT=$(LOCAL_PATH)/../../..
-include $(LIB_ROOT)/config.mk
+LIB_ROOT=$(LOCAL_PATH)/../..
+include $(LIB_ROOT)/../config.mk
 
-DEMUX_PATH = $(LIB_ROOT)/DEMUX
-
-include $(DEMUX_PATH)/STREAM/config.mk
+include $(LIB_ROOT)/stream/config.mk
 
 LOCAL_SRC_FILES = \
 		$(notdir $(wildcard $(LOCAL_PATH)/*.cpp)) \
 		$(notdir $(wildcard $(LOCAL_PATH)/*.c))
 
 LOCAL_C_INCLUDES:= \
-    $(LIB_ROOT)/EXTERNAL/include/live \
+    $(LIB_ROOT)/external/include/live \
 	$(TOP)/external/openssl/include \
-	$(DEMUX_PATH)/BASE/include \
-	$(DEMUX_PATH)/STREAM/include \
-    $(DEMUX_PATH)/PARSER/include \
-	$(LIB_ROOT)/CODEC/AUDIO/DECODER/include \
-	$(LIB_ROOT)/CODEC/VIDEO/DECODER/include \
-    $(LIB_ROOT)/CODEC/SUBTITLE/DECODER/include \
-	$(LIB_ROOT)
+	$(LIB_ROOT)/base/include \
+	$(LIB_ROOT)/stream/include \
+    $(LIB_ROOT)/parser/include \
+	$(LIB_ROOT)/../external/include/adecoder \
+	$(LIB_ROOT)/../external/include/live \
+	$(LIB_ROOT)/../../libcedarc/include \
+	$(LIB_ROOT)/include \
+	$(LIB_ROOT)/../ \
+	$(TOP)/frameworks/av/media/libcedarc/include \
 
 
 LOCAL_CFLAGS += $(CDX_CFLAGS) -Wno-unused
@@ -36,4 +36,3 @@ ifeq ($(TARGET_ARCH),arm)
 endif
 
 include $(BUILD_STATIC_LIBRARY)
-

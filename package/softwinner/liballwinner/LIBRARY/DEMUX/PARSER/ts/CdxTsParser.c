@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxTsParser.c
+ * Description : TsParser
+ * History :
+ *
+ */
+
 //#define CONFIG_LOG_LEVEL    OPTION_LOG_LEVEL_DETAIL
 
 #include <CdxLog.h>
@@ -30,14 +40,16 @@ static cdx_uint16 U16_AT(const cdx_uint8 *ptr)
     return ptr[0] << 8 | ptr[1];
 }
     
-CDX_INTERFACE status_t feedTSPacket(TSParser *mTSParser, const cdx_uint8 *data, size_t size);
+CDX_INTERFACE status_t feedTSPacket(TSParser *mTSParser,
+    const cdx_uint8 *data, size_t size);
 status_t parseTS(TSParser *mTSParser, CdxBitReaderT *br);
-void parseAdaptationField(TSParser *mTSParser, CdxBitReaderT *br, unsigned PID);
+void parseAdaptationField(TSParser *mTSParser,
+    CdxBitReaderT *br, unsigned PID);
 status_t parsePID(TSParser *mTSParser, CdxBitReaderT *br, unsigned pid,
-	unsigned continuityCounter, unsigned payloadUnitStartIndicator);
+    unsigned continuityCounter, unsigned payloadUnitStartIndicator);
 
 CDX_INTERFACE status_t PSISectionAppend(PSISection *section, 
-	const cdx_uint8 *data, cdx_uint32 size);
+    const cdx_uint8 *data, cdx_uint32 size);
 CDX_INTERFACE cdx_bool PSISectionIsComplete(PSISection *section);
 CDX_INTERFACE cdx_bool PSISectionIsEmpty(PSISection *section);
 CDX_INTERFACE const cdx_uint8 *PSISectionData(PSISection *section);
@@ -55,10 +67,11 @@ Program *findProgramByPID(TSParser *mTSParser, cdx_int32 PID);
 Stream *findStreamByPID(Program *mProgram, unsigned PID);
 Stream *findStreamByMediaType(Program *mProgram, MediaType mMediaType);
 cdx_bool ProgramParsePID(Program *mProgram,
-        unsigned pid, unsigned continuityCounter,
-        unsigned payloadUnitStartIndicator,
-        CdxBitReaderT *br, status_t *err);
-CDX_INTERFACE status_t StreamAppend(Stream *mStream, const cdx_uint8 *data, cdx_uint32 size);
+    unsigned pid, unsigned continuityCounter,
+    unsigned payloadUnitStartIndicator,
+    CdxBitReaderT *br, status_t *err);
+CDX_INTERFACE status_t StreamAppend(Stream *mStream,
+        const cdx_uint8 *data, cdx_uint32 size);
 status_t StreamParse(Stream *mStream, unsigned continuityCounter,
         unsigned payloadUnitStartIndicator, CdxBitReaderT *br);
 status_t StreamFlush(Stream *mStream);
@@ -69,9 +82,10 @@ cdx_int32 onPayloadData(Stream *mStream,
 int64_t convertPTSToTimestamp(Program *mProgram, cdx_uint64 PTS);
 status_t parseProgramMap(Program *program, CdxBitReaderT *br);
 void parseProgramAssociationTable(TSParser *mTSParser, CdxBitReaderT *br);
-static cdx_err SetProgram(TSParser *mTSParser, cdx_int32 programNumber, cdx_int32 programMapPID);
+static cdx_err SetProgram(TSParser *mTSParser,
+    cdx_int32 programNumber, cdx_int32 programMapPID);
 static cdx_err SetStream(Program *program, unsigned elementaryPID,
-	cdx_int32 streamType/*, cdx_int32 PCR_PID*/);
+    cdx_int32 streamType/*, cdx_int32 PCR_PID*/);
 static cdx_err SetPSISection(TSParser *mTSParser, unsigned PID);
 static cdx_int32 SeemToBeMvc(Program* mProgram);
 cdx_int32 GetAACDuration(const cdx_uint8 *data, cdx_int32 datalen);
@@ -81,90 +95,86 @@ cdx_int32 TSControl(CdxParserT *parser, cdx_int32 cmd, void *param);
 cdx_int32 TSForceStop(CdxParserT *parser);
 static void PrintTsStatus(TSParser *mTSParser)
 {
-	Program *program = NULL;
-	Stream *stream = NULL;
-	CDX_LOGD("mProgramCount = %u, "
-			"mStreamCount = %u", 
-			mTSParser->mProgramCount,
-			mTSParser->mStreamCount);
+    Program *program = NULL;
+    Stream *stream = NULL;
+    CDX_LOGD("mProgramCount = %u, "
+            "mStreamCount = %u",
+            mTSParser->mProgramCount,
+            mTSParser->mStreamCount);
     CdxListForEachEntry(program, &mTSParser->mPrograms, node)
     {
-		CDX_LOGD("mProgramNumber = 0x%04x, " 
-				"mProgramMapPID = 0x%04x, " 
-				"mStreamCount = %u, " 
-				"audioCount = %u, " 
-				"videoCount = %u, "
-				"subsCount = %u, "
-				"program = %p ",
-				program->mProgramNumber,
-				program->mProgramMapPID,
-				program->mStreamCount,
-				program->audioCount,
-				program->videoCount,
-				program->subsCount,
-				program);
+        CDX_LOGD("mProgramNumber = 0x%04x, "
+                "mProgramMapPID = 0x%04x, "
+                "mStreamCount = %u, "
+                "audioCount = %u, "
+                "videoCount = %u, "
+                "subsCount = %u, "
+                "program = %p ",
+                program->mProgramNumber,
+                program->mProgramMapPID,
+                program->mStreamCount,
+                program->audioCount,
+                program->videoCount,
+                program->subsCount,
+                program);
         CdxListForEachEntry(stream, &program->mStreams, node)
         {
             CDX_LOGD("mElementaryPID = 0x%04x, "
-					"mStreamType = 0x%04x, "
-					"mMediaType = %u, "
-					"codec_id = 0x%x ", 
-					stream->mElementaryPID, 
-					stream->mStreamType, 
-					stream->mMediaType, 
-					stream->codec_id );
+                    "mStreamType = 0x%04x, "
+                    "mMediaType = %u, "
+                    "codec_id = 0x%x ",
+                    stream->mElementaryPID,
+                    stream->mStreamType,
+                    stream->mMediaType,
+                    stream->codec_id );
 
         }
     }
 }
 
 
-CDX_INTERFACE status_t PSISectionAppend(PSISection *section, const cdx_uint8 *data, cdx_uint32 size) 
+CDX_INTERFACE status_t PSISectionAppend(PSISection *section,
+    const cdx_uint8 *data,cdx_uint32 size)
 {
     CDX_CHECK(section);
-	CdxBufferT *mBuffer = section->mBuffer;
-	CdxBufferAppend(mBuffer, data, size);
+    CdxBufferT *mBuffer = section->mBuffer;
+    CdxBufferAppend(mBuffer, data, size);
     return OK;
 }
 
 CDX_INTERFACE cdx_bool PSISectionIsComplete(PSISection *section)
 {
     CDX_CHECK(section);
-	CdxBufferT *mBuffer = section->mBuffer;
-	cdx_uint32 size;
+    CdxBufferT *mBuffer = section->mBuffer;
+    cdx_uint32 size;
     if (mBuffer == NULL || (size = CdxBufferGetSize(mBuffer)) < 3) 
-	{
+    {
         return CDX_FALSE;
     }
 
     unsigned sectionLength = U16_AT(CdxBufferGetData(mBuffer) + 1) & 0xfff;
     CDX_CHECK((sectionLength & 0xc00) == 0);
-    /*//事实上很多文件没有将多余数据用适应域去表达，而是跟在有用数据的后面
-	if(size > sectionLength + 3)
-	{
-		CDX_LOGW("PSISection PID=0x%x, size=%u, sectionLength+3=%u", section->PID, size, sectionLength + 3);
-	}*/
     return size >= sectionLength + 3;
 }
 
 CDX_INTERFACE cdx_bool PSISectionIsEmpty(PSISection *section)
 {
     CDX_CHECK(section);
-	CdxBufferT *mBuffer = section->mBuffer;
+    CdxBufferT *mBuffer = section->mBuffer;
     return mBuffer == NULL || CdxBufferGetSize(mBuffer) == 0;
 }
 
 CDX_INTERFACE const cdx_uint8 *PSISectionData(PSISection *section)
 {
     CDX_CHECK(section);
-	CdxBufferT *mBuffer = section->mBuffer;
+    CdxBufferT *mBuffer = section->mBuffer;
     return mBuffer == NULL ? NULL : CdxBufferGetData(mBuffer);
 }
 
 CDX_INTERFACE size_t PSISectionSize(PSISection *section)
 {
     CDX_CHECK(section);
-	CdxBufferT *mBuffer = section->mBuffer;
+    CdxBufferT *mBuffer = section->mBuffer;
     return mBuffer == NULL ? 0 : CdxBufferGetSize(mBuffer);
 }
 
@@ -172,10 +182,10 @@ CDX_INTERFACE size_t PSISectionSize(PSISection *section)
 CDX_INTERFACE void PSISectionClear(PSISection *section) 
 {
     CDX_CHECK(section);
-	CdxBufferT *mBuffer = section->mBuffer;
+    CdxBufferT *mBuffer = section->mBuffer;
     if (mBuffer != NULL) 
-	{
-		CdxBufferSetRange(mBuffer, 0, 0);
+    {
+        CdxBufferSetRange(mBuffer, 0, 0);
     }
     section->mPayloadStarted = CDX_FALSE;
 }
@@ -183,14 +193,14 @@ CDX_INTERFACE void PSISectionClear(PSISection *section)
 CDX_INTERFACE void DestroyPSISection(PSISection *section) 
 {
     CDX_CHECK(section);
-	CdxListDel(&section->node);
-	CdxBufferDestroy(section->mBuffer);
-	CdxFree(section);
+    CdxListDel(&section->node);
+    CdxBufferDestroy(section->mBuffer);
+    CdxFree(section);
 }
 
 CDX_INTERFACE void DestroyPSISections(TSParser *mTSParser) 
 {
-	PSISection *posPSI, *nextPSI;
+    PSISection *posPSI, *nextPSI;
 
     CdxListForEachEntrySafe(posPSI, nextPSI, &mTSParser->mPSISections, node)
     {
@@ -202,16 +212,16 @@ CDX_INTERFACE void DestroyPSISections(TSParser *mTSParser)
 CDX_INTERFACE void DestroyStream(Stream *mStream)
 {
     CDX_CHECK(mStream);
-	CdxListDel(&mStream->node);
-	CdxBufferDestroy(mStream->pes[0].mBuffer);
-	CdxBufferDestroy(mStream->pes[1].mBuffer);
-	if(mStream->tmpBuf)
-	{
-		free(mStream->tmpBuf);
-	}
+    CdxListDel(&mStream->node);
+    CdxBufferDestroy(mStream->pes[0].mBuffer);
+    CdxBufferDestroy(mStream->pes[1].mBuffer);
+    if(mStream->tmpBuf)
+    {
+        free(mStream->tmpBuf);
+    }
     if(mStream->metadata)
     {
-		free(mStream->metadata);
+        free(mStream->metadata);
     }
 #if (PROBE_STREAM && !DVB_TEST) 
     if(mStream->probeBuf)
@@ -219,30 +229,30 @@ CDX_INTERFACE void DestroyStream(Stream *mStream)
         free(mStream->probeBuf);
     }
 #endif
-	Program *program = mStream->mProgram;
-	switch(mStream->mMediaType)
-	{
-		case TYPE_AUDIO:
-			program->audioCount--;
-			break;
-		case TYPE_VIDEO:
-			program->videoCount--;
-			break;
-		case TYPE_SUBS:
-			program->subsCount--;
-			break;
-		default:
-			break;
-	}
-	program->mStreamCount--;
-	program->mTSParser->mStreamCount--;
-	program->mTSParser->enablePid[mStream->mElementaryPID] = 0;
-	CdxFree(mStream);
+    Program *program = mStream->mProgram;
+    switch(mStream->mMediaType)
+    {
+        case TYPE_AUDIO:
+            program->audioCount--;
+            break;
+        case TYPE_VIDEO:
+            program->videoCount--;
+            break;
+        case TYPE_SUBS:
+            program->subsCount--;
+            break;
+        default:
+            break;
+    }
+    program->mStreamCount--;
+    program->mTSParser->mStreamCount--;
+    program->mTSParser->enablePid[mStream->mElementaryPID] = 0;
+    CdxFree(mStream);
 }
 
 CDX_INTERFACE void DestroyStreams(Program *mProgram) 
 {
-	Stream *posStream, *nextStream;
+    Stream *posStream, *nextStream;
 
     CdxListForEachEntrySafe(posStream, nextStream, &mProgram->mStreams, node)
     {
@@ -262,16 +272,16 @@ CDX_INTERFACE void DestroyProgram(Program *mProgram)
     {
         mProgram->mTSParser->enablePid[mProgram->mProgramMapPID] = 0;
     }
-	CdxListDel(&mProgram->node);
+    CdxListDel(&mProgram->node);
     //CDX_LOGD("CdxListDel");
-	DestroyStreams(mProgram);
+    DestroyStreams(mProgram);
     mProgram->mTSParser->mProgramCount--;
-	CdxFree(mProgram);
+    CdxFree(mProgram);
 }
 
 CDX_INTERFACE void DestroyPrograms(TSParser *mTSParser) 
 {
-	Program *posProgram, *nextProgram;
+    Program *posProgram, *nextProgram;
 
     CdxListForEachEntrySafe(posProgram, nextProgram, &mTSParser->mPrograms, node)
     {
@@ -281,109 +291,111 @@ CDX_INTERFACE void DestroyPrograms(TSParser *mTSParser)
 }
 
 CDX_INTERFACE status_t feedTSPacket(TSParser *mTSParser, 
-	const cdx_uint8 *data, size_t size)
+    const cdx_uint8 *data, size_t size)
 {
-	CDX_UNUSE(size);
+    CDX_UNUSE(size);
     CDX_CHECK(size == TS_PACKET_SIZE);
-	CdxBitReaderT *br = CdxBitReaderCreate(data, TS_PACKET_SIZE);
-	status_t err = parseTS(mTSParser, br);
+    CdxBitReaderT *br = CdxBitReaderCreate(data, TS_PACKET_SIZE);
+    status_t err = parseTS(mTSParser, br);
     ++(mTSParser->mNumTSPacketsParsed);
     CDX_LOGV("mNumTSPacketsParsed = %d", mTSParser->mNumTSPacketsParsed);
-	CdxBitReaderDestroy(br);
+    CdxBitReaderDestroy(br);
     return err;
 }
 
 #if DVB_USED 
 static cdx_int32 CdxBitReaderSkipBitsSafe(CdxBitReaderT *br, cdx_uint32 n)
 {
-	cdx_int32 ret = 0;
-	cdx_uint32 nLeftNum = 0;
-	nLeftNum = CdxBitReaderNumBitsLeft(br);
-	if(nLeftNum < n)
-	{
-		CDX_LOGE("DTMB SKIP BITS SAFE:Skip Bits unSafe");		
-		CdxBitReaderSkipBits(br, nLeftNum);	
-		ret = -1;
-	}
-	else
-	{
-		CdxBitReaderSkipBits(br, n);
-	}
-	return ret;
+    cdx_int32 ret = 0;
+    cdx_uint32 nLeftNum = 0;
+    nLeftNum = CdxBitReaderNumBitsLeft(br);
+    if(nLeftNum < n)
+    {
+        CDX_LOGE("DTMB SKIP BITS SAFE:Skip Bits unSafe");
+        CdxBitReaderSkipBits(br, nLeftNum);
+        ret = -1;
+    }
+    else
+    {
+        CdxBitReaderSkipBits(br, n);
+    }
+    return ret;
 }
 
-static cdx_int32 checkCounter(TSParser *mTSParser,cdx_uint32 PID,cdx_uint32 continuity_counter,const cdx_uint8 *data,cdx_uint32 adaptation_field_control)
+static cdx_int32 checkCounter(TSParser *mTSParser,
+    cdx_uint32 PID,cdx_uint32 continuity_counter,
+    const cdx_uint8 *data,cdx_uint32 adaptation_field_control)
 {
-	cdx_int32 i;
-	cdx_int32 hasAdaptionField = 0;
-	cdx_int32 discontinuity_indicator = 0;
+    cdx_int32 i;
+    cdx_int32 hasAdaptionField = 0;
+    cdx_int32 discontinuity_indicator = 0;
 
-	cdx_int32 ret = 0;
-	
-	if(adaptation_field_control == 2  || adaptation_field_control == 3)
-		hasAdaptionField = 1;
+    cdx_int32 ret = 0;
 
-	discontinuity_indicator = hasAdaptionField && data[4] != 0 && (data[5] & 0x80);
+    if(adaptation_field_control == 2  || adaptation_field_control == 3)
+        hasAdaptionField = 1;
 
-	if(hasAdaptionField)
-	{
-		if(data[4] == 0)
-		{
-			CDX_LOGV("ADP LENGTH 0!\n");
-		}
-		
-		if(data[5] & 0x80)
-		{
-			CDX_LOGV("DTMB DISCONTINUE!\n");
-		}
-	}
-		
-	for(i=0;i<mTSParser->curCountPos;i++)
-	{
-		if(mTSParser->mapCounter[i].pid == PID)
-		{
-			if(adaptation_field_control == 1 || adaptation_field_control == 3)
-			{
-				if(discontinuity_indicator == 0)
-				{
-					if(continuity_counter != ((mTSParser->mapCounter[i].counter + 1)&0x0f))
-					{
-						if(continuity_counter == mTSParser->mapCounter[i].counter)
-						{
-							if(memcmp(mTSParser->mapCounter[i].packet,data,188))
-							{
-								CDX_LOGE("DTMB FATAL,counter not same,adaptation_field_control:%d discontinuity_indicator:%d!\n",
-									adaptation_field_control,discontinuity_indicator);
-								//CDX_BUF_DUMP(mTSParser->mapCounter[i].packet,188);
-								//CDX_BUF_DUMP(data,188);
-								CDX_LOGV("same counter:%d pid:%d\n",continuity_counter,PID);
-							}			
-							ret = -2;
-						}
-						else
-						{
-							CDX_LOGV("counter not coutinue,pre:%d now:%d PID:%d!\n",mTSParser->mapCounter[i].counter,continuity_counter,PID);
-							ret = -1;
-						}
-					}
-				}
-			}
-			
-			memcpy(mTSParser->mapCounter[i].packet,data,188);
-			mTSParser->mapCounter[i].counter = continuity_counter;
-			break;
-		}
-	}
+    discontinuity_indicator = hasAdaptionField && data[4] != 0 && (data[5] & 0x80);
 
-	if(i == mTSParser->curCountPos)
-	{
-		mTSParser->mapCounter[mTSParser->curCountPos].counter = continuity_counter;
-		mTSParser->mapCounter[mTSParser->curCountPos].pid = PID;
-		memcpy(mTSParser->mapCounter[mTSParser->curCountPos].packet,data,188);
-		mTSParser->curCountPos++;
-	}
-	
-	return 0;
+    if(hasAdaptionField)
+    {
+        if(data[4] == 0)
+        {
+            CDX_LOGV("ADP LENGTH 0!\n");
+        }
+
+        if(data[5] & 0x80)
+        {
+            CDX_LOGV("DTMB DISCONTINUE!\n");
+        }
+    }
+
+    for(i=0;i<mTSParser->curCountPos;i++)
+    {
+        if(mTSParser->mapCounter[i].pid == PID)
+        {
+            if(adaptation_field_control == 1 || adaptation_field_control == 3)
+            {
+                if(discontinuity_indicator == 0)
+                {
+                    if(continuity_counter !=
+                        ((mTSParser->mapCounter[i].counter + 1)&0x0f))
+                    {
+                        if(continuity_counter ==
+                            mTSParser->mapCounter[i].counter)
+                        {
+                            if(memcmp(mTSParser->mapCounter[i].packet,data,188))
+                            {
+                                //CDX_BUF_DUMP(mTSParser->mapCounter[i].packet,188);
+                                //CDX_BUF_DUMP(data,188);
+                                CDX_LOGV("same counter:%d pid:%d\n",
+                                    continuity_counter,PID);
+                            }
+                            ret = -2;
+                        }
+                        else
+                        {
+                            ret = -1;
+                        }
+                    }
+                }
+            }
+
+            memcpy(mTSParser->mapCounter[i].packet,data,188);
+            mTSParser->mapCounter[i].counter = continuity_counter;
+            break;
+        }
+    }
+
+    if(i == mTSParser->curCountPos)
+    {
+        mTSParser->mapCounter[mTSParser->curCountPos].counter = continuity_counter;
+        mTSParser->mapCounter[mTSParser->curCountPos].pid = PID;
+        memcpy(mTSParser->mapCounter[mTSParser->curCountPos].packet,data,188);
+        mTSParser->curCountPos++;
+    }
+
+    return 0;
 	
 }
 #endif
@@ -391,16 +403,16 @@ static cdx_int32 checkCounter(TSParser *mTSParser,cdx_uint32 PID,cdx_uint32 cont
 status_t parseTS(TSParser *mTSParser, CdxBitReaderT *br)
 {
 #if DVB_USED
-	const cdx_uint8 *pHeader = CdxBitReaderData(br);
+    const cdx_uint8 *pHeader = CdxBitReaderData(br);
 #endif
     unsigned sync_byte = CdxBitReaderGetBits(br, 8);
     CDX_CHECK(sync_byte == 0x47u);
-	unsigned transportErrorIndicator = CdxBitReaderGetBits(br, 1);
-	if(transportErrorIndicator)
-	{
-		CDX_LOGW("transportErrorIndicator = %u", transportErrorIndicator);
-		return OK;
-	}
+    unsigned transportErrorIndicator = CdxBitReaderGetBits(br, 1);
+    if(transportErrorIndicator)
+    {
+        CDX_LOGW("transportErrorIndicator = %u", transportErrorIndicator);
+        return OK;
+    }
 	
     unsigned payloadUnitStartIndicator = CdxBitReaderGetBits(br, 1);
     CDX_LOGV("payloadUnitStartIndicator = %u", payloadUnitStartIndicator);
@@ -410,10 +422,10 @@ status_t parseTS(TSParser *mTSParser, CdxBitReaderT *br)
     unsigned PID = CdxBitReaderGetBits(br, 13);
     CDX_LOGV("PID = 0x%04x", PID);
 	
-	if(mTSParser->enablePid[PID] == 0)
-	{
-		return OK;
-	}
+    if(mTSParser->enablePid[PID] == 0)
+    {
+        return OK;
+    }
 
     MY_LOGV("transport_scrambling_control = %u", CdxBitReaderGetBits(br, 2));
 
@@ -424,15 +436,16 @@ status_t parseTS(TSParser *mTSParser, CdxBitReaderT *br)
     CDX_LOGV("PID = 0x%04x, continuityCounter = %u", PID, continuityCounter);
 
 #if DVB_USED
-	cdx_int32 checkValue = checkCounter(mTSParser,PID,continuityCounter,pHeader,adaptationFieldControl);
-	if(checkValue == -2)
-	{
-		//CDX_LOGW("return because same packet!");
-		return OK;
-	}
+    cdx_int32 checkValue =
+    checkCounter(mTSParser,PID,continuityCounter,pHeader,adaptationFieldControl);
+    if(checkValue == -2)
+    {
+        //CDX_LOGW("return because same packet!");
+        return OK;
+    }
 #endif
     if (adaptationFieldControl == 2 || adaptationFieldControl == 3) 
-	{
+    {
 #if ParseAdaptationField
         parseAdaptationField(mTSParser, br, PID);
 #else
@@ -443,8 +456,7 @@ status_t parseTS(TSParser *mTSParser, CdxBitReaderT *br)
         unsigned tmp = CdxBitReaderGetBits(br, 8);
         if(tmp > 182)
         {
-            CDX_LOGE("error!! adaptation_field_length(%u), mNumTSPacketsParsed = %zu", tmp, 
-				mTSParser->mNumTSPacketsParsed);
+            CDX_LOGE("error!! adaptation_field_length(%u)", tmp);
             return OK;
         }
         CdxBitReaderSkipBits(br, tmp << 3);
@@ -454,26 +466,24 @@ status_t parseTS(TSParser *mTSParser, CdxBitReaderT *br)
     status_t err = OK;
 
     if (adaptationFieldControl == 1 || adaptationFieldControl == 3) 
-	{
-		err = parsePID(mTSParser, 
-				br, PID, continuityCounter, payloadUnitStartIndicator);
+    {
+        err = parsePID(mTSParser,
+                br, PID, continuityCounter, payloadUnitStartIndicator);
     }
     return err;
 }
-
-
-
-void parseAdaptationField(TSParser *mTSParser, CdxBitReaderT *br, unsigned PID)
+void parseAdaptationField(TSParser *mTSParser,
+    CdxBitReaderT *br, unsigned PID)
 {
-	unsigned nAdaptation_field_length = CdxBitReaderGetBits(br, 8);
+    unsigned nAdaptation_field_length = CdxBitReaderGetBits(br, 8);
     (void)PID;
     
-	if (nAdaptation_field_length > 0) 
-	{
+    if (nAdaptation_field_length > 0)
+    {
         unsigned bDiscontinuity_indicator = CdxBitReaderGetBits(br, 1);
 
         if (bDiscontinuity_indicator) 
-		{
+        {
             CDX_LOGV("PID 0x%04x: discontinuity_indicator = 1 (!!!)", PID);
         }
 
@@ -483,12 +493,12 @@ void parseAdaptationField(TSParser *mTSParser, CdxBitReaderT *br, unsigned PID)
         size_t numBitsRead = 4;
 
         if (PCR_flag) 
-		{
-			CdxBitReaderSkipBits(br, 4);
+        {
+            CdxBitReaderSkipBits(br, 4);
             cdx_uint64 PCR_base = CdxBitReaderGetBits(br, 32);
             PCR_base = (PCR_base << 1) | CdxBitReaderGetBits(br, 1);
 
-			CdxBitReaderSkipBits(br, 6);
+            CdxBitReaderSkipBits(br, 6);
             unsigned PCR_ext = CdxBitReaderGetBits(br, 9);
 
             // The number of bytes from the start of the current
@@ -504,12 +514,12 @@ void parseAdaptationField(TSParser *mTSParser, CdxBitReaderT *br, unsigned PID)
             // The number of bytes received by this parser up to and
             // including the final byte of this PCR_ext field.
             size_t byte_offset_from_start = 
-            	mTSParser->mNumTSPacketsParsed * mTSParser->mRawPacketSize 
-            	+ byteOffsetFromStartOfTSPacket;
+                mTSParser->mNumTSPacketsParsed * mTSParser->mRawPacketSize
+                + byteOffsetFromStartOfTSPacket;
 
 /*
             for (size_t i = 0; i < TSParser->programCount; ++i)
-		{
+        {
                 updatePCR(PID, PCR, byteOffsetFromStart);
             }
 */
@@ -519,14 +529,14 @@ void parseAdaptationField(TSParser *mTSParser, CdxBitReaderT *br, unsigned PID)
         }
 
         CDX_CHECK(nAdaptation_field_length * 8 >= numBitsRead);
-		if(nAdaptation_field_length * 8 >= numBitsRead)
-		{
-			CdxBitReaderSkipBits(br, nAdaptation_field_length * 8 - numBitsRead);
-		}
-		else
-		{
-			CDX_LOGE("adaptation_field_length * 8 < numBitsRead");
-		}
+        if(nAdaptation_field_length * 8 >= numBitsRead)
+        {
+            CdxBitReaderSkipBits(br, nAdaptation_field_length * 8 - numBitsRead);
+        }
+        else
+        {
+            CDX_LOGE("adaptation_field_length * 8 < numBitsRead");
+        }
     }
 }
 
@@ -536,7 +546,7 @@ void updatePCR(TSParser *TSParser, cdx_uint64 PCR, size_t byteOffsetFromStart)
     CDX_LOGV("PCR 0x%016llx @ %d", PCR, byteOffsetFromStart);
 
     if (TSParser->mNumPCRs == 2)
-	{
+    {
         TSParser->mPCR[0] = TSParser->mPCR[1];
         TSParser->mPCRBytes[0] = TSParser->mPCRBytes[1];
         TSParser->mSystemTimeUs[0] = TSParser->mSystemTimeUs[1];
@@ -549,17 +559,19 @@ void updatePCR(TSParser *TSParser, cdx_uint64 PCR, size_t byteOffsetFromStart)
 
     ++(TSParser->mNumPCRs);
 	
-	cdx_uint64 delta;
+    cdx_uint64 delta;
 
-    if (TSParser->mNumPCRs == 2 && (delta = TSParser->mPCR[1] - TSParser->mPCR[0]) > 0) 
-	{
-        TSParser->dynamicRate = (TSParser->mPCRBytes[1] - TSParser->mPCRBytes[0])
-			* 27E6 / delta;
-		TSParser->accumulatedDeltaPCR += delta;
-		TSParser->overallRate = TSParser->mPCRBytes[1]* 27E6 / TSParser->accumulatedDeltaPCR;
+    if (TSParser->mNumPCRs == 2
+        && (delta = TSParser->mPCR[1] - TSParser->mPCR[0]) > 0)
+    {
+        TSParser->dynamicRate =
+            (TSParser->mPCRBytes[1] - TSParser->mPCRBytes[0])* 27E6 / delta;
+        TSParser->accumulatedDeltaPCR += delta;
+        TSParser->overallRate =
+            TSParser->mPCRBytes[1]* 27E6 / TSParser->accumulatedDeltaPCR;
 		
         CDX_LOGV("dynamicRate = %llu, overallRate = %llu bytes/sec", 
-			TSParser->dynamicRate, TSParser->overallRate);
+            TSParser->dynamicRate, TSParser->overallRate);
     }
 }
 
@@ -567,13 +579,13 @@ PSISection *findPSISectionByPID(TSParser *mTSParser, unsigned PID)
 {
     PSISection *item = NULL;
     CdxListForEachEntry(item, &mTSParser->mPSISections, node)
-	{
+    {
         if (item->PID == PID)
         {
             return item;
         }
     }
-	return NULL;
+    return NULL;
 }
 
 
@@ -587,7 +599,7 @@ Program *findProgramByPID(TSParser *mTSParser, cdx_int32 PID)
             return mProgram;
         }
     }
-	return NULL;
+    return NULL;
 }
 Stream *findStreamByPID(Program *mProgram, unsigned PID)
 {
@@ -599,7 +611,7 @@ Stream *findStreamByPID(Program *mProgram, unsigned PID)
             return mStream;
         }
     }
-	return NULL;
+    return NULL;
 }
 Stream *findStreamByMediaType(Program *mProgram, MediaType mMediaType)
 {
@@ -611,45 +623,45 @@ Stream *findStreamByMediaType(Program *mProgram, MediaType mMediaType)
             return mStream;
         }
     }
-	return NULL;
+    return NULL;
 }
 #if DVB_USED
 static cdx_uint32 CdxComputeCrc32(cdx_uint32 initVector, cdx_uint8* pData, cdx_uint32 dataLen)
 {
     static const cdx_uint32 crc32Table[] = 
     {
-        0x00000000, 0x04c11db7, 0x09823b6e, 0x0d4326d9, 0x130476dc, 0x17c56b6b, 0x1a864db2, 0x1e475005,
-        0x2608edb8, 0x22c9f00f, 0x2f8ad6d6, 0x2b4bcb61, 0x350c9b64, 0x31cd86d3, 0x3c8ea00a, 0x384fbdbd,
-        0x4c11db70, 0x48d0c6c7, 0x4593e01e, 0x4152fda9, 0x5f15adac, 0x5bd4b01b, 0x569796c2, 0x52568b75,
-        0x6a1936c8, 0x6ed82b7f, 0x639b0da6, 0x675a1011, 0x791d4014, 0x7ddc5da3, 0x709f7b7a, 0x745e66cd,
-        0x9823b6e0, 0x9ce2ab57, 0x91a18d8e, 0x95609039, 0x8b27c03c, 0x8fe6dd8b, 0x82a5fb52, 0x8664e6e5,
-        0xbe2b5b58, 0xbaea46ef, 0xb7a96036, 0xb3687d81, 0xad2f2d84, 0xa9ee3033, 0xa4ad16ea, 0xa06c0b5d,
-        0xd4326d90, 0xd0f37027, 0xddb056fe, 0xd9714b49, 0xc7361b4c, 0xc3f706fb, 0xceb42022, 0xca753d95,
-        0xf23a8028, 0xf6fb9d9f, 0xfbb8bb46, 0xff79a6f1, 0xe13ef6f4, 0xe5ffeb43, 0xe8bccd9a, 0xec7dd02d,
-        0x34867077, 0x30476dc0, 0x3d044b19, 0x39c556ae, 0x278206ab, 0x23431b1c, 0x2e003dc5, 0x2ac12072,
-        0x128e9dcf, 0x164f8078, 0x1b0ca6a1, 0x1fcdbb16, 0x018aeb13, 0x054bf6a4, 0x0808d07d, 0x0cc9cdca,
-        0x7897ab07, 0x7c56b6b0, 0x71159069, 0x75d48dde, 0x6b93dddb, 0x6f52c06c, 0x6211e6b5, 0x66d0fb02,
-        0x5e9f46bf, 0x5a5e5b08, 0x571d7dd1, 0x53dc6066, 0x4d9b3063, 0x495a2dd4, 0x44190b0d, 0x40d816ba,
-        0xaca5c697, 0xa864db20, 0xa527fdf9, 0xa1e6e04e, 0xbfa1b04b, 0xbb60adfc, 0xb6238b25, 0xb2e29692,
-        0x8aad2b2f, 0x8e6c3698, 0x832f1041, 0x87ee0df6, 0x99a95df3, 0x9d684044, 0x902b669d, 0x94ea7b2a,
-        0xe0b41de7, 0xe4750050, 0xe9362689, 0xedf73b3e, 0xf3b06b3b, 0xf771768c, 0xfa325055, 0xfef34de2,
-        0xc6bcf05f, 0xc27dede8, 0xcf3ecb31, 0xcbffd686, 0xd5b88683, 0xd1799b34, 0xdc3abded, 0xd8fba05a,
-        0x690ce0ee, 0x6dcdfd59, 0x608edb80, 0x644fc637, 0x7a089632, 0x7ec98b85, 0x738aad5c, 0x774bb0eb,
-        0x4f040d56, 0x4bc510e1, 0x46863638, 0x42472b8f, 0x5c007b8a, 0x58c1663d, 0x558240e4, 0x51435d53,
-        0x251d3b9e, 0x21dc2629,	0x2c9f00f0, 0x285e1d47, 0x36194d42, 0x32d850f5, 0x3f9b762c, 0x3b5a6b9b,
-        0x0315d626, 0x07d4cb91, 0x0a97ed48, 0x0e56f0ff, 0x1011a0fa, 0x14d0bd4d, 0x19939b94, 0x1d528623,
-        0xf12f560e, 0xf5ee4bb9, 0xf8ad6d60, 0xfc6c70d7, 0xe22b20d2, 0xe6ea3d65, 0xeba91bbc, 0xef68060b,
-        0xd727bbb6, 0xd3e6a601, 0xdea580d8, 0xda649d6f, 0xc423cd6a, 0xc0e2d0dd, 0xcda1f604, 0xc960ebb3,
-        0xbd3e8d7e, 0xb9ff90c9, 0xb4bcb610, 0xb07daba7, 0xae3afba2, 0xaafbe615, 0xa7b8c0cc, 0xa379dd7b,
-        0x9b3660c6, 0x9ff77d71, 0x92b45ba8, 0x9675461f, 0x8832161a, 0x8cf30bad, 0x81b02d74, 0x857130c3,
-        0x5d8a9099, 0x594b8d2e, 0x5408abf7, 0x50c9b640, 0x4e8ee645, 0x4a4ffbf2, 0x470cdd2b, 0x43cdc09c,
-        0x7b827d21, 0x7f436096, 0x7200464f, 0x76c15bf8, 0x68860bfd, 0x6c47164a, 0x61043093, 0x65c52d24,
-        0x119b4be9, 0x155a565e, 0x18197087, 0x1cd86d30, 0x029f3d35, 0x065e2082, 0x0b1d065b, 0x0fdc1bec,
-        0x3793a651, 0x3352bbe6, 0x3e119d3f, 0x3ad08088, 0x2497d08d, 0x2056cd3a, 0x2d15ebe3, 0x29d4f654,
-        0xc5a92679, 0xc1683bce, 0xcc2b1d17, 0xc8ea00a0, 0xd6ad50a5, 0xd26c4d12, 0xdf2f6bcb, 0xdbee767c,
-        0xe3a1cbc1, 0xe760d676, 0xea23f0af, 0xeee2ed18, 0xf0a5bd1d, 0xf464a0aa, 0xf9278673, 0xfde69bc4,
-        0x89b8fd09, 0x8d79e0be, 0x803ac667, 0x84fbdbd0, 0x9abc8bd5, 0x9e7d9662, 0x933eb0bb, 0x97ffad0c,
-        0xafb010b1, 0xab710d06, 0xa6322bdf, 0xa2f33668, 0xbcb4666d, 0xb8757bda, 0xb5365d03, 0xb1f740b4
+    0x00000000, 0x04c11db7, 0x09823b6e, 0x0d4326d9, 0x130476dc, 0x17c56b6b, 0x1a864db2, 0x1e475005,
+    0x2608edb8, 0x22c9f00f, 0x2f8ad6d6, 0x2b4bcb61, 0x350c9b64, 0x31cd86d3, 0x3c8ea00a, 0x384fbdbd,
+    0x4c11db70, 0x48d0c6c7, 0x4593e01e, 0x4152fda9, 0x5f15adac, 0x5bd4b01b, 0x569796c2, 0x52568b75,
+    0x6a1936c8, 0x6ed82b7f, 0x639b0da6, 0x675a1011, 0x791d4014, 0x7ddc5da3, 0x709f7b7a, 0x745e66cd,
+    0x9823b6e0, 0x9ce2ab57, 0x91a18d8e, 0x95609039, 0x8b27c03c, 0x8fe6dd8b, 0x82a5fb52, 0x8664e6e5,
+    0xbe2b5b58, 0xbaea46ef, 0xb7a96036, 0xb3687d81, 0xad2f2d84, 0xa9ee3033, 0xa4ad16ea, 0xa06c0b5d,
+    0xd4326d90, 0xd0f37027, 0xddb056fe, 0xd9714b49, 0xc7361b4c, 0xc3f706fb, 0xceb42022, 0xca753d95,
+    0xf23a8028, 0xf6fb9d9f, 0xfbb8bb46, 0xff79a6f1, 0xe13ef6f4, 0xe5ffeb43, 0xe8bccd9a, 0xec7dd02d,
+    0x34867077, 0x30476dc0, 0x3d044b19, 0x39c556ae, 0x278206ab, 0x23431b1c, 0x2e003dc5, 0x2ac12072,
+    0x128e9dcf, 0x164f8078, 0x1b0ca6a1, 0x1fcdbb16, 0x018aeb13, 0x054bf6a4, 0x0808d07d, 0x0cc9cdca,
+    0x7897ab07, 0x7c56b6b0, 0x71159069, 0x75d48dde, 0x6b93dddb, 0x6f52c06c, 0x6211e6b5, 0x66d0fb02,
+    0x5e9f46bf, 0x5a5e5b08, 0x571d7dd1, 0x53dc6066, 0x4d9b3063, 0x495a2dd4, 0x44190b0d, 0x40d816ba,
+    0xaca5c697, 0xa864db20, 0xa527fdf9, 0xa1e6e04e, 0xbfa1b04b, 0xbb60adfc, 0xb6238b25, 0xb2e29692,
+    0x8aad2b2f, 0x8e6c3698, 0x832f1041, 0x87ee0df6, 0x99a95df3, 0x9d684044, 0x902b669d, 0x94ea7b2a,
+    0xe0b41de7, 0xe4750050, 0xe9362689, 0xedf73b3e, 0xf3b06b3b, 0xf771768c, 0xfa325055, 0xfef34de2,
+    0xc6bcf05f, 0xc27dede8, 0xcf3ecb31, 0xcbffd686, 0xd5b88683, 0xd1799b34, 0xdc3abded, 0xd8fba05a,
+    0x690ce0ee, 0x6dcdfd59, 0x608edb80, 0x644fc637, 0x7a089632, 0x7ec98b85, 0x738aad5c, 0x774bb0eb,
+    0x4f040d56, 0x4bc510e1, 0x46863638, 0x42472b8f, 0x5c007b8a, 0x58c1663d, 0x558240e4, 0x51435d53,
+    0x251d3b9e, 0x21dc2629, 0x2c9f00f0, 0x285e1d47, 0x36194d42, 0x32d850f5, 0x3f9b762c, 0x3b5a6b9b,
+    0x0315d626, 0x07d4cb91, 0x0a97ed48, 0x0e56f0ff, 0x1011a0fa, 0x14d0bd4d, 0x19939b94, 0x1d528623,
+    0xf12f560e, 0xf5ee4bb9, 0xf8ad6d60, 0xfc6c70d7, 0xe22b20d2, 0xe6ea3d65, 0xeba91bbc, 0xef68060b,
+    0xd727bbb6, 0xd3e6a601, 0xdea580d8, 0xda649d6f, 0xc423cd6a, 0xc0e2d0dd, 0xcda1f604, 0xc960ebb3,
+    0xbd3e8d7e, 0xb9ff90c9, 0xb4bcb610, 0xb07daba7, 0xae3afba2, 0xaafbe615, 0xa7b8c0cc, 0xa379dd7b,
+    0x9b3660c6, 0x9ff77d71, 0x92b45ba8, 0x9675461f, 0x8832161a, 0x8cf30bad, 0x81b02d74, 0x857130c3,
+    0x5d8a9099, 0x594b8d2e, 0x5408abf7, 0x50c9b640, 0x4e8ee645, 0x4a4ffbf2, 0x470cdd2b, 0x43cdc09c,
+    0x7b827d21, 0x7f436096, 0x7200464f, 0x76c15bf8, 0x68860bfd, 0x6c47164a, 0x61043093, 0x65c52d24,
+    0x119b4be9, 0x155a565e, 0x18197087, 0x1cd86d30, 0x029f3d35, 0x065e2082, 0x0b1d065b, 0x0fdc1bec,
+    0x3793a651, 0x3352bbe6, 0x3e119d3f, 0x3ad08088, 0x2497d08d, 0x2056cd3a, 0x2d15ebe3, 0x29d4f654,
+    0xc5a92679, 0xc1683bce, 0xcc2b1d17, 0xc8ea00a0, 0xd6ad50a5, 0xd26c4d12, 0xdf2f6bcb, 0xdbee767c,
+    0xe3a1cbc1, 0xe760d676, 0xea23f0af, 0xeee2ed18, 0xf0a5bd1d, 0xf464a0aa, 0xf9278673, 0xfde69bc4,
+    0x89b8fd09, 0x8d79e0be, 0x803ac667, 0x84fbdbd0, 0x9abc8bd5, 0x9e7d9662, 0x933eb0bb, 0x97ffad0c,
+    0xafb010b1, 0xab710d06, 0xa6322bdf, 0xa2f33668, 0xbcb4666d, 0xb8757bda, 0xb5365d03, 0xb1f740b4
     };
 	
     cdx_uint32   i = 0;
@@ -658,95 +670,96 @@ static cdx_uint32 CdxComputeCrc32(cdx_uint32 initVector, cdx_uint8* pData, cdx_u
     
     crc = initVector;
 
-	for (j = 0; j < dataLen;  j++)
-	{
-		i	= ((crc >> 24) ^ *pData++) & 0xff;
-		crc	= (crc << 8) ^ crc32Table[i];
-	}
-	return crc;
+    for (j = 0; j < dataLen;  j++)
+    {
+        i    = ((crc >> 24) ^ *pData++) & 0xff;
+        crc    = (crc << 8) ^ crc32Table[i];
+    }
+    return crc;
 }
 #endif
 
 status_t parsePSISection(TSParser *mTSParser, PSISection *section, unsigned pid)
 {
-	status_t err = OK;
+    status_t err = OK;
 	
-	CdxBitReaderT *sectionBits = CdxBitReaderCreate(PSISectionData(section),
-		PSISectionSize(section));
+    CdxBitReaderT *sectionBits = CdxBitReaderCreate(PSISectionData(section),
+        PSISectionSize(section));
 #if DVB_USED                
-	cdx_uint8 *secBufer = (cdx_uint8* )CdxBitReaderData(sectionBits);
-	cdx_uint32 secLen = (cdx_uint32)((((secBufer[1] & 0x0F) << 8) | secBufer[2]) + 3);
-	cdx_uint32 crcValid = !CdxComputeCrc32(0xffffffff, secBufer, secLen);
+    cdx_uint8 *secBufer = (cdx_uint8* )CdxBitReaderData(sectionBits);
+    cdx_uint32 secLen = (cdx_uint32)((((secBufer[1] & 0x0F) << 8)
+        | secBufer[2]) + 3);
+    cdx_uint32 crcValid = !CdxComputeCrc32(0xffffffff, secBufer, secLen);
 
-	if (crcValid) 
-	{
-		mTSParser->crcValidity[pid] = 100;
-	}
-	else if (mTSParser->crcValidity[pid] < 10) 
-	{
-		CDX_LOGV("check crc failed, section data may error!");
-		mTSParser->crcValidity[pid]++;
-	}
-	else
-	{
-		crcValid = 2;
-	}
-	
-	if (crcValid)
-	{
-		if(crcValid != 1)
-		{
-			if(mTSParser->isDvbStream == 1)
-			{
-				CDX_LOGE("for dtv this case is not allowed,section data may error!");
-				PSISectionClear(section);
-				err = ERROR_SECTION;
-				goto _exit;
-			}
-			else
-			{
-				//Todo
-			}
-		}
-		else
-		{
-			CDX_LOGV("section data may ok!");
-		}
-	}	
+    if (crcValid)
+    {
+        mTSParser->crcValidity[pid] = 100;
+    }
+    else if (mTSParser->crcValidity[pid] < 10)
+    {
+        CDX_LOGV("check crc failed, section data may error!");
+        mTSParser->crcValidity[pid]++;
+    }
+    else
+    {
+        crcValid = 2;
+    }
+
+    if (crcValid)
+    {
+        if(crcValid != 1)
+        {
+            if(mTSParser->isDvbStream == 1)
+            {
+                CDX_LOGE("for dtv this case is not allowed,section data may error!");
+                PSISectionClear(section);
+                err = ERROR_SECTION;
+                goto _exit;
+            }
+            else
+            {
+                //Todo
+            }
+        }
+        else
+        {
+            CDX_LOGV("section data may ok!");
+        }
+    }
 #endif	
-	if (section->PID == 0) 
-	{
-		parseProgramAssociationTable(mTSParser, sectionBits);
-		PSISectionClear(section);/*section本身不释放*/
-	} 
-	else 
-	{
-		Program *mProgram = findProgramByPID(mTSParser, section->PID);/*ProgramMapPID*/
-		if(mProgram)
-		{
-			err = parseProgramMap(mProgram, sectionBits);
-			PSISectionClear(section);
-		}
-		else
-		{
-			DestroyPSISection(section);
-		}
-	}
+    if (section->PID == 0)
+    {
+        parseProgramAssociationTable(mTSParser, sectionBits);
+        PSISectionClear(section);/*section本身不释放*/
+    }
+    else
+    {
+        Program *mProgram = findProgramByPID(mTSParser, section->PID);/*ProgramMapPID*/
+        if(mProgram)
+        {
+            err = parseProgramMap(mProgram, sectionBits);
+            PSISectionClear(section);
+        }
+        else
+        {
+            DestroyPSISection(section);
+        }
+    }
 #if DVB_USED                	
 _exit:	
-	CdxBitReaderDestroy(sectionBits);
-	return err;
+    CdxBitReaderDestroy(sectionBits);
+    return err;
 #else
-	CdxBitReaderDestroy(sectionBits);
-	return err;
+    CdxBitReaderDestroy(sectionBits);
+    return err;
 #endif
 }
 
 
 status_t parsePID(TSParser *mTSParser, CdxBitReaderT *br, unsigned pid,
-	unsigned continuityCounter, unsigned payloadUnitStartIndicator)
+    unsigned continuityCounter, unsigned payloadUnitStartIndicator)
 {	
-	status_t mStatus = OK;
+    status_t mStatus = OK;
     PSISection *section = findPSISectionByPID(mTSParser, pid);
     if(!section)
     {
@@ -762,21 +775,21 @@ status_t parsePID(TSParser *mTSParser, CdxBitReaderT *br, unsigned pid,
     }
 
     if (section) 
-	{
+    {
         if (payloadUnitStartIndicator)
         {
-			unsigned skip = CdxBitReaderGetBits(br, 8);/*pointer_field*/
+            unsigned skip = CdxBitReaderGetBits(br, 8);/*pointer_field*/
             if(skip > 0)
             {
                 if(PSISectionIsEmpty(section))
                 {
 #if DVB_USED                
-					if(CdxBitReaderSkipBitsSafe(br, skip * 8) < 0)
-					{
-						return OK;
-					}
+                    if(CdxBitReaderSkipBitsSafe(br, skip * 8) < 0)
+                    {
+                        return OK;
+                    }
 #else					
-					CdxBitReaderSkipBits(br, skip * 8);
+                    CdxBitReaderSkipBits(br, skip * 8);
 #endif					
                 }
                 else
@@ -784,11 +797,11 @@ status_t parsePID(TSParser *mTSParser, CdxBitReaderT *br, unsigned pid,
                     PSISectionAppend(section, CdxBitReaderData(br), skip);
                     mStatus = parsePSISection(mTSParser, section, pid);
 #if DVB_USED                
-					if(mStatus == ERROR_SECTION)
-					{
-						CDX_LOGE("Section data error,mStatus = %d", mStatus);
-						return OK;
-					}
+                    if(mStatus == ERROR_SECTION)
+                    {
+                        CDX_LOGE("Section data error,mStatus = %d", mStatus);
+                        return OK;
+                    }
 #endif					
                     CDX_LOGV("err = %d", mStatus);
                     CdxBitReaderSkipBits(br, skip * 8);
@@ -803,45 +816,45 @@ status_t parsePID(TSParser *mTSParser, CdxBitReaderT *br, unsigned pid,
         }
 
         CDX_CHECK((CdxBitReaderNumBitsLeft(br) % 8) == 0);
-		PSISectionAppend(section, CdxBitReaderData(br), 
-			CdxBitReaderNumBitsLeft(br) / 8);
+        PSISectionAppend(section, CdxBitReaderData(br),
+            CdxBitReaderNumBitsLeft(br) / 8);
 
         if (!PSISectionIsComplete(section)) 
-		{
+        {
             return OK;
         }
-		mStatus = parsePSISection(mTSParser, section, pid);
+        mStatus = parsePSISection(mTSParser, section, pid);
 #if DVB_USED                
-		if(mStatus == ERROR_SECTION)
-		{
-			CDX_LOGE("Section data error,err = %d", mStatus);
-			return OK;
-		}
+        if(mStatus == ERROR_SECTION)
+        {
+            CDX_LOGE("Section data error,err = %d", mStatus);
+            return OK;
+        }
 #endif		
         return mStatus;
     }
 
-	cdx_bool handled = CDX_FALSE;
-	Program *program = NULL;
-	
-	CdxListForEachEntry(program, &mTSParser->mPrograms, node)
-	{
-		if (ProgramParsePID(program, pid, continuityCounter,
-			payloadUnitStartIndicator, br, &mStatus)) 
-		{
-			if (mStatus != OK) 
-			{
-				return mStatus;
-			}
-			handled = CDX_TRUE;
-			break;
-		}
-	}
-	
-	if (!handled) 
-	{
-		CDX_LOGV("PID 0x%04x not handled.", PID);
-	}
+    cdx_bool handled = CDX_FALSE;
+    Program *program = NULL;
+
+    CdxListForEachEntry(program, &mTSParser->mPrograms, node)
+    {
+        if (ProgramParsePID(program, pid, continuityCounter,
+            payloadUnitStartIndicator, br, &mStatus))
+        {
+            if (mStatus != OK)
+            {
+                return mStatus;
+            }
+            handled = CDX_TRUE;
+            break;
+        }
+    }
+
+    if (!handled)
+    {
+        CDX_LOGV("PID 0x%04x not handled.", PID);
+    }
     return OK;
 }
 
@@ -853,10 +866,10 @@ cdx_bool ProgramParsePID(Program *mProgram,
 {
     *err = OK;
 	
-	Stream *mStream = findStreamByPID(mProgram, pid);
-	if(!mStream)
-	{
-	    if(mProgram->mTSParser->autoGuess == 2)
+    Stream *mStream = findStreamByPID(mProgram, pid);
+    if(!mStream)
+    {
+        if(mProgram->mTSParser->autoGuess == 2)
         {
             SetStream(mProgram, pid, -1);
             mStream = findStreamByPID(mProgram, pid);
@@ -865,20 +878,24 @@ cdx_bool ProgramParsePID(Program *mProgram,
         {
             return CDX_FALSE;
         }
-	}
+    }
     *err = StreamParse(mStream, continuityCounter, payloadUnitStartIndicator, br);
     return CDX_TRUE;
 }
 
-CDX_INTERFACE status_t StreamAppend(Stream *mStream, const cdx_uint8 *data, cdx_uint32 size) 
+CDX_INTERFACE status_t StreamAppend(Stream *mStream,
+    const cdx_uint8 *data, cdx_uint32 size)
 {
     CDX_CHECK(mStream);
     CdxBufferT *mBuffer = mStream->pes[mStream->pesIndex].mBuffer;
-    if(mStream->mMediaType == TYPE_VIDEO && (mStream->codec_id == VIDEO_CODEC_FORMAT_H264 
-		|| mStream->codec_id == VIDEO_CODEC_FORMAT_H265 || mStream->codec_id == VIDEO_CODEC_FORMAT_WMV3
-		|| mStream->codec_id == VIDEO_CODEC_FORMAT_MPEG2) 
+    if(mStream->mMediaType == TYPE_VIDEO
+        && (mStream->codec_id == VIDEO_CODEC_FORMAT_H264
+        || mStream->codec_id == VIDEO_CODEC_FORMAT_H265
+        || mStream->codec_id == VIDEO_CODEC_FORMAT_WMV3
+        || mStream->codec_id == VIDEO_CODEC_FORMAT_MPEG2)
         && mStream->mProgram->mTSParser->currentES /*== mStream*/
-        && mStream->mProgram->mTSParser->autoGuess == -1)/*对于H264，如果currentES被置起时，两个buff都被占用*/
+        && mStream->mProgram->mTSParser->autoGuess == -1)
+        /*对于H264，如果currentES被置起时，两个buff都被占用*/
     {
         memcpy(mStream->tmpBuf, data, size);
         mStream->tmpDataSize = size;
@@ -890,9 +907,8 @@ CDX_INTERFACE status_t StreamAppend(Stream *mStream, const cdx_uint8 *data, cdx_
             CdxBufferAppend(mBuffer, mStream->tmpBuf, mStream->tmpDataSize);
             mStream->tmpDataSize = 0;
         }
-        //CDX_LOGV("StreamAppend before:%u", CdxBufferGetSize(mBuffer));
+        /*CDX_LOGV("StreamAppend before:%u", CdxBufferGetSize(mBuffer))*/
         CdxBufferAppend(mBuffer, data, size);
-        //CDX_LOGV("StreamAppend:0x%x, %u, %u",mStream->mElementaryPID, size, CdxBufferGetSize(mBuffer));
     }
     return OK;
 }
@@ -927,32 +943,31 @@ status_t StreamParse(Stream *mStream, unsigned continuityCounter,
     mStream->mExpectedContinuityCounter = (continuityCounter + 1) & 0x0f; //
 
     if (payloadUnitStartIndicator) 
-	{
+    {
         if (mStream->mPayloadStarted) 
-		{
+        {
             // Otherwise we run the danger of receiving the trailing bytes
             // of a PES packet that we never saw the start of and assuming
             // we have a a complete PES packet.
   /*          
-			if(mStream->mProgram->mTSParser->autoGuess == -1)
-			{
-			    mStream->mProgram->mTSParser->pesCount++;
-                CDX_LOGV("pesCount = %u, mMediaType = %d", mStream->mProgram->mTSParser->pesCount, mStream->mMediaType);
-			}
-			*/
+            if(mStream->mProgram->mTSParser->autoGuess == -1)
+            {
+                mStream->mProgram->mTSParser->pesCount++;
+            }
+            */
              
             status_t err = StreamFlush(mStream);
 
             if (err != OK) 
-			{
+            {
                 return err;
             }
-		}
+        }
         mStream->mPayloadStarted = CDX_TRUE;
     }
 
     if (mStream->mPayloadStarted == 0)
-	{
+    {
         return OK;
     }
 
@@ -960,7 +975,7 @@ status_t StreamParse(Stream *mStream, unsigned continuityCounter,
     //CDX_LOGV("nPayloadSizeBits = %u", nPayloadSizeBits);
     CDX_CHECK(nPayloadSizeBits % 8 == 0u);
 	
-	StreamAppend(mStream, CdxBitReaderData(br), nPayloadSizeBits / 8);
+    StreamAppend(mStream, CdxBitReaderData(br), nPayloadSizeBits / 8);
     return OK;
 }
 
@@ -969,17 +984,20 @@ status_t StreamFlush(Stream *mStream)
 {
 //    CDX_LOGI("StreamFlush");
     CDX_CHECK(mStream);
-	CdxBufferT *mBuffer = mStream->pes[mStream->pesIndex].mBuffer;
-	cdx_uint32 size = CdxBufferGetSize(mBuffer);
+    CdxBufferT *mBuffer = mStream->pes[mStream->pesIndex].mBuffer;
+    cdx_uint32 size = CdxBufferGetSize(mBuffer);
     if (!size)
-	{
-	    if(!mStream->tmpDataSize)
+    {
+        if(!mStream->tmpDataSize)
         {
-            if(CdxBufferGetSize(mStream->pes[!mStream->pesIndex].mBuffer))//用于h264吐出最后一个au
+            if(CdxBufferGetSize(mStream->pes[!mStream->pesIndex].mBuffer))
+                //用于h264吐出最后一个au
             {
                 mStream->accessUnit.pts = mStream->pes[!mStream->pesIndex].pts;
-                mStream->accessUnit.data = CdxBufferGetData(mStream->pes[!mStream->pesIndex].mBuffer);
-                mStream->accessUnit.size = CdxBufferGetSize(mStream->pes[!mStream->pesIndex].mBuffer);
+                mStream->accessUnit.data =
+                    CdxBufferGetData(mStream->pes[!mStream->pesIndex].mBuffer);
+                mStream->accessUnit.size =
+                    CdxBufferGetSize(mStream->pes[!mStream->pesIndex].mBuffer);
                 mStream->mProgram->mTSParser->currentES = mStream;
                 CdxBufferSetRange(mStream->pes[!mStream->pesIndex].mBuffer, 0, 0);
             }
@@ -996,15 +1014,16 @@ status_t StreamFlush(Stream *mStream)
 
     CDX_LOGV("flushing stream 0x%04x size = %d", mStream->mElementaryPID, size);
     //CdxBufferDump(mBuffer);
-	CdxBitReaderT *br = CdxBitReaderCreate(
-		(const cdx_uint8 *)CdxBufferGetData(mBuffer), size);
+    CdxBitReaderT *br = CdxBitReaderCreate(
+        (const cdx_uint8 *)CdxBufferGetData(mBuffer), size);
 
     status_t err = parsePES(mStream, br);
-	CdxBitReaderDestroy(br);
+    CdxBitReaderDestroy(br);
     return err;
 }
 
-static cdx_int32 VerifyStream(Stream *mStream, unsigned stream_id)//类似于new_pes_av_stream
+static cdx_int32 VerifyStream(Stream *mStream, unsigned stream_id)
+    //类似于new_pes_av_stream
 {
     if(mStream->codec_id != 0)
     {
@@ -1012,7 +1031,7 @@ static cdx_int32 VerifyStream(Stream *mStream, unsigned stream_id)//类似于new_pe
     }
     cdx_int32   codec_type = -1;
     cdx_uint32   codec_id;
-	cdx_uint32   codec_sub_id = 0;
+    cdx_uint32   codec_sub_id = 0;
     codec_id   = 0xffffffff;
     //CDX_LOGD("mStream->mStreamType(%d)", mStream->mStreamType);
     switch(mStream->mStreamType)
@@ -1033,12 +1052,12 @@ static cdx_int32 VerifyStream(Stream *mStream, unsigned stream_id)//类似于new_pe
         break;
     case CDX_STREAM_TYPE_OMX_VIDEO_CodingAVC:
         codec_type = TYPE_VIDEO;
-		codec_id   = VIDEO_CODEC_FORMAT_H264;
-		break;
-	case CDX_STREAM_TYPE_VIDEO_MVC:
-		codec_type = TYPE_VIDEO;
-		codec_id   = VIDEO_CODEC_FORMAT_H264;
-		break;
+        codec_id   = VIDEO_CODEC_FORMAT_H264;
+        break;
+    case CDX_STREAM_TYPE_VIDEO_MVC:
+        codec_type = TYPE_VIDEO;
+        codec_id   = VIDEO_CODEC_FORMAT_H264;
+        break;
     case CDX_STREAM_TYPE_VIDEO_H265:
         codec_type = TYPE_VIDEO;
         codec_id   = VIDEO_CODEC_FORMAT_H265;
@@ -1048,7 +1067,7 @@ static cdx_int32 VerifyStream(Stream *mStream, unsigned stream_id)//类似于new_pe
         codec_id   = VIDEO_CODEC_FORMAT_WMV3;
         break;
     case CDX_STREAM_TYPE_AUDIO_AAC:
-	case CDX_STREAM_TYPE_AUDIO_MPEG4:
+    case CDX_STREAM_TYPE_AUDIO_MPEG4:
         codec_type = TYPE_AUDIO;
         codec_id   = AUDIO_CODEC_FORMAT_MPEG_AAC_LC;
         break;
@@ -1058,19 +1077,19 @@ static cdx_int32 VerifyStream(Stream *mStream, unsigned stream_id)//类似于new_pe
     case CDX_STREAM_TYPE_AUDIO_EAC3:
         codec_type = TYPE_AUDIO;
         codec_id   = AUDIO_CODEC_FORMAT_AC3;
-		break;
+        break;
 
-	case CDX_STREAM_TYPE_UNKOWN:
-    	logw("========== careful, streamType is 0, maybe  error");
+    case CDX_STREAM_TYPE_UNKOWN:
+        logw("========== careful, streamType is 0, maybe  error");
         codec_type = TYPE_AUDIO;
         codec_id   = AUDIO_CODEC_FORMAT_AC3;
-		break;
+        break;
 		
     case CDX_STREAM_TYPE_AUDIO_AC3_TRUEHD:
-		//必要时参考原ts
-		codec_type = TYPE_AUDIO;
-		codec_id   = AUDIO_CODEC_FORMAT_AC3;
-		break;
+        //必要时参考原ts
+        codec_type = TYPE_AUDIO;
+        codec_id   = AUDIO_CODEC_FORMAT_AC3;
+        break;
 
     case CDX_STREAM_TYPE_AUDIO_DTS:
     case CDX_STREAM_TYPE_AUDIO_DTS_:
@@ -1098,9 +1117,9 @@ static cdx_int32 VerifyStream(Stream *mStream, unsigned stream_id)//类似于new_pe
         codec_id   = SUBTITLE_CODEC_PGS;//
         break;
     case CDX_STREAM_TYPE_VIDEO_AVS:
-    	codec_type = TYPE_VIDEO;
-    	codec_id   = VIDEO_CODEC_FORMAT_AVS;
-    	break;
+        codec_type = TYPE_VIDEO;
+        codec_id   = VIDEO_CODEC_FORMAT_AVS;
+        break;
     case CDX_STREAM_TYPE_PRIVATE_DATA:
         if(!mStream->mProgram->videoCount)
         {
@@ -1114,47 +1133,51 @@ static cdx_int32 VerifyStream(Stream *mStream, unsigned stream_id)//类似于new_pe
             DestroyStream(mStream);
             return -1;
         }
-        else if (stream_id >= 0xc0 && stream_id <= 0xdf) 	//* according to iso13818-1 Table 2-18 "Stream_id assignments", CXC.
+        else if (stream_id >= 0xc0 && stream_id <= 0xdf)
+            //* according to iso13818-1 Table 2-18 "Stream_id assignments", CXC.
         {
             codec_type = TYPE_AUDIO;
             codec_id   = AUDIO_CODEC_FORMAT_MP2;
         } 
         else if (stream_id == 0xbd) 
         {
-        	if(SeemToBeMvc(mStream->mProgram))
-        	{
-        		codec_type = TYPE_AUDIO;
-        		codec_id   = AUDIO_CODEC_FORMAT_PCM;
-        	}
-        	else
-        	{
-        		codec_type = TYPE_AUDIO;
-        		codec_id   = AUDIO_CODEC_FORMAT_AC3;
-        	}
+            if(SeemToBeMvc(mStream->mProgram))
+            {
+                codec_type = TYPE_AUDIO;
+                codec_id   = AUDIO_CODEC_FORMAT_PCM;
+            }
+            else
+            {
+                codec_type = TYPE_AUDIO;
+                codec_id   = AUDIO_CODEC_FORMAT_AC3;
+            }
         }
         else if(stream_id == 0xfd)      //* stream id for BD
         {
-        	if(SeemToBeMvc(mStream->mProgram))
-        	{
-        		codec_type = TYPE_AUDIO;
-        		codec_id = AUDIO_CODEC_FORMAT_AC3;
-        	}
-        	else
-        	{
-        		codec_type = TYPE_VIDEO;
-        		codec_id   = VIDEO_CODEC_FORMAT_WMV3;
-        	}
+            if(SeemToBeMvc(mStream->mProgram))
+            {
+                codec_type = TYPE_AUDIO;
+                codec_id = AUDIO_CODEC_FORMAT_AC3;
+            }
+            else
+            {
+                codec_type = TYPE_VIDEO;
+                codec_id   = VIDEO_CODEC_FORMAT_WMV3;
+            }
         }
-        else if(stream_id >= 0xe0 && stream_id <= 0xef && !mStream->mProgram->videoCount)	//* according to iso13818-1 Table 2-18 "Stream_id assignments", CXC.
+        else if(stream_id >= 0xe0
+            && stream_id <= 0xef
+            && !mStream->mProgram->videoCount)
+            //* according to iso13818-1 Table 2-18 "Stream_id assignments", CXC.
         {
-        	codec_type = TYPE_VIDEO;
+            codec_type = TYPE_VIDEO;
             if(mStream->mStreamType == CDX_STREAM_TYPE_PRIVATE_DATA)
             {
                 codec_id   = VIDEO_CODEC_FORMAT_H265;
             }
             else
             {
-                codec_id   = VIDEO_CODEC_FORMAT_MPEG2;//VIDEO_CODEC_FORMAT_H264;//  //* not h264 only, we have to learn more to know how to decide which codec.
+                codec_id   = VIDEO_CODEC_FORMAT_MPEG2;
             }
         }
         else 
@@ -1167,23 +1190,23 @@ static cdx_int32 VerifyStream(Stream *mStream, unsigned stream_id)//类似于new_pe
     
     mStream->codec_id   = codec_id;
     mStream->codec_sub_id    = codec_sub_id;
-	mStream->mMediaType = codec_type;
-	Program *program = mStream->mProgram;
-	
-	switch(mStream->mMediaType)
-	{
-		case TYPE_AUDIO:
-			program->audioCount++;
-			break;
-		case TYPE_VIDEO:
-			program->videoCount++;
-			break;
-		case TYPE_SUBS:
-			program->subsCount++;
-			break;
-		default:
-			break;
-	}
+    mStream->mMediaType = codec_type;
+    Program *program = mStream->mProgram;
+
+    switch(mStream->mMediaType)
+    {
+        case TYPE_AUDIO:
+            program->audioCount++;
+            break;
+        case TYPE_VIDEO:
+            program->videoCount++;
+            break;
+        case TYPE_SUBS:
+            program->subsCount++;
+            break;
+        default:
+            break;
+    }
     return 0;
 }
 
@@ -1193,20 +1216,20 @@ status_t parsePES(Stream *mStream, CdxBitReaderT *br)
     //CDX_LOGD("parsePES");
 #if DVB_USED
     cdx_uint32 leftBit = CdxBitReaderNumBitsLeft(br);
-	if(leftBit < 8 * TS_PES_START_SIZE)
-	{
-		CDX_LOGW("payload may too short, len: %d", leftBit);
-		goto _exit;
-	}
+    if(leftBit < 8 * TS_PES_START_SIZE)
+    {
+        CDX_LOGW("payload may too short, len: %d", leftBit);
+        goto _exit;
+    }
 #endif	
     unsigned packet_startcode_prefix = CdxBitReaderGetBits(br, 24);
-	if(packet_startcode_prefix != 0x000001u)
-	{
-		CDX_LOGW("PID = 0x%02x maybe not PES", mStream->mElementaryPID);
+    if(packet_startcode_prefix != 0x000001u)
+    {
+        CDX_LOGW("PID = 0x%02x maybe not PES", mStream->mElementaryPID);
         
-		//return OK;
-		goto _exit;
-	}
+        //return OK;
+        goto _exit;
+    }
 
     unsigned streamId = CdxBitReaderGetBits(br, 8);
     CDX_LOGV("streamId = 0x%02x", streamId);
@@ -1223,16 +1246,16 @@ status_t parsePES(Stream *mStream, CdxBitReaderT *br)
             && streamId != 0xf2  // DSMCC
             && streamId != 0xf8) {  // H.222.1 type E
 
-		if(mStream->mProgram->mTSParser->autoGuess == 2 
-			&& !((streamId >= 0xc0 && streamId <= 0xdf) 
-			|| (streamId >= 0xe0 && streamId <= 0xef) 
-			|| (streamId == 0xbd) 
-			|| (streamId == 0xfd)))
-		{
-			//return OK;
+        if(mStream->mProgram->mTSParser->autoGuess == 2
+            && !((streamId >= 0xc0 && streamId <= 0xdf)
+            || (streamId >= 0xe0 && streamId <= 0xef)
+            || (streamId == 0xbd)
+            || (streamId == 0xfd)))
+        {
+            //return OK;
 			
             goto _exit;
-		}
+        }
         if(mStream->mProgram->mTSParser->autoGuess != -1
             && VerifyStream(mStream, streamId) < 0)
         {
@@ -1241,12 +1264,12 @@ status_t parsePES(Stream *mStream, CdxBitReaderT *br)
             goto _exit;
         }
 
-		unsigned temp = CdxBitReaderGetBits(br, 2);
+        unsigned temp = CdxBitReaderGetBits(br, 2);
 
-		if(temp == 2u)
-			CDX_FORCE_CHECK(1);
-		else
-			CDX_FORCE_CHECK(0);
+        if(temp == 2u)
+            CDX_FORCE_CHECK(1);
+        else
+            CDX_FORCE_CHECK(0);
 		
         MY_LOGV("PES_scrambling_control = %u", CdxBitReaderGetBits(br, 2));
         MY_LOGV("PES_priority = %u", CdxBitReaderGetBits(br, 1));
@@ -1283,16 +1306,17 @@ status_t parsePES(Stream *mStream, CdxBitReaderT *br)
         cdx_uint64 PTS = 0, DTS = 0;
 
         if (PTS_DTS_flags == 3 || PTS_DTS_flags == 2)
-		{
+        {
             CDX_CHECK(optionalBytesRemaining >= 5u);
-			if(optionalBytesRemaining < 5u)
-			{
-				CDX_LOGE("optional_bytes_remaining(%u) < 5u", optionalBytesRemaining);
-				goto _exit;
-			}
+            if(optionalBytesRemaining < 5u)
+            {
+                CDX_LOGE("optional_bytes_remaining(%u) < 5u",
+                    optionalBytesRemaining);
+                goto _exit;
+            }
 #if PtsDebug
-			const cdx_uint8 *tmp = CdxBitReaderData(br);
-			CDX_BUF_DUMP(tmp, 5);
+            const cdx_uint8 *tmp = CdxBitReaderData(br);
+            CDX_BUF_DUMP(tmp, 5);
 #endif
 
             //CDX_FORCE_CHECK(CdxBitReaderGetBits(br, 4) == PTS_DTS_flags);
@@ -1300,66 +1324,67 @@ status_t parsePES(Stream *mStream, CdxBitReaderT *br)
 
             PTS = ((cdx_uint64)CdxBitReaderGetBits(br, 3)) << 30;
 
-			temp = CdxBitReaderGetBits(br, 1);
-			if(temp == 1u)
-				CDX_FORCE_CHECK(1);
-			else
-				CDX_FORCE_CHECK(0);
+            temp = CdxBitReaderGetBits(br, 1);
+            if(temp == 1u)
+                CDX_FORCE_CHECK(1);
+            else
+                CDX_FORCE_CHECK(0);
             PTS |= ((cdx_uint64)CdxBitReaderGetBits(br, 15)) << 15;
 			
-			temp = CdxBitReaderGetBits(br, 1);
-			if(temp == 1u)
-				CDX_FORCE_CHECK(1);
-			else
-				CDX_FORCE_CHECK(0);
+            temp = CdxBitReaderGetBits(br, 1);
+            if(temp == 1u)
+                CDX_FORCE_CHECK(1);
+            else
+                CDX_FORCE_CHECK(0);
             PTS |= CdxBitReaderGetBits(br, 15);
 			
-			temp = CdxBitReaderGetBits(br, 1);
-			if(temp == 1u)
-				CDX_FORCE_CHECK(1);
-			else
-				CDX_FORCE_CHECK(0);
+            temp = CdxBitReaderGetBits(br, 1);
+            if(temp == 1u)
+                CDX_FORCE_CHECK(1);
+            else
+                CDX_FORCE_CHECK(0);
 #if PtsDebug
             CDX_LOGD("PTS = 0x%016llx (%.2f)", PTS, PTS / 90000.0);
 #endif
             optionalBytesRemaining -= 5;
 
             if (PTS_DTS_flags == 3) 
-			{
+            {
                 CDX_CHECK(optionalBytesRemaining >= 5u);
-				if(optionalBytesRemaining < 5u)
-				{
-					CDX_LOGE("optional_bytes_remaining(%u) < 5u", optionalBytesRemaining);
-					goto _exit;
-				}
+                if(optionalBytesRemaining < 5u)
+                {
+                    CDX_LOGE("optional_bytes_remaining(%u) < 5u",
+                        optionalBytesRemaining);
+                    goto _exit;
+                }
 #if PtsDebug
-				const cdx_uint8 *tmp = CdxBitReaderData(br);
-				CDX_BUF_DUMP(tmp, 5);
+                const cdx_uint8 *tmp = CdxBitReaderData(br);
+                CDX_BUF_DUMP(tmp, 5);
 #endif
-				//CDX_FORCE_CHECK(CdxBitReaderGetBits(br, 4) == 1u);
+                //CDX_FORCE_CHECK(CdxBitReaderGetBits(br, 4) == 1u);
                 CdxBitReaderGetBits(br, 4);
 
                 DTS = ((cdx_uint64)CdxBitReaderGetBits(br, 3)) << 30;
 
-				temp = CdxBitReaderGetBits(br, 1);
-				if(temp == 1u)
-					CDX_FORCE_CHECK(1);
-				else
-					CDX_FORCE_CHECK(0);
+                temp = CdxBitReaderGetBits(br, 1);
+                if(temp == 1u)
+                    CDX_FORCE_CHECK(1);
+                else
+                    CDX_FORCE_CHECK(0);
                 DTS |= ((cdx_uint64)CdxBitReaderGetBits(br, 15)) << 15;
 
-				temp = CdxBitReaderGetBits(br, 1);
-				if(temp == 1u)
-					CDX_FORCE_CHECK(1);
-				else
-					CDX_FORCE_CHECK(0);
+                temp = CdxBitReaderGetBits(br, 1);
+                if(temp == 1u)
+                    CDX_FORCE_CHECK(1);
+                else
+                    CDX_FORCE_CHECK(0);
                 DTS |= CdxBitReaderGetBits(br, 15);
 
-				temp = CdxBitReaderGetBits(br, 1);
-				if(temp == 1u)
-					CDX_FORCE_CHECK(1);
-				else
-					CDX_FORCE_CHECK(0);
+                temp = CdxBitReaderGetBits(br, 1);
+                if(temp == 1u)
+                    CDX_FORCE_CHECK(1);
+                else
+                    CDX_FORCE_CHECK(0);
 #if PtsDebug
                 CDX_LOGD("DTS = 0x%016llx (%.2f)", DTS, DTS / 90000.0);
 #endif
@@ -1368,47 +1393,48 @@ status_t parsePES(Stream *mStream, CdxBitReaderT *br)
         }
 
         if (ESCR_flag) 
-		{
+        {
             CDX_CHECK(optionalBytesRemaining >= 6u);
 			
-			if(optionalBytesRemaining < 6u)
-			{
-				CDX_LOGE("optional_bytes_remaining(%u) < 6u", optionalBytesRemaining);
-				goto _exit;
-			}
+            if(optionalBytesRemaining < 6u)
+            {
+                CDX_LOGE("optional_bytes_remaining(%u) < 6u",
+                    optionalBytesRemaining);
+                goto _exit;
+            }
 
             CdxBitReaderGetBits(br, 2);
 
             cdx_uint64 ESCR = ((cdx_uint64)CdxBitReaderGetBits(br, 3)) << 30;
 
-			temp = CdxBitReaderGetBits(br, 1);
-			if(temp == 1u)
-				CDX_FORCE_CHECK(1);
-			else
-				CDX_FORCE_CHECK(0);
+            temp = CdxBitReaderGetBits(br, 1);
+            if(temp == 1u)
+                CDX_FORCE_CHECK(1);
+            else
+                CDX_FORCE_CHECK(0);
             ESCR |= ((cdx_uint64)CdxBitReaderGetBits(br, 15)) << 15;
 
-			temp = CdxBitReaderGetBits(br, 1);
-			if(temp == 1u)
-				CDX_FORCE_CHECK(1);
-			else
-				CDX_FORCE_CHECK(0);
+            temp = CdxBitReaderGetBits(br, 1);
+            if(temp == 1u)
+                CDX_FORCE_CHECK(1);
+            else
+                CDX_FORCE_CHECK(0);
             ESCR |= CdxBitReaderGetBits(br, 15);
 
-			temp = CdxBitReaderGetBits(br, 1);
-			if(temp == 1u)
-				CDX_FORCE_CHECK(1);
-			else
-				CDX_FORCE_CHECK(0);
+            temp = CdxBitReaderGetBits(br, 1);
+            if(temp == 1u)
+                CDX_FORCE_CHECK(1);
+            else
+                CDX_FORCE_CHECK(0);
 
             CDX_LOGV("ESCR = %llu", ESCR);
             MY_LOGV("ESCR_extension = %u", CdxBitReaderGetBits(br, 9));
 
-			temp = CdxBitReaderGetBits(br, 1);
-			if(temp == 1u)
-				CDX_FORCE_CHECK(1);
-			else
-				CDX_FORCE_CHECK(0);
+            temp = CdxBitReaderGetBits(br, 1);
+            if(temp == 1u)
+                CDX_FORCE_CHECK(1);
+            else
+                CDX_FORCE_CHECK(0);
 
             optionalBytesRemaining -= 6;
         }
@@ -1416,68 +1442,73 @@ status_t parsePES(Stream *mStream, CdxBitReaderT *br)
         if (ES_rate_flag) {
             CDX_CHECK(optionalBytesRemaining >= 3u);
 			
-			if(optionalBytesRemaining < 3u)
-			{
-				CDX_LOGE("optional_bytes_remaining(%u) < 3u", optionalBytesRemaining);
-				goto _exit;
-			}
+            if(optionalBytesRemaining < 3u)
+            {
+                CDX_LOGE("optional_bytes_remaining(%u) < 3u",
+                    optionalBytesRemaining);
+                goto _exit;
+            }
 
-			temp = CdxBitReaderGetBits(br, 1);
-			if(temp == 1u)
-				CDX_FORCE_CHECK(1);
-			else
-				CDX_FORCE_CHECK(0);
+            temp = CdxBitReaderGetBits(br, 1);
+            if(temp == 1u)
+                CDX_FORCE_CHECK(1);
+            else
+                CDX_FORCE_CHECK(0);
             MY_LOGV("ES_rate = %u", CdxBitReaderGetBits(br, 22));
 
-			temp = CdxBitReaderGetBits(br, 1);
-			if(temp == 1u)
-				CDX_FORCE_CHECK(1);
-			else
-				CDX_FORCE_CHECK(0);
+            temp = CdxBitReaderGetBits(br, 1);
+            if(temp == 1u)
+                CDX_FORCE_CHECK(1);
+            else
+                CDX_FORCE_CHECK(0);
 
             optionalBytesRemaining -= 3;
         }
 
         if (DSM_trick_mode_flag) {
 #if DVB_USED
-			if(optionalBytesRemaining < 1u)
-			{
-				CDX_LOGE("optionalBytesRemaining(%u) < 1u", optionalBytesRemaining);
-				goto _exit;
-			}
+            if(optionalBytesRemaining < 1u)
+            {
+                CDX_LOGE("optionalBytesRemaining(%u) < 1u",
+                    optionalBytesRemaining);
+                goto _exit;
+            }
 #endif			
             CdxBitReaderGetBits(br, 8);
             optionalBytesRemaining--;
         }
         if (additional_copy_info_flag) {
 #if DVB_USED			
-			if(optionalBytesRemaining < 1u)
-			{
-				CDX_LOGE("optionalBytesRemaining(%u) < 1u", optionalBytesRemaining);
-				goto _exit;
-			}
+            if(optionalBytesRemaining < 1u)
+            {
+                CDX_LOGE("optionalBytesRemaining(%u) < 1u",
+                    optionalBytesRemaining);
+                goto _exit;
+            }
 #endif			
             CdxBitReaderGetBits(br, 8);
             optionalBytesRemaining--;
         }
         if (PES_CRC_flag) {
 #if DVB_USED			
-			if(optionalBytesRemaining < 2u)
-			{
-				CDX_LOGE("optionalBytesRemaining(%u) < 21u", optionalBytesRemaining);
-				goto _exit;
-			}
+            if(optionalBytesRemaining < 2u)
+            {
+                CDX_LOGE("optionalBytesRemaining(%u) < 21u",
+                    optionalBytesRemaining);
+                goto _exit;
+            }
 #endif			
             CdxBitReaderGetBits(br, 16);
             optionalBytesRemaining -= 2;
         }
         if (PES_extension_flag) {
 #if DVB_USED						
-			if(optionalBytesRemaining < 1u)
-			{
-				CDX_LOGE("optionalBytesRemaining(%u) < 1u", optionalBytesRemaining);
-				goto _exit;
-			}
+            if(optionalBytesRemaining < 1u)
+            {
+                CDX_LOGE("optionalBytesRemaining(%u) < 1u",
+                    optionalBytesRemaining);
+                goto _exit;
+            }
 #endif			
             unsigned flags = CdxBitReaderGetBits(br, 8);
             optionalBytesRemaining -= 1;
@@ -1489,86 +1520,84 @@ status_t parsePES(Stream *mStream, CdxBitReaderT *br)
                 //packet is encrypted.
                 if(mStream->mProgram->mTSParser->miracast)
                 {
-                    memcpy(mStream->privateData, CdxBitReaderData(br), PES_PRIVATE_DATA_SIZE);
+                    memcpy(mStream->privateData, CdxBitReaderData(br),
+                        PES_PRIVATE_DATA_SIZE);
                     mStream->hdcpEncrypted = 1;
                 }
             }
         }
 #if DVB_USED		
-		if(CdxBitReaderSkipBitsSafe(br, optionalBytesRemaining * 8) < 0)
-		{
-			goto _exit;
-		}
+        if(CdxBitReaderSkipBitsSafe(br, optionalBytesRemaining * 8) < 0)
+        {
+            goto _exit;
+        }
 #else		
-		CdxBitReaderSkipBits(br, optionalBytesRemaining * 8);
+        CdxBitReaderSkipBits(br, optionalBytesRemaining * 8);
 #endif		
         //CDX_LOGD("mStream = %p, mStream->counter =%d", mStream, mStream->counter);
         // ES data follows.
         if (PESPacketLength != 0) 
-		{
+        {
             CDX_CHECK(PESPacketLength >= PES_header_data_length + 3);
 			
-			if(PESPacketLength < PES_header_data_length + 3)
-			{
-				CDX_LOGE("PES_packet_length < PES_header_data_length + 3");
-				goto _exit;
-			}
+            if(PESPacketLength < PES_header_data_length + 3)
+            {
+                CDX_LOGE("PES_packet_length < PES_header_data_length + 3");
+                goto _exit;
+            }
 
             unsigned dataLength =
                 PESPacketLength - 3 - PES_header_data_length;
             if (CdxBitReaderNumBitsLeft(br) < dataLength * 8) 
-			{
-                CDX_LOGE("PES packet does not carry enough data.(numBitsLeft = %d, required = %d)",
-                     CdxBitReaderNumBitsLeft(br), dataLength * 8);
+            {
+                CDX_LOGE("PES packet does not carry enough data.");
                dataLength = CdxBitReaderNumBitsLeft(br) / 8;
                 //return ERROR_MALFORMED;
             }
             //CDX_LOG_CHECK(dataLength <= CdxBitReaderNumBitsLeft(br) / 8,
              //   "%u ,%u", dataLength, CdxBitReaderNumBitsLeft(br));
 			
-	/*没有把	onPayloadData放在if中是因为在autoGuess时期，需要获取pts以得到duration	*/
-		    //CDX_LOGD("1 PES_packet_length = %d, dataLength = %d, left=%d", PES_packet_length, dataLength, CdxBitReaderNumBitsLeft(br)>>3);
-			onPayloadData(mStream,
-					PTS_DTS_flags, PTS, DTS, CdxBitReaderData(br), dataLength);
+    /*没有把    onPayloadData放在if中是因为在autoGuess时期，需要获取pts以得到duration    */
+            onPayloadData(mStream,
+                    PTS_DTS_flags, PTS, DTS, CdxBitReaderData(br), dataLength);
             //CDX_BUF_DUMP(CdxBitReaderData(br), dataLength);
     
             //CDX_LOGI("onPayloadData end");
 #if DVB_USED            
-			if(CdxBitReaderSkipBitsSafe(br, dataLength * 8) < 0)
-			{
-				goto _exit;
-			}
+            if(CdxBitReaderSkipBitsSafe(br, dataLength * 8) < 0)
+            {
+                goto _exit;
+            }
 #else
-			CdxBitReaderSkipBits(br, dataLength * 8);
+            CdxBitReaderSkipBits(br, dataLength * 8);
 #endif			
         } 
-		else
-		{
+        else
+        {
             size_t payloadSizeBits = CdxBitReaderNumBitsLeft(br);
             CDX_CHECK(payloadSizeBits % 8 == 0u);
-			onPayloadData(mStream,
-					PTS_DTS_flags, PTS, DTS,
-					CdxBitReaderData(br), payloadSizeBits >> 3);
-		    //CDX_LOGD("2 PES_packet_length = %d, dataLength = %d", PES_packet_length, payloadSizeBits >> 3);
+            onPayloadData(mStream,
+                    PTS_DTS_flags, PTS, DTS,
+                    CdxBitReaderData(br), payloadSizeBits >> 3);
             //CDX_BUF_DUMP(CdxBitReaderData(br), payloadSizeBits >> 3);
             //CDX_LOGI("onPayloadData end");
 #if DVB_USED             
-			if(CdxBitReaderSkipBitsSafe(br, payloadSizeBits) < 0)
-			{
-				goto _exit;
-			}
+            if(CdxBitReaderSkipBitsSafe(br, payloadSizeBits) < 0)
+            {
+                goto _exit;
+            }
 #else			
-			CdxBitReaderSkipBits(br, payloadSizeBits);
+            CdxBitReaderSkipBits(br, payloadSizeBits);
 #endif
         }
         return OK;
 		
     }
     /*
-	else
-	{
+    else
+    {
         CDX_CHECK(PES_packet_length != 0u);
-		CdxBitReaderSkipBits(br, PES_packet_length * 8);
+        CdxBitReaderSkipBits(br, PES_packet_length * 8);
         goto _exit;
     }
     */
@@ -1584,7 +1613,7 @@ const uint8_t *findStartCodePrefix(const uint8_t *data, size_t size)
 {
     const uint8_t *dataEnd = data + size;
     register cdx_int32 count = 0;
-	for(; data < dataEnd; data++) 
+    for(; data < dataEnd; data++)
     {
         if(*data == 0)
         {
@@ -1599,8 +1628,8 @@ const uint8_t *findStartCodePrefix(const uint8_t *data, size_t size)
         {
             count = 0;
         }
-	}
-	return NULL;
+    }
+    return NULL;
 }
 
 cdx_int32 onPayloadData(Stream *mStream,
@@ -1610,14 +1639,15 @@ cdx_int32 onPayloadData(Stream *mStream,
     (void)DTS;
     mStream->pes[mStream->pesIndex].pts = -1;
     if (PTS_DTS_flags == 2 || PTS_DTS_flags == 3)
-	{
+    {
         mStream->pes[mStream->pesIndex].pts = PTS;
-		if(!mStream->hasFirstPTS)
-		{
-			mStream->hasFirstPTS = 1;
-			mStream->firstPTS = PTS;
-		}
-        if(mStream->mProgram->mTSParser->autoGuess != 2 && mStream->mProgram->mFirstPTS == -1)
+        if(!mStream->hasFirstPTS)
+        {
+            mStream->hasFirstPTS = 1;
+            mStream->firstPTS = PTS;
+        }
+        if(mStream->mProgram->mTSParser->autoGuess != 2
+            && mStream->mProgram->mFirstPTS == -1)
         {
             mStream->mProgram->mFirstPTS = PTS;
         }
@@ -1672,32 +1702,39 @@ cdx_int32 onPayloadData(Stream *mStream,
         }
     }
     mStream->counter++;
-    CDX_LOGV("onPayloadData mMediaType=%d, counter =%d", mStream->mMediaType, mStream->counter);
-    CdxBufferSetRange(mStream->pes[mStream->pesIndex].mBuffer, data - CdxBufferGetBase(mStream->pes[mStream->pesIndex].mBuffer), size);
+    CDX_LOGV("onPayloadData mMediaType=%d, counter =%d",
+        mStream->mMediaType, mStream->counter);
+    CdxBufferSetRange(mStream->pes[mStream->pesIndex].mBuffer,
+        data - CdxBufferGetBase(mStream->pes[mStream->pesIndex].mBuffer), size);
     //mStream->pes[mStream->pesIndex].ESdata = data;
     //mStream->pes[mStream->pesIndex].size = size;
-    if(mStream->mMediaType == TYPE_VIDEO && (mStream->codec_id == VIDEO_CODEC_FORMAT_H264 
-		|| mStream->codec_id == VIDEO_CODEC_FORMAT_H265 || mStream->codec_id == VIDEO_CODEC_FORMAT_WMV3
-		|| mStream->codec_id == VIDEO_CODEC_FORMAT_MPEG2))
+    if(mStream->mMediaType == TYPE_VIDEO
+        && (mStream->codec_id == VIDEO_CODEC_FORMAT_H264
+        || mStream->codec_id == VIDEO_CODEC_FORMAT_H265
+        || mStream->codec_id == VIDEO_CODEC_FORMAT_WMV3
+        || mStream->codec_id == VIDEO_CODEC_FORMAT_MPEG2))
     {
-        //CDX_LOGD("mStream = %p, data =%p, size=%u, counter =%d, accessUnitIndex =%d, AUT1=%d, AUT2=%d", mStream, data, size, mStream->counter, mStream->accessUnitIndex, mStream->accessUnit[mStream->accessUnitIndex].size,mStream->accessUnit[!mStream->accessUnitIndex].size);
         //mStream->accessUnit[mStream->accessUnitIndex].tail = mStream->curPES;
         mStream->pes[mStream->pesIndex].AUdata = findStartCodePrefix(data, size);
         if(mStream->pes[mStream->pesIndex].AUdata)
         {
             
-            cdx_int32 AUsize = mStream->pes[mStream->pesIndex].AUdata - CdxBufferGetData(mStream->pes[mStream->pesIndex].mBuffer);
+            cdx_int32 AUsize = mStream->pes[mStream->pesIndex].AUdata -
+                CdxBufferGetData(mStream->pes[mStream->pesIndex].mBuffer);
             if(mStream->accessUnitStarted)
             {
                 if(AUsize)
                 {
-                    CdxBufferAppend(mStream->pes[!mStream->pesIndex].mBuffer, CdxBufferGetData(mStream->pes[mStream->pesIndex].mBuffer), AUsize);
+                    CdxBufferAppend(mStream->pes[!mStream->pesIndex].mBuffer,
+                        CdxBufferGetData(mStream->pes[mStream->pesIndex].mBuffer), AUsize);
                     //mStream->accessUnit.size += size;
                 }
                 
                 mStream->accessUnit.pts = mStream->pes[!mStream->pesIndex].pts;
-                mStream->accessUnit.data = CdxBufferGetData(mStream->pes[!mStream->pesIndex].mBuffer);
-                mStream->accessUnit.size = CdxBufferGetSize(mStream->pes[!mStream->pesIndex].mBuffer);
+                mStream->accessUnit.data =
+                    CdxBufferGetData(mStream->pes[!mStream->pesIndex].mBuffer);
+                mStream->accessUnit.size =
+                    CdxBufferGetSize(mStream->pes[!mStream->pesIndex].mBuffer);
                 mStream->mProgram->mTSParser->currentES = mStream;
                 CdxBufferSetRange(mStream->pes[!mStream->pesIndex].mBuffer, 0, 0);
                 
@@ -1705,19 +1742,11 @@ cdx_int32 onPayloadData(Stream *mStream,
             else
             {
                 mStream->accessUnitStarted = CDX_TRUE;
-				//mStream->accessUnit.pts = mStream->pes[mStream->pesIndex].pts;
-                /*
-                mStream->accessUnit.pts1 = mStream->pes[mStream->pesIndex].pts;
-                //mStream->accessUnit.size = mStream->pes[mStream->pesIndex].size - (mStream->pes[mStream->pesIndex].AUdata - mStream->pes[mStream->pesIndex].ESdata);
-                CdxBufferSetRange(mStream->pes[mStream->pesIndex].mBuffer, 
-                    mStream->pes[mStream->pesIndex].AUdata - CdxBufferGetBase(mStream->pes[mStream->pesIndex].mBuffer), 
-                    CdxBufferGetSize(mStream->pes[mStream->pesIndex].mBuffer) - AUsize);
-                    */
             }
-            //mStream->accessUnit.pts1 = mStream->pes[mStream->pesIndex].pts;
             CdxBufferSetRange(mStream->pes[mStream->pesIndex].mBuffer, 
-                mStream->pes[mStream->pesIndex].AUdata - CdxBufferGetBase(mStream->pes[mStream->pesIndex].mBuffer), 
-                CdxBufferGetSize(mStream->pes[mStream->pesIndex].mBuffer) - AUsize);
+            mStream->pes[mStream->pesIndex].AUdata -
+            CdxBufferGetBase(mStream->pes[mStream->pesIndex].mBuffer),
+            CdxBufferGetSize(mStream->pes[mStream->pesIndex].mBuffer) - AUsize);
             mStream->pesIndex = !mStream->pesIndex;
             
         }
@@ -1726,30 +1755,15 @@ cdx_int32 onPayloadData(Stream *mStream,
             if(mStream->accessUnitStarted)
             {
                 CdxBufferAppend(mStream->pes[!mStream->pesIndex].mBuffer, data, size);
-                //mStream->accessUnit.size += size;
                 if(mStream->pes[!mStream->pesIndex].pts == -1)
                 {
-                    mStream->pes[!mStream->pesIndex].pts = mStream->pes[mStream->pesIndex].pts;
+                    mStream->pes[!mStream->pesIndex].pts =
+                        mStream->pes[mStream->pesIndex].pts;
                 }
                 
             }
             CdxBufferSetRange(mStream->pes[mStream->pesIndex].mBuffer, 0, 0);
         }
-        /*
-        CDX_LOGD("AUT1=%d, AUT2=%d",mStream->accessUnit[mStream->accessUnitIndex].size,mStream->accessUnit[!mStream->accessUnitIndex].size);
-        if(mStream->accessUnit[mStream->accessUnitIndex].head && mStream->accessUnit[mStream->accessUnitIndex].head->AUdata)
-        {
-            CDX_BUF_DUMP(mStream->accessUnit[mStream->accessUnitIndex].head->AUdata, 20);
-        }
-        if(mStream->accessUnit[mStream->accessUnitIndex].tail && mStream->accessUnit[mStream->accessUnitIndex].tail->AUdata)
-        {
-            CDX_BUF_DUMP(mStream->accessUnit[mStream->accessUnitIndex].head->AUdata, 20);
-        }
-        if(mStream->accessUnit[!mStream->accessUnitIndex].head && mStream->accessUnit[!mStream->accessUnitIndex].head->AUdata)
-        {
-            CDX_BUF_DUMP(mStream->accessUnit[!mStream->accessUnitIndex].head->AUdata, 20);
-        }
-        */
     }
     else
     {
@@ -1766,21 +1780,21 @@ cdx_int32 onPayloadData(Stream *mStream,
 #if 0
 int64_t convertPTSToTimestamp(Program *mProgram, cdx_uint64 PTS)
 {
-	if(!mProgram->mFirstPTSValid)
-	{
-		mProgram->mFirstPTSValid = CDX_TRUE;
-		mProgram->mFirstPTS = PTS;
-		PTS = 0;
-	}
-	else if(PTS < mProgram->mFirstPTS)
-	{
-		ALOGW("PTS < mFirstPTS");
-		PTS = 0;
-	}
-	else
-	{
-		PTS -= mProgram->mFirstPTS;
-	}
+    if(!mProgram->mFirstPTSValid)
+    {
+        mProgram->mFirstPTSValid = CDX_TRUE;
+        mProgram->mFirstPTS = PTS;
+        PTS = 0;
+    }
+    else if(PTS < mProgram->mFirstPTS)
+    {
+        ALOGW("PTS < mFirstPTS");
+        PTS = 0;
+    }
+    else
+    {
+        PTS -= mProgram->mFirstPTS;
+    }
 	
     int64_t timeUs = (PTS * 100) / 9;
 
@@ -1789,8 +1803,8 @@ int64_t convertPTSToTimestamp(Program *mProgram, cdx_uint64 PTS)
 
 typedef struct StreamInfo
 {
-	unsigned mType;
-	unsigned mPID;
+    unsigned mType;
+    unsigned mPID;
 }StreamInfo;
 #endif
 
@@ -1861,52 +1875,52 @@ cdx_int32 parseDescriptor(CdxBitReaderT *br, void *father/*, cdx_int32 fatherTyp
             stream = (Stream *)father;
             stream->mStreamType = CDX_STREAM_TYPE_AUDIO_AC3;
             stream->mMediaType = TYPE_AUDIO;
-			if(stream->metadata)
-			{
-				free(stream->metadata);
-			}
-			stream->metadata = (AudioMetaData *)CdxMalloc(sizeof(AudioMetaData));
-			memset(stream->metadata, 0x00, sizeof(AudioMetaData));
-			AudioMetaData *metadata = (AudioMetaData *)stream->metadata;
-			unsigned sample_rate_code = CdxBitReaderGetBits(br, 3);
-			if(sample_rate_code < 4)
-			{
-				metadata->samplingFrequency = AC3_SamplingRate[sample_rate_code];
-			}
-			else 
-			{
-				CDX_LOGW("ac3 sample_rate_code >= 4");
-			}
-			CdxBitReaderGetBits(br, 5);
-			unsigned bit_rate_code = CdxBitReaderGetBits(br, 6);
-			if((bit_rate_code & 0x1f) <= 18)
-			{
-				if(bit_rate_code >> 5)
-				{					
-					unsigned index = bit_rate_code & 0x1f;
-					CDX_LOGW("ac3 bit_rate_code=%u index=%u", bit_rate_code, index);
-					metadata->maxBitRate = AC3_BitRate[index]*1000;
-				}
-				else
-				{
-					metadata->bitRate = AC3_BitRate[bit_rate_code]*1000;
-				}
-			}
-			else
-			{
-				CDX_LOGW("ac3 bit_rate_code=%u", bit_rate_code);
-			}
-			CdxBitReaderGetBits(br, 5);
-			unsigned num_channels = CdxBitReaderGetBits(br, 4);
-			if(num_channels < 8)
-			{
-				metadata->channelNum = AC3_Channels[num_channels];
-			}
-			else
-			{
-				CDX_LOGW("ac3 num_channels = %u", num_channels);
-			}
-			CdxBitReaderGetBits(br, 1);
+            if(stream->metadata)
+            {
+                free(stream->metadata);
+            }
+            stream->metadata = (AudioMetaData *)CdxMalloc(sizeof(AudioMetaData));
+            memset(stream->metadata, 0x00, sizeof(AudioMetaData));
+            AudioMetaData *metadata = (AudioMetaData *)stream->metadata;
+            unsigned sample_rate_code = CdxBitReaderGetBits(br, 3);
+            if(sample_rate_code < 4)
+            {
+                metadata->samplingFrequency = AC3_SamplingRate[sample_rate_code];
+            }
+            else
+            {
+                CDX_LOGW("ac3 sample_rate_code >= 4");
+            }
+            CdxBitReaderGetBits(br, 5);
+            unsigned bit_rate_code = CdxBitReaderGetBits(br, 6);
+            if((bit_rate_code & 0x1f) <= 18)
+            {
+                if(bit_rate_code >> 5)
+                {
+                    unsigned index = bit_rate_code & 0x1f;
+                    CDX_LOGW("ac3 bit_rate_code=%u index=%u", bit_rate_code, index);
+                    metadata->maxBitRate = AC3_BitRate[index]*1000;
+                }
+                else
+                {
+                    metadata->bitRate = AC3_BitRate[bit_rate_code]*1000;
+                }
+            }
+            else
+            {
+                CDX_LOGW("ac3 bit_rate_code=%u", bit_rate_code);
+            }
+            CdxBitReaderGetBits(br, 5);
+            unsigned num_channels = CdxBitReaderGetBits(br, 4);
+            if(num_channels < 8)
+            {
+                metadata->channelNum = AC3_Channels[num_channels];
+            }
+            else
+            {
+                CDX_LOGW("ac3 num_channels = %u", num_channels);
+            }
+            CdxBitReaderGetBits(br, 1);
             descriptor_length -= 3;
             break;        
             
@@ -1935,10 +1949,13 @@ cdx_int32 parseDescriptor(CdxBitReaderT *br, void *father/*, cdx_int32 fatherTyp
                             {
                                 free(stream->metadata);
                             }
-                            stream->metadata = (AudioMetaData *)CdxMalloc(sizeof(AudioMetaData));
+                            stream->metadata =
+                                (AudioMetaData *)CdxMalloc(sizeof(AudioMetaData));
                             memset(stream->metadata, 0x00, sizeof(AudioMetaData));
-                            AudioMetaData *metadata = (AudioMetaData *)stream->metadata;
-                            unsigned audio_presentation_type = CdxBitReaderGetBits(br, 4);
+                            AudioMetaData *metadata =
+                                (AudioMetaData *)stream->metadata;
+                            unsigned audio_presentation_type =
+                                CdxBitReaderGetBits(br, 4);
                             switch(audio_presentation_type)
                             {
                                 case 1:
@@ -1951,7 +1968,8 @@ cdx_int32 parseDescriptor(CdxBitReaderT *br, void *father/*, cdx_int32 fatherTyp
                                     metadata->channelNum = 6;
                                     break;
                             }
-                            unsigned sampling_frequency = CdxBitReaderGetBits(br, 4);
+                            unsigned sampling_frequency =
+                                CdxBitReaderGetBits(br, 4);
                             if(sampling_frequency == 1)
                             {
                                 metadata->samplingFrequency = 48000;
@@ -1964,7 +1982,8 @@ cdx_int32 parseDescriptor(CdxBitReaderT *br, void *father/*, cdx_int32 fatherTyp
                             {
                                 metadata->samplingFrequency = 192000;
                             }
-                            unsigned bit_per_sample = CdxBitReaderGetBits(br, 2);
+                            unsigned bit_per_sample =
+                                CdxBitReaderGetBits(br, 2);
                             switch(bit_per_sample)
                             {
                                 case 1:
@@ -1989,18 +2008,21 @@ cdx_int32 parseDescriptor(CdxBitReaderT *br, void *father/*, cdx_int32 fatherTyp
                             {
                                 free(stream->metadata);
                             }
-                            stream->metadata = (VideoMetaData *)CdxMalloc(sizeof(VideoMetaData));
+                            stream->metadata =
+                                (VideoMetaData *)CdxMalloc(sizeof(VideoMetaData));
                             memset(stream->metadata, 0x00, sizeof(VideoMetaData));
-                            VideoMetaData *metadata1 = (VideoMetaData *)stream->metadata;
+                            VideoMetaData *metadata1 =
+                                (VideoMetaData *)stream->metadata;
                             metadata1->videoFormat = CdxBitReaderGetBits(br, 4);
                             metadata1->frameRate = CdxBitReaderGetBits(br, 4);
                             metadata1->aspectRatio = CdxBitReaderGetBits(br, 4);
                             CdxBitReaderGetBits(br, 4);
                             descriptor_length -= 2;
                             break;
-						default:
-							CDX_LOGE("stream_coding_type =%u", stream_coding_type);
-							break;
+                        default:
+                            CDX_LOGE("stream_coding_type =%u",
+                                stream_coding_type);
+                            break;
                     }
                     
                 }
@@ -2031,10 +2053,10 @@ cdx_int32 parseDescriptor(CdxBitReaderT *br, void *father/*, cdx_int32 fatherTyp
                 stream->mStreamType = CDX_STREAM_TYPE_VIDEO_H265;
                 stream->mMediaType = TYPE_VIDEO;
             }
-			else
-			{
-				CDX_LOGE("tag: 0x05 format_identifier=%u", format_identifier);
-			}
+            else
+            {
+                CDX_LOGE("tag: 0x05 format_identifier=%u", format_identifier);
+            }
             break;
         case 0x7B:
             stream = (Stream *)father;
@@ -2054,7 +2076,7 @@ cdx_int32 parseDescriptor(CdxBitReaderT *br, void *father/*, cdx_int32 fatherTyp
             }
             break;
         default:
-			CDX_LOGV("tag: 0x%02x len=%u", descriptor_tag, descriptor_length);
+            CDX_LOGV("tag: 0x%02x len=%u", descriptor_tag, descriptor_length);
             break;
         
     }
@@ -2066,12 +2088,13 @@ cdx_int32 parseDescriptor(CdxBitReaderT *br, void *father/*, cdx_int32 fatherTyp
 
 Stream *VideoInProgram(Program *program)
 {
-	Stream *stream;
+    Stream *stream;
     if(program->videoCount)
     {
         CdxListForEachEntry(stream, &program->mStreams, node)
         {
-            if(stream->mMediaType == TYPE_VIDEO && stream->mStreamType != CDX_STREAM_TYPE_VIDEO_MVC)
+            if(stream->mMediaType == TYPE_VIDEO
+                && stream->mStreamType != CDX_STREAM_TYPE_VIDEO_MVC)
             {
                 return stream;
             }
@@ -2081,12 +2104,13 @@ Stream *VideoInProgram(Program *program)
 }
 Stream *MinorVideoInProgram(Program *program)
 {
-	Stream *stream;
+    Stream *stream;
     if(program->videoCount)
     {
         CdxListForEachEntry(stream, &program->mStreams, node)
         {
-            if(stream->mMediaType == TYPE_VIDEO && stream->mStreamType == CDX_STREAM_TYPE_VIDEO_MVC)
+            if(stream->mMediaType == TYPE_VIDEO
+                && stream->mStreamType == CDX_STREAM_TYPE_VIDEO_MVC)
             {
                 return stream;
             }
@@ -2096,7 +2120,7 @@ Stream *MinorVideoInProgram(Program *program)
 }
 Stream *AudioInProgram(Program *program)
 {
-	Stream *stream;
+    Stream *stream;
     if(program->audioCount)
     {
         CdxListForEachEntry(stream, &program->mStreams, node)
@@ -2111,7 +2135,7 @@ Stream *AudioInProgram(Program *program)
 }
 Stream *SubtitleInProgram(Program *program)
 {
-	Stream *stream;
+    Stream *stream;
     if(program->subsCount)
     {
         CdxListForEachEntry(stream, &program->mStreams, node)
@@ -2127,47 +2151,47 @@ Stream *SubtitleInProgram(Program *program)
 
 static cdx_int32 SeemToBeMvc(Program* mProgram)
 {
-	if(VideoInProgram(mProgram) && MinorVideoInProgram(mProgram))
-	{
-		return 1;
-	}
-	return 0;
+    if(VideoInProgram(mProgram) && MinorVideoInProgram(mProgram))
+    {
+        return 1;
+    }
+    return 0;
 }
 
 status_t parseProgramMap(Program *program, CdxBitReaderT *br)
 {
-	CDX_LOGV("parseProgramMap");
+    CDX_LOGV("parseProgramMap");
     unsigned table_id = CdxBitReaderGetBits(br, 8);
     //CDX_FORCE_CHECK(table_id == 0x02u);
     if(table_id != 0x02u)
     {
-    	CDX_LOGE("should not be here.");
-		return OK;
+        CDX_LOGE("should not be here.");
+        return OK;
     }
 
     unsigned section_syntax_indictor = CdxBitReaderGetBits(br, 1);
     //CDX_CHECK(section_syntax_indictor == 1u);
 
-	unsigned temp = CdxBitReaderGetBits(br, 1);
-	if(temp == 0u)
-		CDX_FORCE_CHECK(1);
-	else
-		CDX_FORCE_CHECK(0);
+    unsigned temp = CdxBitReaderGetBits(br, 1);
+    if(temp == 0u)
+        CDX_FORCE_CHECK(1);
+    else
+        CDX_FORCE_CHECK(0);
 
-	CdxBitReaderGetBits(br, 2);/*reserved*/
+    CdxBitReaderGetBits(br, 2);/*reserved*/
 
     unsigned section_length = CdxBitReaderGetBits(br, 12);
     CDX_LOGV("  section_length = %u", section_length);
     CDX_CHECK((section_length & 0xc00) == 0u && section_length <= 1021u);
 
-	unsigned program_number = CdxBitReaderGetBits(br, 16);
-	if(program->mProgramNumber == -1)
-	{
-		program->mProgramNumber = program_number;
-	}
+    unsigned program_number = CdxBitReaderGetBits(br, 16);
+    if(program->mProgramNumber == -1)
+    {
+        program->mProgramNumber = program_number;
+    }
     CDX_LOGV("  program_number = %u", program_number);
 	
-	CdxBitReaderGetBits(br, 2);/*reserved*/
+    CdxBitReaderGetBits(br, 2);/*reserved*/
     //MY_LOGV("  version_number = %u", CdxBitReaderGetBits(br, 5));
     unsigned version_number = CdxBitReaderGetBits(br, 5);
     //CDX_FORCE_CHECK(CdxBitReaderGetBits(br, 1) == 1u);/*current_next_indicator*/
@@ -2175,12 +2199,15 @@ status_t parseProgramMap(Program *program, CdxBitReaderT *br)
     //MY_LOGV("  current_next_indicator = %u", CdxBitReaderGetBits(br, 1));
     unsigned current_next_indicator = CdxBitReaderGetBits(br, 1);
     if((version_number == program->version_number 
-        && (program->mTSParser->bdFlag >= 2 || VideoInProgram(program) || AudioInProgram(program)))
+        && (program->mTSParser->bdFlag >= 2
+        || VideoInProgram(program)
+        || AudioInProgram(program)))
         || !current_next_indicator)
     {
         return OK;
     }
-    CDX_LOGV("program->version_number(%d), version_number(%d)", program->version_number, version_number);
+    CDX_LOGV("program->version_number(%d), version_number(%d)",
+        program->version_number, version_number);
     program->version_number = version_number;
     //CDX_LOGD("program->mTSParser->status(%d)", program->mTSParser->status);
    /* //由于从节目选定，到置起CDX_PSR_IDLE之前还有estimateduration的环节，其间也可能引起parseProgramMap
@@ -2193,13 +2220,13 @@ status_t parseProgramMap(Program *program, CdxBitReaderT *br)
     
     MY_LOGV("  section_number = %u", CdxBitReaderGetBits(br, 8));
     MY_LOGV("  last_section_number = %u", CdxBitReaderGetBits(br, 8));
-	CdxBitReaderGetBits(br, 3);/*reserved*/
+    CdxBitReaderGetBits(br, 3);/*reserved*/
 
     //unsigned PCR_PID = 
         CdxBitReaderGetBits(br, 13);
     //CDX_LOGV("  PCR_PID = 0x%04x", PCR_PID);
 
-	CdxBitReaderGetBits(br, 4);/*reserved*/
+    CdxBitReaderGetBits(br, 4);/*reserved*/
 
     unsigned program_info_length = CdxBitReaderGetBits(br, 12);
     CDX_LOGV("  program_info_length = %u", program_info_length);
@@ -2211,7 +2238,7 @@ status_t parseProgramMap(Program *program, CdxBitReaderT *br)
     size_t nInfoBytesRemaining = section_length - 9 - program_info_length - 4;
     
     while(program_info_length >= 2)
-	{
+    {
         const cdx_uint8 *data = CdxBitReaderData(br);
         cdx_uint8 len = data[1];
         if(len > program_info_length - 2)
@@ -2222,18 +2249,18 @@ status_t parseProgramMap(Program *program, CdxBitReaderT *br)
         parseDescriptor(br, program);
         program_info_length -= len + 2;
     }
-	CdxBitReaderSkipBits(br, program_info_length * 8);
+    CdxBitReaderSkipBits(br, program_info_length * 8);
 
 #if 0    /*版本号改变的情况下，节目成分可能并没有变化(<阿凡达>，此时0x89描述符的信息有改变)*/
     DestroyStreams(program);
     while (nInfoBytesRemaining > 0) 
-	{
+    {
         CDX_CHECK(nInfoBytesRemaining >= 5u);
 
         unsigned stream_type = CdxBitReaderGetBits(br, 8);
         CDX_LOGV("    stream_type = 0x%02x", stream_type);
 
-		CdxBitReaderGetBits(br, 3);/*reserved*/
+        CdxBitReaderGetBits(br, 3);/*reserved*/
 
         unsigned elementaryPID = CdxBitReaderGetBits(br, 13);
         CDX_LOGV("    elementary_PID = 0x%04x", elementaryPID);
@@ -2272,15 +2299,16 @@ status_t parseProgramMap(Program *program, CdxBitReaderT *br)
             CdxBufferSetRange(stream->pes[1].mBuffer, 0, 0);
         }
 #endif        
-		CdxBitReaderGetBits(br, 4);/*reserved*/
+        CdxBitReaderGetBits(br, 4);/*reserved*/
         unsigned nES_info_length = CdxBitReaderGetBits(br, 12);
         CDX_CHECK((nES_info_length & 0xc00) == 0u);
-        CDX_LOGV("    nES_info_length = %u, nInfoBytesRemaining = %u", nES_info_length, nInfoBytesRemaining);
+        CDX_LOGV("    nES_info_length = %u, nInfoBytesRemaining = %u",
+            nES_info_length, nInfoBytesRemaining);
         CDX_CHECK(nInfoBytesRemaining - 5 >= nES_info_length);
 
         unsigned nInfo_bytes_remaining = nES_info_length;
         while (nInfo_bytes_remaining >= 2) 
-		{
+        {
             const cdx_uint8 *data = CdxBitReaderData(br);
             cdx_uint8 len = data[1];
             if(len > nInfo_bytes_remaining - 2)
@@ -2292,7 +2320,7 @@ status_t parseProgramMap(Program *program, CdxBitReaderT *br)
             nInfo_bytes_remaining -= len + 2;
 
         }
-		CdxBitReaderSkipBits(br, nInfo_bytes_remaining * 8);
+        CdxBitReaderSkipBits(br, nInfo_bytes_remaining * 8);
 
         VerifyStream(stream, 0);
         nInfoBytesRemaining -= 5 + nES_info_length;
@@ -2303,11 +2331,11 @@ status_t parseProgramMap(Program *program, CdxBitReaderT *br)
         while (nInfoBytesRemaining > 0) 
         {
             CDX_CHECK(nInfoBytesRemaining >= 5u);
-			if(nInfoBytesRemaining < 5u)
-			{
-				CDX_LOGE("nInfoBytesRemaining < 5u");
-				return OK;
-			}
+            if(nInfoBytesRemaining < 5u)
+            {
+                CDX_LOGE("nInfoBytesRemaining < 5u");
+                return OK;
+            }
     
             unsigned stream_type = CdxBitReaderGetBits(br, 8);
             CDX_LOGV("    stream_type = 0x%02x", stream_type);
@@ -2345,13 +2373,14 @@ status_t parseProgramMap(Program *program, CdxBitReaderT *br)
             CdxBitReaderGetBits(br, 4);/*reserved*/
             unsigned nES_info_length = CdxBitReaderGetBits(br, 12);
             CDX_CHECK((nES_info_length & 0xc00) == 0u);
-            CDX_LOGV("    nES_info_length = %u, nInfoBytesRemaining = %u", nES_info_length, nInfoBytesRemaining);
+            CDX_LOGV("    nES_info_length = %u, nInfoBytesRemaining = %u",
+                nES_info_length, nInfoBytesRemaining);
             CDX_CHECK(nInfoBytesRemaining - 5 >= nES_info_length);
-			if(nInfoBytesRemaining - 5 < nES_info_length)
-			{
-				CDX_LOGE("nInfoBytesRemaining - 5 < nES_info_length");
-				return OK;
-			}
+            if(nInfoBytesRemaining - 5 < nES_info_length)
+            {
+                CDX_LOGE("nInfoBytesRemaining - 5 < nES_info_length");
+                return OK;
+            }
     
             unsigned nInfo_bytes_remaining = nES_info_length;
             while (nInfo_bytes_remaining >= 2) 
@@ -2402,31 +2431,31 @@ status_t parseProgramMap(Program *program, CdxBitReaderT *br)
 
 void parseProgramAssociationTable(TSParser *mTSParser, CdxBitReaderT *br)
 {
-	CDX_LOGV("parseProgramAssociationTable");
+    CDX_LOGV("parseProgramAssociationTable");
     unsigned table_id = CdxBitReaderGetBits(br, 8);
     //CDX_FORCE_CHECK(table_id == 0x00u);
     if(table_id != 0x00u)
     {
-    	CDX_LOGE("should not be here.");
-		return ;
+        CDX_LOGE("should not be here.");
+        return ;
     }
     unsigned section_syntax_indictor = CdxBitReaderGetBits(br, 1);
     CDX_CHECK(section_syntax_indictor == 1u);
 
-	unsigned temp = CdxBitReaderGetBits(br, 1);
-	if(temp == 0u)
-		CDX_FORCE_CHECK(1);
-	else
-		CDX_FORCE_CHECK(0);
+    unsigned temp = CdxBitReaderGetBits(br, 1);
+    if(temp == 0u)
+        CDX_FORCE_CHECK(1);
+    else
+        CDX_FORCE_CHECK(0);
 
-	CdxBitReaderGetBits(br, 2);/*reserved*/
+    CdxBitReaderGetBits(br, 2);/*reserved*/
 
     unsigned section_length = CdxBitReaderGetBits(br, 12);
     CDX_LOGV("  section_length = %u", section_length);
     CDX_CHECK((section_length & 0xc00) == 0u && section_length <= 1021u);
 
     MY_LOGV("  transport_stream_id = %u", CdxBitReaderGetBits(br, 16));
-	CdxBitReaderGetBits(br, 2);/*reserved*/
+    CdxBitReaderGetBits(br, 2);/*reserved*/
 
     //MY_LOGV("  version_number = %u", CdxBitReaderGetBits(br, 5));
     unsigned version_number = CdxBitReaderGetBits(br, 5);
@@ -2434,7 +2463,8 @@ void parseProgramAssociationTable(TSParser *mTSParser, CdxBitReaderT *br)
     /*current_next_indicator如果不为1，要么直接跳过返回，要么先parse了存下来*/
     //MY_LOGV("  current_next_indicator = %u", CdxBitReaderGetBits(br, 1));
     unsigned current_next_indicator = CdxBitReaderGetBits(br, 1);
-    if(version_number == mTSParser->pat_version_number || !current_next_indicator)
+    if(version_number == mTSParser->pat_version_number
+        || !current_next_indicator)
     {
         return;
     }
@@ -2444,7 +2474,8 @@ void parseProgramAssociationTable(TSParser *mTSParser, CdxBitReaderT *br)
         CDX_LOGW("pat change!");
         return;
     }*/
-    CDX_LOGV("mTSParser->pat_version_number(%d), version_number(%d)", mTSParser->pat_version_number, version_number);
+    CDX_LOGV("mTSParser->pat_version_number(%d), version_number(%d)",
+    mTSParser->pat_version_number, version_number);
     mTSParser->pat_version_number = version_number;
     MY_LOGV("  section_number = %u", CdxBitReaderGetBits(br, 8));
     MY_LOGV("  last_section_number = %u", CdxBitReaderGetBits(br, 8));
@@ -2453,120 +2484,119 @@ void parseProgramAssociationTable(TSParser *mTSParser, CdxBitReaderT *br)
     CDX_CHECK((numProgramBytes % 4) == 0u);
 
     //DestroyPrograms(mTSParser);
-	size_t i;
+    size_t i;
     for (i = 0; i < numProgramBytes / 4; ++i) 
-	{
+    {
         unsigned program_number = CdxBitReaderGetBits(br, 16);
         CDX_LOGV("    program_number = %u", program_number);
 
-		CdxBitReaderGetBits(br, 3);/*reserved*/
+        CdxBitReaderGetBits(br, 3);/*reserved*/
 
         if (program_number == 0) 
-		{
+        {
             MY_LOGV("    network_PID = 0x%04x", CdxBitReaderGetBits(br, 13));
         } 
-		else
-		{
+        else
+        {
             unsigned programMapPID = CdxBitReaderGetBits(br, 13);
             CDX_LOGV("    program_map_PID = 0x%04x", programMapPID);
 
             cdx_bool found = CDX_FALSE;
-			Program *program = NULL;
+            Program *program = NULL;
 			
-			CdxListForEachEntry(program, &mTSParser->mPrograms, node)
-			{
-				if(program->mProgramNumber == (cdx_int32)program_number)
-				{
-					program->mProgramMapPID = programMapPID;
+            CdxListForEachEntry(program, &mTSParser->mPrograms, node)
+            {
+                if(program->mProgramNumber == (cdx_int32)program_number)
+                {
+                    program->mProgramMapPID = programMapPID;
                     found = CDX_TRUE;
                     break;
-				}
-			}
+                }
+            }
             if (!found) 
-			{
+            {
                 mTSParser->needSelectProgram = 1;
-			    if(mTSParser->autoGuess == -1)
-			    {
-			        CDX_LOGW("pat change!");
-			        mTSParser->autoGuess = 0;//从自动选择开始
-			    }
-				SetProgram(mTSParser, program_number, programMapPID);
+                if(mTSParser->autoGuess == -1)
+                {
+                    CDX_LOGW("pat change!");
+                    mTSParser->autoGuess = 0;//从自动选择开始
+                }
+                SetProgram(mTSParser, program_number, programMapPID);
             }
             if (!findPSISectionByPID(mTSParser, programMapPID))
-			{
-				SetPSISection(mTSParser, programMapPID);
+            {
+                SetPSISection(mTSParser, programMapPID);
             }
-			program = findProgramByPID(mTSParser, programMapPID);
-			program->existInNewPat = 1;
+            program = findProgramByPID(mTSParser, programMapPID);
+            program->existInNewPat = 1;
         }
     }
 
     MY_LOGV("  CRC = 0x%08x", CdxBitReaderGetBits(br, 32));
 
-	Program *posProgram, *nextProgram;
+    Program *posProgram, *nextProgram;
 
-	CdxListForEachEntrySafe(posProgram, nextProgram, &mTSParser->mPrograms, node)
-	{
-		if(!posProgram->existInNewPat)
-		{
-			DestroyProgram(posProgram);
-		}
-		else
-		{
-			posProgram->existInNewPat = 0;
-		}
-	}
+    CdxListForEachEntrySafe(posProgram, nextProgram, &mTSParser->mPrograms, node)
+    {
+        if(!posProgram->existInNewPat)
+        {
+            DestroyProgram(posProgram);
+        }
+        else
+        {
+            posProgram->existInNewPat = 0;
+        }
+    }
 
 	
 }
 
-static cdx_err SetProgram(TSParser *mTSParser, cdx_int32 programNumber, cdx_int32 programMapPID)
+static cdx_err SetProgram(TSParser *mTSParser,
+    cdx_int32 programNumber, cdx_int32 programMapPID)
 {
     CDX_CHECK(mTSParser);
     Program *program = CdxMalloc(sizeof(Program));
     CDX_FORCE_CHECK(program);
-	memset(program, 0x00, sizeof(Program));
+    memset(program, 0x00, sizeof(Program));
 	
-	program->mProgramNumber = programNumber;
-	program->mProgramMapPID = programMapPID;
+    program->mProgramNumber = programNumber;
+    program->mProgramMapPID = programMapPID;
     program->version_number = (unsigned)-1;
 
-	program->mFirstPTS = -1;
+    program->mFirstPTS = -1;
     CdxListInit(&program->mStreams);
-	CDX_LOGV("new program, programNumber =%d programMapPID =0x%x, program(%p)", programNumber, programMapPID, program);
-	program->mTSParser = mTSParser;
+    CDX_LOGV("new program, programNumber =%d programMapPID =0x%x, program(%p)",
+        programNumber, programMapPID, program);
+    program->mTSParser = mTSParser;
     
     if(program->mProgramMapPID >= 0)
     {
         mTSParser->enablePid[program->mProgramMapPID] = 1;
     }
-	/*mTSParser->enablePid[programMapPID] = 1; setPSI 时已经打开了该pid，且虚拟节目中，programMapPID==-1*/
     CdxListAddTail(&program->node, &mTSParser->mPrograms); 
-	mTSParser->mProgramCount++;
+    mTSParser->mProgramCount++;
     return CDX_SUCCESS;
 }
 
 static cdx_err SetStream(Program *program, unsigned elementaryPID,
-	cdx_int32 streamType/*, cdx_int32 PCR_PID*/)
+    cdx_int32 streamType/*, cdx_int32 PCR_PID*/)
 {
     CDX_CHECK(program);
     Stream *stream = CdxMalloc(sizeof(Stream));
     CDX_FORCE_CHECK(stream);
-	memset(stream, 0, sizeof(Stream));
-	stream->mElementaryPID = elementaryPID;
-	stream->mStreamType = streamType;
-	stream->mPayloadStarted = CDX_FALSE;
+    memset(stream, 0, sizeof(Stream));
+    stream->mElementaryPID = elementaryPID;
+    stream->mStreamType = streamType;
+    stream->mPayloadStarted = CDX_FALSE;
     stream->accessUnitStarted = CDX_FALSE;
     stream->pes[0].mBuffer = CdxBufferCreate(NULL, 64*1024, NULL, 0);
     stream->pes[1].mBuffer = CdxBufferCreate(NULL, 64*1024, NULL, 0);
     stream->tmpBuf = CdxMalloc(188);
-	//CDX_LOGD("new stream PID =0x%x streamType =%u, stream =%p, stream->PesCount =%d", elementaryPID, streamType, stream, stream->PesCount);
-	//CDX_LOGD("accessUnit[0].size =%d, accessUnit[1].size =%d", stream->accessUnit[0].size, stream->accessUnit[1].size);
-	stream->mProgram = program;
+    stream->mProgram = program;
     CdxListAddTail(&stream->node, &program->mStreams); 
-	program->mStreamCount++;
-	program->mTSParser->mStreamCount++;
-	program->mTSParser->enablePid[elementaryPID] = 1;
+    program->mStreamCount++;
+    program->mTSParser->mStreamCount++;
+    program->mTSParser->enablePid[elementaryPID] = 1;
     stream->mMediaType = -1;
     return CDX_SUCCESS;
 }
@@ -2579,8 +2609,10 @@ cdx_int32 AdjustBufferOfStreams(Program *program)
         {
             CdxBufferDestroy(stream->pes[0].mBuffer);
             CdxBufferDestroy(stream->pes[1].mBuffer);
-            stream->pes[0].mBuffer = CdxBufferCreate(NULL, VideoStreamBufferSize, NULL, 0);
-            stream->pes[1].mBuffer = CdxBufferCreate(NULL, VideoStreamBufferSize, NULL, 0);
+            stream->pes[0].mBuffer =
+                CdxBufferCreate(NULL, VideoStreamBufferSize, NULL, 0);
+            stream->pes[1].mBuffer =
+                CdxBufferCreate(NULL, VideoStreamBufferSize, NULL, 0);
 #if (PROBE_STREAM && !DVB_TEST) 
             stream->probeBuf = (cdx_uint8 *)CdxMalloc(SIZE_OF_VIDEO_PROVB_DATA);
             stream->probeBufSize = SIZE_OF_VIDEO_PROVB_DATA;
@@ -2590,10 +2622,13 @@ cdx_int32 AdjustBufferOfStreams(Program *program)
         {
             CdxBufferDestroy(stream->pes[0].mBuffer);
             CdxBufferDestroy(stream->pes[1].mBuffer);
-            stream->pes[0].mBuffer = CdxBufferCreate(NULL, VideoStreamBufferSize/2, NULL, 0);
-            stream->pes[1].mBuffer = CdxBufferCreate(NULL, VideoStreamBufferSize/2, NULL, 0);
+            stream->pes[0].mBuffer =
+                CdxBufferCreate(NULL, VideoStreamBufferSize/2, NULL, 0);
+            stream->pes[1].mBuffer =
+                CdxBufferCreate(NULL, VideoStreamBufferSize/2, NULL, 0);
 #if (PROBE_STREAM && !DVB_TEST)  //不分配会导致TSOpenThread中probe部分的快速退出，可能probe并不充分
-            stream->probeBuf = (cdx_uint8 *)CdxMalloc(SIZE_OF_VIDEO_PROVB_DATA/2);
+            stream->probeBuf =
+            (cdx_uint8 *)CdxMalloc(SIZE_OF_VIDEO_PROVB_DATA/2);
             stream->probeBufSize = SIZE_OF_VIDEO_PROVB_DATA/2;
 #endif
         }
@@ -2652,277 +2687,293 @@ static cdx_err SetPSISection(TSParser *mTSParser, unsigned PID)
 static void HandlePTS(TSParser *mTSParser)
 {
     CDX_CHECK(mTSParser->currentES);
-	Stream *stream = mTSParser->currentES;
-	AccessUnit *mES = &stream->accessUnit;
-	if(mES->pts == -1)
-	{
-		mES->mTimestampUs = -1;
-		return;
-	}
+    Stream *stream = mTSParser->currentES;
+    AccessUnit *mES = &stream->accessUnit;
+    if(mES->pts == -1)
+    {
+        mES->mTimestampUs = -1;
+        return;
+    }
 #if HandlePtsInLocal
-	if(stream->mMediaType == TYPE_VIDEO && stream->mStreamType != CDX_STREAM_TYPE_VIDEO_MVC)
-	{
-		cdx_int64 new_pts = mES->pts*100/9;
-		if(!mTSParser->syncOn && !mTSParser->hasVideoSync)
-		{
-			cdx_uint64 cur_time = mTSParser->preOutputTimeUs;
-			
-			if(mTSParser->hasAudioSync == 0)
-			{
-				mTSParser->videoPtsBaseUs = new_pts - cur_time;//如果new_pts < cur_time,无妨
-				mTSParser->commonPtsBaseUs = mTSParser->videoPtsBaseUs;
-			}
-			else
-			{
-				mTSParser->videoPtsBaseUs = mTSParser->commonPtsBaseUs;
-			}
+    if(stream->mMediaType == TYPE_VIDEO
+        && stream->mStreamType != CDX_STREAM_TYPE_VIDEO_MVC)
+    {
+        cdx_int64 new_pts = mES->pts*100/9;
+        if(!mTSParser->syncOn && !mTSParser->hasVideoSync)
+        {
+            cdx_uint64 cur_time = mTSParser->preOutputTimeUs;
 
-			if(new_pts >= mTSParser->videoPtsBaseUs)
-			{
-				mTSParser->hasVideoSync = 1;
-				if(stream->mProgram->audioCount)
-				{
-					if(mTSParser->hasAudioSync == 1)
-					{
-						mTSParser->syncOn = 1;
-					}
-				}
-				else
-				{
-					mTSParser->syncOn = 1;
-				}
-			}
-			else
-			{
-			//说明 mTSParser->videoPtsBaseUs = mTSParser->commonPtsBaseUs; 
-			//说明文件中该video单元在audio 单元之后，但其pts小于audio,且这个差值大于cur_time(跳播后的时间点)
-			//一种最可能的情况跳播之后很快出现pts回头
-				CDX_LOGW("new_pts < mTSParser->videoPtsBaseUs");
-				mTSParser->videoPtsBaseUs = new_pts - cur_time;
-				mTSParser->commonPtsBaseUs = mTSParser->videoPtsBaseUs;
-				mTSParser->hasVideoSync = 1;
-				mTSParser->hasAudioSync = 0;
-				
-			}
-							
-		}
-		else
-		{
-			//When av is not synchronous, difference between two ptses may be very large.
-			//Do not take this case as pts loop back, same for audio.
-			if((new_pts + 2000*1000 < mTSParser->vd_pts) || (mTSParser->vd_pts + 2000*1000 < new_pts))
-			{
-				CDX_LOGV(" video: video pts remap, new_pts = %lld, last_pts = %lld.", new_pts, mTSParser->vd_pts);
-								
-				if(mTSParser->commonPtsBaseUs == mTSParser->videoPtsBaseUs)
-				{
-					if((mTSParser->ad_pts + 2000 >= new_pts) && (new_pts + 2000 >= mTSParser->ad_pts))
-					{
-						//* the new pts is similar with audio pts, and the audio pts do not loop back.
-						//* so this should not be a pts jump event, it could be caused by video packet
-						//* lost.
-						//* do nothing.
-						CDX_LOGV(" video: last audio pts(%lld) donot jump, treat it as a packet lost.", mTSParser->ad_pts);
-					}
-					else
-					{
-						//* adjust video pts base to process video stream clock loopback.
-						mTSParser->commonPtsBaseUs = new_pts + mTSParser->commonPtsBaseUs - mTSParser->vd_pts - 40000;
-						mTSParser->videoPtsBaseUs = mTSParser->commonPtsBaseUs;
-						CDX_LOGV(" video: remap video_pts_base_in_us to %lld", mTSParser->commonPtsBaseUs);
-					}
-				}
-				else
-				{
-					//* pts base has been adjusted by audio stream clock loopback processing.
-					mTSParser->videoPtsBaseUs = mTSParser->commonPtsBaseUs;
-					CDX_LOGV(" video: base already remap by audio, set video_pts_base_in_us to %lld", mTSParser->commonPtsBaseUs);
-				}
-			}
-			else
-			{
-				if(stream->mProgram->audioCount)
-				{
-					if(mTSParser->videoPtsBaseUs != mTSParser->commonPtsBaseUs && mTSParser->audioPtsBaseUs == mTSParser->commonPtsBaseUs)
-					{
-						mTSParser->unsyncVideoFrame++;
-					}
-				}
-			}
-		}
-					
-		mTSParser->vd_pts = new_pts;
-		
-		mES->mTimestampUs = new_pts - mTSParser->videoPtsBaseUs;
-		
-		CDX_LOGV(" new_pts %lld. output video pts = %lld, video base %lld", new_pts, mES->mTimestampUs, mTSParser->videoPtsBaseUs);
+            if(mTSParser->hasAudioSync == 0)
+            {
+                mTSParser->videoPtsBaseUs = new_pts - cur_time;//如果new_pts < cur_time,无妨
+                mTSParser->commonPtsBaseUs = mTSParser->videoPtsBaseUs;
+            }
+            else
+            {
+                mTSParser->videoPtsBaseUs = mTSParser->commonPtsBaseUs;
+            }
 
-		if(mES->mTimestampUs < 0)
-		{
-			CDX_LOGW("new_pts < mTSParser->videoPtsBaseUs 1");
-			mES->mTimestampUs = mTSParser->preOutputTimeUs;
-		}
-		
-	}
-	else if(stream->mMediaType == TYPE_VIDEO && stream->mStreamType == CDX_STREAM_TYPE_VIDEO_MVC)
-	{
-		cdx_int64 new_pts = mES->pts*100/9;
-		mES->mTimestampUs = new_pts - mTSParser->videoPtsBaseUs;
-		if(mES->mTimestampUs < 0)
-		{
-			CDX_LOGW("new_pts < mTSParser->videoPtsBaseUs 1");
-			mES->mTimestampUs = mTSParser->preOutputTimeUs;
-		}
-	}
-	else if(stream->mMediaType == TYPE_AUDIO)
-	{
-		cdx_int64 new_pts = mES->pts*100/9;
-		if(!mTSParser->syncOn && !mTSParser->hasAudioSync)
-		{
-			cdx_int64 cur_time = mTSParser->preOutputTimeUs;
-			
-			if(mTSParser->hasVideoSync == 0)
-			{
-				mTSParser->audioPtsBaseUs = new_pts - cur_time;//如果new_pts < cur_time,无妨
-				mTSParser->commonPtsBaseUs = mTSParser->audioPtsBaseUs;
-			}
-			else
-			{
-				mTSParser->audioPtsBaseUs = mTSParser->commonPtsBaseUs;
-			}
+            if(new_pts >= mTSParser->videoPtsBaseUs)
+            {
+                mTSParser->hasVideoSync = 1;
+                if(stream->mProgram->audioCount)
+                {
+                    if(mTSParser->hasAudioSync == 1)
+                    {
+                        mTSParser->syncOn = 1;
+                    }
+                }
+                else
+                {
+                    mTSParser->syncOn = 1;
+                }
+            }
+            else
+            {
+            //说明 mTSParser->videoPtsBaseUs = mTSParser->commonPtsBaseUs;
+            //说明文件中该video单元在audio 单元之后，但其pts小于audio,且这个差值大于cur_time(跳播后的时间点)
+            //一种最可能的情况跳播之后很快出现pts回头
+                CDX_LOGW("new_pts < mTSParser->videoPtsBaseUs");
+                mTSParser->videoPtsBaseUs = new_pts - cur_time;
+                mTSParser->commonPtsBaseUs = mTSParser->videoPtsBaseUs;
+                mTSParser->hasVideoSync = 1;
+                mTSParser->hasAudioSync = 0;
 
-			if(new_pts >= mTSParser->audioPtsBaseUs)
-			{
-				mTSParser->hasAudioSync = 1;
-				if(stream->mProgram->videoCount)
-				{
-					if(mTSParser->hasVideoSync == 1)
-					{
-						mTSParser->syncOn = 1;
-					}
-				}
-				else
-				{
-					mTSParser->syncOn = 1;
-				}
-			}
-			else
-			{
-				CDX_LOGW("new_pts < mTSParser->audioPtsBaseUs");
-				mTSParser->audioPtsBaseUs = new_pts - cur_time;
-				mTSParser->commonPtsBaseUs = mTSParser->audioPtsBaseUs;
-				mTSParser->hasVideoSync = 0;
-				mTSParser->hasAudioSync = 1;
-			}
-						
-		}
-		else
-		{
-			//When av is not synchronous, difference between two ptses may be very large.
-			//Do not take this case as pts loop back, same for audio.
-			if((new_pts + 2000*1000 < mTSParser->ad_pts) || (mTSParser->ad_pts + 2000*1000 < new_pts))
-			{
-				CDX_LOGV(" audio: audio pts remap, new_pts = %lld, last_pts = %lld.", new_pts, mTSParser->ad_pts);
-								
-				if(mTSParser->commonPtsBaseUs == mTSParser->audioPtsBaseUs)
-				{
-					if((mTSParser->vd_pts + 2000 >= new_pts) && (new_pts + 2000 >= mTSParser->vd_pts))
-					{
-						//* the new pts is similar with audio pts, and the audio pts do not loop back.
-						//* so this should not be a pts jump event, it could be caused by video packet
-						//* lost.
-						//* do nothing.
-						CDX_LOGV(" audio: last video pts(%lld) donot jump, treat it as a packet lost.", mTSParser->vd_pts);
-					}
-					else
-					{
-						//* adjust video pts base to process video stream clock loopback.
-						mTSParser->commonPtsBaseUs = new_pts + mTSParser->commonPtsBaseUs 
-											- mTSParser->ad_pts - stream->preAudioFrameDuration;
-						mTSParser->audioPtsBaseUs = mTSParser->commonPtsBaseUs;
-						CDX_LOGV(" audio: remap audioPtsBaseUs to %lld", mTSParser->commonPtsBaseUs);
-					}
-				}
-				else
-				{
-					//* pts base has been adjusted by video stream clock loopback processing.
-					mTSParser->audioPtsBaseUs = mTSParser->commonPtsBaseUs;
-					CDX_LOGV(" audio: base already remap by video, set audioPtsBaseUs to %lld", mTSParser->commonPtsBaseUs);
-				}
-			}
-			else
-			{
-				if(stream->mProgram->videoCount)
-				{
-					if(mTSParser->audioPtsBaseUs != mTSParser->commonPtsBaseUs && mTSParser->videoPtsBaseUs == mTSParser->commonPtsBaseUs)
-					{
-						mTSParser->unsyncAudioFrame++;
-					}
-				}
-			}
+            }
 
-		}
+        }
+        else
+        {
+            //When av is not synchronous, difference between two ptses may be very large.
+            //Do not take this case as pts loop back, same for audio.
+            if((new_pts + 2000*1000 < mTSParser->vd_pts)
+                || (mTSParser->vd_pts + 2000*1000 < new_pts))
+            {
+                CDX_LOGV(" new_pts = %lld, last_pts = %lld.",
+                    new_pts, mTSParser->vd_pts);
 
-		if(stream->codec_id == CODEC_ID_AAC)
-		{
-			stream->preAudioFrameDuration = 1000*GetAACDuration(mES->data, mES->size);//记录AudioFrameDuration给下一个音帧用
-			if(stream->preAudioFrameDuration <= 0 || stream->preAudioFrameDuration >= 5000000)
-				stream->preAudioFrameDuration = 40000;
-		}
-		else
-		{
-			stream->preAudioFrameDuration = 40000;
-		}
-					
-		mTSParser->ad_pts = new_pts;
-		
-		mES->mTimestampUs = new_pts - mTSParser->audioPtsBaseUs;
-		
-		CDX_LOGV(" new_pts %lld. output audio pts = %lld, audio base %lld", new_pts, mES->mTimestampUs, mTSParser->audioPtsBaseUs);
+                if(mTSParser->commonPtsBaseUs == mTSParser->videoPtsBaseUs)
+                {
+                    if((mTSParser->ad_pts + 2000 >= new_pts)
+                        && (new_pts + 2000 >= mTSParser->ad_pts))
+                    {
+                        CDX_LOGV(" last audio pts(%lld) donot jump.",
+                        mTSParser->ad_pts);
+                    }
+                    else
+                    {
+                        //* adjust video pts base to process video stream clock loopback.
+                        mTSParser->commonPtsBaseUs = new_pts +
+                        mTSParser->commonPtsBaseUs - mTSParser->vd_pts - 40000;
+                        mTSParser->videoPtsBaseUs = mTSParser->commonPtsBaseUs;
+                        CDX_LOGV(" video: remap video_pts_base_in_us to %lld",
+                            mTSParser->commonPtsBaseUs);
+                    }
+                }
+                else
+                {
+                    //* pts base has been adjusted by audio stream clock loopback processing.
+                    mTSParser->videoPtsBaseUs = mTSParser->commonPtsBaseUs;
+                    CDX_LOGV(" set video_pts_base_in_us to %lld",
+                        mTSParser->commonPtsBaseUs);
+                }
+            }
+            else
+            {
+                if(stream->mProgram->audioCount)
+                {
+                    if(mTSParser->videoPtsBaseUs != mTSParser->commonPtsBaseUs
+                        && mTSParser->audioPtsBaseUs == mTSParser->commonPtsBaseUs)
+                    {
+                        mTSParser->unsyncVideoFrame++;
+                    }
+                }
+            }
+        }
 
-		if(mES->mTimestampUs < 0)
-		{
-			CDX_LOGW("new_pts < mTSParser->audioPtsBaseUs 1");
-			mES->mTimestampUs = mTSParser->preOutputTimeUs;
-		}
-	}
-	else
-	{//* subtitle;
-		cdx_int64 new_pts = mES->pts*100/9;
-		mES->mTimestampUs = new_pts - mTSParser->videoPtsBaseUs;
-		if(mES->mTimestampUs < 0)
-		{
-			CDX_LOGW("new_pts < mTSParser->videoPtsBaseUs 1");
-			mES->mTimestampUs = mTSParser->preOutputTimeUs;
-		}
-		
-		if(!mTSParser->syncOn && !mTSParser->hasVideoSync)
-		{
-			//是否需要丢弃
-			CDX_LOGV("subtitle : !mTSParser->syncOn && !mTSParser->hasVideoSync");
-		}
-	}
+        mTSParser->vd_pts = new_pts;
+
+        mES->mTimestampUs = new_pts - mTSParser->videoPtsBaseUs;
+
+        CDX_LOGV(" new_pts %lld. output video pts = %lld, video base %lld",
+            new_pts, mES->mTimestampUs, mTSParser->videoPtsBaseUs);
+
+        if(mES->mTimestampUs < 0)
+        {
+            CDX_LOGW("new_pts < mTSParser->videoPtsBaseUs 1");
+            mES->mTimestampUs = mTSParser->preOutputTimeUs;
+        }
+
+    }
+    else if(stream->mMediaType == TYPE_VIDEO
+        && stream->mStreamType == CDX_STREAM_TYPE_VIDEO_MVC)
+    {
+        cdx_int64 new_pts = mES->pts*100/9;
+        mES->mTimestampUs = new_pts - mTSParser->videoPtsBaseUs;
+        if(mES->mTimestampUs < 0)
+        {
+            CDX_LOGW("new_pts < mTSParser->videoPtsBaseUs 1");
+            mES->mTimestampUs = mTSParser->preOutputTimeUs;
+        }
+    }
+    else if(stream->mMediaType == TYPE_AUDIO)
+    {
+        cdx_int64 new_pts = mES->pts*100/9;
+        if(!mTSParser->syncOn && !mTSParser->hasAudioSync)
+        {
+            cdx_int64 cur_time = mTSParser->preOutputTimeUs;
+
+            if(mTSParser->hasVideoSync == 0)
+            {
+                mTSParser->audioPtsBaseUs = new_pts - cur_time;//如果new_pts < cur_time,无妨
+                mTSParser->commonPtsBaseUs = mTSParser->audioPtsBaseUs;
+            }
+            else
+            {
+                mTSParser->audioPtsBaseUs = mTSParser->commonPtsBaseUs;
+            }
+
+            if(new_pts >= mTSParser->audioPtsBaseUs)
+            {
+                mTSParser->hasAudioSync = 1;
+                if(stream->mProgram->videoCount)
+                {
+                    if(mTSParser->hasVideoSync == 1)
+                    {
+                        mTSParser->syncOn = 1;
+                    }
+                }
+                else
+                {
+                    mTSParser->syncOn = 1;
+                }
+            }
+            else
+            {
+                CDX_LOGW("new_pts < mTSParser->audioPtsBaseUs");
+                mTSParser->audioPtsBaseUs = new_pts - cur_time;
+                mTSParser->commonPtsBaseUs = mTSParser->audioPtsBaseUs;
+                mTSParser->hasVideoSync = 0;
+                mTSParser->hasAudioSync = 1;
+            }
+
+        }
+        else
+        {
+            //When av is not synchronous, difference between two ptses may be very large.
+            //Do not take this case as pts loop back, same for audio.
+            if((new_pts + 2000*1000 < mTSParser->ad_pts)
+                || (mTSParser->ad_pts + 2000*1000 < new_pts))
+            {
+                CDX_LOGV(" audio: audio pts remap, new_pts = %lld, last_pts = %lld.",
+                    new_pts, mTSParser->ad_pts);
+
+                if(mTSParser->commonPtsBaseUs == mTSParser->audioPtsBaseUs)
+                {
+                    if((mTSParser->vd_pts + 2000 >= new_pts)
+                        && (new_pts + 2000 >= mTSParser->vd_pts))
+                    {
+                        CDX_LOGV(" last video pts(%lld) donot jump.",
+                        mTSParser->vd_pts);
+                    }
+                    else
+                    {
+                        //* adjust video pts base to process video stream clock loopback.
+                        mTSParser->commonPtsBaseUs =
+                        new_pts + mTSParser->commonPtsBaseUs
+                        - mTSParser->ad_pts - stream->preAudioFrameDuration;
+                        mTSParser->audioPtsBaseUs = mTSParser->commonPtsBaseUs;
+                        CDX_LOGV(" remap audioPtsBaseUs to %lld",
+                            mTSParser->commonPtsBaseUs);
+                    }
+                }
+                else
+                {
+                    //* pts base has been adjusted by video stream clock loopback processing.
+                    mTSParser->audioPtsBaseUs = mTSParser->commonPtsBaseUs;
+                    CDX_LOGV(" already remap by video, set audioPtsBaseUs to %lld",
+                        mTSParser->commonPtsBaseUs);
+                }
+            }
+            else
+            {
+                if(stream->mProgram->videoCount)
+                {
+                    if(mTSParser->audioPtsBaseUs != mTSParser->commonPtsBaseUs
+                        && mTSParser->videoPtsBaseUs == mTSParser->commonPtsBaseUs)
+                    {
+                        mTSParser->unsyncAudioFrame++;
+                    }
+                }
+            }
+
+        }
+
+        if(stream->codec_id == CODEC_ID_AAC)
+        {
+            //记录AudioFrameDuration给下一个音帧用
+            stream->preAudioFrameDuration = 1000*GetAACDuration(mES->data, mES->size);
+            if(stream->preAudioFrameDuration <= 0
+                || stream->preAudioFrameDuration >= 5000000)
+                stream->preAudioFrameDuration = 40000;
+        }
+        else
+        {
+            stream->preAudioFrameDuration = 40000;
+        }
+
+        mTSParser->ad_pts = new_pts;
+
+        mES->mTimestampUs = new_pts - mTSParser->audioPtsBaseUs;
+
+        CDX_LOGV(" new_pts %lld. output audio pts = %lld, audio base %lld",
+            new_pts, mES->mTimestampUs, mTSParser->audioPtsBaseUs);
+
+        if(mES->mTimestampUs < 0)
+        {
+            CDX_LOGW("new_pts < mTSParser->audioPtsBaseUs 1");
+            mES->mTimestampUs = mTSParser->preOutputTimeUs;
+        }
+    }
+    else
+    {//* subtitle;
+        cdx_int64 new_pts = mES->pts*100/9;
+        mES->mTimestampUs = new_pts - mTSParser->videoPtsBaseUs;
+        if(mES->mTimestampUs < 0)
+        {
+            CDX_LOGW("new_pts < mTSParser->videoPtsBaseUs 1");
+            mES->mTimestampUs = mTSParser->preOutputTimeUs;
+        }
+
+        if(!mTSParser->syncOn && !mTSParser->hasVideoSync)
+        {
+            //是否需要丢弃
+            CDX_LOGV("subtitle : !mTSParser->syncOn && !mTSParser->hasVideoSync");
+        }
+    }
 #else
     mES->mTimestampUs = mES->pts*100/9;
 #if PtsDebug
-	CDX_LOGD("mES->pts(%llx)", mES->pts);
+    CDX_LOGD("mES->pts(%llx)", mES->pts);
 #endif
 #endif
 
-	if(stream->mMediaType == TYPE_AUDIO || 
-		(stream->mMediaType == TYPE_VIDEO && stream->mStreamType != CDX_STREAM_TYPE_VIDEO_MVC ))
-	{
-	    if(mES->mTimestampUs != -1)
+    if(stream->mMediaType == TYPE_AUDIO
+        ||(stream->mMediaType == TYPE_VIDEO
+        && stream->mStreamType != CDX_STREAM_TYPE_VIDEO_MVC ))
+    {
+        if(mES->mTimestampUs != -1)
         {
             mTSParser->preOutputTimeUs = mES->mTimestampUs;
         }
-	}
+    }
     return;
 	
 }
 
 
-static cdx_int32 Analyze(const cdx_uint8* buf, cdx_int32 size, cdx_int32 packet_size, cdx_int32* index)
+static cdx_int32 Analyze(const cdx_uint8* buf, cdx_int32 size,
+    cdx_int32 packet_size, cdx_int32* index)
 {
     cdx_int32 stat[204];
     cdx_int32 i;
@@ -2993,28 +3044,31 @@ cdx_int32 PrintCacheBuffer(CacheBuffer *cacheBuffer)
 
 static cdx_int32 TSResync(TSParser *mTSParser)
 {
-	CdxStreamT *cdxStream = mTSParser->cdxStream;
-	CacheBuffer *mCacheBuffer = &mTSParser->mCacheBuffer;
-	cdx_uint32 resyncSize = mTSParser->mRawPacketSize * 5;//
-	cdx_int32 ret;
-	cdx_uint8 *pkt;
-	cdx_uint8 *pkt_192;//It's needed in mixed TS packets, like 188 and 192 bytes packets.
-	_resync:
+    CdxStreamT *cdxStream = mTSParser->cdxStream;
+    CacheBuffer *mCacheBuffer = &mTSParser->mCacheBuffer;
+    cdx_uint32 resyncSize = mTSParser->mRawPacketSize * 5;//
+    cdx_int32 ret;
+    cdx_uint8 *pkt;
+    cdx_uint8 *pkt_192;//It's needed in mixed TS packets, like 188 and 192 bytes packets.
+    _resync:
     if(mTSParser->forceStop)
     {
         CDX_LOGD("mTSParser->forceStop, TSResync fail");
         //PrintCacheBuffer(&mTSParser->mCacheBuffer);
         return -1;
     }
-	while(!mTSParser->cdxStreamEos && mCacheBuffer->validDataSize < resyncSize)
-	{
-		if(mCacheBuffer->bufSize - mCacheBuffer->writePos < (cdx_uint32)mTSParser->sizeToReadEverytime)
-		{
-			mCacheBuffer->endPos = mCacheBuffer->writePos;
+    while(!mTSParser->cdxStreamEos
+        && mCacheBuffer->validDataSize < resyncSize)
+    {
+        if(mCacheBuffer->bufSize - mCacheBuffer->writePos <
+            (cdx_uint32)mTSParser->sizeToReadEverytime)
+        {
+            mCacheBuffer->endPos = mCacheBuffer->writePos;
             mTSParser->endPosFlag = 1;
-			mCacheBuffer->writePos = 0;
-		}
-        ret = CdxStreamRead(cdxStream, mCacheBuffer->bigBuf + mCacheBuffer->writePos, mTSParser->sizeToReadEverytime);
+            mCacheBuffer->writePos = 0;
+        }
+        ret = CdxStreamRead(cdxStream, mCacheBuffer->bigBuf + mCacheBuffer->writePos,
+            mTSParser->sizeToReadEverytime);
 #if SAVE_FILE
         if(ret > 0)
         {
@@ -3029,141 +3083,144 @@ static cdx_int32 TSResync(TSParser *mTSParser)
             }
         }
 #endif
-		if(ret < 0)
-		{
-			CDX_LOGE("CdxStreamRead fail");
+        if(ret < 0)
+        {
+            CDX_LOGE("CdxStreamRead fail");
             mTSParser->mErrno = PSR_IO_ERR;
-			return -1;
-		}
-		else if(ret == 0)
-		{
-			CDX_LOGD("CdxStream EOS");
-			mTSParser->cdxStreamEos = 1;
-			break;
-		}
-		mCacheBuffer->validDataSize += ret;
-		mCacheBuffer->writePos += ret;
-	}
+            return -1;
+        }
+        else if(ret == 0)
+        {
+            CDX_LOGD("CdxStream EOS");
+            mTSParser->cdxStreamEos = 1;
+            break;
+        }
+        mCacheBuffer->validDataSize += ret;
+        mCacheBuffer->writePos += ret;
+    }
 
-	while(mCacheBuffer->validDataSize > mTSParser->mRawPacketSize)
-	{
+    while(mCacheBuffer->validDataSize > mTSParser->mRawPacketSize)
+    {
         if(mTSParser->forceStop)
         {
             CDX_LOGD("mTSParser->forceStop, TSResync fail");
             //PrintCacheBuffer(&mTSParser->mCacheBuffer);
             return -1;
         }
-		if(*(mCacheBuffer->bigBuf + mCacheBuffer->readPos) == 0x47)
-		{
-			pkt = mCacheBuffer->bigBuf + mCacheBuffer->readPos;
-			if(mCacheBuffer->endPos > 0 && 
-				mCacheBuffer->readPos + mTSParser->mRawPacketSize >= (cdx_uint32)mCacheBuffer->endPos)
-			{
-				pkt += mTSParser->mRawPacketSize - mCacheBuffer->endPos;
-				pkt_192 = pkt + 4;  
-			}
-			else
-			{
-				pkt += mTSParser->mRawPacketSize;
-				pkt_192 = pkt + 4;
-			}
-				
-			if(*pkt == 0x47 || *pkt_192 == 0x47)
-			{
-				return 1 - mTSParser->cdxStreamEos;//resynced
-			}
-		}
-		mCacheBuffer->readPos++;
-		if(mCacheBuffer->endPos > 0 && mCacheBuffer->readPos >= (cdx_uint32)mCacheBuffer->endPos)
-		{
-			mCacheBuffer->readPos = 0;
-			mCacheBuffer->endPos = -1;
-		}
-		mCacheBuffer->validDataSize--;
-	}
-	
-	if(!mTSParser->cdxStreamEos)
-	{
-		goto _resync;
-	}
-	else
-	{
-		while(mCacheBuffer->validDataSize >= TS_PACKET_SIZE)//但<= mTSParser->mRawPacketSize
-		{
-			if(*(mCacheBuffer->bigBuf + mCacheBuffer->readPos) == 0x47)
-			{
-				return 0;//resynced
-			}
-			mCacheBuffer->readPos++;
-			if(mCacheBuffer->endPos > 0 && mCacheBuffer->readPos >= (cdx_uint32)mCacheBuffer->endPos)
-			{
-				mCacheBuffer->readPos = 0;
-				mCacheBuffer->endPos = -1;
-			}
-			mCacheBuffer->validDataSize--;
-		}
+        if(*(mCacheBuffer->bigBuf + mCacheBuffer->readPos) == 0x47)
+        {
+            pkt = mCacheBuffer->bigBuf + mCacheBuffer->readPos;
+            if(mCacheBuffer->endPos > 0 &&
+                mCacheBuffer->readPos + mTSParser->mRawPacketSize >=
+                (cdx_uint32)mCacheBuffer->endPos)
+            {
+                pkt += mTSParser->mRawPacketSize - mCacheBuffer->endPos;
+                pkt_192 = pkt + 4;
+            }
+            else
+            {
+                pkt += mTSParser->mRawPacketSize;
+                pkt_192 = pkt + 4;
+            }
+
+            if(*pkt == 0x47 || *pkt_192 == 0x47)
+            {
+                return 1 - mTSParser->cdxStreamEos;//resynced
+            }
+        }
+        mCacheBuffer->readPos++;
+        if(mCacheBuffer->endPos > 0
+            && mCacheBuffer->readPos >= (cdx_uint32)mCacheBuffer->endPos)
+        {
+            mCacheBuffer->readPos = 0;
+            mCacheBuffer->endPos = -1;
+        }
+        mCacheBuffer->validDataSize--;
+    }
+
+    if(!mTSParser->cdxStreamEos)
+    {
+        goto _resync;
+    }
+    else
+    {
+        while(mCacheBuffer->validDataSize >= TS_PACKET_SIZE)//但<= mTSParser->mRawPacketSize
+        {
+            if(*(mCacheBuffer->bigBuf + mCacheBuffer->readPos) == 0x47)
+            {
+                return 0;//resynced
+            }
+            mCacheBuffer->readPos++;
+            if(mCacheBuffer->endPos > 0
+                && mCacheBuffer->readPos >= (cdx_uint32)mCacheBuffer->endPos)
+            {
+                mCacheBuffer->readPos = 0;
+                mCacheBuffer->endPos = -1;
+            }
+            mCacheBuffer->validDataSize--;
+        }
         
         //CDX_LOGD("mCacheBuffer->validDataSize < TS_PACKET_SIZE");
         //PrintCacheBuffer(&mTSParser->mCacheBuffer);
-		return 0;//-1可能导致最后一笔数据吐不出来
-	}
+        return 0;//-1可能导致最后一笔数据吐不出来
+    }
 	
 }
 
 static cdx_int32 SelectProgram(TSParser *mTSParser)
 {
-	Program *program = NULL, *nextProgram = NULL;
-	Stream *stream = NULL, *nextStream = NULL;
-	if(mTSParser->mProgramCount > 1)
-	{
-		CdxListForEachEntry(program, &mTSParser->mPrograms, node)
-		{
+    Program *program = NULL, *nextProgram = NULL;
+    Stream *stream = NULL, *nextStream = NULL;
+    if(mTSParser->mProgramCount > 1)
+    {
+        CdxListForEachEntry(program, &mTSParser->mPrograms, node)
+        {
             stream = VideoInProgram(program);
-			if(stream)
-			{
-				mTSParser->hasVideo = 1;
-				mTSParser->curVideo = stream;
-				stream = MinorVideoInProgram(program);
-				if(stream)
-				{
-					mTSParser->hasMinorVideo = 1;
-					mTSParser->curMinorVideo = stream;
-				}
+            if(stream)
+            {
+                mTSParser->hasVideo = 1;
+                mTSParser->curVideo = stream;
+                stream = MinorVideoInProgram(program);
+                if(stream)
+                {
+                    mTSParser->hasMinorVideo = 1;
+                    mTSParser->curMinorVideo = stream;
+                }
 
-				stream = AudioInProgram(program);
-				if(stream)
-				{
-					mTSParser->hasAudio = 1;
-				}
+                stream = AudioInProgram(program);
+                if(stream)
+                {
+                    mTSParser->hasAudio = 1;
+                }
 
-				stream = SubtitleInProgram(program);
-				if(stream)
-				{
-					mTSParser->hasSubtitle = 1;
-				}
-				break;
-			}
-		}
-		if(mTSParser->hasVideo == 0)
-		{
-			CdxListForEachEntry(program, &mTSParser->mPrograms, node)
-			{
-				stream = AudioInProgram(program);
-				if(stream)
-				{
-					mTSParser->hasAudio = 1;
-					break;
-				}
-			}
-		}
+                stream = SubtitleInProgram(program);
+                if(stream)
+                {
+                    mTSParser->hasSubtitle = 1;
+                }
+                break;
+            }
+        }
+        if(mTSParser->hasVideo == 0)
+        {
+            CdxListForEachEntry(program, &mTSParser->mPrograms, node)
+            {
+                stream = AudioInProgram(program);
+                if(stream)
+                {
+                    mTSParser->hasAudio = 1;
+                    break;
+                }
+            }
+        }
 
-		if(!mTSParser->hasVideo && !mTSParser->hasAudio)
-		{
-			CDX_LOGW("hasVideo == 0 && hasAudio == 0 ?!");
-			return -1;
-		}
+        if(!mTSParser->hasVideo && !mTSParser->hasAudio)
+        {
+            CDX_LOGW("hasVideo == 0 && hasAudio == 0 ?!");
+            return -1;
+        }
 
-		mTSParser->curProgram = program;
+        mTSParser->curProgram = program;
         CdxListForEachEntrySafe(program, nextProgram, &mTSParser->mPrograms, node)
         {
             if(program != mTSParser->curProgram)
@@ -3171,10 +3228,10 @@ static cdx_int32 SelectProgram(TSParser *mTSParser)
                 DestroyProgram(program);
             }
         }
-	}
-	else//mTSParser->mProgramCount == 1
-	{
-		program = CdxListEntry((&mTSParser->mPrograms)->head, typeof(*program), node);
+    }
+    else//mTSParser->mProgramCount == 1
+    {
+        program = CdxListEntry((&mTSParser->mPrograms)->head, typeof(*program), node);
         cdx_int32 flag = 0;
         if(mTSParser->bdFlag)
         {
@@ -3184,7 +3241,8 @@ static cdx_int32 SelectProgram(TSParser *mTSParser)
                 CdxListForEachEntry(stream, &program->mStreams, node)
                 {
                     if(stream->mMediaType == TYPE_VIDEO 
-                        && stream->mStreamType != CDX_STREAM_TYPE_VIDEO_MVC && !flag)
+                        && stream->mStreamType != CDX_STREAM_TYPE_VIDEO_MVC
+                        && !flag)
                     {
                         mTSParser->hasVideo = 1;
                         mTSParser->curVideo = stream;
@@ -3209,7 +3267,8 @@ static cdx_int32 SelectProgram(TSParser *mTSParser)
                 CdxListForEachEntrySafe(stream, nextStream, &program->mStreams, node)
                 {
                     if(stream->mMediaType == TYPE_VIDEO 
-                        && stream->mStreamType == CDX_STREAM_TYPE_VIDEO_MVC && !flag)
+                        && stream->mStreamType == CDX_STREAM_TYPE_VIDEO_MVC
+                        && !flag)
                     {
                         mTSParser->hasMinorVideo = 1;
                         mTSParser->curMinorVideo = stream;
@@ -3231,8 +3290,8 @@ static cdx_int32 SelectProgram(TSParser *mTSParser)
 
         if(!program->videoCount && !program->audioCount)
         {
-			CDX_LOGW("hasVideo == 0 && hasAudio == 0 ?!");
-			return -1;
+            CDX_LOGW("hasVideo == 0 && hasAudio == 0 ?!");
+            return -1;
         }
         else if(program->videoCount > 0)//videoCount是含minorvideo的
         {
@@ -3251,7 +3310,8 @@ static cdx_int32 SelectProgram(TSParser *mTSParser)
             {
                 if(mTSParser->autoGuess == 2)
                 {
-                    if(stream->mMediaType == TYPE_AUDIO && mTSParser->hasAudio == 0)//只保留一个audio
+                    if(stream->mMediaType == TYPE_AUDIO
+                        && mTSParser->hasAudio == 0)//只保留一个audio
                     {
                         mTSParser->hasAudio = 1;
                     }
@@ -3308,7 +3368,8 @@ static cdx_int32 SelectProgram(TSParser *mTSParser)
                     }
                     if(mTSParser->endPosFlag)
                     {
-                        CDX_LOGW("mCacheBuffer->endPos != -1 && !allStreamHasFirstPTS");//说明CacheBuffer空间小了，probe不足
+                        //说明CacheBuffer空间小了，probe不足
+                        CDX_LOGW("mCacheBuffer->endPos != -1 && !allStreamHasFirstPTS");
                         CDX_LOGW("should not be here");
                         return -1;
                     }
@@ -3325,7 +3386,8 @@ static cdx_int32 SelectProgram(TSParser *mTSParser)
                 cdx_int64 diff = 0;
                 CdxListForEachEntrySafe(stream, nextStream, &program->mStreams, node)
                 {
-                    if(stream->mMediaType == TYPE_VIDEO && stream == mTSParser->curVideo)
+                    if(stream->mMediaType == TYPE_VIDEO
+                        && stream == mTSParser->curVideo)
                     {
                         continue;
                     }
@@ -3363,7 +3425,8 @@ static cdx_int32 SelectProgram(TSParser *mTSParser)
                     {
                     }
                     else if(stream->mMediaType == TYPE_VIDEO 
-                        && stream->mStreamType == CDX_STREAM_TYPE_VIDEO_MVC && !mTSParser->hasMinorVideo)
+                        && stream->mStreamType == CDX_STREAM_TYPE_VIDEO_MVC
+                        && !mTSParser->hasMinorVideo)
                     {
                         mTSParser->hasMinorVideo = 1;
                         mTSParser->curMinorVideo = stream;
@@ -3385,28 +3448,34 @@ static cdx_int32 SelectProgram(TSParser *mTSParser)
             
         }
 
-		mTSParser->curProgram = program;
+        mTSParser->curProgram = program;
 		
-	}
+    }
     
 SelectStreams:
     
-	program = mTSParser->curProgram;
+    program = mTSParser->curProgram;
 
     CdxListForEachEntrySafe(stream, nextStream, &program->mStreams, node)
-	{
-		if((stream->mMediaType != TYPE_VIDEO && stream->mMediaType != TYPE_AUDIO
-			&& stream->mMediaType != TYPE_SUBS) 
-			|| (stream->mMediaType == TYPE_VIDEO && mTSParser->attribute & DISABLE_VIDEO)
-            || (stream->mMediaType == TYPE_AUDIO && mTSParser->attribute & DISABLE_AUDIO) 
-            || (stream->mMediaType == TYPE_SUBS && mTSParser->attribute & DISABLE_SUBTITLE) 
-			|| (stream->mMediaType == TYPE_VIDEO && stream->mStreamType != CDX_STREAM_TYPE_VIDEO_MVC
-			&& stream != mTSParser->curVideo) || (stream->mMediaType == TYPE_VIDEO 
-			&& stream->mStreamType == CDX_STREAM_TYPE_VIDEO_MVC
-			&& stream != mTSParser->curMinorVideo))
-		{
-			DestroyStream(stream);
-		}
+    {
+        if((stream->mMediaType != TYPE_VIDEO
+            && stream->mMediaType != TYPE_AUDIO
+            && stream->mMediaType != TYPE_SUBS)
+            || (stream->mMediaType == TYPE_VIDEO
+            && mTSParser->attribute & DISABLE_VIDEO)
+            || (stream->mMediaType == TYPE_AUDIO
+            && mTSParser->attribute & DISABLE_AUDIO)
+            || (stream->mMediaType == TYPE_SUBS
+            && mTSParser->attribute & DISABLE_SUBTITLE)
+            || (stream->mMediaType == TYPE_VIDEO
+            && stream->mStreamType != CDX_STREAM_TYPE_VIDEO_MVC
+            && stream != mTSParser->curVideo)
+            || (stream->mMediaType == TYPE_VIDEO
+            && stream->mStreamType == CDX_STREAM_TYPE_VIDEO_MVC
+            && stream != mTSParser->curMinorVideo))
+        {
+            DestroyStream(stream);
+        }
         /*//放在这里是不恰当的，因为在select之后的estimateDuration中还会prefetch
         else
         {
@@ -3416,10 +3485,10 @@ SelectStreams:
             CdxBufferSetRange(stream->pes[1].mBuffer, 0, 0);
         }
         */
-	}
+    }
     /*
     DestroyPSISections(mTSParser);
-	memset(mTSParser->enablePid, 0, sizeof(mTSParser->enablePid));
+    memset(mTSParser->enablePid, 0, sizeof(mTSParser->enablePid));
     CdxListForEachEntry(stream, &program->mStreams, node)
     {
         mTSParser->enablePid[stream->mElementaryPID] = 1;
@@ -3440,7 +3509,7 @@ SelectStreams:
 /*Found, return pts*/
 cdx_int64 ProbePTS(cdx_uint8* data, cdx_uint32 data_size, TSParser *mTSParser)
 {
-	cdx_uint32 pktSize = mTSParser->mRawPacketSize;
+    cdx_uint32 pktSize = mTSParser->mRawPacketSize;
     cdx_uint8* pkt;
     cdx_uint8* p;
     cdx_uint8* dataEnd;
@@ -3478,13 +3547,13 @@ cdx_int64 ProbePTS(cdx_uint8* data, cdx_uint32 data_size, TSParser *mTSParser)
         if((pkt[1] & 0x40) == 0)    //* not the first packet of pes.
             continue;
 /*        
-		if(mTSParser->autoGuess == 2 && (AV_RB16(pkt + 1) & 0x1fff) != mTSParser->pidForProbePTS)
-		{
-			continue;
-		}
+        if(mTSParser->autoGuess == 2 && (AV_RB16(pkt + 1) & 0x1fff) != mTSParser->pidForProbePTS)
+        {
+            continue;
+        }
 */		
         
-		if(!mTSParser->enablePid[AV_RB16(pkt + 1) & 0x1fff])
+        if(!mTSParser->enablePid[AV_RB16(pkt + 1) & 0x1fff])
         {
             continue;
         }      
@@ -3498,10 +3567,10 @@ cdx_int64 ProbePTS(cdx_uint8* data, cdx_uint32 data_size, TSParser *mTSParser)
             p += p[0] + 1;
         }
         
-    	/* if past the end of packet, ignore */
-    	p_end = pkt + 188;
-    	if (p >= p_end)
-        	continue;
+        /* if past the end of packet, ignore */
+        p_end = pkt + 188;
+        if (p >= p_end)
+            continue;
        
         for(; p < p_end - 13; p++)
         {
@@ -3511,18 +3580,24 @@ cdx_int64 ProbePTS(cdx_uint8* data, cdx_uint32 data_size, TSParser *mTSParser)
             
             code = p[3] | 0x100;
             
-            if (!((code >= 0x1c0 && code <= 0x1df) || (code >= 0x1e0 && code <= 0x1ef) || (code == 0x1bd) || (code == 0x1fd)))
+            if (!((code >= 0x1c0 && code <= 0x1df)
+                || (code >= 0x1e0 && code <= 0x1ef)
+                || (code == 0x1bd)
+                || (code == 0x1fd)))
                 continue;
             
             //flags = p[6]<<8 | p[7];
             flags = p[7];
             if (flags & 0xc0)        //* check pts flag
             {
-                pts = (((p[9] & 0xeLL)<<29) | ((cdx_int64)p[10]<<22) | ((p[11]&0xfeLL)<<14) | ((cdx_int64)p[12]<<7) | (p[13]>>1));
+                pts = (((p[9] & 0xeLL)<<29)
+                    | ((cdx_int64)p[10]<<22)
+                    | ((p[11]&0xfeLL)<<14)
+                    | ((cdx_int64)p[12]<<7)
+                    | (p[13]>>1));
                 if(pts == 0x1ffffffffLL)  //* empty packet.
                     continue;
                 ptsFound = 1;
-                //CDX_LOGD("pts = %lld,pts = %lld, pts = %llu, 0x%x %x %x %x %x", pts*100/9,pts, pts, p[9], p[10],p[11],p[12],p[13]);
                 break;
             }
         }
@@ -3531,17 +3606,18 @@ cdx_int64 ProbePTS(cdx_uint8* data, cdx_uint32 data_size, TSParser *mTSParser)
             break;
     }
     
-	if(ptsFound==0)
-	{
-	    CDX_LOGW("not found pts");
-		return -1;
-	}
+    if(ptsFound==0)
+    {
+        CDX_LOGW("not found pts");
+        return -1;
+    }
     return pts;
 }
 
-cdx_int64 ProbeLastPTS(cdx_uint8* data, cdx_uint32 data_size, TSParser *mTSParser)
+cdx_int64 ProbeLastPTS(cdx_uint8* data,
+    cdx_uint32 data_size, TSParser *mTSParser)
 {
-	cdx_uint32 pktSize = mTSParser->mRawPacketSize;
+    cdx_uint32 pktSize = mTSParser->mRawPacketSize;
     cdx_uint8* pkt;
     cdx_uint8* p;
     cdx_uint8* dataEnd;
@@ -3580,12 +3656,12 @@ cdx_int64 ProbeLastPTS(cdx_uint8* data, cdx_uint32 data_size, TSParser *mTSParse
         if((pkt[1] & 0x40) == 0)    //* not the first packet of pes.
             continue;
 /*		
-		if(mTSParser->autoGuess == 2 && (AV_RB16(pkt + 1) & 0x1fff) != mTSParser->pidForProbePTS)
-		{
-			continue;
-		}
+        if(mTSParser->autoGuess == 2 && (AV_RB16(pkt + 1) & 0x1fff) != mTSParser->pidForProbePTS)
+        {
+            continue;
+        }
 */		
-		if(!mTSParser->enablePid[AV_RB16(pkt + 1) & 0x1fff])
+        if(!mTSParser->enablePid[AV_RB16(pkt + 1) & 0x1fff])
         {
             continue;
         }      
@@ -3599,10 +3675,10 @@ cdx_int64 ProbeLastPTS(cdx_uint8* data, cdx_uint32 data_size, TSParser *mTSParse
             p += p[0] + 1;
         }
         
-    	/* if past the end of packet, ignore */
-    	p_end = pkt + 188;
-    	if (p >= p_end)
-        	continue;
+        /* if past the end of packet, ignore */
+        p_end = pkt + 188;
+        if (p >= p_end)
+            continue;
        
         for(; p < p_end - 13; p++)
         {
@@ -3612,17 +3688,23 @@ cdx_int64 ProbeLastPTS(cdx_uint8* data, cdx_uint32 data_size, TSParser *mTSParse
             
             code = p[3] | 0x100;
             
-            if (!((code >= 0x1c0 && code <= 0x1df) || (code >= 0x1e0 && code <= 0x1ef) || (code == 0x1bd) || (code == 0x1fd)))
+            if (!((code >= 0x1c0 && code <= 0x1df)
+                || (code >= 0x1e0 && code <= 0x1ef)
+                || (code == 0x1bd)
+                || (code == 0x1fd)))
                 continue;
             
             //flags = p[6]<<8 | p[7];
-			flags = p[7];
+            flags = p[7];
             if (flags & 0xc0)        //* check pts flag
             {
-                pts = (p[9] & 0xeLL)<<29 | (cdx_int64)p[10]<<22 | (p[11]&0xfeLL)<<14 | (cdx_int64)p[12]<<7 | p[13]>>1;
+                pts = (p[9] & 0xeLL)<<29
+                    | (cdx_int64)p[10]<<22
+                    | (p[11]&0xfeLL)<<14
+                    | (cdx_int64)p[12]<<7
+                    | p[13]>>1;
                 if(pts == 0x1ffffffffLL)  //* empty packet.
                     continue;
-                //CDX_LOGD("pts = %lld,pts = %lld, pts = %llu, 0x%x %x %x %x %x", pts*100/9,pts, pts, p[9], p[10],p[11],p[12],p[13]);
                 ptsFound = 1;
                 break;
             }
@@ -3631,11 +3713,11 @@ cdx_int64 ProbeLastPTS(cdx_uint8* data, cdx_uint32 data_size, TSParser *mTSParse
         if(ptsFound)
             break;
     }
-	if(ptsFound==0)
-	{
-	    CDX_LOGW("not found last pts");
-		return -1;
-	}
+    if(ptsFound==0)
+    {
+        CDX_LOGW("not found last pts");
+        return -1;
+    }
     return pts;
 }
 
@@ -3653,7 +3735,7 @@ cdx_int32 ProbeByteRate(cdx_uint8* buf, cdx_uint32 buf_size, TSParser *mTSParser
     cdx_int32 ret;
     mTSParser->fileValidSize = mTSParser->fileSize - mTSParser->mCacheBuffer.readPos;
     block_size = mTSParser->fileValidSize / block_num;
-	CdxStreamT *cdxStream = mTSParser->cdxStream;
+    CdxStreamT *cdxStream = mTSParser->cdxStream;
     byte_rate   = 0;
     seekMethod = 0;
     final_pts   = 0;
@@ -3663,17 +3745,18 @@ cdx_int32 ProbeByteRate(cdx_uint8* buf, cdx_uint32 buf_size, TSParser *mTSParser
         for(i=0; i<block_num; i++)
         {
             pts[i] = 0;
-			ret = CdxStreamSeek(cdxStream, mTSParser->mCacheBuffer.readPos + i*block_size, SEEK_SET);
+            ret = CdxStreamSeek(cdxStream,
+                mTSParser->mCacheBuffer.readPos + i*block_size, SEEK_SET);
             if(ret < 0)
             {
                 CDX_LOGE("CdxStreamSeek fail");
-				return -1;
+                return -1;
             }
             data_size = CdxStreamRead(cdxStream, buf, buf_size);
-			if(data_size < 0)
-			{
-				return -1;
-			}
+            if(data_size < 0)
+            {
+                return -1;
+            }
             if(data_size > 0)
                 pts[i] = ProbePTS(buf, data_size, mTSParser);
             
@@ -3686,18 +3769,18 @@ cdx_int32 ProbeByteRate(cdx_uint8* buf, cdx_uint32 buf_size, TSParser *mTSParser
 
             if(i == block_num - 1 && block_size > buf_size)
             {
-				ret = CdxStreamSeek(cdxStream, mTSParser->fileSize - buf_size, SEEK_SET);
+                ret = CdxStreamSeek(cdxStream, mTSParser->fileSize - buf_size, SEEK_SET);
                 if(ret < 0)
                 {
                     CDX_LOGE("CdxStreamSeek fail");
                     return -1;
                 }
-            	data_size = CdxStreamRead(cdxStream, buf, buf_size);
+                data_size = CdxStreamRead(cdxStream, buf, buf_size);
                 if(data_size < 0)
                 {
                     return -1;
                 }
-            	final_pts = ProbeLastPTS(buf, data_size, mTSParser);
+                final_pts = ProbeLastPTS(buf, data_size, mTSParser);
             }
 
             if(pts[i] > 0)
@@ -3730,27 +3813,29 @@ cdx_int32 ProbeByteRate(cdx_uint8* buf, cdx_uint32 buf_size, TSParser *mTSParser
                 
 #if 0
                 if(j == block_num && final_pts > last_pts)//
-                	byte_rate = mTSParser->fileValidSize * 1000 /(final_pts - first_pts) *90;
+                    byte_rate =
+                    mTSParser->fileValidSize * 1000 /(final_pts - first_pts) *90;
                 else
-                	byte_rate = block_size*1000*(ptsIndex[j-1] - ptsIndex[0]) / (last_pts - first_pts)*90;
+                    byte_rate =
+                    block_size*1000*(ptsIndex[j-1] - ptsIndex[0]) / (last_pts - first_pts)*90;
 #else
                 //mTSParser->curProgram->mFirstPTS已经获取到了
-                if(ptsIndex[j-1] == block_num - 1 && final_pts > 0)//ptsIndex[j-1] == block_num - 1 与j == block_num不等价
+                if(ptsIndex[j-1] == block_num - 1 && final_pts > 0)
+                    //ptsIndex[j-1] == block_num - 1 与j == block_num不等价
                 {
                     if(mTSParser->curProgram->mFirstPTS < first_pts)
                     {
                         first_pts = mTSParser->curProgram->mFirstPTS;
                     }
-                    byte_rate = mTSParser->fileValidSize * 1000 /(final_pts - first_pts) *90;
+                    byte_rate =
+                        mTSParser->fileValidSize * 1000 /(final_pts - first_pts) *90;
                 }
                 else
                 {
-                    byte_rate = block_size*1000*(ptsIndex[j-1] - ptsIndex[0]) / (last_pts - first_pts)*90;
+                    byte_rate =
+                        block_size*1000*(ptsIndex[j-1] - ptsIndex[0]) / (last_pts - first_pts)*90;
                 }
 #endif
-                
-                //CDX_LOGD("first_pts=%lld, last_pts=%lld, final_pts=%lld, byte_rate=%lld", first_pts, last_pts, final_pts, byte_rate);
-
                 seekMethod = 0;
             }
             else
@@ -3763,7 +3848,8 @@ cdx_int32 ProbeByteRate(cdx_uint8* buf, cdx_uint32 buf_size, TSParser *mTSParser
                 ptsValid[j] = 0;
                 for(i=0; i<j; i++)
                 {
-                    if(ptsValid[i]>=ptsValid[i+1] || (ptsValid[i]+3600000)<ptsValid[i+1])
+                    if(ptsValid[i]>=ptsValid[i+1]
+                        || (ptsValid[i]+3600000)<ptsValid[i+1])
                     {
                         if(i - pos > run_len)
                         {
@@ -3797,7 +3883,8 @@ cdx_int32 ProbeByteRate(cdx_uint8* buf, cdx_uint32 buf_size, TSParser *mTSParser
         
         mTSParser->byteRate = byte_rate;
         mTSParser->seekMethod = seekMethod;
-        mTSParser->durationMs = mTSParser->fileValidSize*1000/mTSParser->byteRate;
+        mTSParser->durationMs =
+            mTSParser->fileValidSize*1000/mTSParser->byteRate;
         
         if(mTSParser->durationMs > 36000000)         //* no more than 10 hour
         {
@@ -3809,7 +3896,8 @@ cdx_int32 ProbeByteRate(cdx_uint8* buf, cdx_uint32 buf_size, TSParser *mTSParser
             {
                 mTSParser->byteRate = 2560*1024;    //* 20Mbps
             }
-			mTSParser->durationMs = mTSParser->fileValidSize*1000/mTSParser->byteRate;
+            mTSParser->durationMs =
+                mTSParser->fileValidSize*1000/mTSParser->byteRate;
         }
     }
     else
@@ -3821,50 +3909,54 @@ cdx_int32 ProbeByteRate(cdx_uint8* buf, cdx_uint32 buf_size, TSParser *mTSParser
         first_pts = mTSParser->curProgram->mFirstPTS;
         if(buf_size >= mTSParser->fileSize)
         {
-			ret = CdxStreamSeek(cdxStream, 0, SEEK_SET);
+            ret = CdxStreamSeek(cdxStream, 0, SEEK_SET);
             if(ret < 0)
             {
                 CDX_LOGE("CdxStreamSeek fail");
                 return -1;
             }
             data_size = CdxStreamRead(cdxStream, buf, mTSParser->fileSize);
-			if(data_size < 0)
-			{
-				return -1;
-			}
+            if(data_size < 0)
+            {
+                return -1;
+            }
         }
         else
         {
-			ret = CdxStreamSeek(cdxStream, mTSParser->fileSize - buf_size, SEEK_SET);
+            ret = CdxStreamSeek(cdxStream, mTSParser->fileSize - buf_size, SEEK_SET);
             if(ret < 0)
             {
                 CDX_LOGE("CdxStreamSeek fail");
                 return -1;
             }
             data_size = CdxStreamRead(cdxStream, buf, buf_size);
-			if(data_size < 0)
-			{
-				return -1;
-			}
+            if(data_size < 0)
+            {
+                return -1;
+            }
         }
         last_pts = ProbeLastPTS(buf, data_size, mTSParser);
-        if((last_pts > first_pts) && (last_pts < (first_pts + 3600*1000*90)))   //* small file size, no more than one hour
+        if((last_pts > first_pts) && (last_pts < (first_pts + 3600*1000*90)))
+            //* small file size, no more than one hour
         {
-            mTSParser->byteRate           = (mTSParser->fileValidSize*1000)/(last_pts - first_pts)*90;
-            mTSParser->durationMs    = (last_pts - first_pts)/90;
-            mTSParser->seekMethod         = 0;
+            mTSParser->byteRate =
+                (mTSParser->fileValidSize*1000)/(last_pts - first_pts)*90;
+            mTSParser->durationMs = (last_pts - first_pts)/90;
+            mTSParser->seekMethod  = 0;
         }
         else
         {
             if(mTSParser->mRawPacketSize == 192)
             {
                 mTSParser->byteRate        = 3840*1024;    //* 30Mbps for blueray HD
-                mTSParser->durationMs = mTSParser->fileValidSize*1000/mTSParser->byteRate;
+                mTSParser->durationMs =
+                    mTSParser->fileValidSize*1000/mTSParser->byteRate;
             }
             else
             {
                 mTSParser->byteRate        = 2560*1024;    //* 20Mbps
-                mTSParser->durationMs = mTSParser->fileValidSize*1000/mTSParser->byteRate;
+                mTSParser->durationMs =
+                    mTSParser->fileValidSize*1000/mTSParser->byteRate;
             }
             
             mTSParser->seekMethod = 1;
@@ -3879,17 +3971,18 @@ cdx_int32 ProbeByteRate(cdx_uint8* buf, cdx_uint32 buf_size, TSParser *mTSParser
 /* <0 fail*/
 cdx_int32 EstimateDuration(TSParser *mTSParser)
 {
-	if(mTSParser->fileSize <= 0)
-	{
+    if(mTSParser->fileSize <= 0)
+    {
         CDX_LOGW("mTSParser->fileSize <= 0, EstimateDuration fail");
-		return 0;
-	}
+        return 0;
+    }
     
     Stream *stream;
-	Program *program = mTSParser->curProgram;
+    Program *program = mTSParser->curProgram;
     CdxListForEachEntry(stream, &program->mStreams, node)
     {
-        if(stream->hasFirstPTS && (cdx_uint64)program->mFirstPTS > stream->firstPTS)
+        if(stream->hasFirstPTS
+            && (cdx_uint64)program->mFirstPTS > stream->firstPTS)
         {
             program->mFirstPTS = stream->firstPTS;
         }
@@ -3917,58 +4010,58 @@ cdx_int32 EstimateDuration(TSParser *mTSParser)
     }
 #if 0
     Stream *stream;
-	/*
-	CdxListForEachEntry(stream, &program->mStreams, node)
-	{
-		if(stream->hasFirstPTS)
-		{
-			firstPTS = stream->firstPTS;
-			break;
-		}
-		i++;
-	}
-	if(i == program->mStreamCount)
-	{
-		CDX_LOGW("all streams still not probe the first pts!");
-	}
-	CdxListForEachEntry(stream, &program->mStreams, node)
-	{
-		if(!stream->hasFirstPTS)
-		{
-			stream->firstPTS= firstPTS;
-		}
-	}
-	*/
+    /*
+    CdxListForEachEntry(stream, &program->mStreams, node)
+    {
+        if(stream->hasFirstPTS)
+        {
+            firstPTS = stream->firstPTS;
+            break;
+        }
+        i++;
+    }
+    if(i == program->mStreamCount)
+    {
+        CDX_LOGW("all streams still not probe the first pts!");
+    }
+    CdxListForEachEntry(stream, &program->mStreams, node)
+    {
+        if(!stream->hasFirstPTS)
+        {
+            stream->firstPTS= firstPTS;
+        }
+    }
+    */
 
-    
-	unsigned i = 0;
-	if(mTSParser->curVideo && mTSParser->curVideo->hasFirstPTS)
-	{
-		stream = mTSParser->curVideo;
-	}
-	else if(mTSParser->curMinorVideo && mTSParser->curMinorVideo->hasFirstPTS)
-	{
-		stream = mTSParser->curMinorVideo;
-	}
-	else
-	{
-		CdxListForEachEntry(stream, &program->mStreams, node)
-		{
-			if(stream->hasFirstPTS)
-			{
-				break;
-			}
-			i++;
-		}
-	}
-	if(i == program->mStreamCount)
-	{
-		CDX_LOGE("all streams still not probe the first pts!");
-		return;
-	}
-	mTSParser->pidForProbePTS = stream->mElementaryPID;
+
+    unsigned i = 0;
+    if(mTSParser->curVideo && mTSParser->curVideo->hasFirstPTS)
+    {
+        stream = mTSParser->curVideo;
+    }
+    else if(mTSParser->curMinorVideo && mTSParser->curMinorVideo->hasFirstPTS)
+    {
+        stream = mTSParser->curMinorVideo;
+    }
+    else
+    {
+        CdxListForEachEntry(stream, &program->mStreams, node)
+        {
+            if(stream->hasFirstPTS)
+            {
+                break;
+            }
+            i++;
+        }
+    }
+    if(i == program->mStreamCount)
+    {
+        CDX_LOGE("all streams still not probe the first pts!");
+        return;
+    }
+    mTSParser->pidForProbePTS = stream->mElementaryPID;
 #endif
-	CdxStreamT *cdxStream = mTSParser->cdxStream;
+    CdxStreamT *cdxStream = mTSParser->cdxStream;
     cdx_int64 curPos = CdxStreamTell(cdxStream);
     if(curPos < 0)
     {
@@ -3977,99 +4070,125 @@ cdx_int32 EstimateDuration(TSParser *mTSParser)
     }
     
     cdx_int32 err = 0;
-	cdx_uint32 durationMs = 0;
+    cdx_uint32 durationMs = 0;
     cdx_int64 firstPTS = mTSParser->curProgram->mFirstPTS;
-	cdx_int64 lastPTS = 0;
-	cdx_uint8 *tmpBuf;
+    cdx_int64 lastPTS = 0;
+    cdx_uint8 *tmpBuf;
     cdx_uint32 bufSize;
-	if(mTSParser->isNetStream || mTSParser->isDvbStream)
-	{
-		if(CdxStreamSeekAble(cdxStream))
-		{
+    if(mTSParser->isNetStream || mTSParser->isDvbStream)
+    {
+        if(CdxStreamSeekAble(cdxStream))
+        {
 //#define PROBE_NETWORK_PACKET_NUM 30 
-#define PROBE_NETWORK_PACKET_NUM 100 
+#define PROBE_NETWORK_PACKET_NUM 1000
+#define NUM_OF_CHUNK 20
 
-			bufSize = PROBE_NETWORK_PACKET_NUM * mTSParser->mRawPacketSize;
-			tmpBuf = (cdx_uint8 *)malloc(bufSize);
-			CDX_FORCE_CHECK(tmpBuf);
-			CDX_LOGV("fileSize = %llu, tmp_size =%u", mTSParser->fileSize, bufSize);
+            bufSize = PROBE_NETWORK_PACKET_NUM * mTSParser->mRawPacketSize;
+            tmpBuf = (cdx_uint8 *)malloc(bufSize / NUM_OF_CHUNK);
+            CDX_FORCE_CHECK(tmpBuf);
+            CDX_LOGV("fileSize = %llu, tmp_size =%u", mTSParser->fileSize, bufSize);
             cdx_int32 dataSize, i;
-			for(i = 1; i < 20; i++) //try 20 times
-			{
-				err = CdxStreamSeek(cdxStream, mTSParser->fileSize - bufSize*i, SEEK_SET);
-                if(err < 0)
+            CdxDataSourceT dupSource = {0};
+            char tmpUrl[4096] = {0};
+            if (TSControl(&mTSParser->base, CDX_PSR_CMD_GET_URL, tmpUrl))
+            {
+                CDX_LOGW("get uri failed");
+                goto _exit;
+            }
+
+            dupSource.uri = tmpUrl;
+            ExtraDataContainerT *extraData = NULL;
+            if (TSControl(&mTSParser->base, CDX_PSR_CMD_GET_STREAM_EXTRADATA, &extraData))
+                extraData = NULL;
+            if (extraData != NULL) {
+                dupSource.extraData = extraData->extraData;
+                dupSource.extraDataType = extraData->extraDataType;
+            }
+
+            dupSource.offset = mTSParser->fileSize - bufSize;
+            if (dupSource.offset < 0)
+                dupSource.offset = 0;
+            dupSource.probeSize = 128;
+
+            CdxStreamT *dupStream = NULL;
+            if (CdxStreamOpen(&dupSource,
+                &mTSParser->statusLock, &mTSParser->forceStop, &dupStream, NULL))
+            {
+                CDX_LOGW("stream open failed");
+                goto _exit;
+            }
+
+            for (i = 0; i < NUM_OF_CHUNK; i++)
+            {
+                dataSize = CdxStreamRead(dupStream, tmpBuf, bufSize / NUM_OF_CHUNK);
+                if(dataSize <= 0)
                 {
-                    CDX_LOGE("CdxStreamSeek fail");
+                    CDX_LOGE("CdxStreamRead fail");
+                    err = -1;
+                    CdxStreamClose(dupStream);
                     goto _exit;
                 }
-				dataSize = CdxStreamRead(cdxStream, tmpBuf, bufSize);
-				if(dataSize <= 0)
-				{
-					CDX_LOGE("CdxStreamRead fail"); 
-				    err = -1;
-                    goto _exit;
-				}
-				lastPTS = ProbeLastPTS(tmpBuf, dataSize, mTSParser);
+                lastPTS = ProbeLastPTS(tmpBuf, dataSize, mTSParser);
                 if(mTSParser->forceStop)
                 {
-				    err = -1;
+                    err = -1;
+                    CdxStreamClose(dupStream);
                     goto _exit;
                 }
-				if(lastPTS > firstPTS)
-				{
-					durationMs = (lastPTS - firstPTS)/90;
-			
-					if(durationMs < (3600*1000*10))	//* check if the total time is valid, some times the last pts may be invalid value.
-						break;
-				}
-			}
-			CDX_LOGV("firstPTS %lld, lastPTS %lld, durationMs %u, fileSize %llu", 
-				firstPTS, lastPTS, durationMs, mTSParser->fileSize);
-			
-			if(i == 20)
-			{
-				if(!mTSParser->overallRate || 
-                    (durationMs = mTSParser->fileSize / mTSParser->overallRate * 1000) >= (3600*1000*10))
-				{
-				    durationMs = 60*30*1000; //30min;
-				}
-			}
-			mTSParser->byteRate = mTSParser->fileSize*1000 / durationMs;
-			mTSParser->durationMs = durationMs;
-			mTSParser->seekMethod = 1;
-			
-		}
-		else if(mTSParser->overallRate)
-		{
-			mTSParser->seekMethod = -1;
-			mTSParser->durationMs = mTSParser->fileSize / mTSParser->overallRate * 1000;
-			CDX_LOGV("durationMs = %lld", mTSParser->durationMs);
-			return 0;
-		}
-		else
-		{
-			mTSParser->seekMethod = -1;
-			mTSParser->durationMs = 60*30*1000;
-			return 0;
-		}
-		
-	}
-	else
-	{
+                if(lastPTS > firstPTS)
+                {
+                    durationMs = (lastPTS - firstPTS)/90;
+
+                    if(durationMs < (3600*1000*10))
+                        break;
+                }
+            }
+            CdxStreamClose(dupStream);
+            CDX_LOGV("firstPTS %lld, lastPTS %lld, durationMs %u, fileSize %llu",
+                firstPTS, lastPTS, durationMs, mTSParser->fileSize);
+
+            if(i == NUM_OF_CHUNK)
+            {
+                if(!mTSParser->overallRate ||
+                    (durationMs = mTSParser->fileSize / mTSParser->overallRate * 1000)
+                    >= (3600*1000*10))
+                {
+                    durationMs = 60*30*1000; //30min;
+                }
+            }
+            mTSParser->byteRate = mTSParser->fileSize*1000 / durationMs;
+            mTSParser->durationMs = durationMs;
+            mTSParser->seekMethod = 1;
+
+        }
+        else if(mTSParser->overallRate)
+        {
+            mTSParser->seekMethod = -1;
+            mTSParser->durationMs = mTSParser->fileSize / mTSParser->overallRate * 1000;
+            CDX_LOGV("durationMs = %lld", mTSParser->durationMs);
+            return 0;
+        }
+        else
+        {
+            mTSParser->seekMethod = -1;
+            mTSParser->durationMs = 60*30*1000;
+            return 0;
+        }
+
+    }
+    else
+    {
         bufSize = 1.5*1024*1024;
         tmpBuf     = (cdx_uint8*)malloc(bufSize);
-		CDX_FORCE_CHECK(tmpBuf);
-		err = ProbeByteRate(tmpBuf, bufSize, mTSParser);
+        CDX_FORCE_CHECK(tmpBuf);
+        err = ProbeByteRate(tmpBuf, bufSize, mTSParser);
         if(err < 0)
         {
             CDX_LOGE("ProbeByteRate fail");
             goto _exit;
         }
-	}
-    
-    //考虑该seek放在_exit:中是否合适//目前，由于EstimateDuration出错会导致openThread出错不能播放，所以不宜放在_exit:中浪费时间
+    }
     err = CdxStreamSeek(cdxStream, curPos, SEEK_SET);
-    //考虑该seek放在_exit:中是否合适,不合适，seek失败有可能是streamclose导致(其中有forcestop)，stream被释放
 _exit:
     if(tmpBuf)
     {
@@ -4085,34 +4204,35 @@ _exit:
 cdx_int32 TSClose(CdxParserT *parser)
 {
     CDX_CHECK(parser);
-	TSParser *mTSParser = (TSParser *)parser;
-	TSForceStop(parser);
-	if(mTSParser->cdxStream)
-	{
-		CdxStreamClose(mTSParser->cdxStream);/*可能导致openthread的风险*/
-		mTSParser->cdxStream = NULL;
-	}
-	DestroyPrograms(mTSParser);
-	DestroyPSISections(mTSParser);
-	if(mTSParser->mCacheBuffer.bigBuf)
-	{
-		CdxFree(mTSParser->mCacheBuffer.bigBuf);
-	}
-	
-	if(mTSParser->tmpBuf)
-	{
-		CdxFree(mTSParser->tmpBuf);
-	}
+    TSParser *mTSParser = (TSParser *)parser;
+    TSForceStop(parser);
+    if(mTSParser->cdxStream)
+    {
+        CdxStreamClose(mTSParser->cdxStream);/*可能导致openthread的风险*/
+        mTSParser->cdxStream = NULL;
+    }
+    DestroyPrograms(mTSParser);
+    DestroyPSISections(mTSParser);
+    if(mTSParser->mCacheBuffer.bigBuf)
+    {
+        CdxFree(mTSParser->mCacheBuffer.bigBuf);
+    }
+
+    if(mTSParser->tmpBuf)
+    {
+        CdxFree(mTSParser->tmpBuf);
+    }
     if(mTSParser->hdcpHandle)
     {
         mTSParser->hdcpOps->deinit(mTSParser->hdcpHandle);
     }
-	if(mTSParser->tempVideoInfo.pCodecSpecificData)
+    if(mTSParser->tempVideoInfo.pCodecSpecificData)
     {
         free(mTSParser->tempVideoInfo.pCodecSpecificData);
     }   
-	pthread_mutex_destroy(&mTSParser->statusLock);
+    pthread_mutex_destroy(&mTSParser->statusLock);
     pthread_cond_destroy(&mTSParser->cond);
+    pthread_rwlock_destroy(&mTSParser->controlLock);
 #if SAVE_FILE
     if (file)
     {
@@ -4120,12 +4240,12 @@ cdx_int32 TSClose(CdxParserT *parser)
         file = NULL;
     }
 #endif
-	CdxFree(mTSParser);
-	return OK;
+    CdxFree(mTSParser);
+    return OK;
 }
 cdx_int32 TSRead(CdxParserT *parser, CdxPacketT *cdx_pkt)
 {
-	TSParser *mTSParser = (TSParser *)parser;
+    TSParser *mTSParser = (TSParser *)parser;
     if(mTSParser->status != CDX_PSR_PREFETCHED)
     {
         CDX_LOGW("status != CDX_PSR_PREFETCHED, TSRead invaild");
@@ -4133,7 +4253,7 @@ cdx_int32 TSRead(CdxParserT *parser, CdxPacketT *cdx_pkt)
         return -1;
     }
     CDX_CHECK(mTSParser->currentES);
-	const cdx_uint8 *data = mTSParser->currentES->accessUnit.data;
+    const cdx_uint8 *data = mTSParser->currentES->accessUnit.data;
     if(cdx_pkt->length <= cdx_pkt->buflen)
     {
         memcpy(cdx_pkt->buf, data, cdx_pkt->length);
@@ -4161,9 +4281,9 @@ if(cdx_pkt->type == CDX_MEDIA_AUDIO)
 }
 */
     //cdx_pkt->flags |= FIRST_PART | LAST_PART;
-	mTSParser->currentES = NULL;
+    mTSParser->currentES = NULL;
     mTSParser->status = CDX_PSR_IDLE;
-	return 0;
+    return 0;
 }
 
 
@@ -4192,7 +4312,7 @@ cdx_int32 SubmitLastData(TSParser *mTSParser)
 static cdx_int32 SetMediaInfo(TSParser *mTSParser, CdxMediaInfoT *pmediainfo)
 {
     memset(pmediainfo, 0, sizeof(CdxMediaInfoT));
-	Program *program = mTSParser->curProgram;
+    Program *program = mTSParser->curProgram;
     pmediainfo->fileSize = mTSParser->fileSize;
     //pmediainfo->flags = 0;
     pmediainfo->bSeekable = mTSParser->seekMethod == -1 ? 0 : 1;
@@ -4207,7 +4327,7 @@ static cdx_int32 SetMediaInfo(TSParser *mTSParser, CdxMediaInfoT *pmediainfo)
     cdxProgram->audioIndex = 0;
     cdxProgram->videoIndex = 0;
     cdxProgram->subtitleIndex = 0;
-	cdxProgram->firstPts = mTSParser->firstPts;
+    cdxProgram->firstPts = mTSParser->firstPts;
     VideoStreamInfo *video = &cdxProgram->video[0];
 
     if(mTSParser->bdFlag < 2 && mTSParser->curVideo)
@@ -4240,19 +4360,7 @@ static cdx_int32 SetMediaInfo(TSParser *mTSParser, CdxMediaInfoT *pmediainfo)
         cdxProgram->id = streamVideo->mElementaryPID;
         video->bIs3DStream = SeemToBeMvc(program);
         video->eCodecFormat = mTSParser->curVideo->codec_id;
-		/*
-        CDX_LOGD("video->nWidth(%d), video->nHeight(%d), video->nFrameRate(%d), video->nAspectRatio(%d), video->nFrameDuration(%d)", 
-            video->nWidth, video->nHeight, video->nFrameRate, video->nAspectRatio, video->nFrameDuration);
-        CDX_LOGD("eCodecFormat(%d), codec_id(%u)", video->eCodecFormat, mTSParser->curVideo->codec_id);*/
     }
-    /*
-    else if(mTSParser->bdFlag == 2)
-    {
-        video->eCodecFormat = mTSParser->curMinorVideo->codec_id;
-    }
-    */
-
-
     Stream *stream;
     cdx_int32 i = 0, j = 0;
     CdxListForEachEntry(stream, &program->mStreams, node)
@@ -4266,11 +4374,16 @@ static cdx_int32 SetMediaInfo(TSParser *mTSParser, CdxMediaInfoT *pmediainfo)
             memcpy(cdxProgram->audio[i].strLang, stream->lang, 4);
             if(stream->metadata)
             {
-                cdxProgram->audio[i].nChannelNum = ((AudioMetaData *)stream->metadata)->channelNum;
-                cdxProgram->audio[i].nSampleRate = ((AudioMetaData *)stream->metadata)->samplingFrequency;
-                cdxProgram->audio[i].nBitsPerSample = ((AudioMetaData *)stream->metadata)->bitPerSample;
-                cdxProgram->audio[i].nAvgBitrate = ((AudioMetaData *)stream->metadata)->bitRate;
-                cdxProgram->audio[i].nMaxBitRate = ((AudioMetaData *)stream->metadata)->maxBitRate;
+                cdxProgram->audio[i].nChannelNum =
+                    ((AudioMetaData *)stream->metadata)->channelNum;
+                cdxProgram->audio[i].nSampleRate =
+                    ((AudioMetaData *)stream->metadata)->samplingFrequency;
+                cdxProgram->audio[i].nBitsPerSample =
+                    ((AudioMetaData *)stream->metadata)->bitPerSample;
+                cdxProgram->audio[i].nAvgBitrate =
+                    ((AudioMetaData *)stream->metadata)->bitRate;
+                cdxProgram->audio[i].nMaxBitRate =
+                    ((AudioMetaData *)stream->metadata)->maxBitRate;
 #if 1
                 /*
                 if(cdxProgram->audio[i].nChannelNum == 2)
@@ -4287,10 +4400,10 @@ static cdx_int32 SetMediaInfo(TSParser *mTSParser, CdxMediaInfoT *pmediainfo)
 #endif
 
 			
-				CDX_LOGV("*********metadata %p, %d, %d , %d, %d, %d",
-					stream->metadata, cdxProgram->audio[i].nChannelNum, 
-					cdxProgram->audio[i].nSampleRate, cdxProgram->audio[i].nBitsPerSample, 
-					cdxProgram->audio[i].nAvgBitrate, cdxProgram->audio[i].nMaxBitRate);
+                CDX_LOGV("*********metadata %p, %d, %d , %d, %d, %d",
+                    stream->metadata, cdxProgram->audio[i].nChannelNum,
+                    cdxProgram->audio[i].nSampleRate, cdxProgram->audio[i].nBitsPerSample,
+                    cdxProgram->audio[i].nAvgBitrate, cdxProgram->audio[i].nMaxBitRate);
             }
             if(stream->codec_id == AUDIO_CODEC_FORMAT_PCM)
             {
@@ -4328,7 +4441,7 @@ static cdx_int32 count = 0;
 cdx_int32 TSPrefetch(CdxParserT *parser, CdxPacketT *cdx_pkt)
 {
     CDX_CHECK(parser);
-	TSParser *mTSParser = (TSParser *)parser;
+    TSParser *mTSParser = (TSParser *)parser;
 
     if(mTSParser->status != CDX_PSR_IDLE && mTSParser->status != CDX_PSR_PREFETCHED)
     {
@@ -4359,7 +4472,7 @@ cdx_int32 TSPrefetch(CdxParserT *parser, CdxPacketT *cdx_pkt)
     CDX_LOGD("prefetch start"); 
 #endif
     cdx_int32 ret = GetEs(mTSParser, cdx_pkt);
-	pthread_mutex_lock(&mTSParser->statusLock);
+    pthread_mutex_lock(&mTSParser->statusLock);
     if(ret < 0)
     {
         mTSParser->status = CDX_PSR_IDLE;
@@ -4369,137 +4482,144 @@ cdx_int32 TSPrefetch(CdxParserT *parser, CdxPacketT *cdx_pkt)
         memcpy(&mTSParser->pkt, cdx_pkt, sizeof(CdxPacketT));
         mTSParser->status = CDX_PSR_PREFETCHED;
 #if Debug
-        CDX_LOGD("prefetch end, pts=%lld, type=%d, streamIndex=%d, cdx_pkt->length=%d, count=%d", cdx_pkt->pts, cdx_pkt->type, cdx_pkt->streamIndex, cdx_pkt->length, count); 
+        CDX_LOGD("prefetch end, pts=%lld, type=%d, streamIndex=%d, cdx_pkt->length=%d, count=%d",
+        cdx_pkt->pts, cdx_pkt->type, cdx_pkt->streamIndex, cdx_pkt->length, count);
         count++;
 #endif
     }
-	pthread_mutex_unlock(&mTSParser->statusLock);
+    pthread_mutex_unlock(&mTSParser->statusLock);
     pthread_cond_signal(&mTSParser->cond);
     return ret;
 }
 /*cdx_pkt可以是空*/
 cdx_int32 GetEs(TSParser *mTSParser, CdxPacketT *cdx_pkt)
 {	
-	CacheBuffer *mCacheBuffer = &mTSParser->mCacheBuffer;
-	cdx_uint32 rawPacketSize = mTSParser->mRawPacketSize;
-	cdx_uint8 *buf;
-	cdx_uint32 size;
-	cdx_int32 ret = 0;
+    CacheBuffer *mCacheBuffer = &mTSParser->mCacheBuffer;
+    cdx_uint32 rawPacketSize = mTSParser->mRawPacketSize;
+    cdx_uint8 *buf;
+    cdx_uint32 size;
+    cdx_int32 ret = 0;
 
 _GetES:
-	while(!mTSParser->currentES)
-	{
-	    if(mTSParser->forceStop)
+    while(!mTSParser->currentES)
+    {
+        if(mTSParser->forceStop)
         {
             CDX_LOGV("PSR_USER_CANCEL");
             ret = -1;
             goto _exit;
         }   
-		do
-		{
-			ret = TSResync(mTSParser);
-			if(ret < 0)
-			{
-				CDX_LOGE("TSResync fail");
+        do
+        {
+            ret = TSResync(mTSParser);
+            if(ret < 0)
+            {
+                CDX_LOGE("TSResync fail");
                 goto _exit;
-			}
-			else if(ret == 0)
-			{
-				break;
-			}
-		}
-		while(mCacheBuffer->validDataSize < rawPacketSize);
+            }
+            else if(ret == 0)
+            {
+                break;
+            }
+        }
+        while(mCacheBuffer->validDataSize < rawPacketSize);
 
-		if(mCacheBuffer->validDataSize < rawPacketSize)//ret == 0和mCacheBuffer->validDataSize < rawPacketSize不等价
-		{
-			if(mCacheBuffer->validDataSize >= TS_PACKET_SIZE)
-			{
-				size = mCacheBuffer->endPos - mCacheBuffer->readPos;
-				if(mCacheBuffer->endPos > 0 && size < TS_PACKET_SIZE)//endPos可以是bufSize，但不会是0
-				{
-					buf = mTSParser->tmpBuf;
-					
-					memcpy(buf, mCacheBuffer->bigBuf + mCacheBuffer->readPos, size);
-					memcpy(buf + size, mCacheBuffer->bigBuf, TS_PACKET_SIZE - size);
-					mCacheBuffer->readPos = TS_PACKET_SIZE - size;/*此时eos了，readPos和endPos可以不关心*/
-					mCacheBuffer->endPos = -1;
-					
-				}
-				else
-				{
-					buf = mCacheBuffer->bigBuf + mCacheBuffer->readPos;
-					mCacheBuffer->readPos += TS_PACKET_SIZE;
-                    if(mCacheBuffer->endPos > 0 && mCacheBuffer->readPos >= (cdx_uint32)mCacheBuffer->endPos)
+        if(mCacheBuffer->validDataSize < rawPacketSize)
+            //ret == 0和mCacheBuffer->validDataSize < rawPacketSize不等价
+        {
+            if(mCacheBuffer->validDataSize >= TS_PACKET_SIZE)
+            {
+                size = mCacheBuffer->endPos - mCacheBuffer->readPos;
+                if(mCacheBuffer->endPos > 0 && size < TS_PACKET_SIZE)
+                //endPos可以是bufSize，但不会是0
+                {
+                    buf = mTSParser->tmpBuf;
+
+                    memcpy(buf, mCacheBuffer->bigBuf + mCacheBuffer->readPos, size);
+                    memcpy(buf + size, mCacheBuffer->bigBuf, TS_PACKET_SIZE - size);
+                    mCacheBuffer->readPos = TS_PACKET_SIZE - size;
+                    /*此时eos了，readPos和endPos可以不关心*/
+                    mCacheBuffer->endPos = -1;
+
+                }
+                else
+                {
+                    buf = mCacheBuffer->bigBuf + mCacheBuffer->readPos;
+                    mCacheBuffer->readPos += TS_PACKET_SIZE;
+                    if(mCacheBuffer->endPos > 0
+                        && mCacheBuffer->readPos >= (cdx_uint32)mCacheBuffer->endPos)
                     {
                         mCacheBuffer->endPos = -1;
                         mCacheBuffer->readPos = 0;
                     }
-				}
-				mCacheBuffer->validDataSize -= TS_PACKET_SIZE;
+                }
+                mCacheBuffer->validDataSize -= TS_PACKET_SIZE;
 				
-				ret = feedTSPacket(mTSParser, (const cdx_uint8 *)buf, TS_PACKET_SIZE);
-				if(ret != OK)
-				{
-					CDX_LOGE("feedTSPacket fail");
+                ret = feedTSPacket(mTSParser, (const cdx_uint8 *)buf, TS_PACKET_SIZE);
+                if(ret != OK)
+                {
+                    CDX_LOGE("feedTSPacket fail");
                     mTSParser->mErrno = PSR_UNKNOWN_ERR;
                     goto _exit;
-				}
-			}
+                }
+            }
             if(!mTSParser->currentES)
             {
-            	if(mTSParser->mIslastSegment)
-            	{
-					ret = SubmitLastData(mTSParser);
-            	}
-				else
-				{
-					mTSParser->mErrno = PSR_EOS;
-				}
+                if(mTSParser->mIslastSegment)
+                {
+                    ret = SubmitLastData(mTSParser);
+                }
+                else
+                {
+                    mTSParser->mErrno = PSR_EOS;
+                }
             }
-			break;
-			
-		}
-		else
-		{
-			size = mCacheBuffer->endPos - mCacheBuffer->readPos;
-			if(mCacheBuffer->endPos > 0 && size < TS_PACKET_SIZE)//endPos可以是bufSize，但不会是0
-			{
-				buf = mTSParser->tmpBuf;
-				
-				memcpy(buf, mCacheBuffer->bigBuf + mCacheBuffer->readPos, size);
-				memcpy(buf + size, mCacheBuffer->bigBuf, TS_PACKET_SIZE - size);
-				mCacheBuffer->readPos = rawPacketSize - size;
-				mCacheBuffer->endPos = -1;
-				
-			}
-			else
-			{
-				buf = mCacheBuffer->bigBuf + mCacheBuffer->readPos;
-				if(mCacheBuffer->endPos > 0 && size <= rawPacketSize)
-				{
-					mCacheBuffer->endPos = -1;
-					mCacheBuffer->readPos = rawPacketSize - size;
-				}
-				else
-				{
-					mCacheBuffer->readPos += rawPacketSize;
-				}
-				
-			}
-			mCacheBuffer->validDataSize -= rawPacketSize;
-			
-			ret = feedTSPacket(mTSParser, (const cdx_uint8 *)buf, TS_PACKET_SIZE);
-			if(ret != OK)
-			{
-				CDX_LOGE("feedTSPacket fail");
+            break;
+
+        }
+        else
+        {
+            size = mCacheBuffer->endPos - mCacheBuffer->readPos;
+            if(mCacheBuffer->endPos > 0 && size < TS_PACKET_SIZE)//endPos可以是bufSize，但不会是0
+            {
+                buf = mTSParser->tmpBuf;
+
+                memcpy(buf, mCacheBuffer->bigBuf + mCacheBuffer->readPos, size);
+                memcpy(buf + size, mCacheBuffer->bigBuf, TS_PACKET_SIZE - size);
+                mCacheBuffer->readPos = rawPacketSize - size;
+                mCacheBuffer->endPos = -1;
+
+            }
+            else
+            {
+                buf = mCacheBuffer->bigBuf + mCacheBuffer->readPos;
+                if(mCacheBuffer->endPos > 0 && size <= rawPacketSize)
+                {
+                    mCacheBuffer->endPos = -1;
+                    mCacheBuffer->readPos = rawPacketSize - size;
+                }
+                else
+                {
+                    mCacheBuffer->readPos += rawPacketSize;
+                }
+
+            }
+            mCacheBuffer->validDataSize -= rawPacketSize;
+
+            ret = feedTSPacket(mTSParser, (const cdx_uint8 *)buf, TS_PACKET_SIZE);
+            if(ret != OK)
+            {
+                CDX_LOGE("feedTSPacket fail");
                 mTSParser->mErrno = PSR_UNKNOWN_ERR;
                 goto _exit;
-			}
-		}
-        if(/*mTSParser->status >= CDX_PSR_IDLE &&*/ (mTSParser->needSelectProgram || mTSParser->needUpdateProgram))
+            }
+        }
+        if(/*mTSParser->status >= CDX_PSR_IDLE &&*/ (mTSParser->needSelectProgram
+            || mTSParser->needUpdateProgram))
         {
-            CDX_LOGV("needSelectProgram(%d), needUpdateProgram(%d)", mTSParser->needSelectProgram, mTSParser->needUpdateProgram);
-		    if(mTSParser->needSelectProgram)
+            CDX_LOGV("needSelectProgram(%d), needUpdateProgram(%d)",
+                mTSParser->needSelectProgram, mTSParser->needUpdateProgram);
+            if(mTSParser->needSelectProgram)
             {
                 cdx_int32 allProgramHasStream = 1;
                 cdx_int32 programHasVideo = 0;
@@ -4550,15 +4670,19 @@ _GetES:
                         cdxProgram1 = &tmp.program[0];
                         if(mTSParser->status >= CDX_PSR_IDLE && mTSParser->callback)
                         {
-                            if(memcmp(cdxProgram->video, cdxProgram1->video, sizeof(cdxProgram->video)))
+                            if(memcmp(cdxProgram->video,
+                                cdxProgram1->video, sizeof(cdxProgram->video)))
                             {
                                 CDX_LOGD("video stream has changed.");
-                                mTSParser->callback(mTSParser->pUserData, PARSER_NOTIFY_VIDEO_STREAM_CHANGE, NULL);
+                                mTSParser->callback(mTSParser->pUserData,
+                                    PARSER_NOTIFY_VIDEO_STREAM_CHANGE, NULL);
                             }
-                            if(memcmp(cdxProgram->audio, cdxProgram1->audio, sizeof(cdxProgram->audio)))
+                            if(memcmp(cdxProgram->audio,
+                                cdxProgram1->audio, sizeof(cdxProgram->audio)))
                             {
                                 CDX_LOGD("audio streams has changed.");
-                                mTSParser->callback(mTSParser->pUserData, PARSER_NOTIFY_AUDIO_STREAM_CHANGE, NULL);
+                                mTSParser->callback(mTSParser->pUserData,
+                                    PARSER_NOTIFY_AUDIO_STREAM_CHANGE, NULL);
                             }
                         }
                     }
@@ -4600,15 +4724,19 @@ _GetES:
                     cdxProgram1 = &tmp.program[0];
                     if(mTSParser->status >= CDX_PSR_IDLE &&mTSParser->callback)
                     {
-                        if(memcmp(cdxProgram->video, cdxProgram1->video, sizeof(cdxProgram->video)))
+                        if(memcmp(cdxProgram->video,
+                            cdxProgram1->video, sizeof(cdxProgram->video)))
                         {
                             CDX_LOGD("video stream has changed.");
-                            mTSParser->callback(mTSParser->pUserData, PARSER_NOTIFY_VIDEO_STREAM_CHANGE, NULL);
+                            mTSParser->callback(mTSParser->pUserData,
+                                PARSER_NOTIFY_VIDEO_STREAM_CHANGE, NULL);
                         }
-                        if(memcmp(cdxProgram->audio, cdxProgram1->audio, sizeof(cdxProgram->audio)))
+                        if(memcmp(cdxProgram->audio,
+                            cdxProgram1->audio, sizeof(cdxProgram->audio)))
                         {
                             CDX_LOGD("audio streams has changed.");
-                            mTSParser->callback(mTSParser->pUserData, PARSER_NOTIFY_AUDIO_STREAM_CHANGE, NULL);
+                            mTSParser->callback(mTSParser->pUserData,
+                                PARSER_NOTIFY_AUDIO_STREAM_CHANGE, NULL);
                         }
                     }
                 }
@@ -4616,10 +4744,10 @@ _GetES:
             }
         }
 		
-	}
+    }
     
-	if(mTSParser->currentES)
-	{
+    if(mTSParser->currentES)
+    {
         if(cdx_pkt)
         {
             memset(cdx_pkt, 0x00, sizeof(CdxPacketT));
@@ -4669,16 +4797,16 @@ _GetES:
             mTSParser->currentES = NULL;
         }
         ret = 0;
-	}
-	else
-	{
-	    if(cdx_pkt)
+    }
+    else
+    {
+        if(cdx_pkt)
         {
             cdx_pkt->length = 0;
         }
-        CDX_LOGD("mTSParser->currentES == NULL");
+        CDX_LOGE("mTSParser->currentES == NULL");
         ret = -1;
-	}
+    }
 _exit:
     return ret;
 }
@@ -4700,22 +4828,22 @@ cdx_int32 ResetCacheBuffer(CacheBuffer *cacheBuffer)
 #define PROBE_PACKET_NUM (42*1024)
 cdx_int32 TSInit(CdxParserT *parser)
 {
-	CDX_LOGI("TSOpenThread start");
-	TSParser *mTSParser = (TSParser *)parser;
+    CDX_LOGI("TSOpenThread start");
+    TSParser *mTSParser = (TSParser *)parser;
 
-	CdxStreamT *cdxStream = mTSParser->cdxStream;
-	CacheBuffer *mCacheBuffer = &mTSParser->mCacheBuffer;
-	mTSParser->fileSize = CdxStreamSize(cdxStream);
-	mTSParser->isNetStream = CdxStreamIsNetStream(cdxStream);
-	mTSParser->isDvbStream = CdxStreamIsDtmbStream(cdxStream);
+    CdxStreamT *cdxStream = mTSParser->cdxStream;
+    CacheBuffer *mCacheBuffer = &mTSParser->mCacheBuffer;
+    mTSParser->fileSize = CdxStreamSize(cdxStream);
+    mTSParser->isNetStream = CdxStreamIsNetStream(cdxStream);
+    mTSParser->isDvbStream = CdxStreamIsDtmbStream(cdxStream);
 #if DVB_USED
-	int count = 0;
-	mTSParser->curCountPos = 0;
-	memset((void*)mTSParser->mapCounter, 0, sizeof(PIDCounterMap)*MAX_PID_NUM);
-	for(count = 0;count < MAX_PID_NUM;count++)
-	{
-	   mTSParser->mapCounter[count].pid = 0x1fff;
-	}	
+    int count = 0;
+    mTSParser->curCountPos = 0;
+    memset((void*)mTSParser->mapCounter, 0, sizeof(PIDCounterMap)*MAX_PID_NUM);
+    for(count = 0;count < MAX_PID_NUM;count++)
+    {
+       mTSParser->mapCounter[count].pid = 0x1fff;
+    }
 #endif	
     if(mTSParser->miracast)
     {
@@ -4730,27 +4858,27 @@ cdx_int32 TSInit(CdxParserT *parser)
         mTSParser->sizeToReadEverytime = SizeToReadEverytimeInLocal;
     }
 	
-	mTSParser->byteRate = 0;
-	mTSParser->durationMs = 0;
-	mTSParser->seekMethod = -1;
+    mTSParser->byteRate = 0;
+    mTSParser->durationMs = 0;
+    mTSParser->seekMethod = -1;
 	
 	
-	cdx_uint8 *buf;
-	cdx_int32 size;
-	cdx_int32 ret;
-	status_t err;
+    cdx_uint8 *buf;
+    cdx_int32 size;
+    cdx_int32 ret;
+    status_t err;
 
-	cdx_uint32 readPos = 0;//记录要读取的位置
-	cdx_int32 endPos = -1;//记录要读取数据的截止位置
+    cdx_uint32 readPos = 0;//记录要读取的位置
+    cdx_int32 endPos = -1;//记录要读取数据的截止位置
 #if CTS
-	cdx_uint32 readPosA = 0;
-	cdx_int32 endPosA = -1;
-	cdx_int32 flag = 0;
+    cdx_uint32 readPosA = 0;
+    cdx_int32 endPosA = -1;
+    cdx_int32 flag = 0;
 #endif
-	while(mCacheBuffer->validDataSize < 4*1024)
-	{
-		ret = CdxStreamRead(cdxStream, 
-			mCacheBuffer->bigBuf + mCacheBuffer->writePos, 4*1024);
+    while(mCacheBuffer->validDataSize < 4*1024)
+    {
+        ret = CdxStreamRead(cdxStream,
+            mCacheBuffer->bigBuf + mCacheBuffer->writePos, 4*1024);
 #if SAVE_FILE
         if(ret > 0)
         {
@@ -4766,53 +4894,55 @@ cdx_int32 TSInit(CdxParserT *parser)
         }
 #endif
 		
-		if(ret < 0)//"="小于4k的视频认为不能播
-		{
-			CDX_LOGE("CdxStreamRead fail");
+        if(ret < 0)//"="小于4k的视频认为不能播
+        {
+            CDX_LOGE("CdxStreamRead fail");
             goto _exit;
-		}
+        }
         else if(ret == 0)
         {
-			CDX_LOGW("eos, fileSize(%u)", mCacheBuffer->validDataSize);
+            CDX_LOGW("eos, fileSize(%u)", mCacheBuffer->validDataSize);
             break;
         }
-		mCacheBuffer->validDataSize += ret;
-		mCacheBuffer->writePos += ret;
-	}
+        mCacheBuffer->validDataSize += ret;
+        mCacheBuffer->writePos += ret;
+    }
 
-	cdx_int32 rawPacketSize = GetPacketSize(mCacheBuffer->bigBuf, mCacheBuffer->validDataSize);
-	if(rawPacketSize < 0)
-	{
-		CDX_LOGE("GetPacketSize fail");
+    cdx_int32 rawPacketSize = GetPacketSize(mCacheBuffer->bigBuf, mCacheBuffer->validDataSize);
+    if(rawPacketSize < 0)
+    {
+        CDX_LOGE("GetPacketSize fail");
         goto _exit;
-	}
-	mTSParser->mRawPacketSize = rawPacketSize;
+    }
+    mTSParser->mRawPacketSize = rawPacketSize;
     if(mTSParser->bdFlag)
     {
         CDX_CHECK(mTSParser->mRawPacketSize == 192);
-		mCacheBuffer->readPos += 4;
-		mCacheBuffer->validDataSize -= 4;
+        mCacheBuffer->readPos += 4;
+        mCacheBuffer->validDataSize -= 4;
     }
-	mTSParser->autoGuess = 0;
-	cdx_uint32 usedPacketCount;
+    mTSParser->autoGuess = 0;
+    cdx_uint32 usedPacketCount;
     Program *program;
 _ProbeProgram:
-	if(mTSParser->autoGuess == 2)
-	{
-		DestroyPrograms(mTSParser);
-		SetProgram(mTSParser, -1, -1);//虚拟出来的一个节目
+    if(mTSParser->autoGuess == 2)
+    {
+        DestroyPrograms(mTSParser);
+        SetProgram(mTSParser, -1, -1);//虚拟出来的一个节目
         DestroyPSISections(mTSParser);
-	}
-	for(usedPacketCount = 0; usedPacketCount < PROBE_PACKET_NUM; usedPacketCount++)
-	{
+    }
+    for(usedPacketCount = 0; usedPacketCount < PROBE_PACKET_NUM; usedPacketCount++)
+    {
         if(mTSParser->forceStop)
         {
             CDX_LOGE("PSR_USER_CANCEL");
             goto _exit;
         }
-		if(!mTSParser->autoGuess)
-		{
-		    if(mTSParser->mProgramCount)/*假设一个pat表不会用多个ts packet来传输，否则就有风险*///实际上，由于有PSISectionIsComplete的判定，风险极小
+        if(!mTSParser->autoGuess)
+        {
+            if(mTSParser->mProgramCount)
+            /*假设一个pat表不会用多个ts packet来传输，否则就有风险*/
+            //实际上，由于有PSISectionIsComplete的判定，风险极小
             {
                 cdx_int32 allProgramHasStream = 1;
                 cdx_int32 programHasVideo = 0;
@@ -4838,7 +4968,7 @@ _ProbeProgram:
                         {
                             readPosA = mCacheBuffer->readPos;//记录同步的成果
                             endPosA = mCacheBuffer->endPos;
-							flag = 1;
+                            flag = 1;
                         }
                         allProgramHasStream = 0;
                         break;
@@ -4858,33 +4988,33 @@ _ProbeProgram:
                     break;//如果有pat,pmt,解析完这两个表可以退出了，不用将PROBE_PACKET_NUM个包探测完
                 }
             }      
-			do
-			{
-				ret = TSResync(mTSParser);
-				if(ret < 0)
-				{
-					CDX_LOGE("TSResync fail");
+            do
+            {
+                ret = TSResync(mTSParser);
+                if(ret < 0)
+                {
+                    CDX_LOGE("TSResync fail");
                     goto _exit;
-				}
-				else if(ret == 0)
-				{
-					break;
-				}
-			}
-			while(mCacheBuffer->validDataSize < (cdx_uint32)rawPacketSize);
-			if(usedPacketCount == 0)
-			{
-				readPos = mCacheBuffer->readPos;//记录同步的成果
-				endPos = mCacheBuffer->endPos;
-			}
-			
-		}
-		else
-		{
-			if(usedPacketCount == 0)
-			{
-				mCacheBuffer->readPos = readPos;
-				mCacheBuffer->endPos = endPos;
+                }
+                else if(ret == 0)
+                {
+                    break;
+                }
+            }
+            while(mCacheBuffer->validDataSize < (cdx_uint32)rawPacketSize);
+            if(usedPacketCount == 0)
+            {
+                readPos = mCacheBuffer->readPos;//记录同步的成果
+                endPos = mCacheBuffer->endPos;
+            }
+
+        }
+        else
+        {
+            if(usedPacketCount == 0)
+            {
+                mCacheBuffer->readPos = readPos;
+                mCacheBuffer->endPos = endPos;
                 mCacheBuffer->validDataSize = mCacheBuffer->writePos - mCacheBuffer->readPos;
                 if(mTSParser->autoGuess == 1)
                 {
@@ -4900,7 +5030,7 @@ _ProbeProgram:
                     memset(mTSParser->enablePid, 1, sizeof(mTSParser->enablePid));
                     mTSParser->enablePid[0] = 0;
                 }
-			}
+            }
             
             if(mTSParser->autoGuess == 1)//只要有一个节目中有video就可退出
             {
@@ -4921,91 +5051,78 @@ _ProbeProgram:
                         break;
                     }
                 }      
-            }/*mTSParser->autoGuess == 2目前不设快速退出条件，因为program->mFirstPTS不被赋值且selectProgram中有筛选
+            }
+            do
+            {
+                ret = TSResync(mTSParser);
+                if(ret < 0)
+                {
+                    CDX_LOGE("TSResync fail");
+                    goto _exit;
+                }
+                else if(ret == 0)
+                {
+                    break;
+                }
+            }
+            while(mCacheBuffer->validDataSize < (cdx_uint32)rawPacketSize);
+        }
+        //CDX_LOGV("validDataSize =%u", mCacheBuffer->validDataSize);
+        if(mCacheBuffer->validDataSize < (cdx_uint32)rawPacketSize)//说明cdxStream eos了
+        {
+            CDX_LOGD("eos");
+            break;
+        }
+        //以下mCacheBuffer->validDataSize >= rawPacketSize
+        size = mCacheBuffer->endPos - mCacheBuffer->readPos;//可能负数
+        if(mCacheBuffer->endPos > 0 && size < TS_PACKET_SIZE)//endPos可以是bufSize，但不会是0
+        {
+            buf = mTSParser->tmpBuf;
+
+            memcpy(buf, mCacheBuffer->bigBuf + mCacheBuffer->readPos, size);
+            memcpy(buf + size, mCacheBuffer->bigBuf, TS_PACKET_SIZE - size);
+            mCacheBuffer->readPos = rawPacketSize - size;
+            mCacheBuffer->endPos = -1;
+
+        }
+        else
+        {
+            buf = mCacheBuffer->bigBuf + mCacheBuffer->readPos;
+            if(mCacheBuffer->endPos > 0 && size <= rawPacketSize)
+            {
+                mCacheBuffer->endPos = -1;
+                mCacheBuffer->readPos = rawPacketSize - size;
+            }
             else
             {
-                program = CdxListEntry((&mTSParser->mPrograms)->head, typeof(*program), node);
-                if(program->audioCount && VideoInProgram(program) != NULL)
-                {
-                    if((mTSParser->attribute & NO_NEED_DURATION)
-                        || program->mFirstPTS != -1)
-                    {
-                        break;
-                    }
-                }
-            }*/
-			
-			do
-			{
-				ret = TSResync(mTSParser);
-				if(ret < 0)
-				{
-					CDX_LOGE("TSResync fail");
-                    goto _exit;
-				}
-				else if(ret == 0)
-				{
-					break;
-				}
-			}
-			while(mCacheBuffer->validDataSize < (cdx_uint32)rawPacketSize);
-		}
-		//CDX_LOGV("validDataSize =%u", mCacheBuffer->validDataSize);
-		if(mCacheBuffer->validDataSize < (cdx_uint32)rawPacketSize)//说明cdxStream eos了
-		{
-		    CDX_LOGD("eos");
-			break;
-		}
-		//以下mCacheBuffer->validDataSize >= rawPacketSize
-		size = mCacheBuffer->endPos - mCacheBuffer->readPos;//可能负数
-		if(mCacheBuffer->endPos > 0 && size < TS_PACKET_SIZE)//endPos可以是bufSize，但不会是0
-		{
-			buf = mTSParser->tmpBuf;
-			
-			memcpy(buf, mCacheBuffer->bigBuf + mCacheBuffer->readPos, size);
-			memcpy(buf + size, mCacheBuffer->bigBuf, TS_PACKET_SIZE - size);
-			mCacheBuffer->readPos = rawPacketSize - size;
-			mCacheBuffer->endPos = -1;
-			
-		}
-		else
-		{
-			buf = mCacheBuffer->bigBuf + mCacheBuffer->readPos;
-			if(mCacheBuffer->endPos > 0 && size <= rawPacketSize)
-			{
-				mCacheBuffer->endPos = -1;
-				mCacheBuffer->readPos = rawPacketSize - size;
-			}
-			else
-			{
-				mCacheBuffer->readPos += rawPacketSize;
-			}
-			
-		}
-		mCacheBuffer->validDataSize -= rawPacketSize;
-		
-		err = feedTSPacket(mTSParser, (const cdx_uint8 *)buf, TS_PACKET_SIZE);
-		if(err != OK)
-		{
-			CDX_LOGE("feedTSPacket fail");
+                mCacheBuffer->readPos += rawPacketSize;
+            }
+
+        }
+        mCacheBuffer->validDataSize -= rawPacketSize;
+
+        err = feedTSPacket(mTSParser, (const cdx_uint8 *)buf, TS_PACKET_SIZE);
+        if(err != OK)
+        {
+            CDX_LOGE("feedTSPacket fail");
             goto _exit;
-		}
-		CDX_LOGV("usedPacketCount =%d", usedPacketCount);
-	}
+        }
+        CDX_LOGV("usedPacketCount =%d", usedPacketCount);
+    }
 	
-	//CDX_LOGD("_ProbeProgram");
+    //CDX_LOGD("_ProbeProgram");
     //CDX_LOGD("usedPacketCount =%d", usedPacketCount);
     /*
     if(mTSParser->forceStop)
     {
-		CDX_LOGE("PSR_USER_CANCEL");
+        CDX_LOGE("PSR_USER_CANCEL");
         goto _exit;
     }
     */
 	
-	if(!mTSParser->mStreamCount)
-	{
-	    if(mTSParser->autoGuess != 2)
+    if(!mTSParser->mStreamCount)
+    {
+        if(mTSParser->autoGuess != 2)
         {
             mTSParser->autoGuess++;
             CDX_LOGD("autoGuess = %d", mTSParser->autoGuess);
@@ -5016,16 +5133,18 @@ _ProbeProgram:
             CDX_LOGE("ProbeProgram fail");
             goto _exit;
         }
-	}
-	CDX_LOGV("readPos = %d, endPos = %d, validDataSize = %d", mCacheBuffer->readPos, mCacheBuffer->endPos, mCacheBuffer->validDataSize);
-	CDX_LOGV("mTSParser->mStreamCount(%d), mTSParser->mProgramCount(%d)", mTSParser->mStreamCount, mTSParser->mProgramCount);
-	//select_program and stream
+    }
+    CDX_LOGV("readPos = %d, endPos = %d, validDataSize = %d",
+        mCacheBuffer->readPos, mCacheBuffer->endPos, mCacheBuffer->validDataSize);
+    CDX_LOGV("mTSParser->mStreamCount(%d), mTSParser->mProgramCount(%d)",
+        mTSParser->mStreamCount, mTSParser->mProgramCount);
+    //select_program and stream
     //PrintTsStatus(mTSParser);
     if(SelectProgram(mTSParser) < 0 || !mTSParser->curProgram)
-	{
-		CDX_LOGE("SelectProgram fail");
+    {
+        CDX_LOGE("SelectProgram fail");
         goto _exit;
-	}
+    }
 
 #if !CTS
     if(mTSParser->autoGuess == 2)
@@ -5042,14 +5161,16 @@ _ProbeProgram:
     
 #else
     
-    if(!mTSParser->autoGuess && !VideoInProgram(mTSParser->curProgram) && AudioInProgram(mTSParser->curProgram))
+    if(!mTSParser->autoGuess
+        && !VideoInProgram(mTSParser->curProgram)
+        && AudioInProgram(mTSParser->curProgram))
     {
         readPos = mCacheBuffer->readPos = readPosA;
         endPos = mCacheBuffer->endPos = endPosA;
     }
 #endif
 
-	mTSParser->autoGuess = -1;
+    mTSParser->autoGuess = -1;
     if(!(mTSParser->attribute & NO_NEED_DURATION))
     {
         if(EstimateDuration(mTSParser) < 0)//EstimateDuration中会决定seekMethod
@@ -5069,27 +5190,26 @@ _ProbeProgram:
             mTSParser->seekMethod = 1;
         }
     }
-	if(CdxStreamAttribute(cdxStream) & CDX_STREAM_FLAG_STT)
+    if(CdxStreamAttribute(cdxStream) & CDX_STREAM_FLAG_STT)
     {
         mTSParser->seekMethod = 2;
     }  
 
     AdjustBufferOfStreams(mTSParser->curProgram);
-	//CDX_LOGD("readPos = %d, endPos = %d, validDataSize = %d", readPos, endPos, mCacheBuffer->validDataSize);
 #if (PROBE_STREAM && !DVB_TEST) 
     CDX_CHECK(mTSParser->endPosFlag == 0);
-	if(mTSParser->endPosFlag != 0)
-	{
-		CDX_LOGE("mTSParser->endPosFlag != 0");
-	}
-	mCacheBuffer->readPos = readPos;
-	mCacheBuffer->endPos = endPos;
+    if(mTSParser->endPosFlag != 0)
+    {
+        CDX_LOGE("mTSParser->endPosFlag != 0");
+    }
+    mCacheBuffer->readPos = readPos;
+    mCacheBuffer->endPos = endPos;
     mCacheBuffer->validDataSize = mCacheBuffer->writePos - mCacheBuffer->readPos;
     mTSParser->mNumTSPacketsParsed = 0;
     mTSParser->currentES = NULL;
     
     CdxPacketT pkt;
-	cdx_int32 flag = 0;
+    cdx_int32 flag = 0;
     if(mTSParser->bdFlag < 2 && mTSParser->curVideo)
     {
         while(1)
@@ -5107,12 +5227,12 @@ _ProbeProgram:
             }
             //CDX_LOGD("GetEs, ret(%d)", ret);
             Stream *stream = mTSParser->currentES;
-			if(!flag && (stream->mMediaType == TYPE_VIDEO || stream->mMediaType == TYPE_AUDIO
-				|| stream->mMediaType == TYPE_SUBS))
-			{
-				mTSParser->firstPts = pkt.pts;
-				flag = 1;
-			}
+            if(!flag && (stream->mMediaType == TYPE_VIDEO || stream->mMediaType == TYPE_AUDIO
+                || stream->mMediaType == TYPE_SUBS))
+            {
+                mTSParser->firstPts = pkt.pts;
+                flag = 1;
+            }
            
             if(stream->mMediaType == TYPE_VIDEO && stream == mTSParser->curVideo)
             {
@@ -5177,24 +5297,25 @@ _ProbeProgram:
         }
     }
 #if 0    
-	program = mTSParser->curProgram;
+    program = mTSParser->curProgram;
     Stream *stream;    
     CdxListForEachEntry(stream, &program->mStreams, node)
-	{
-		if((stream->mMediaType == TYPE_VIDEO && stream == mTSParser->curVideo) || stream->mMediaType == TYPE_AUDIO)
-		{
-			if(ProbeStream(stream) < 0)
+    {
+        if((stream->mMediaType == TYPE_VIDEO && stream == mTSParser->curVideo)
+            || stream->mMediaType == TYPE_AUDIO)
+        {
+            if(ProbeStream(stream) < 0)
             {
                 CDX_LOGW("ProbeStream fail.");
             }         
-		}
-		/*
+        }
+        /*
         if(stream->probeBuf)
         {
             free(stream->probeBuf);
             stream->probeBuf = NULL;
         }*/
-	}
+    }
 #endif    
     
     
@@ -5212,7 +5333,8 @@ _ProbeProgram:
         {
             if(stream->probeBuf)
             {
-                CDX_LOGD("stream->probeBufSize(%u), stream->probeDataSize(%u)", stream->probeBufSize, stream->probeDataSize);
+                CDX_LOGD("stream->probeBufSize(%u), stream->probeDataSize(%u)",
+                    stream->probeBufSize, stream->probeDataSize);
             }
         }
 #endif
@@ -5232,37 +5354,32 @@ _ProbeProgram:
         ResetStreamsInProgram(mTSParser->curProgram);
         ResetPSISection(mTSParser);
     }
-	//CDX_LOGD("readPos = %d, endPos = %d, validDataSize = %d", readPos, endPos, mCacheBuffer->validDataSize);
     mTSParser->mNumTSPacketsParsed = 0;
-
-    
     SetMediaInfo(mTSParser, &mTSParser->mediaInfo);
-    
     PrintTsStatus(mTSParser);
     mTSParser->currentES = NULL;
-	mTSParser->mErrno = PSR_OK;
+    mTSParser->mErrno = PSR_OK;
     pthread_mutex_lock(&mTSParser->statusLock);
-	mTSParser->status = CDX_PSR_IDLE;
+    mTSParser->status = CDX_PSR_IDLE;
     pthread_mutex_unlock(&mTSParser->statusLock);
     pthread_cond_signal(&mTSParser->cond);
     //CdxAtomicDec(&mTSParser->ref);
-	CDX_LOGI("TSOpenThread success");
-	return 0;
+    CDX_LOGI("TSOpenThread success");
+    return 0;
 _exit:
-	mTSParser->mErrno = PSR_OPEN_FAIL;
+    mTSParser->mErrno = PSR_OPEN_FAIL;
     pthread_mutex_lock(&mTSParser->statusLock);
-	mTSParser->status = CDX_PSR_IDLE;
+    mTSParser->status = CDX_PSR_IDLE;
     pthread_mutex_unlock(&mTSParser->statusLock);
     pthread_cond_signal(&mTSParser->cond);
     //CdxAtomicDec(&mTSParser->ref);
-	return -1;
-	
+    return -1;
 }
 
 cdx_int32 TSGetMediaInfo(CdxParserT *parser, CdxMediaInfoT *pmediainfo)
 {
-	TSParser *mTSParser = (TSParser *)parser;
-	/*
+    TSParser *mTSParser = (TSParser *)parser;
+    /*
     if(mTSParser->status < CDX_PSR_IDLE)
     {
         CDX_LOGE("status < CDX_PSR_IDLE, TSGetMediaInfo invaild");
@@ -5276,41 +5393,41 @@ cdx_int32 TSGetMediaInfo(CdxParserT *parser, CdxMediaInfoT *pmediainfo)
 
 cdx_uint32 TSAttribute(CdxParserT *parser)
 {
-	TSParser *mTSParser = (TSParser *)parser;
-	return mTSParser->attribute;
+    TSParser *mTSParser = (TSParser *)parser;
+    return mTSParser->attribute;
 }
 
 cdx_int32 TSForceStop(CdxParserT *parser)
 {
     CDX_LOGV("TSForceStop start");
-	TSParser *mTSParser = (TSParser *)parser;
+    TSParser *mTSParser = (TSParser *)parser;
 
-	pthread_mutex_lock(&mTSParser->statusLock);
-	mTSParser->forceStop = 1;
+    pthread_mutex_lock(&mTSParser->statusLock);
+    mTSParser->forceStop = 1;
     mTSParser->mErrno = PSR_USER_CANCEL;
     cdx_int32 ret = CdxStreamForceStop(mTSParser->cdxStream);
-	while(mTSParser->status != CDX_PSR_IDLE && mTSParser->status != CDX_PSR_PREFETCHED)
-	{
-		pthread_cond_wait(&mTSParser->cond, &mTSParser->statusLock);		
-	}
-	pthread_mutex_unlock(&mTSParser->statusLock);
+    while(mTSParser->status != CDX_PSR_IDLE && mTSParser->status != CDX_PSR_PREFETCHED)
+    {
+        pthread_cond_wait(&mTSParser->cond, &mTSParser->statusLock);
+    }
+    pthread_mutex_unlock(&mTSParser->statusLock);
     mTSParser->mErrno = PSR_USER_CANCEL;
     mTSParser->status = CDX_PSR_IDLE;
     CDX_LOGV("TSForceStop end");
-	return ret;
+    return ret;
 }
 
 cdx_int32 TSClrForceStop(CdxParserT *parser)
 {
     CDX_LOGV("TSClrForceStop start");
-	TSParser *mTSParser = (TSParser *)parser;
+    TSParser *mTSParser = (TSParser *)parser;
     if(mTSParser->status != CDX_PSR_IDLE)
     {
         CDX_LOGW("mTSParser->status != CDX_PSR_IDLE");
         mTSParser->mErrno = PSR_INVALID_OPERATION;
         return -1;
     }
-	mTSParser->forceStop = 0;
+    mTSParser->forceStop = 0;
     if(mTSParser->cdxStream)
     {
         cdx_int32 ret = CdxStreamClrForceStop(mTSParser->cdxStream);
@@ -5320,7 +5437,7 @@ cdx_int32 TSClrForceStop(CdxParserT *parser)
         }
     }
     CDX_LOGI("TSClrForceStop end");
-	return 0;
+    return 0;
 }
 static cdx_int32 GetCacheState(TSParser *mTSParser, struct ParserCacheStateS *cacheState)
 {
@@ -5333,6 +5450,16 @@ static cdx_int32 GetCacheState(TSParser *mTSParser, struct ParserCacheStateS *ca
     cacheState->nBandwidthKbps = streamCS.nBandwidthKbps;
     cacheState->nCacheCapacity = streamCS.nCacheCapacity + mTSParser->mCacheBuffer.bufSize;
     cacheState->nCacheSize = streamCS.nCacheSize + mTSParser->mCacheBuffer.validDataSize;
+
+    /* cacheState->nPercentage = current_caching_positioin / duration
+     * so current_file_position / file_size is not accurate, but it's good
+     * enough for debugging purpose.
+     */
+    if (mTSParser->fileSize > 0)
+    {
+        int64_t curPos = CdxStreamTell(mTSParser->cdxStream);
+        cacheState->nPercentage = (curPos * 100 / mTSParser->fileSize);
+    }
     return 0;
 }
 
@@ -5340,65 +5467,85 @@ cdx_int32 TSControl(CdxParserT *parser, cdx_int32 cmd, void *param)
 {
     cdx_int32 ret = 0;
     cdx_int64 streamSeekPos;
-	TSParser *mTSParser = (TSParser *)parser;
+    TSParser *mTSParser = (TSParser *)parser;
+
+    /* These control cmds are called by multiple threads for HLS.
+     * The bad guy is REPLACE_STREAM. Without a lock, it will destroy everything.
+     */
     switch(cmd)
     {
-    	case CDX_PSR_CMD_SWITCH_AUDIO:
-    	case CDX_PSR_CMD_SWITCH_SUBTITLE:
-    		CDX_LOGI(" Ts parser is not support switch stream yet!!!");
-    		break;
+        case CDX_PSR_CMD_SWITCH_AUDIO:
+        case CDX_PSR_CMD_SWITCH_SUBTITLE:
+            CDX_LOGI(" Ts parser is not support switch stream yet!!!");
+            break;
         case CDX_PSR_CMD_SET_DURATION://目前没有用
             mTSParser->durationMs = *(cdx_uint64 *)param;
             break;
         case CDX_PSR_CMD_REPLACE_STREAM:
-            CDX_LOGD("replace stream!!!mTSParser->cdxStream(%p), param(%p)", mTSParser->cdxStream, param);
+            if (mTSParser->cdxStream)
+                CdxStreamForceStop(mTSParser->cdxStream);
+
+            pthread_rwlock_wrlock(&mTSParser->controlLock);
+            CDX_LOGD("replace stream!!!mTSParser->cdxStream(%p), param(%p)",
+                mTSParser->cdxStream, param);
             if(mTSParser->cdxStream)
             {
                 CdxStreamClose(mTSParser->cdxStream);
             }
             mTSParser->cdxStream = (CdxStreamT*)param;
             mTSParser->cdxStreamEos = 0;
-			mTSParser->mIslastSegment = 0;
+            mTSParser->mIslastSegment = 0;
             if(mTSParser->mClrInfo == 1)
             {
-    			ResetCacheBuffer(&mTSParser->mCacheBuffer);
+                ResetCacheBuffer(&mTSParser->mCacheBuffer);
                 ResetStreamsInProgram(mTSParser->curProgram);
                 ResetPSISection(mTSParser);
                 mTSParser->mClrInfo = 0;
             }
             
             mTSParser->mErrno = PSR_OK;
+            pthread_rwlock_unlock(&mTSParser->controlLock);
             break;
         case CDX_PSR_CMD_CLR_INFO:
+            pthread_rwlock_rdlock(&mTSParser->controlLock);
             logd("CDX_PSR_CMD_CLR_INFO");
             mTSParser->mClrInfo = 1;
+            pthread_rwlock_unlock(&mTSParser->controlLock);
             break;
-		case CDX_PSR_CMD_SET_LASTSEGMENT_FLAG:
-			CDX_LOGD("CDX_PSR_CMD_SET_LASTSEGMENT_FLAG");
-			mTSParser->mIslastSegment = 1;
-			break;
+        case CDX_PSR_CMD_SET_LASTSEGMENT_FLAG:
+            pthread_rwlock_rdlock(&mTSParser->controlLock);
+            CDX_LOGD("CDX_PSR_CMD_SET_LASTSEGMENT_FLAG");
+            mTSParser->mIslastSegment = 1;
+            pthread_rwlock_unlock(&mTSParser->controlLock);
+            break;
         case CDX_PSR_CMD_STREAM_SEEK:
+            pthread_rwlock_rdlock(&mTSParser->controlLock);
             if(!mTSParser->cdxStream)
             {
+                pthread_rwlock_unlock(&mTSParser->controlLock);
                 CDX_LOGE("mTSParser->cdxStream == NULL, can not stream control");
-                return -1;
+                ret = -1;
+                break;
             }
             if(!CdxStreamSeekAble(mTSParser->cdxStream))
             {
+                pthread_rwlock_unlock(&mTSParser->controlLock);
                 CDX_LOGV("CdxStreamSeekAble == 0");
-                return 0;
+                break;
             }
-			if(ResetCacheBuffer(&mTSParser->mCacheBuffer) < 0)
+            if(ResetCacheBuffer(&mTSParser->mCacheBuffer) < 0)
             {
                 CDX_LOGE("ResetCacheBuffer fail");
                 mTSParser->mErrno = PSR_UNKNOWN_ERR;
-                return -1;
+                ret = -1;
+                pthread_rwlock_unlock(&mTSParser->controlLock);
+                break;
             }
-			streamSeekPos = ((struct StreamSeekPos *)param)->pos;
-			if(mTSParser->bdFlag)
-			{
-				streamSeekPos += 4;
-			}
+            streamSeekPos = ((struct StreamSeekPos *)param)->pos;
+            if(mTSParser->bdFlag)
+            {
+                streamSeekPos += 4;
+            }
             ret = CdxStreamSeek(mTSParser->cdxStream, streamSeekPos, SEEK_SET);
             if(ret < 0)
             {
@@ -5409,68 +5556,89 @@ cdx_int32 TSControl(CdxParserT *parser, cdx_int32 cmd, void *param)
             ResetStreamsInProgram(mTSParser->curProgram);
             ResetPSISection(mTSParser);
             mTSParser->mNumTSPacketsParsed = streamSeekPos/192;
+            pthread_rwlock_unlock(&mTSParser->controlLock);
             break;
 
         case CDX_PSR_CMD_GET_CACHESTATE:
-            return GetCacheState(mTSParser, param);
+            pthread_rwlock_rdlock(&mTSParser->controlLock);
+            ret = GetCacheState(mTSParser, param);
+            pthread_rwlock_unlock(&mTSParser->controlLock);
+            break;
 
         case CDX_PSR_CMD_SET_FORCESTOP:
-            return TSForceStop(parser);
+            pthread_rwlock_rdlock(&mTSParser->controlLock);
+            ret = TSForceStop(parser);
+            pthread_rwlock_unlock(&mTSParser->controlLock);
+            break;
+
         case CDX_PSR_CMD_CLR_FORCESTOP:
-            return TSClrForceStop(parser);
+            pthread_rwlock_rdlock(&mTSParser->controlLock);
+            ret = TSClrForceStop(parser);
+            pthread_rwlock_unlock(&mTSParser->controlLock);
+            break;
+
         case CDX_PSR_CMD_SET_HDCP:
             mTSParser->hdcpOps = (struct HdcpOpsS *)param;
-            return 0;
+            break;
+
         case CDX_PSR_CMD_SET_CALLBACK:
         {
             struct CallBack *cb = (struct CallBack *)param;
             mTSParser->callback = cb->callback;
             mTSParser->pUserData = cb->pUserData;
-            return 0;
+            break;
         }
         case CDX_PSR_CMD_GET_URL:
         {
             cdx_int8* tmpUrl = NULL;
             CDX_LOGD("*********** CDX_PSR_CMD_GET_URL");
+            pthread_rwlock_rdlock(&mTSParser->controlLock);
             ret = CdxStreamGetMetaData(mTSParser->cdxStream, "uri", (void**)&tmpUrl);
-            if (ret == -1 ||tmpUrl == NULL )
+            pthread_rwlock_unlock(&mTSParser->controlLock);
+            if (ret == -1 ||tmpUrl == NULL)
             {
                 CDX_LOGE("this stream not support CDX_PSR_CMD_GET_URL");
-                return -1;
+                ret = -1;
+                break;
             }
-			cdx_int32 urlLen = strlen(tmpUrl) + 1;
-			if(urlLen > 4096)
-			{
-				CDX_LOGE("url length is too long");
-				return -1;
-			}
-			CDX_LOGD("--- ts parser get url= %s", tmpUrl);
-			memcpy((cdx_int8*)param, tmpUrl, urlLen);
-			return 0;
+            cdx_int32 urlLen = strlen(tmpUrl) + 1;
+            if(urlLen > 4096)
+            {
+                CDX_LOGE("url length is too long");
+                ret = -1;
+                break;
+            }
+            CDX_LOGD("--- ts parser get url= %s", tmpUrl);
+            memcpy((cdx_int8*)param, tmpUrl, urlLen);
+            break;
         }
-		case CDX_PSR_CMD_GET_STREAM_EXTRADATA:
-		{
-			if(mTSParser->cdxStream)
-			{
-				return CdxStreamGetMetaData(mTSParser->cdxStream, "extra-data", (void **)param);
-			}
-        	return 0;
-		}
+        case CDX_PSR_CMD_GET_STREAM_EXTRADATA:
+        {
+            pthread_rwlock_rdlock(&mTSParser->controlLock);
+            if(mTSParser->cdxStream)
+            {
+                ret = CdxStreamGetMetaData(mTSParser->cdxStream, "extra-data", (void **)param);
+            }
+            pthread_rwlock_unlock(&mTSParser->controlLock);
+            break;
+        }
         default:
-        	break;
+            break;
     }
-	return ret;
+
+    return ret;
 }
 cdx_int32 TSGetStatus(CdxParserT *parser)
 {
-	TSParser *mTSParser = (TSParser *)parser;
-	return mTSParser->mErrno;
+    TSParser *mTSParser = (TSParser *)parser;
+    return mTSParser->mErrno;
 }
 
 /*pts_pos返回的是有有效pts的包的位置*/
-cdx_int64 FindNextPTS(TSParser *mTSParser, cdx_uint8* data, cdx_uint32 data_size, cdx_int64 *pts_pos)
+cdx_int64 FindNextPTS(TSParser *mTSParser, cdx_uint8* data, cdx_uint32 data_size,
+    cdx_int64 *pts_pos)
 {
-	cdx_uint32 pktSize = mTSParser->mRawPacketSize;
+    cdx_uint32 pktSize = mTSParser->mRawPacketSize;
 
     cdx_uint8* pkt;
     cdx_uint8* p;
@@ -5481,7 +5649,7 @@ cdx_int64 FindNextPTS(TSParser *mTSParser, cdx_uint8* data, cdx_uint32 data_size
     cdx_uint32   flags;
     cdx_uint32   afc;
     cdx_uint32   ptsFound;
-	cdx_uint32   pid = 0;
+    cdx_uint32   pid = 0;
     
     dataEnd  = data + data_size;
     pts      = 0;
@@ -5509,8 +5677,8 @@ cdx_int64 FindNextPTS(TSParser *mTSParser, cdx_uint8* data, cdx_uint32 data_size
         if((pkt[1] & 0x40) == 0)    //* not the first packet of pes.
             continue;
 		
-		pid = AV_RB16(pkt + 1) & 0x1fff;
-		if(!mTSParser->enablePid[pid] || !pid) // table pat should be discarded.
+        pid = AV_RB16(pkt + 1) & 0x1fff;
+        if(!mTSParser->enablePid[pid] || !pid) // table pat should be discarded.
         {
             continue;
         }      
@@ -5524,10 +5692,10 @@ cdx_int64 FindNextPTS(TSParser *mTSParser, cdx_uint8* data, cdx_uint32 data_size
             p += p[0] + 1;
         }
         
-    	/* if past the end of packet, ignore */
-    	p_end = pkt + 188;
-    	if (p >= p_end)
-        	continue;
+        /* if past the end of packet, ignore */
+        p_end = pkt + 188;
+        if (p >= p_end)
+            continue;
        
         for(; p < p_end - 13; p++)
         {
@@ -5537,13 +5705,20 @@ cdx_int64 FindNextPTS(TSParser *mTSParser, cdx_uint8* data, cdx_uint32 data_size
             
             code = p[3] | 0x100;
             
-            if (!((code >= 0x1c0 && code <= 0x1df) || (code >= 0x1e0 && code <= 0x1ef) || (code == 0x1bd) || (code == 0x1fd)))
+            if (!((code >= 0x1c0 && code <= 0x1df)
+                || (code >= 0x1e0 && code <= 0x1ef)
+                || (code == 0x1bd)
+                || (code == 0x1fd)))
                 continue;
             
             flags = p[6]<<8 | p[7];
             if (flags & 0xc0)        //* check pts flag
             {
-                pts = (cdx_int64)(p[9] & 0xe)<<29 | p[10]<<22 | (p[11]&0xfe)<<14 | p[12]<<7 | p[13]>>1;
+                pts = (cdx_int64)(p[9] & 0xe)<<29
+                    | p[10]<<22
+                    | (p[11]&0xfe)<<14
+                    | p[12]<<7
+                    | p[13]>>1;
                 if(pts == 0x1ffffffffLL)  //* empty packet.
                     continue;
                 ptsFound = 1;
@@ -5553,8 +5728,8 @@ cdx_int64 FindNextPTS(TSParser *mTSParser, cdx_uint8* data, cdx_uint32 data_size
         
         if(ptsFound)
         {
-        	*pts_pos = pkt - data;
-        	break;
+            *pts_pos = pkt - data;
+            break;
         }
     }
     
@@ -5568,16 +5743,16 @@ cdx_int64 FindNextPTS(TSParser *mTSParser, cdx_uint8* data, cdx_uint32 data_size
 
 cdx_int32 SeekToTime(TSParser *mTSParser, cdx_int64 timeUs, cdx_uint32 mode)
 {
-	CdxStreamT *cdxStream = mTSParser->cdxStream;
+    CdxStreamT *cdxStream = mTSParser->cdxStream;
     cdx_int64        file_pos;
-    cdx_uint32	cnt;
+    cdx_uint32    cnt;
     cdx_int64        dst_pts;
     cdx_int64        pts;
     cdx_int64        pts_diff;
     cdx_int32          pts_low_thredhold;
     cdx_int32          pts_high_thredhold;
-    cdx_int64	pts_pos;
-    cdx_int64	tmp;
+    cdx_int64    pts_pos;
+    cdx_int64    tmp;
     cdx_int32 ret = 0;
     
     if(mode == 0)       //* play mode
@@ -5607,7 +5782,6 @@ cdx_int32 SeekToTime(TSParser *mTSParser, cdx_int64 timeUs, cdx_uint32 mode)
         cnt = 0;
         pts_diff = 0;
         dst_pts = timeUs*9/100 + mTSParser->curProgram->mFirstPTS;
-        CDX_LOGV("fileSize = %lld, curPos = %lld, dst_file_pos = %lld, byteRate = %llu, dst_pts = %lld", mTSParser->fileSize, curPos, file_pos, mTSParser->byteRate, dst_pts);
         
         cdx_uint32 tmp_size = 204*60;//
         cdx_uint8* tmp_buf = (cdx_uint8*)malloc(tmp_size);
@@ -5616,7 +5790,7 @@ cdx_int32 SeekToTime(TSParser *mTSParser, cdx_int64 timeUs, cdx_uint32 mode)
             CDX_LOGE("malloc fail.");
             return -1;
         }
-		ret = CdxStreamSeek(cdxStream, file_pos, SEEK_SET);
+        ret = CdxStreamSeek(cdxStream, file_pos, SEEK_SET);
         if(ret < 0)
         {
             CDX_LOGE("CdxStreamSeek fail");
@@ -5625,20 +5799,20 @@ cdx_int32 SeekToTime(TSParser *mTSParser, cdx_int64 timeUs, cdx_uint32 mode)
         }
         do 
         {
-			cdx_int32 data_size = CdxStreamRead(cdxStream, tmp_buf, tmp_size);
-			if(data_size <= 0)
-			{
-				CDX_LOGW("CdxStreamRead fail");
+            cdx_int32 data_size = CdxStreamRead(cdxStream, tmp_buf, tmp_size);
+            if(data_size <= 0)
+            {
+                CDX_LOGW("CdxStreamRead fail");
                 //ret = -1;
-				break;
-			}
+                break;
+            }
 			
-			pts = FindNextPTS(mTSParser, tmp_buf, data_size, &tmp);
+            pts = FindNextPTS(mTSParser, tmp_buf, data_size, &tmp);
             file_pos = file_pos + tmp;//
 
             if (pts == (cdx_int64)-1)//包含forcestop的情况
             {
-				CDX_LOGW("FindNextPTS fail");
+                CDX_LOGW("FindNextPTS fail");
                 //ret = -1;
                 /*
                 if(mTSParser->forceStop)
@@ -5646,7 +5820,7 @@ cdx_int32 SeekToTime(TSParser *mTSParser, cdx_int64 timeUs, cdx_uint32 mode)
                     ret = -1;
                 }
                 */
-				break;
+                break;
             }
         
             if (pts<dst_pts)
@@ -5678,12 +5852,12 @@ cdx_int32 SeekToTime(TSParser *mTSParser, cdx_int64 timeUs, cdx_uint32 mode)
             if(CdxStreamSeek(cdxStream, file_pos, SEEK_SET) < 0)
             {
                 CDX_LOGE("CdxStreamSeek fail");
-				break;
+                break;
             }
             curPos = CdxStreamTell(cdxStream);
             CDX_LOGV("curPos = %lld, file_pos = %lld", curPos, file_pos);
         }
-		while (cnt < 10);
+        while (cnt < 10);
         free(tmp_buf);
     }
     else if(mTSParser->seekMethod == 1)
@@ -5695,55 +5869,55 @@ cdx_int32 SeekToTime(TSParser *mTSParser, cdx_int64 timeUs, cdx_uint32 mode)
 #if 0
     else if(mTSParser->seekMethod == 3)
     {
-    	int64 	first_pts;
-    	int64 	last_pts;
-    	CDX_U32	tmp_size;
-    	CDX_S32	read_size;
-    	CDX_U8	*tmp_buf;
+        int64     first_pts;
+        int64     last_pts;
+        CDX_U32    tmp_size;
+        CDX_S32    read_size;
+        CDX_U8    *tmp_buf;
 
-    	if(timeUs >= ts->total_time_in_ms || timeUs < 0)
-    		return -1;
+        if(timeUs >= ts->total_time_in_ms || timeUs < 0)
+            return -1;
 
-    	tmp_buf = (CDX_U8 *)malloc(MAX_NETWORK_SEEK_SIZE);
-    	if(tmp_buf == NULL)
-    		return -1;
-    	tmp_size = MAX_NETWORK_SEEK_SIZE;
+        tmp_buf = (CDX_U8 *)malloc(MAX_NETWORK_SEEK_SIZE);
+        if(tmp_buf == NULL)
+            return -1;
+        tmp_size = MAX_NETWORK_SEEK_SIZE;
 
-    	file_pos = ts->byte_rate * timeUs / 1000;
-    	file_pos -= tmp_size / 2;//预期file_pos前后的一个范围
-    	if(file_pos < 0)
-    		file_pos = 0;
-    	file_pos -= (file_pos % ts->raw_packet_size);
-    	cdx_seek(ts->pb, file_pos, SEEK_SET);
-    	read_size = cdx_read(tmp_buf, 1, tmp_size, ts->pb);
-    	if(read_size <= 0)
-    		return -1;
-    	first_pts = probe_pts(tmp_buf, read_size, ts->raw_packet_size, ts->parent);
-    	last_pts  = probe_last_pts(tmp_buf, read_size, ts->raw_packet_size, ts->parent);
-    	if(first_pts > 0 && last_pts > 0)
-    	{
-			if(timeUs < first_pts)
-			{
-				file_pos -= (first_pts - timeUs) * ts->byte_rate / 1000;
-			}
-			else if(timeUs > last_pts)
-			{
-				file_pos += (timeUs - last_pts) * ts->byte_rate / 1000 + read_size;
-			}
-			else
-			{
-				file_pos = ts->byte_rate * timeUs / 1000;
-			}
+        file_pos = ts->byte_rate * timeUs / 1000;
+        file_pos -= tmp_size / 2;//预期file_pos前后的一个范围
+        if(file_pos < 0)
+            file_pos = 0;
+        file_pos -= (file_pos % ts->raw_packet_size);
+        cdx_seek(ts->pb, file_pos, SEEK_SET);
+        read_size = cdx_read(tmp_buf, 1, tmp_size, ts->pb);
+        if(read_size <= 0)
+            return -1;
+        first_pts = probe_pts(tmp_buf, read_size, ts->raw_packet_size, ts->parent);
+        last_pts  = probe_last_pts(tmp_buf, read_size, ts->raw_packet_size, ts->parent);
+        if(first_pts > 0 && last_pts > 0)
+        {
+            if(timeUs < first_pts)
+            {
+                file_pos -= (first_pts - timeUs) * ts->byte_rate / 1000;
+            }
+            else if(timeUs > last_pts)
+            {
+                file_pos += (timeUs - last_pts) * ts->byte_rate / 1000 + read_size;
+            }
+            else
+            {
+                file_pos = ts->byte_rate * timeUs / 1000;
+            }
 
-			file_pos -= file_pos % ts->raw_packet_size;
-    	}
-    	if(file_pos < 0)
-    		file_pos = 0;
-    	LOGV("timeUs %lld, first_pts %lld, last pts %lld", timeUs, first_pts, last_pts);
-    	if(tmp_buf)
-    		free(tmp_buf);
-    	cdx_seek(ts->pb, file_pos, SEEK_SET);
-    	return 0;
+            file_pos -= file_pos % ts->raw_packet_size;
+        }
+        if(file_pos < 0)
+            file_pos = 0;
+        LOGV("timeUs %lld, first_pts %lld, last pts %lld", timeUs, first_pts, last_pts);
+        if(tmp_buf)
+            free(tmp_buf);
+        cdx_seek(ts->pb, file_pos, SEEK_SET);
+        return 0;
     }
 #endif
 _exit:
@@ -5754,7 +5928,7 @@ _exit:
 cdx_int32 TSSeekTo(CdxParserT *parser, cdx_int64 timeUs)
 {
     CDX_LOGI("TSSeekTo start, timeUs = %lld", timeUs);
-	TSParser *mTSParser = (TSParser *)parser;
+    TSParser *mTSParser = (TSParser *)parser;
     if(mTSParser->status != CDX_PSR_IDLE || mTSParser->seekMethod == -1)
     {
         CDX_LOGE("PSR_UNKNOWN_ERR, bug !!!");
@@ -5768,14 +5942,15 @@ cdx_int32 TSSeekTo(CdxParserT *parser, cdx_int64 timeUs)
         mTSParser->mErrno = PSR_INVALID_OPERATION;
         return -1;
     }
-    if(!(mTSParser->attribute & NO_NEED_DURATION) && (cdx_uint64)timeUs >= mTSParser->durationMs*1000)
+    if(!(mTSParser->attribute & NO_NEED_DURATION)
+        && (cdx_uint64)timeUs >= mTSParser->durationMs*1000)
     {
         CDX_LOGI("PSR_EOS");
         mTSParser->mErrno = PSR_EOS;
         return 0;
     }
 
-	pthread_mutex_lock(&mTSParser->statusLock);
+    pthread_mutex_lock(&mTSParser->statusLock);
     if(mTSParser->forceStop)//此时一定是idle态
     {
         pthread_mutex_unlock(&mTSParser->statusLock);
@@ -5785,8 +5960,8 @@ cdx_int32 TSSeekTo(CdxParserT *parser, cdx_int64 timeUs)
     pthread_mutex_unlock(&mTSParser->statusLock);
 
     mTSParser->mErrno = PSR_OK;
-	CdxStreamT *cdxStream = mTSParser->cdxStream;
-	cdx_int32 ret = 0;
+    CdxStreamT *cdxStream = mTSParser->cdxStream;
+    cdx_int32 ret = 0;
     if(ResetCacheBuffer(&mTSParser->mCacheBuffer) < 0)
     {
         CDX_LOGE("ResetCacheBuffer fail");
@@ -5794,11 +5969,11 @@ cdx_int32 TSSeekTo(CdxParserT *parser, cdx_int64 timeUs)
         mTSParser->mErrno = PSR_UNKNOWN_ERR;
         goto _exit;
     }
-	if(mTSParser->seekMethod == 2)
-	{
-		ret = CdxStreamSeekToTime(cdxStream, timeUs);
-		if(ret >= 0)
-		{
+    if(mTSParser->seekMethod == 2)
+    {
+        ret = CdxStreamSeekToTime(cdxStream, timeUs);
+        if(ret >= 0)
+        {
 #if HandlePtsInLocal
             mTSParser->preOutputTimeUs = timeUs;
 #else
@@ -5825,8 +6000,6 @@ cdx_int32 TSSeekTo(CdxParserT *parser, cdx_int64 timeUs)
                     goto _exit;
                 }
                 */
-                //这两个exit是不应该的，出现则一定要解掉，因为此时CdxStreamSeekToTime是成功的，而preOutputTimeUs无法得到，
-                //除非preOutputTimeUs完全不需要时，则无碍
             }
 
             mTSParser->preOutputTimeUs = timeUs + mTSParser->curProgram->mFirstPTS*100/9;
@@ -5834,9 +6007,9 @@ cdx_int32 TSSeekTo(CdxParserT *parser, cdx_int64 timeUs)
             mTSParser->hasVideoSync = 0;
             mTSParser->syncOn = 0;*/ //不需要，因为HandlePtsInLocal = 0
 #endif
-		}
+        }
         goto _exit;
-	}
+    }
     
     while(mTSParser->curProgram->mFirstPTS == -1)
     {
@@ -5862,35 +6035,36 @@ cdx_int32 TSSeekTo(CdxParserT *parser, cdx_int64 timeUs)
         }*/
     }
 #if HandlePtsInLocal
-	cdx_int64 curTime = mTSParser->preOutputTimeUs;//已经是显示时间
+    cdx_int64 curTime = mTSParser->preOutputTimeUs;//已经是显示时间
 #else
     cdx_int64 curTime = mTSParser->preOutputTimeUs - mTSParser->curProgram->mFirstPTS*100/9;
 #endif
     
-	cdx_int64 diffTime = timeUs - curTime;
-    CDX_LOGV("TSSeekTo diffTime = %lld, curTime = %lld, preOutputTimeUs = %lld, mFirstPTS = %lld", diffTime, curTime, mTSParser->preOutputTimeUs, mTSParser->curProgram->mFirstPTS);
-	if(diffTime == 0)
-	{
+    cdx_int64 diffTime = timeUs - curTime;
+    CDX_LOGV("TSSeekTo diffTime = %lld, curTime = %lld, preOutputTimeUs = %lld, mFirstPTS = %lld",
+        diffTime, curTime, mTSParser->preOutputTimeUs, mTSParser->curProgram->mFirstPTS);
+    if(diffTime == 0)
+    {
         ret = 0;
         goto _exit;
-	}
-	else if(diffTime > 0)
-	{
-		ret = SeekToTime(mTSParser, timeUs, 1); //* seek forward.
-	}
-	else
-	{
-		ret = SeekToTime(mTSParser, timeUs, 2); //* seek backward.
-	}
-	
-	if(ret < 0)
-	{
+    }
+    else if(diffTime > 0)
+    {
+        ret = SeekToTime(mTSParser, timeUs, 1); //* seek forward.
+    }
+    else
+    {
+        ret = SeekToTime(mTSParser, timeUs, 2); //* seek backward.
+    }
+
+    if(ret < 0)
+    {
         mTSParser->mErrno = PSR_UNKNOWN_ERR;
         goto _exit;
-	}
-	mTSParser->hasAudioSync = 0;
-	mTSParser->hasVideoSync = 0;
-	mTSParser->syncOn = 0;
+    }
+    mTSParser->hasAudioSync = 0;
+    mTSParser->hasVideoSync = 0;
+    mTSParser->syncOn = 0;
 #if HandlePtsInLocal
     mTSParser->preOutputTimeUs = timeUs;
 #else
@@ -5902,12 +6076,12 @@ _exit:
     mTSParser->currentES = NULL;
     ResetStreamsInProgram(mTSParser->curProgram);
     ResetPSISection(mTSParser);
-	pthread_mutex_lock(&mTSParser->statusLock);
+    pthread_mutex_lock(&mTSParser->statusLock);
     mTSParser->status = CDX_PSR_IDLE;
     pthread_mutex_unlock(&mTSParser->statusLock);
     pthread_cond_signal(&mTSParser->cond);
     CDX_LOGD("TSSeekTo end, ret = %d, OutputTimeUs = %lld", ret, mTSParser->preOutputTimeUs);
-	return ret;
+    return ret;
 }
 
 static struct CdxParserOpsS gTSParserOps = 
@@ -5917,42 +6091,41 @@ static struct CdxParserOpsS gTSParserOps =
     .read = TSRead,
     .getMediaInfo = TSGetMediaInfo,
     .getStatus = TSGetStatus,
-	.attribute = TSAttribute,
-	.seekTo = TSSeekTo,
-	.close = TSClose,
-	.init = TSInit
+    .attribute = TSAttribute,
+    .seekTo = TSSeekTo,
+    .close = TSClose,
+    .init = TSInit
 };
-
-
-
 ////////////////////////////////////////////////////////////////////////////////
 cdx_uint32 TSParserProbe(CdxStreamProbeDataT *probeData)
 {
     cdx_int32 score, fec_score, dvhs_score;
-	if(probeData->len >= ProbeDataLen)
-	{
+    if(probeData->len >= ProbeDataLen)
+    {
         score = Analyze((const cdx_uint8*)probeData->buf, ProbeDataLen, TS_PACKET_SIZE, NULL);
         if(score >= 5)
         {
             return 100;
         }
-        dvhs_score = Analyze((const cdx_uint8*)probeData->buf, ProbeDataLen, TS_DVHS_PACKET_SIZE, NULL);
+        dvhs_score =
+            Analyze((const cdx_uint8*)probeData->buf, ProbeDataLen, TS_DVHS_PACKET_SIZE, NULL);
         
         if(dvhs_score >= 5)
         {
             return 100;
         }
-        fec_score = Analyze((const cdx_uint8*)probeData->buf, ProbeDataLen, TS_FEC_PACKET_SIZE, NULL);
+        fec_score =
+            Analyze((const cdx_uint8*)probeData->buf, ProbeDataLen, TS_FEC_PACKET_SIZE, NULL);
         
         if(fec_score >= 5)
         {
             return 100;
         }
         return 0;
-	}
+    }
     else
     {
-		CDX_LOGW("Probe data is not enough. probeData->len(%u)", probeData->len);
+        CDX_LOGW("Probe data is not enough. probeData->len(%u)", probeData->len);
         cdx_uint32 len = probeData->len;
         cdx_int8 *p = probeData->buf;
         cdx_int8 *p1;
@@ -5984,23 +6157,23 @@ CdxParserT *TSParserOpen(CdxStreamT *cdxStream, cdx_uint32 flags)
     memset(mTSParser, 0x00, sizeof(TSParser));
 	
     CdxListInit(&mTSParser->mPSISections);
-	SetPSISection(mTSParser, TS_PAT_PID);
+    SetPSISection(mTSParser, TS_PAT_PID);
     mTSParser->enablePid[TS_PAT_PID] = 1;
-	memset(mTSParser->crcValidity, 0, sizeof(mTSParser->crcValidity));
+    memset(mTSParser->crcValidity, 0, sizeof(mTSParser->crcValidity));
 	
     mTSParser->pat_version_number = (unsigned)-1;
     CdxListInit(&mTSParser->mPrograms);
 
-	cdx_uint32 bufSize = PROBE_PACKET_NUM * 204 * 2;//
-	mTSParser->mCacheBuffer.bigBuf = (cdx_uint8 *)CdxMalloc(bufSize);
+    cdx_uint32 bufSize = PROBE_PACKET_NUM * 204 * 2;//
+    mTSParser->mCacheBuffer.bigBuf = (cdx_uint8 *)CdxMalloc(bufSize);
     CDX_FORCE_CHECK(mTSParser->mCacheBuffer.bigBuf);
-	mTSParser->mCacheBuffer.bufSize = bufSize;
-	mTSParser->mCacheBuffer.endPos = -1;
+    mTSParser->mCacheBuffer.bufSize = bufSize;
+    mTSParser->mCacheBuffer.endPos = -1;
 
-	mTSParser->tmpBuf = (cdx_uint8 *)CdxMalloc(TS_PACKET_SIZE);
-	CDX_FORCE_CHECK(mTSParser->tmpBuf);
+    mTSParser->tmpBuf = (cdx_uint8 *)CdxMalloc(TS_PACKET_SIZE);
+    CDX_FORCE_CHECK(mTSParser->tmpBuf);
 
-	mTSParser->cdxStream = cdxStream;
+    mTSParser->cdxStream = cdxStream;
     mTSParser->attribute = flags & (NO_NEED_DURATION | DISABLE_VIDEO | 
         DISABLE_AUDIO | DISABLE_SUBTITLE | MUTIL_AUDIO | BD_TXET | MIRACST);
     //CDX_LOGD("mTSParser->attribute = %u, flags = %u", mTSParser->attribute, flags);
@@ -6021,24 +6194,25 @@ CdxParserT *TSParserOpen(CdxStreamT *cdxStream, cdx_uint32 flags)
         CDX_LOGE("open file failure errno(%d)", errno);
     }
 #endif
-	if(!(flags&NOT_LASTSEGMENT))
-	{
-		mTSParser->mIslastSegment = 1;
-	}
+    if(!(flags&NOT_LASTSEGMENT))
+    {
+        mTSParser->mIslastSegment = 1;
+    }
 
     pthread_mutex_init(&mTSParser->statusLock, NULL);
     pthread_cond_init(&mTSParser->cond, NULL);
 
     mTSParser->base.ops = &gTSParserOps;
-	mTSParser->base.type = CDX_PARSER_TS;
-	mTSParser->mErrno = PSR_INVALID;
-	mTSParser->status = CDX_PSR_INITIALIZED;
+    mTSParser->base.type = CDX_PARSER_TS;
+    mTSParser->mErrno = PSR_INVALID;
+    mTSParser->status = CDX_PSR_INITIALIZED;
+
+    pthread_rwlock_init(&mTSParser->controlLock, NULL);
     return &mTSParser->base;
 }
 
 CdxParserCreatorT tsParserCtor =
 {
-	.create = TSParserOpen,
-	.probe = TSParserProbe
+    .create = TSParserOpen,
+    .probe = TSParserProbe
 };
-

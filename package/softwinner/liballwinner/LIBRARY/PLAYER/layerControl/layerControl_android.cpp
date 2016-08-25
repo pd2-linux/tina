@@ -75,7 +75,7 @@ typedef struct LayerCtrlContext
     int                  bLayerShowed;
     int                  bDeinterlaceFlag;		// 0: do not de-i, 1: hw de-i, 2: sw de-i
     int                  nPreNativeWindowOutputType;
-	int 				 bFirstFrameIsShowed; // 0->first not showed, 1->is already showed
+	int				 bFirstFrameIsShowed; // 0->first not showed, 1->is already showed
 	int					 nOutputTypeChanged;	//0:no change  1:gpu->0 copy
     
     //* use when render to gpu.
@@ -125,7 +125,7 @@ uintptr_t getPhyAddrOfGpuBuffer(ANativeWindowBuffer* pWindowBuf)
     if(pWindowBuf->handle == NULL)
     {
         loge("pWindowBuf->handle is null");
-    	return 0;
+	return 0;
     }
 
     ion_handle_abstract_t handle_ion;
@@ -178,7 +178,7 @@ void checkGpuOutputType(LayerCtrl* l)
         {
 
             lc->bRenderToHardwareLayer   = 1;
-    		lc->nOutputTypeChanged = 1;
+		lc->nOutputTypeChanged = 1;
         }
     
         //* reset the display pixelformat relay on bRenderToHardwareLayer
@@ -575,30 +575,30 @@ static int queueBufferZeroCpyAccessDe(LayerCtrlContext* lc,
     //* wait for new frame showed.
     if(lc->bLayerShowed == 1)
     {
-    	int nCurFrameId;
+	int nCurFrameId;
         int nWaitTime;
 
         nWaitTime = 50000;  //* max frame interval is 1000/24fps = 41.67ms, here we wait 50ms for max.
         do
         {
-        	nCurFrameId = lc->pNativeWindow->perform(lc->pNativeWindow,
+		nCurFrameId = lc->pNativeWindow->perform(lc->pNativeWindow,
                                                           NATIVE_WINDOW_SETPARAMETER,
                                                           HWC_LAYER_GETCURFRAMEPARA,
                                                           0);
             if(nCurFrameId == pBuf0->nID)
-            	break;
+		break;
             else
             {
-            	if(nWaitTime <= 0)
-            	{
-            		logv("check frame id fail, maybe something error with the HWC layer.");
+		if(nWaitTime <= 0)
+		{
+			logv("check frame id fail, maybe something error with the HWC layer.");
                     break;
-            	}
-            	else
-            	{
-            		usleep(5000);
+		}
+		else
+		{
+			usleep(5000);
                     nWaitTime -= 5000;
-            	}
+		}
             }
         }while(1);
     }
@@ -674,9 +674,9 @@ static int queueLastBufferZeroCpyAccessDe(LayerCtrlContext* lc, VideoPicture* pP
 static void getVideoBufferInfo(int *nBufAddr, VideoPicture* pBuf0, VideoPicture* pBuf1, struct ScMemOpsS *memops)
 {
     //HAL_PIXEL_FORMAT_AW_NV12		     = 0x101,
-    //HAL_PIXEL_FORMAT_AW_MB420  		 = 0x102,
-    //HAL_PIXEL_FORMAT_AW_MB411  	 	 = 0x103,
-    //HAL_PIXEL_FORMAT_AW_MB422  		 = 0x104,
+    //HAL_PIXEL_FORMAT_AW_MB420			 = 0x102,
+    //HAL_PIXEL_FORMAT_AW_MB411			 = 0x103,
+    //HAL_PIXEL_FORMAT_AW_MB422			 = 0x104,
     //HAL_PIXEL_FORMAT_AW_YUV_PLANNER420 = 0x105,
 	//HAL_PIXEL_FORMAT_AW_YVU_PLANNER420 = 0x106,
     int temp;
@@ -687,62 +687,62 @@ static void getVideoBufferInfo(int *nBufAddr, VideoPicture* pBuf0, VideoPicture*
 
     if(pBuf1 != NULL)
     {
-    	 nBufAddr[3] = (int)CdcMemGetPhysicAddress(memops, pBuf1->pData0);
-    	 nBufAddr[4] = (int)CdcMemGetPhysicAddress(memops, pBuf1->pData1);
-    	 nBufAddr[5] = (int)CdcMemGetPhysicAddress(memops, pBuf1->pData2);
+	 nBufAddr[3] = (int)CdcMemGetPhysicAddress(memops, pBuf1->pData0);
+	 nBufAddr[4] = (int)CdcMemGetPhysicAddress(memops, pBuf1->pData1);
+	 nBufAddr[5] = (int)CdcMemGetPhysicAddress(memops, pBuf1->pData2);
     }
 
     switch(pBuf0->ePixelFormat)
     {
-    	case PIXEL_FORMAT_YUV_MB32_420:
-    	{
-    	    nBufAddr[2] = 0;
-    	    nBufAddr[5] = 0;
-    		nBufAddr[6] = HAL_PIXEL_FORMAT_AW_MB420;
-    		break;
-    	}
-    	case PIXEL_FORMAT_YUV_MB32_422:
-    	{
-    		nBufAddr[2] = 0;
-    		nBufAddr[5] = 0;
-    		nBufAddr[6] = HAL_PIXEL_FORMAT_AW_MB422;
-        	break;
-    	}
-    	case PIXEL_FORMAT_NV12:
-    	{
-    		nBufAddr[6] = HAL_PIXEL_FORMAT_AW_NV12;
-    		break;
-    	}
-    	case PIXEL_FORMAT_NV21:
-    	{
-    		nBufAddr[6] = HAL_PIXEL_FORMAT_AW_NV21;
-    		break;
-    	}
-    	case PIXEL_FORMAT_YV12:
-    	{
+	case PIXEL_FORMAT_YUV_MB32_420:
+	{
+	    nBufAddr[2] = 0;
+	    nBufAddr[5] = 0;
+		nBufAddr[6] = HAL_PIXEL_FORMAT_AW_MB420;
+		break;
+	}
+	case PIXEL_FORMAT_YUV_MB32_422:
+	{
+		nBufAddr[2] = 0;
+		nBufAddr[5] = 0;
+		nBufAddr[6] = HAL_PIXEL_FORMAT_AW_MB422;
+		break;
+	}
+	case PIXEL_FORMAT_NV12:
+	{
+		nBufAddr[6] = HAL_PIXEL_FORMAT_AW_NV12;
+		break;
+	}
+	case PIXEL_FORMAT_NV21:
+	{
+		nBufAddr[6] = HAL_PIXEL_FORMAT_AW_NV21;
+		break;
+	}
+	case PIXEL_FORMAT_YV12:
+	{
 #if(ZEROCOPY_HAL_PIXEL_FORMAT_AW == ZEROCOPY_HAL_PIXEL_FORMAT_AW_YUV_PLANNER420)            
             nBufAddr[6] = HAL_PIXEL_FORMAT_AW_YUV_PLANNER420;
-    		temp = nBufAddr[1];
-    		nBufAddr[1] = nBufAddr[2];
-    		nBufAddr[2] = temp;
+		temp = nBufAddr[1];
+		nBufAddr[1] = nBufAddr[2];
+		nBufAddr[2] = temp;
 
-    		temp = nBufAddr[4];
-    	    nBufAddr[4] = nBufAddr[5];
-    	    nBufAddr[5] = temp;
+		temp = nBufAddr[4];
+	    nBufAddr[4] = nBufAddr[5];
+	    nBufAddr[5] = temp;
 #elif(ZEROCOPY_HAL_PIXEL_FORMAT_AW == ZEROCOPY_HAL_PIXEL_FORMAT_AW_YVU_PLANNER420)            
-    		nBufAddr[6] = HAL_PIXEL_FORMAT_AW_YVU_PLANNER420;
+		nBufAddr[6] = HAL_PIXEL_FORMAT_AW_YVU_PLANNER420;
 #endif
-    		break;
-    	}
-    	case PIXEL_FORMAT_YUV_PLANER_420:
-    	{
-    		nBufAddr[6] = HAL_PIXEL_FORMAT_AW_YUV_PLANNER420;
-    		break;
-    	}
-    	default:
-    	{
-    		logd("error pixel format\n");
-    	}
+		break;
+	}
+	case PIXEL_FORMAT_YUV_PLANER_420:
+	{
+		nBufAddr[6] = HAL_PIXEL_FORMAT_AW_YUV_PLANNER420;
+		break;
+	}
+	default:
+	{
+		logd("error pixel format\n");
+	}
     }
     return;
 }
@@ -764,30 +764,30 @@ static int queueBufferZeroCpyNormal(LayerCtrlContext* lc,
     err = lc->pNativeWindow->dequeueBuffer_DEPRECATED(lc->pNativeWindow, &pWindowBuf);
     if(err != 0)
     {
-    	logw("dequeue buffer fail, return value from dequeueBuffer_DEPRECATED() method is %d.", err);
+	logw("dequeue buffer fail, return value from dequeueBuffer_DEPRECATED() method is %d.", err);
         return -1;
     }
     lc->pNativeWindow->lockBuffer_DEPRECATED(lc->pNativeWindow, pWindowBuf);
 
     //* lock the data buffer.
     {
-    	GraphicBufferMapper& graphicMapper = GraphicBufferMapper::get();
+	GraphicBufferMapper& graphicMapper = GraphicBufferMapper::get();
         Rect bounds(lc->nWidth, lc->nHeight);
         graphicMapper.lock(pWindowBuf->handle, lc->nUsage, bounds, &pDataBuf);
-    	handle = pWindowBuf->handle;
+	handle = pWindowBuf->handle;
     }
 
     if(lc->nOutputTypeChanged > 0 && lc->nOutputTypeChanged <= NUM_OF_PICTURES_KEEP_IN_LIST)
     {
-    	//logd("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx GPU->0 COPY, send black frame to GPU!!! %d", lc->nOutputTypeChanged);
-    	memset((char*)pDataBuf,0x10,(pWindowBuf->height * pWindowBuf->stride));
-    	memset((char*)pDataBuf + pWindowBuf->height * pWindowBuf->stride,0x80,(pWindowBuf->height * pWindowBuf->stride)/2);
-    	lc->nOutputTypeChanged ++;
+	//logd("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx GPU->0 COPY, send black frame to GPU!!! %d", lc->nOutputTypeChanged);
+	memset((char*)pDataBuf,0x10,(pWindowBuf->height * pWindowBuf->stride));
+	memset((char*)pDataBuf + pWindowBuf->height * pWindowBuf->stride,0x80,(pWindowBuf->height * pWindowBuf->stride)/2);
+	lc->nOutputTypeChanged ++;
     }
     else if(lc->nOutputTypeChanged > NUM_OF_PICTURES_KEEP_IN_LIST)
     {
-    	//logd("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx send over!!");
-    	lc->nOutputTypeChanged = 0;
+	//logd("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx send over!!");
+	lc->nOutputTypeChanged = 0;
     }
         
     getVideoBufferInfo(nBufAddr, pBuf0, pBuf1, lc->memops);
@@ -797,12 +797,12 @@ static int queueBufferZeroCpyNormal(LayerCtrlContext* lc,
 
     //* unlock the buffer.
     {
-    	GraphicBufferMapper& graphicMapper = GraphicBufferMapper::get();
+	GraphicBufferMapper& graphicMapper = GraphicBufferMapper::get();
         graphicMapper.unlock(pWindowBuf->handle);
     }
 
     if(bValid)
-    	lc->pNativeWindow->queueBuffer_DEPRECATED(lc->pNativeWindow, pWindowBuf);
+	lc->pNativeWindow->queueBuffer_DEPRECATED(lc->pNativeWindow, pWindowBuf);
     else
         lc->pNativeWindow->cancelBuffer_DEPRECATED(lc->pNativeWindow, pWindowBuf);
 
@@ -825,13 +825,13 @@ static int queueLastBufferZeroCpyNormal(LayerCtrlContext* lc, VideoPicture* pPic
         err = lc->pNativeWindow->dequeueBuffer_DEPRECATED(lc->pNativeWindow, &pWindowBuf);
         if(err != 0)
         {
-        	logw("dequeue buffer fail, return value from dequeueBuffer_DEPRECATED() method is %d.", err);
+		logw("dequeue buffer fail, return value from dequeueBuffer_DEPRECATED() method is %d.", err);
             return -1;
         }
         lc->pNativeWindow->lockBuffer_DEPRECATED(lc->pNativeWindow, pWindowBuf);
         //* lock the data buffer.
         {
-        	GraphicBufferMapper& graphicMapper = GraphicBufferMapper::get();
+		GraphicBufferMapper& graphicMapper = GraphicBufferMapper::get();
             Rect bounds(lc->nWidth, lc->nHeight);
             graphicMapper.lock(pWindowBuf->handle, lc->nUsage, bounds, &pDataBuf);
         }
@@ -842,7 +842,7 @@ static int queueLastBufferZeroCpyNormal(LayerCtrlContext* lc, VideoPicture* pPic
         mQueuePicture.ePixelFormat = lc->eDisplayPixelFormat;
         mQueuePicture.nWidth	   = pWindowBuf->width;
         mQueuePicture.nLineStride  = pWindowBuf->stride;
-        mQueuePicture.nHeight 	   = pWindowBuf->height;
+        mQueuePicture.nHeight	   = pWindowBuf->height;
         mQueuePicture.pData0	   = (char*)pDataBuf;
         mQueuePicture.pData1	   = mQueuePicture.pData0 + (pWindowBuf->height * pWindowBuf->stride);
         mQueuePicture.pData2	   = mQueuePicture.pData1 + (pWindowBuf->height * pWindowBuf->stride)/4;
@@ -855,11 +855,11 @@ static int queueLastBufferZeroCpyNormal(LayerCtrlContext* lc, VideoPicture* pPic
         nBufAddr[2], nBufAddr[3], nBufAddr[4], nBufAddr[5], nBufAddr[6]);
         //* unlock the buffer.
         {
-        	GraphicBufferMapper& graphicMapper = GraphicBufferMapper::get();
+		GraphicBufferMapper& graphicMapper = GraphicBufferMapper::get();
             graphicMapper.unlock(pWindowBuf->handle);
         }
 
-    	lc->pNativeWindow->queueBuffer_DEPRECATED(lc->pNativeWindow, pWindowBuf);
+	lc->pNativeWindow->queueBuffer_DEPRECATED(lc->pNativeWindow, pWindowBuf);
 	}
 
     return 0;
@@ -949,10 +949,10 @@ void __LayerRelease(LayerCtrl* l)
     //* return pictures.
 	for(int i = 0; i < NUM_OF_PICTURES_KEEP_IN_LIST; i++)
     {
-    	if (lc->pKeepPicNode[i].pPicture != NULL)
-    	{
-        	lc->callback(lc->pUserData, MESSAGE_ID_LAYER_RETURN_BUFFER, (void*)lc->pKeepPicNode[i].pPicture);
-    	}
+	if (lc->pKeepPicNode[i].pPicture != NULL)
+	{
+		lc->callback(lc->pUserData, MESSAGE_ID_LAYER_RETURN_BUFFER, (void*)lc->pKeepPicNode[i].pPicture);
+	}
     }
     
 	if(lc->pKeepPicNode)
@@ -1165,7 +1165,7 @@ int __LayerCtrlShowVideo(LayerCtrl* l)
     logd("xxxx show video, current show flag = %d", lc->bLayerShowed);
     if(lc->bLayerShowed == 0)
     {
-    	lc->bLayerShowed = 1;
+	lc->bLayerShowed = 1;
         lc->pNativeWindow->perform(lc->pNativeWindow,
                                    NATIVE_WINDOW_SETPARAMETER,
                                    HWC_LAYER_SHOW,
@@ -1184,7 +1184,7 @@ int __LayerCtrlHideVideo(LayerCtrl* l)
     logd("xxxx hide video, current show flag = %d", lc->bLayerShowed);
     if(lc->bLayerShowed == 1)
     {
-    	lc->bLayerShowed = 0;
+	lc->bLayerShowed = 0;
         lc->pNativeWindow->perform(lc->pNativeWindow,
                                        NATIVE_WINDOW_SETPARAMETER,
                                        HWC_LAYER_SHOW,
@@ -1223,14 +1223,14 @@ int  __LayerCtrlHoldLastPicture(LayerCtrl* l, int bHold)
 		//* find the latest pic which the pts is laragest
         for (int i = 0; i < NUM_OF_PICTURES_KEEP_IN_LIST; i++)
         {
-        	if (lc->pKeepPicNode[i].pPicture != NULL)
-        	{
+		if (lc->pKeepPicNode[i].pPicture != NULL)
+		{
                 if(lastPicture == NULL 
                    || (lastPicture->nPts < lc->pKeepPicNode[i].pPicture->nPts))
                 {
-        		    lastPicture = lc->pKeepPicNode[i].pPicture;
+			    lastPicture = lc->pKeepPicNode[i].pPicture;
                 }
-        	}
+		}
         }
         if(lastPicture == NULL)
         {

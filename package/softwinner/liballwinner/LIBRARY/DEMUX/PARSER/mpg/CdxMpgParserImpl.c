@@ -1036,5 +1036,3 @@ cdx_int16 MpgExit(CdxMpgParserT *MpgParser)
 
     return 0;
 }
-
-

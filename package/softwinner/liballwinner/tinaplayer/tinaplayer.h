@@ -123,8 +123,11 @@ class TinaPlayer{
 		int callbackProcess(int messageId, void* param);
 		int setVolume(int volume);	
 		void callbackToApp(int msg, int param0, void* param1);
-
+		int setVideoOutputScaleRatio(int horizonScaleDownRatio,int verticalScaleDownRatio);
+		int                 mVideoFrameNum;
+		int                 mAudioFrameNum;
 	private:
+
 		void initSoundControlOpsT();
 		void* mPlayer;
 		NotifyCallback		mNotifier;

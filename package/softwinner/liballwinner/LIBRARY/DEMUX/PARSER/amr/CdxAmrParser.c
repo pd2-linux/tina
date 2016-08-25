@@ -1,10 +1,20 @@
+/*
+* Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+* All rights reserved.
+*
+* File : CdxAmrParser.c
+* Description : Amr Parser
+* History :
+*
+*/
 #include <CdxTypes.h>
 #include <CdxParser.h>
 #include <CdxStream.h>
 #include <CdxMemory.h>
 #include <CdxAmrParser.h>
 
-cdx_int32 AmrGetFrameSizeByOffset(AmrParserImplS *impl, cdx_int64 offset, cdx_int32 isWide, cdx_int32 *frameSize)
+cdx_int32 AmrGetFrameSizeByOffset(AmrParserImplS *impl, cdx_int64 offset,
+                                  cdx_int32 isWide, cdx_int32 *frameSize)
 {
     cdx_int32 ret = 0;
     unsigned char header[9];
@@ -85,12 +95,12 @@ static int AmrInit(CdxParserT* parameter)
     }
     impl->head_len = impl->is_wide ? 9:6;
     impl->mErrno = PSR_OK;
-	pthread_cond_signal(&impl->cond);
+    pthread_cond_signal(&impl->cond);
     return 0;
 OPENFAILURE:
     CDX_LOGE("AmrOpenThread fail!!!");
     impl->mErrno = PSR_OPEN_FAIL;
-	pthread_cond_signal(&impl->cond);
+    pthread_cond_signal(&impl->cond);
     return -1;
 }
 
@@ -104,13 +114,13 @@ static cdx_int32 __AmrParserControl(CdxParserT *parser, cdx_int32 cmd, void *par
     case CDX_PSR_CMD_DISABLE_AUDIO:
     case CDX_PSR_CMD_DISABLE_VIDEO:
     case CDX_PSR_CMD_SWITCH_AUDIO:
-    	break;
+        break;
     case CDX_PSR_CMD_SET_FORCESTOP:
-    	CdxStreamForceStop(impl->stream);
+        CdxStreamForceStop(impl->stream);
       break;
     case CDX_PSR_CMD_CLR_FORCESTOP:
-    	CdxStreamClrForceStop(impl->stream);
-    	break;
+        CdxStreamClrForceStop(impl->stream);
+        break;
     default :
         CDX_LOGW("not implement...(%d)", cmd);
         break;
@@ -127,7 +137,7 @@ static cdx_int32 __AmrParserPrefetch(CdxParserT *parser, CdxPacketT *pkt)
     if(!AmrGetFrameSizeByOffset(impl, impl->file_offset, impl->is_wide, &pkt->length)){
         CDX_LOGE("ToDo  how to deal the situation of invaild header?");
         return CDX_FAILURE;
-	}
+    }
     pkt->pts = (cdx_int64)impl->framecounts*20000;//one frame 20ms;
     pkt->flags |= (FIRST_PART|LAST_PART);
     CDX_LOGV("pkt->length:%d,pkt->pts:%lld",pkt->length,pkt->pts);
@@ -142,7 +152,7 @@ static cdx_int32 __AmrParserRead(CdxParserT *parser, CdxPacketT *pkt)
     
     impl = CdxContainerOf(parser, struct AmrParserImplS, base);
     cdxStream = impl->stream;
-	//READ ACTION
+    //READ ACTION
     if(pkt->length <= pkt->buflen) 
     {
         read_length = CdxStreamRead(cdxStream, pkt->buf, pkt->length);
@@ -150,7 +160,7 @@ static cdx_int32 __AmrParserRead(CdxParserT *parser, CdxPacketT *pkt)
     else
     {
         read_length = CdxStreamRead(cdxStream, pkt->buf, pkt->buflen);
-        read_length += CdxStreamRead(cdxStream, pkt->ringBuf,	pkt->length - pkt->buflen);
+        read_length += CdxStreamRead(cdxStream, pkt->ringBuf,    pkt->length - pkt->buflen);
     }
     
     if(read_length < 0)
@@ -353,7 +363,7 @@ static CdxParserT *__AmrParserOpen(CdxStreamT *stream, cdx_uint32 flags)
     memset(impl, 0x00, sizeof(*impl));
     impl->stream = stream;
     impl->base.ops = &amrParserOps;
-	pthread_cond_init(&impl->cond, NULL);
+    pthread_cond_init(&impl->cond, NULL);
     //ret = pthread_create(&impl->openTid, NULL, AmrOpenThread, (void*)impl);
     //CDX_FORCE_CHECK(!ret);
     impl->mErrno = PSR_INVALID;

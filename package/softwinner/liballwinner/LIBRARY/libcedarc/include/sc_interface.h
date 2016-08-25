@@ -1,3 +1,18 @@
+/*
+* Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+* All rights reserved.
+*
+* File : typedef.h
+* Description :
+* History :
+*   Author  : xyliu <xyliu@allwinnertech.com>
+*   Date    : 2016/04/13
+*   Comment :
+*
+*
+*/
+
+
 #ifndef SC_INTERFACE_H
 #define SC_INTERFACE_H
 
@@ -134,4 +149,3 @@ static inline int CdcMemShutdown(struct ScMemOpsS *memops)
 #endif
 
 #endif
-

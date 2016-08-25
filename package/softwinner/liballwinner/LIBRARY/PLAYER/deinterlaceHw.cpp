@@ -237,5 +237,3 @@ int DeinterlaceHw::process(VideoPicture *pPrePicture,
     
     return 0;
 }
-
-

@@ -80,4 +80,3 @@
 #define CEDARX_UNUSE(param) (void)param
 
 #endif
-

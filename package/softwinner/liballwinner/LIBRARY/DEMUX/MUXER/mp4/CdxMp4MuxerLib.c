@@ -1036,7 +1036,6 @@ static cdx_uint32 mdiaGetHdlrTagSize(MOVTrack *track)
 
 static cdx_int32 mdiaWriteHdlrTag(ByteIOContext *pb, MOVTrack *track)
 {
-    MuxMOVContext *mov = track->mov;
     char *descr, *hdlr, *hdlr_type;
     //offset_t pos = url_ftell(pb);
     

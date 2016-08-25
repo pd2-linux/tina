@@ -68,10 +68,10 @@
 
 #define DB_ERROR_OK			0
 #define DB_ERROR_MALLOC			1
-#define DB_ERROR_INDEX_CLASH    	2
+#define DB_ERROR_INDEX_CLASH		2
 #define DB_ERROR_INDEX_OUT_OF_RANGE	3
 #define DB_ERROR_NO_INDEX		4
-#define DB_ERROR_INSERT_INDEX_CLASH    	5
+#define DB_ERROR_INSERT_INDEX_CLASH	5
 
 #ifdef  __cplusplus
 extern "C" {

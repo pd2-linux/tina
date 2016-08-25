@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxSocketUtil.h
+ * Description : SocketUtil
+ * History :
+ *
+ */
+
 #ifndef CDX_SOCKET_UTIL_H
 #define CDX_SOCKET_UTIL_H
 #include <CdxTypes.h>
@@ -29,7 +39,7 @@ cdx_ssize CdxSockAsynRecv(cdx_int32 sockfd, void *buf, cdx_size len,
 cdx_ssize CdxSockAsynSend(cdx_int32 sockfd, const void *buf, cdx_size len, 
                           cdx_long timeoutUs, cdx_int32 *pForceStop);
                           
-cdx_int32 CdxAsynSocket(cdx_int32 nRecvBufLen, cdx_int32 *nRecvBufLenRet);
+cdx_int32 CdxAsynSocket(int domain, cdx_int32 *nRecvBufLen);
 
 cdx_int32  CdxSockAsynConnect(cdx_int32 sockfd, const struct sockaddr *addr, 
             socklen_t addrlen, cdx_long timeoutUs, cdx_int32 *pForceStop);

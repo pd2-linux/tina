@@ -1,3 +1,14 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : AsfParser.h
+ * Description : AsfParser
+ * Author  : xuqi <xuqi@allwinnertech.com>
+ * Comment : 创建初始版本
+ *
+ */
+
 #ifndef ASF_PARSER_H
 #define ASF_PARSER_H
 
@@ -277,7 +288,7 @@ struct AsfContextS /*ASFContext*/
     int nb_streams;
     AsfMediaStreamT *streams[128];
     int asfid2avid[128];                 ///< conversion table from asf ID 2 AVStream ID
-    cdx_uint32 stream_bitrates[128];       ///< max number of streams, bitrate for each (for streaming)
+    cdx_uint32 stream_bitrates[128];///< max number of streams, bitrate for each (for streaming)
     cdx_int64 totalBitRate;
 
     cdx_uint32 packet_size;
@@ -294,7 +305,7 @@ struct AsfContextS /*ASFContext*/
     int seekAble;
 
     /* non streamed additonnal info */
-    cdx_uint64 nb_packets;                 ///< how many packets are there in the file, invalid if broadcasting
+    cdx_uint64 nb_packets;  ///< how many packets are there in the file, invalid if broadcasting
 
     /* packet filling */
     int packet_size_left;
@@ -356,4 +367,3 @@ int AsfPsrCoreIoctrl(AsfContextT *p, cdx_uint32 uCmd, cdx_uint32 uParam);
 #endif
 
 #endif
-

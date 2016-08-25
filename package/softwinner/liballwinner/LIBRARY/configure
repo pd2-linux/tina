@@ -36,6 +36,7 @@ CONFIGURATIONS=(
 	CONFIG_HAVE_SSL                             nu              0
 	CONFIG_HAVE_LIVE555                         nu              0
 	CONFIG_CEDARX_PATH                          nu              0
+	CONFIG_MMS                                  nu              0
 )
 
 ################################################################################
@@ -67,7 +68,7 @@ Standard options:
   
   --product=product_type        the target product type, option can be [pad/tvbox/ott_cmcc/iptv/dvb/loudspeaker].
   
-  --chip=chip_code              the target chip, option can be [r8/r16/r58/r18/c500/t2].
+  --chip=chip_code              the target chip, option can be [r8/r16/r58/r18/c500/t2/t3].
   
   --debug-level=level           log output level for debug, option can be [close/error/warning/default/detail].
 
@@ -77,6 +78,8 @@ Standard options:
   
   --live555-enable=live555      the live555 library enable or not, option can be [yes/no].
   
+  --mms=enable                  the mms stream enable or not, option can be [yes/no].
+
   --disable-demux=demuxer       disable demux for specific file format, option can be [asf/avi/bd/dash/flv/hls/mkv/mms/mov/mpg/pmp/ogg/rx/ts].
   
   --enable-demux=demuxer        enable demux for specific file format, option can be [asf/avi/bd/dash/flv/hls/mkv/mms/mov/mpg/pmp/ogg/rx/ts].
@@ -370,7 +373,7 @@ for opt do
             fi
         ;;
         
-        ## config the target chip, option can be [r8/r16/r58/r18/c500/t2].
+        ## config the target chip, option can be [r8/r16/r58/r18/c500/t2/t3].
         --chip=*)
             key=CONFIG_CHIP
             value=""
@@ -393,6 +396,8 @@ for opt do
                 value=OPTION_CHIP_R18
             elif [ $optval = "t2" ]; then
                 value=OPTION_CHIP_T2
+            elif [ $optval = "t3" ]; then
+                value=OPTION_CHIP_T3
             else
                 echo "invalid chip option $optval."
                 continue
@@ -470,6 +475,20 @@ for opt do
             fi
         ;;
         
+        --mms=*)
+            key=CONFIG_MMS
+            value=""
+
+        if [ $optval = "yes" ]; then
+                value=OPTION_MMS_ENABLE
+            elif [ $optval = "no" ]; then
+                value=OPTION_MMS_DISABLE
+            else
+                echo "invalid ve_ipc option $optval."
+                continue
+            fi
+        ;;
+
 		## config cedarx path.
         --cedarx-path=*)
             key=CONFIG_CEDARX_PATH
@@ -739,4 +758,3 @@ do
 		sed -i "/^${key} /c${key} = \$\(${value}\)" $myFile
 	fi
 done
-

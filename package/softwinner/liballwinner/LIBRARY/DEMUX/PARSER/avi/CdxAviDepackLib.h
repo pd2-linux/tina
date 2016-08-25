@@ -1,15 +1,13 @@
 /*
-********************************************************************************
-*                                    eMOD
-*                   the Easy Portable/Player Develop Kits
-*                               mod_herb sub-system
-*                          (module name, e.g.mpeg4 decoder plug-in) module
-*
-*          (c) Copyright 2009-2010, Allwinner Microelectronic Co., Ltd.
-*                              All Rights Reserved
-*
-********************************************************************************
-*/
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxAviDepackLib.h
+ * Description : Part of avi parser.
+ * History :
+ *
+ */
+
 #ifndef _CDX_AVI_DEPACK_LIB_H_
 #define _CDX_AVI_DEPACK_LIB_H_
 
@@ -45,4 +43,3 @@ typedef enum __AVI_DEPACK_RETURN_VAL
 } __avi_depack_return_val_t;
 
 #endif  /* _CDX_AVI_DEPACK_LIB_H_ */
-

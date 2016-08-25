@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxAtomic.h
+ * Description : Atomic
+ * History :
+ *
+ */
+
 #ifndef CDX_ATOMIC_H
 #define CDX_ATOMIC_H
 
@@ -49,8 +59,6 @@ static inline cdx_bool CdxAtomicCAS(cdx_atomic_t *ref, cdx_ssize oldVal, cdx_ssi
 {
     return __sync_bool_compare_and_swap(&ref->counter, oldVal, newVal);
 }
-
-
 
 #ifdef __cplusplus
 }

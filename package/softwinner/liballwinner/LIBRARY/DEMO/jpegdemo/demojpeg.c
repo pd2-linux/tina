@@ -23,7 +23,7 @@ typedef struct VideoFrame
  /*
 　　位图文件的组成
           结构名称 符 号
- 	位图文件头 (bitmap-file header) BITMAPFILEHEADER bmfh
+	位图文件头 (bitmap-file header) BITMAPFILEHEADER bmfh
 	位图信息头 (bitmap-information header) BITMAPINFOHEADER bmih
 	彩色表　(color table) RGBQUAD aColors[]
 	图象数据阵列字节 BYTE aBitmapBits[]
@@ -311,10 +311,10 @@ static int transformPictureMb32ToRGB888(VideoPicture* pPicture, unsigned char* p
     FILE* outFp = fopen("/mnt/UDISK/rgb.data", "wb");
     if(outFp != NULL)
     {
-    	logd("************save_bmp_rgb565\n");
-    	save_bmp_rgb888(outFp, nWidth, nHeight, pData);
-    	fwrite(pDst, 1, nWidth*nHeight*3, outFp);
-    	fclose(outFp);
+	logd("************save_bmp_rgb565\n");
+	save_bmp_rgb888(outFp, nWidth, nHeight, pData);
+	fwrite(pDst, 1, nWidth*nHeight*3, outFp);
+	fclose(outFp);
     }
 #endif
 
@@ -433,9 +433,9 @@ static int transformPictureMb32ToRGB(struct ScMemOpsS* memops, VideoPicture* pPi
     FILE* outFp = fopen("/mnt/UDISK/rgb.bmp", "wb");
     if(outFp != NULL)
     {
-    	logd("************save_bmp_rgb565\n");
-    	save_bmp_rgb565(outFp, nWidth, nHeight, pData);
-    	fclose(outFp);
+	logd("************save_bmp_rgb565\n");
+	save_bmp_rgb565(outFp, nWidth, nHeight, pData);
+	fclose(outFp);
     }
 #endif
 
@@ -656,7 +656,7 @@ int main(int argc, char** argv)
                 jpegData.mData = (unsigned char*)malloc(jpegData.mSize);
                 if(jpegData.mData == NULL)
                 {
-                	return -1;
+			return -1;
                 }
 
                 transformPictureMb32ToRGB(memops, videoPicture, jpegData.mData, jpegData.mWidth, jpegData.mHeight);
@@ -693,4 +693,3 @@ int main(int argc, char** argv)
 
     return 0;
 }
-

@@ -28,7 +28,7 @@ static const int STATUS_SEEKING   = 5;
  /*
 　　位图文件的组成
           结构名称 符 号
- 	位图文件头 (bitmap-file header) BITMAPFILEHEADER bmfh
+	位图文件头 (bitmap-file header) BITMAPFILEHEADER bmfh
 	位图信息头 (bitmap-information header) BITMAPINFOHEADER bmih
 	彩色表　(color table) RGBQUAD aColors[]
 	图象数据阵列字节 BYTE aBitmapBits[]
@@ -243,22 +243,22 @@ static int readCommand(char* strCommandLine, int nMaxLineSize)
     {
         if(FD_ISSET(STDIN_FILENO, &readFdSet))
         {
-    		nReadBytes = read(STDIN_FILENO, &strCommandLine[0], nMaxLineSize);
-    		if(nReadBytes > 0)
-    		{
-    		    p = strCommandLine;
-    		    while(*p != 0)
-    		    {
-    		        if(*p == 0xa)
-    		        {
-    		            *p = 0;
-    		            break;
-    		        }
-    		        p++;
-    		    }
-    		}
-    		
-    		return 0;
+		nReadBytes = read(STDIN_FILENO, &strCommandLine[0], nMaxLineSize);
+		if(nReadBytes > 0)
+		{
+		    p = strCommandLine;
+		    while(*p != 0)
+		    {
+		        if(*p == 0xa)
+		        {
+		            *p = 0;
+		            break;
+		        }
+		        p++;
+		    }
+		}
+
+		return 0;
         }
 	}
 	
@@ -445,6 +445,10 @@ void CallbackForAwPlayer(void* pUserData, int msg, int param0, void* param1)
             pDemoPlayer->mPreStatus = pDemoPlayer->mStatus;
             pDemoPlayer->mStatus = STATUS_PREPARED;
             printf("info: prepare ok.\n");
+
+            MediaInfo* mi = pDemoPlayer->mAwPlayer->getMediaInfo();
+            printf("album: %s , albumsz: %d \n", mi->album, mi->albumsz);
+            printf("author: %s , authsz: %d \n", mi->author, mi->authorsz);
             pthread_mutex_unlock(&pDemoPlayer->mMutex);
             break;
         }
@@ -487,23 +491,23 @@ void CallbackForAwPlayer(void* pUserData, int msg, int param0, void* param1)
         case NOTIFY_VIDEO_FRAME:
         {
 
-        	//if(pDemoPlayer->mVideoFrameNum == 0)
-        	{
-	        	VideoPicData* videodata = (VideoPicData*)param1;
+		//if(pDemoPlayer->mVideoFrameNum == 0)
+		{
+			VideoPicData* videodata = (VideoPicData*)param1;
 				if(videodata)
 				{
 					if(videodata->ePixelFormat == VIDEO_PIXEL_FORMAT_YUV_MB32_420)
 					{
 						char filename[1024];
-			        	sprintf(filename, "/mnt/UDISK/mb32_%d.dat", pDemoPlayer->mVideoFrameNum);
-			        	FILE* outFp = fopen(filename, "wb");
-			        	if(outFp != NULL)
+					sprintf(filename, "/mnt/UDISK/mb32_%d.dat", pDemoPlayer->mVideoFrameNum);
+					FILE* outFp = fopen(filename, "wb");
+					if(outFp != NULL)
 					    {
-					    	int height64Align = (videodata->nHeight + 63)& ~63;
+						int height64Align = (videodata->nHeight + 63)& ~63;
 					    	
-					    	fwrite(videodata->pData0, videodata->nWidth*videodata->nHeight, 1, outFp);
-					    	fwrite(videodata->pData1, videodata->nWidth*height64Align/2, 1, outFp);
-					    	fclose(outFp);
+						fwrite(videodata->pData0, videodata->nWidth*videodata->nHeight, 1, outFp);
+						fwrite(videodata->pData1, videodata->nWidth*height64Align/2, 1, outFp);
+						fclose(outFp);
 					    }
 					}
 					
@@ -511,70 +515,70 @@ void CallbackForAwPlayer(void* pUserData, int msg, int param0, void* param1)
 		    }
 		    
 		    pDemoPlayer->mVideoFrameNum ++;
-        	break;
+		break;
         }
 
         case NOTIFY_AUDIO_FRAME:
         {
 
-        	{
-	        	//AudioPcmData* pcmData = (AudioPcmData*)param1;
+		{
+			//AudioPcmData* pcmData = (AudioPcmData*)param1;
 
-	        	/*
-	        	FILE* outFp = fopen("/mnt/UDISK/mb32.dat", "wb");
+			/*
+			FILE* outFp = fopen("/mnt/UDISK/mb32.dat", "wb");
 			    if(outFp != NULL)
 			    {
-			    	save_bmp_rgb565(outFp, videodata->nWidth, videodata->nHeight, videodata->pData);
-			    	fwrite(videodata->pData, videodata->nSize, 1, outFp);
-			    	fclose(outFp);
+				save_bmp_rgb565(outFp, videodata->nWidth, videodata->nHeight, videodata->pData);
+				fwrite(videodata->pData, videodata->nSize, 1, outFp);
+				fclose(outFp);
 			    }
 			    */
 		    }
-		    usleep(30*1000);
-        	break;
+		    usleep(33*1000);
+		break;
         }
 
         case NOTIFY_VIDEO_PACKET:
         {
-        	DemuxData* videoData = (DemuxData*)param1;
+		DemuxData* videoData = (DemuxData*)param1;
 			//logd("videoData pts: %lld", videoData->nPts);
 			static int frame = 0;
 			if(frame == 0)
 			{
 				FILE* outFp = fopen("/mnt/UDISK/video.jpg", "wb");
-	        	if(videoData->nSize0)
-	        	{
-	        		fwrite(videoData->pData0, 1, videoData->nSize0, outFp);
-	        	}
-	        	if(videoData->nSize1)
-	        	{
-	        		fwrite(videoData->pData1, 1, videoData->nSize1, outFp);
-	        	}
-	        	fclose(outFp);
-	        	frame ++;
-        	}
-        	break;
+			if(videoData->nSize0)
+			{
+				fwrite(videoData->pData0, 1, videoData->nSize0, outFp);
+			}
+			if(videoData->nSize1)
+			{
+				fwrite(videoData->pData1, 1, videoData->nSize1, outFp);
+			}
+			fclose(outFp);
+			frame ++;
+		}
+		break;
         }
 
         case NOTIFY_AUDIO_PACKET:
         {
-        	DemuxData* audioData = (DemuxData*)param1;
+		DemuxData* audioData = (DemuxData*)param1;
 			//logd("audio pts: %lld", audioData->nPts);
 			static int audioframe = 0;
 			if(audioframe == 0)
 			{
 				FILE* outFp = fopen("/mnt/UDISK/audio.pcm", "wb");
-	        	if(audioData->nSize0)
-	        	{
-	        		fwrite(audioData->pData0, 1, audioData->nSize0, outFp);
-	        	}
-	        	if(audioData->nSize1)
-	        	{
-	        		fwrite(audioData->pData1, 1, audioData->nSize1, outFp);
-	        	}
-	        	fclose(outFp);
-	        	audioframe ++;
-        	}
+			if(audioData->nSize0)
+			{
+				fwrite(audioData->pData0, 1, audioData->nSize0, outFp);
+			}
+			if(audioData->nSize1)
+			{
+				fwrite(audioData->pData1, 1, audioData->nSize1, outFp);
+			}
+			fclose(outFp);
+			audioframe ++;
+		}
         	
         }
         
@@ -634,13 +638,13 @@ int main(int argc, char** argv)
     bQuit = 0;
     while(!bQuit)
     {
-    	if(demoPlayer.mError)
+	if(demoPlayer.mError)
         {
-        	demoPlayer.mAwPlayer->reset();
-        	demoPlayer.mError = 0;
+		demoPlayer.mAwPlayer->reset();
+		demoPlayer.mError = 0;
 
-        	demoPlayer.mPreStatus = STATUS_PREPARED;
-        	demoPlayer.mStatus    = STATUS_STOPPED;
+		demoPlayer.mPreStatus = STATUS_PREPARED;
+		demoPlayer.mStatus    = STATUS_STOPPED;
         }
         
         //* read command from stdin.
@@ -804,10 +808,17 @@ int main(int argc, char** argv)
                         break;
                     }
                     
-                    if(demoPlayer.mAwPlayer->getDuration(&nDuration) == 0)
+                    demoPlayer.mAwPlayer->getDuration(&nDuration);
+
+                    if(demoPlayer.mAwPlayer->getDuration(&nDuration) != 0)
                     {
-                        if(nSeekTimeMs > nDuration)
-                            printf("seek time out of range, media duration = %u seconds.\n", nDuration/1000);
+                        printf("getDuration fail, unable to seek!\n");
+                        break;
+                    }
+
+                    if(nSeekTimeMs > nDuration)
+                    {
+                        printf("seek time out of range, media duration = %u seconds.\n", nDuration/1000);
                         break;
                     }
                     
@@ -917,4 +928,3 @@ int main(int argc, char** argv)
 	
 	return 0;
 }
-

@@ -1,3 +1,12 @@
+/*
+* Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+* All rights reserved.
+*
+* File : CdxAacParser.c
+* Description : AAC Parser
+* History :
+*
+*/
 #include <CdxTypes.h>
 #include <CdxParser.h>
 #include <CdxStream.h>
@@ -88,7 +97,8 @@ static unsigned int AacGetBits(BitStreamInfo *pBsi, int nBits)
 {
     unsigned int data, lowBits;
     
-    nBits &= 0x1f;              /* nBits mod 32 to avoid unpredictable results like >> by negative amount */
+    /* nBits mod 32 to avoid unpredictable results like >> by negative amount */
+    nBits &= 0x1f;
     data = pBsi->nCache >> (31 - nBits);   /* unsigned >> so zero-extend */
     data >>= 1;               /* do as >> 31, >> 1 so that nBits = 0 works okay (returns 0) */
     pBsi->nCache <<= nBits;          /* left-justify cache */
@@ -127,7 +137,8 @@ int AACFindSyncWord(unsigned char *pBuf, int nBytes)
     /* find byte-aligned syncword (12 bits = 0xFFF) */
     for (i = 0; i < nBytes - 1; i++) 
     {
-        if ( (pBuf[i+0] & AAC_SYNCWORDH) == AAC_SYNCWORDH && (pBuf[i+1] & AAC_SYNCWORDL) == AAC_SYNCWORDL )
+        if ( (pBuf[i+0] & AAC_SYNCWORDH) == AAC_SYNCWORDH
+                && (pBuf[i+1] & AAC_SYNCWORDL) == AAC_SYNCWORDL )
             return i;
     }
     
@@ -139,7 +150,8 @@ int AACFindSyncWord_LATM(unsigned char *pBuf, int nBytes)
     
     /* find byte-aligned syncword (12 bits = 0xFFF) */
     for (i = 0; i < nBytes - 1; i++) {
-        if ( (pBuf[i+0] & AAC_SYNCWORDH) == AAC_SYNCWORDL_H && (pBuf[i+1] & AAC_SYNCWORDL_LATM) == AAC_SYNCWORDL_LATM )
+        if ( (pBuf[i+0] & AAC_SYNCWORDH) == AAC_SYNCWORDL_H
+                && (pBuf[i+1] & AAC_SYNCWORDL_LATM) == AAC_SYNCWORDL_LATM )
             return i;
     }
     
@@ -151,7 +163,8 @@ static int AACFindSyncWord_before(unsigned char *pBuf, int nBytes)
     
     /* find byte-aligned syncword (12 bits = 0xFFF) */
     for (i = nBytes-2; i > 0; i--) {
-        if ( (pBuf[i+0] & AAC_SYNCWORDH) == AAC_SYNCWORDH && (pBuf[i+1] & AAC_SYNCWORDL) == AAC_SYNCWORDL )
+        if ( (pBuf[i+0] & AAC_SYNCWORDH) == AAC_SYNCWORDH
+                && (pBuf[i+1] & AAC_SYNCWORDL) == AAC_SYNCWORDL )
             return i;
     }
     
@@ -163,13 +176,15 @@ static int AACFindSyncWord_before_LATM(unsigned char *pBuf, int nBytes)
     
     /* find byte-aligned syncword (12 bits = 0xFFF) */
     for (i = nBytes-2; i > 0; i--) {
-        if ( (pBuf[i+0] & AAC_SYNCWORDH) == AAC_SYNCWORDL_H && (pBuf[i+1] & AAC_SYNCWORDL_LATM) == AAC_SYNCWORDL_LATM )
+        if ( (pBuf[i+0] & AAC_SYNCWORDH) == AAC_SYNCWORDL_H
+                && (pBuf[i+1] & AAC_SYNCWORDL_LATM) == AAC_SYNCWORDL_LATM )
             return i;
     }
     
     return -1;
 }
-static int FillReadBuffer(AacParserImplS *impl, unsigned char *readBuf, unsigned char *readPtr, int bufSize, int bytesLeft)
+static int FillReadBuffer(AacParserImplS *impl, unsigned char *readBuf,
+                          unsigned char *readPtr, int bufSize, int bytesLeft)
 {
     int nRead;
     
@@ -199,7 +214,8 @@ static int GetBeforeFrame(AacParserImplS *impl )
         int ret = impl->readPtr-impl->readBuf+impl->bytesLeft+2* 1024;
         if(ret>impl->dFileOffset-impl->uSyncLen)
         {
-            ret = impl->dFileOffset - impl->uSyncLen - (impl->readPtr-impl->readBuf+impl->bytesLeft);
+            ret = impl->dFileOffset - impl->uSyncLen
+                    - (impl->readPtr-impl->readBuf+impl->bytesLeft);
             if(ret<=0)
                 return 0;
             if(CdxStreamSeek(impl->stream,impl->uSyncLen, SEEK_SET))
@@ -217,7 +233,8 @@ static int GetBeforeFrame(AacParserImplS *impl )
         }
         else
         {
-            if(CdxStreamSeek(impl->stream,-(int)(impl->readPtr-impl->readBuf+impl->bytesLeft+2* 1024), SEEK_CUR))
+            if(CdxStreamSeek(impl->stream,
+                -(int)(impl->readPtr-impl->readBuf+impl->bytesLeft+2* 1024), SEEK_CUR))
             {
                 return -1;
             }
@@ -242,7 +259,8 @@ static int GetBeforeFrame(AacParserImplS *impl )
                 int ret = impl->readPtr-impl->readBuf+impl->bytesLeft+2* 1024;
                 if(ret>impl->dFileOffset-impl->uSyncLen)
                 {	
-                    ret = impl->dFileOffset-impl->uSyncLen - (impl->readPtr-impl->readBuf+impl->bytesLeft);
+                    ret = impl->dFileOffset-impl->uSyncLen
+                            - (impl->readPtr-impl->readBuf+impl->bytesLeft);
                     if(ret<=0)
                         return 0;
                     if(CdxStreamSeek(impl->stream,impl->uSyncLen, SEEK_SET))
@@ -260,7 +278,8 @@ static int GetBeforeFrame(AacParserImplS *impl )
                 }
                 else
                 {
-                    if(CdxStreamSeek(impl->stream,-(int)(impl->readPtr-impl->readBuf+impl->bytesLeft+2* 1024), SEEK_CUR))
+                    if(CdxStreamSeek(impl->stream,
+                            -(int)(impl->readPtr-impl->readBuf+impl->bytesLeft+2* 1024), SEEK_CUR))
                     {
                         return -1;
                     }
@@ -285,11 +304,15 @@ static int GetBeforeFrame(AacParserImplS *impl )
                 fhADTS.ucProfile =          (impl->readPtr[2]>>6)&0x03;//AacGetBits(&pBsi, 2);
                 fhADTS.ucSampRateIdx =      (impl->readPtr[2]>>2)&0x0f;//AacGetBits(&pBsi, 4);
                 //fhADTS.ucPivateBit =       AacGetBits(&pBsi, 1);
-                fhADTS.ucChannelConfig =    ((impl->readPtr[2]<<2)&0x04)|((impl->readPtr[3]>>6)&0x03);//AacGetBits(&pBsi, 3);
-				fhADTS.nFrameLength = ((int)(impl->readPtr[3]&0x3)<<11)|((int)(impl->readPtr[4]&0xff)<<3)|((impl->readPtr[5]>>5)&0x07);
-				/* check validity of header */
+                fhADTS.ucChannelConfig =    ((impl->readPtr[2]<<2)&0x04)
+                                             |((impl->readPtr[3]>>6)&0x03);//AacGetBits(&pBsi, 3);
+                fhADTS.nFrameLength = ((int)(impl->readPtr[3]&0x3)<<11)
+                                       |((int)(impl->readPtr[4]&0xff)<<3)
+                                       |((impl->readPtr[5]>>5)&0x07);
+                /* check validity of header */
                 if(fhADTS.ucLayer != 0 || /*fhADTS.ucProfile != 1 ||*/
-                    fhADTS.ucSampRateIdx >= 12 || fhADTS.ucChannelConfig >= 8||(fhADTS.nFrameLength>2*1024*2)||(fhADTS.nFrameLength>impl->bytesLeft))
+                    fhADTS.ucSampRateIdx >= 12 || fhADTS.ucChannelConfig >= 8
+                    ||(fhADTS.nFrameLength>2*1024*2)||(fhADTS.nFrameLength>impl->bytesLeft))
                     retVal = -1;
             }
         }
@@ -302,7 +325,8 @@ static int GetBeforeFrame(AacParserImplS *impl )
                 int ret = impl->readPtr-impl->readBuf+impl->bytesLeft+2* 1024;
                 if(ret>impl->dFileOffset-impl->uSyncLen)
                 {	
-                    ret = impl->dFileOffset-impl->uSyncLen - (impl->readPtr-impl->readBuf+impl->bytesLeft);
+                    ret = impl->dFileOffset-impl->uSyncLen
+                          - (impl->readPtr-impl->readBuf+impl->bytesLeft);
                     if(ret<=0)
                         return -2;
                     if(CdxStreamSeek(impl->stream,impl->uSyncLen, SEEK_SET))
@@ -320,7 +344,8 @@ static int GetBeforeFrame(AacParserImplS *impl )
                 }
                 else
                 {
-                    if(CdxStreamSeek(impl->stream,-(int)(impl->readPtr-impl->readBuf+impl->bytesLeft+2* 1024), SEEK_CUR))
+                    if(CdxStreamSeek(impl->stream,
+                            -(int)(impl->readPtr-impl->readBuf+impl->bytesLeft+2* 1024), SEEK_CUR))
                     {
                         return -1;
                     }
@@ -353,7 +378,8 @@ int GetNextFrame(AacParserImplS *impl )
     ADTSHeaderT            fhADTS;
     //if (bytesLeft < ulchannels * 1024 * ulchannels +3 /*&& !eofReached*/) {
     if (impl->bytesLeft < 2 * 1024 * 2 && !impl->eofReached) {
-        nRead = FillReadBuffer(impl,impl->readBuf, impl->readPtr, impl->bytesLeft + 1024 * 2 * 2, impl->bytesLeft);
+        nRead = FillReadBuffer(impl,impl->readBuf, impl->readPtr,
+                               impl->bytesLeft + 1024 * 2 * 2, impl->bytesLeft);
         impl->bytesLeft += nRead;
         impl->readPtr = impl->readBuf;
         if(nRead == 0)
@@ -378,8 +404,10 @@ int GetNextFrame(AacParserImplS *impl )
         
         impl->readPtr +=nBytes;
         impl->bytesLeft -=nBytes;
-        fhADTS.nFrameLength = ((int)(impl->readPtr[3]&0x3)<<11)|((int)(impl->readPtr[4]&0xff)<<3)|((impl->readPtr[5]>>5)&0x07);
-        if((fhADTS.nFrameLength>2*1024*2)||(fhADTS.nFrameLength>impl->bytesLeft))//nFrameLength error
+        fhADTS.nFrameLength = ((int)(impl->readPtr[3]&0x3)<<11)
+                               |((int)(impl->readPtr[4]&0xff)<<3)|((impl->readPtr[5]>>5)&0x07);
+        //nFrameLength error
+        if((fhADTS.nFrameLength>2*1024*2)||(fhADTS.nFrameLength>impl->bytesLeft))
         {
             fhADTS.nFrameLength = 1;	
         }
@@ -388,9 +416,10 @@ int GetNextFrame(AacParserImplS *impl )
         while(retVal<0)
         {
             retVal = 0;
-            //	if (bytesLeft < ulchannels * 1024 * ulchannels/*&& !eofReached*/) {
+            //    if (bytesLeft < ulchannels * 1024 * ulchannels/*&& !eofReached*/) {
             if (impl->bytesLeft < 2 * 1024 * 2&& !impl->eofReached) {
-                nRead = FillReadBuffer(impl,impl->readBuf, impl->readPtr, impl->bytesLeft + 1024* 2 * 2, impl->bytesLeft);
+                nRead = FillReadBuffer(impl,impl->readBuf, impl->readPtr,
+                                       impl->bytesLeft + 1024* 2 * 2, impl->bytesLeft);
                 impl->bytesLeft += nRead;
                 impl->readPtr = impl->readBuf;
                 /*if(bytesLeft==0)
@@ -421,7 +450,8 @@ int GetNextFrame(AacParserImplS *impl )
             fhADTS.ucProfile =          (impl->readPtr[2]>>6)&0x03;//AacGetBits(&pBsi, 2);
             fhADTS.ucSampRateIdx =      (impl->readPtr[2]>>2)&0x0f;//AacGetBits(&pBsi, 4);
             //fhADTS.ucPivateBit =       AacGetBits(&pBsi, 1);
-            fhADTS.ucChannelConfig =    ((impl->readPtr[2]<<2)&0x04)|((impl->readPtr[3]>>6)&0x03);//AacGetBits(&pBsi, 3);
+            fhADTS.ucChannelConfig =    ((impl->readPtr[2]<<2)&0x04)
+                                         |((impl->readPtr[3]>>6)&0x03);//AacGetBits(&pBsi, 3);
             // check validity of header 
             if (fhADTS.ucLayer != 0 ||
             fhADTS.ucSampRateIdx >= 12 || fhADTS.ucChannelConfig >= 8)
@@ -442,7 +472,8 @@ int GetNextFrame(AacParserImplS *impl )
         impl->readPtr +=nBytes;
         impl->bytesLeft -=nBytes;
         fhADTS.nFrameLength = ((int)(impl->readPtr[1]&0x1F)<<8)|((int)(impl->readPtr[2]&0xff));
-        if((fhADTS.nFrameLength>2*1024*2)||(fhADTS.nFrameLength>impl->bytesLeft))//nFrameLength error
+        //nFrameLength error
+        if((fhADTS.nFrameLength>2*1024*2)||(fhADTS.nFrameLength>impl->bytesLeft))
         {
             fhADTS.nFrameLength = 0;	
         }
@@ -452,9 +483,10 @@ int GetNextFrame(AacParserImplS *impl )
         while(retVal<0)
         {
             retVal = 0;
-            //	if (bytesLeft < ulchannels * 1024 * ulchannels/*&& !eofReached*/) {
+            //    if (bytesLeft < ulchannels * 1024 * ulchannels/*&& !eofReached*/) {
             if (impl->bytesLeft < 2 * 1024 * 2&& !impl->eofReached) {
-                nRead = FillReadBuffer(impl,impl->readBuf, impl->readPtr, impl->bytesLeft + 1024* 2 * 2, impl->bytesLeft);
+                nRead = FillReadBuffer(impl,impl->readBuf, impl->readPtr,
+                                       impl->bytesLeft + 1024* 2 * 2, impl->bytesLeft);
                 impl->bytesLeft += nRead;
                 impl->readPtr = impl->readBuf;
                 /*if(bytesLeft==0)
@@ -498,9 +530,10 @@ static int GetFrame(AacParserImplS *impl)
         while(retVal<0)
         {
             retVal = 0;
-            //	if (bytesLeft < ulchannels * 1024 * ulchannels/*&& !eofReached*/) {
+            //    if (bytesLeft < ulchannels * 1024 * ulchannels/*&& !eofReached*/) {
             if (bytesLeft < 2 * 1024 * 2&& !impl->eofReached) {
-                nRead = FillReadBuffer(impl,impl->readBuf, impl->readPtr, impl->bytesLeft + 1024* 2 * 2, impl->bytesLeft);
+                nRead = FillReadBuffer(impl,impl->readBuf, impl->readPtr,
+                                       impl->bytesLeft + 1024* 2 * 2, impl->bytesLeft);
                 impl->bytesLeft += nRead;
                 impl->readPtr = impl->readBuf;
                 bytesLeft += nRead;
@@ -518,24 +551,26 @@ static int GetFrame(AacParserImplS *impl)
             nBytes = AACFindSyncWord(readPtr,bytesLeft);
             if(nBytes<0)
             {
-                CDX_LOGD("AACFindSyncWord error");
+                CDX_LOGE("AACFindSyncWord error");
                 return -1;
             }
             nSyncLen  += nBytes; 
             readPtr   += nBytes;
             bytesLeft -= nBytes;
             
-          
             fhADTS.ucLayer =            (readPtr[1]>>1)&0x03;//AacGetBits(&pBsi, 2);
             //fhADTS.ucProtectBit =       AacGetBits(&pBsi, 1);
             fhADTS.ucProfile =          (readPtr[2]>>6)&0x03;//AacGetBits(&pBsi, 2);
             fhADTS.ucSampRateIdx =      (readPtr[2]>>2)&0x0f;//AacGetBits(&pBsi, 4);
             //fhADTS.ucPivateBit =       AacGetBits(&pBsi, 1);
-            fhADTS.ucChannelConfig =    ((readPtr[2]<<2)&0x04)|((readPtr[3]>>6)&0x03);//AacGetBits(&pBsi, 3);            
-            fhADTS.nFrameLength = ((int)(readPtr[3]&0x3)<<11)|((int)(readPtr[4]&0xff)<<3)|((readPtr[5]>>5)&0x07);
+            //AacGetBits(&pBsi, 3);
+            fhADTS.ucChannelConfig =    ((readPtr[2]<<2)&0x04)|((readPtr[3]>>6)&0x03);
+            fhADTS.nFrameLength = ((int)(readPtr[3]&0x3)<<11)
+                                   |((int)(readPtr[4]&0xff)<<3)|((readPtr[5]>>5)&0x07);
             // check validity of header 
+            //nFrameLength error
             if ((fhADTS.ucLayer != 0 || fhADTS.ucSampRateIdx >= 12 || fhADTS.ucChannelConfig >= 8)||
-            	  ((fhADTS.nFrameLength>2*1024*2)||(fhADTS.nFrameLength>bytesLeft)))//nFrameLength error  
+                  ((fhADTS.nFrameLength>2*1024*2)||(fhADTS.nFrameLength>bytesLeft)))
             {
                 bytesLeft -=1;
                 readPtr +=1;
@@ -560,9 +595,10 @@ static int GetFrame(AacParserImplS *impl)
         while(retVal<0)
         {
             retVal = 0;
-            //	if (bytesLeft < ulchannels * 1024 * ulchannels/*&& !eofReached*/) {
+            //    if (bytesLeft < ulchannels * 1024 * ulchannels/*&& !eofReached*/) {
             if (bytesLeft < 2 * 1024 * 2&& !impl->eofReached) {
-                nRead = FillReadBuffer(impl,impl->readBuf, impl->readPtr, impl->bytesLeft + 1024* 2 * 2, impl->bytesLeft);
+                nRead = FillReadBuffer(impl,impl->readBuf, impl->readPtr,
+                                       impl->bytesLeft + 1024* 2 * 2, impl->bytesLeft);
                 impl->bytesLeft += nRead;
                 impl->readPtr = impl->readBuf;
                 bytesLeft += nRead;
@@ -583,7 +619,8 @@ static int GetFrame(AacParserImplS *impl)
             bytesLeft -=nBytes;
             nSyncLen  += nBytes;
             fhADTS.nFrameLength = ((int)(readPtr[1]&0x1F)<<8)|((int)(readPtr[2]&0xff));
-            if((fhADTS.nFrameLength>2*1024*2)||(fhADTS.nFrameLength>bytesLeft))//nFrameLength error
+            //nFrameLength error
+            if((fhADTS.nFrameLength>2*1024*2)||(fhADTS.nFrameLength>bytesLeft))
             {
                 fhADTS.nFrameLength = 0;
                 readPtr += 2;
@@ -600,7 +637,7 @@ static int GetFrame(AacParserImplS *impl)
             }
             else
             {
-            	 break;
+                 break;
             }
         }
     }
@@ -624,7 +661,6 @@ static int GetInfo_GETID3_Len(unsigned char *ptr,int len)
                Id3v2len += 10;
     }
     return Id3v2len;
-      
 }
 /**************************************************************************************
  * Function:    DecodeProgramConfigElement
@@ -843,7 +879,8 @@ static int UnpackADIFHeader(AacParserImplS *impl,unsigned char *ptr,int len)
     if(fhADIF.nBitRate!=0)
     {
         impl->ulBitRate =fhADIF.nBitRate;
-        impl->ulDuration = (int)(((double)(impl->dFileSize-impl->uSyncLen) * (double)(8))*1000 /((double)impl->ulBitRate) ); 
+        impl->ulDuration = (int)(((double)(impl->dFileSize-impl->uSyncLen)
+                                 * (double)(8))*1000 /((double)impl->ulBitRate) );
     }
     return SUCCESS;
 }
@@ -910,17 +947,18 @@ static int AacInit(CdxParserT* parameter)
             unsigned char *pBuf = impl->readBuf;
             for (i = 0; i < READLEN-1; i++) 
             {
-                if ( (pBuf[i+0] & AAC_SYNCWORDH) == AAC_SYNCWORDH && (pBuf[i+1] & AAC_SYNCWORDL) == AAC_SYNCWORDL )
+                if ( (pBuf[i+0] & AAC_SYNCWORDH) == AAC_SYNCWORDH
+                        && (pBuf[i+1] & AAC_SYNCWORDL) == AAC_SYNCWORDL )
                 {
                     impl->ulformat = AAC_FF_ADTS;
                     break;
                 }
-                if ( (pBuf[i+0] & AAC_SYNCWORDH) == AAC_SYNCWORDL_H && (pBuf[i+1] & AAC_SYNCWORDL_LATM) == AAC_SYNCWORDL_LATM )
+                if ( (pBuf[i+0] & AAC_SYNCWORDH) == AAC_SYNCWORDL_H
+                        && (pBuf[i+1] & AAC_SYNCWORDL_LATM) == AAC_SYNCWORDL_LATM )
                 {
                     impl->ulformat = AAC_FF_LATM;
                     break;
                 }
-            
             }
         }
         
@@ -974,18 +1012,25 @@ static int AacInit(CdxParserT* parameter)
                         goto AAC_error;
                     }
                     nBytes = 0; 
-                
                 }
-                fhADTS.ucLayer =            (impl->readBuf[nBytes + 1]>>1)&0x03;//AacGetBits(&pBsi, 2);
+                //AacGetBits(&pBsi, 2);
+                fhADTS.ucLayer =            (impl->readBuf[nBytes + 1]>>1)&0x03;
                 //fhADTS.ucProtectBit =       AacGetBits(&pBsi, 1);
-                fhADTS.ucProfile =          (impl->readBuf[nBytes + 2]>>6)&0x03;//AacGetBits(&pBsi, 2);
-                fhADTS.ucSampRateIdx =      (impl->readBuf[nBytes + 2]>>2)&0x0f;//AacGetBits(&pBsi, 4);
+                //AacGetBits(&pBsi, 2);
+                fhADTS.ucProfile =          (impl->readBuf[nBytes + 2]>>6)&0x03;
+                //AacGetBits(&pBsi, 4);
+                fhADTS.ucSampRateIdx =      (impl->readBuf[nBytes + 2]>>2)&0x0f;
                 //fhADTS.ucPivateBit =       AacGetBits(&pBsi, 1);
-                fhADTS.ucChannelConfig =    ((impl->readBuf[nBytes + 2]<<2)&0x04)|((impl->readBuf[nBytes + 3]>>6)&0x03);//AacGetBits(&pBsi, 3);
+                //AacGetBits(&pBsi, 3);
+                fhADTS.ucChannelConfig =    ((impl->readBuf[nBytes + 2]<<2)&0x04)
+                                             |((impl->readBuf[nBytes + 3]>>6)&0x03);
                 /* check validity of header */
-                fhADTS.nFrameLength = ((int)(impl->readBuf[nBytes + 3]&0x3)<<11)|((int)(impl->readBuf[nBytes + 4]&0xff)<<3)|((impl->readBuf[nBytes + 5]>>5)&0x07);
+                fhADTS.nFrameLength = ((int)(impl->readBuf[nBytes + 3]&0x3)<<11)
+                                       |((int)(impl->readBuf[nBytes + 4]&0xff)<<3)
+                                       |((impl->readBuf[nBytes + 5]>>5)&0x07);
                 if (((fhADTS.ucLayer != 0 )&&(fhADTS.ucLayer != 3 ))/*|| fhADTS.ucProfile != 1*/ ||
-                fhADTS.ucSampRateIdx >= 12 || fhADTS.ucChannelConfig >= 8 ||fhADTS.nFrameLength>2*1024*2)
+                      fhADTS.ucSampRateIdx >= 12 || fhADTS.ucChannelConfig >= 8
+                      ||fhADTS.nFrameLength>2*1024*2)
                 {
                     nBytes +=1 ;
                     readlength +=1;
@@ -1011,9 +1056,10 @@ static int AacInit(CdxParserT* parameter)
                     }
                     else
                     {
-                    	pBuf = impl->readBuf + nBytes + fhADTS.nFrameLength;
+                        pBuf = impl->readBuf + nBytes + fhADTS.nFrameLength;
                     }
-                    if ( (pBuf[0] & AAC_SYNCWORDH) == AAC_SYNCWORDH && (pBuf[1] & AAC_SYNCWORDL) == AAC_SYNCWORDL )
+                    if ( (pBuf[0] & AAC_SYNCWORDH) == AAC_SYNCWORDH
+                            && (pBuf[1] & AAC_SYNCWORDL) == AAC_SYNCWORDL )
                     {
                         retVal = 0;
                         break;
@@ -1023,9 +1069,7 @@ static int AacInit(CdxParserT* parameter)
                         nBytes +=1 ;
                         readlength +=1;
                         retVal = -1;
-                    
                     }
-                
                 }
                 if(readlength-ID3Len>2*1024)
                 {
@@ -1084,14 +1128,14 @@ static int AacInit(CdxParserT* parameter)
                     nBytes = 0;
                 }
                 /****************************************************************/
-                nLength = (((int)impl->readBuf[nBytes + 1]&0x1f)<<8)|((int)impl->readBuf[nBytes + 2]&0xff);
+                nLength = (((int)impl->readBuf[nBytes + 1]&0x1f)<<8)
+                           |((int)impl->readBuf[nBytes + 2]&0xff);
                 fhADTS.nFrameLength = nLength + 3;
                 if((impl->readBuf[nBytes]&0xC0)||(fhADTS.nFrameLength>4096))
                 {
-                		nBytes +=1 ;
+                        nBytes +=1 ;
                     readlength +=1;
                     retVal = -1;
-                
                 }
                 else
                 {
@@ -1111,23 +1155,29 @@ static int AacInit(CdxParserT* parameter)
                     }
                     else
                     {
-                    	pBuf = impl->readBuf + nBytes + fhADTS.nFrameLength;
+                        pBuf = impl->readBuf + nBytes + fhADTS.nFrameLength;
                     }
-                    if ( (pBuf[0] & AAC_SYNCWORDH) == AAC_SYNCWORDL_H && (pBuf[1] & AAC_SYNCWORDL_LATM) == AAC_SYNCWORDL_LATM )
+                    if ( (pBuf[0] & AAC_SYNCWORDH) == AAC_SYNCWORDL_H
+                            && (pBuf[1] & AAC_SYNCWORDL_LATM) == AAC_SYNCWORDL_LATM )
                     {
                         retVal = 0;
                         //useSameStreamMux == 0 && audioMuxVersion==0
-                        fhADTS.ucLayer =  impl->readBuf[nBytes + 1 + 3]&0x07;//AacGetBits(&pBsi,3); //3 uimsbf
-                        //audioObjectType = (GetInfo_ShowBs(2,1,AIF)>>3)&0x1F;//AacGetBits(&pBsi,5); //5 bslbf
-                        fhADTS.ucSampRateIdx = 2*((impl->readBuf[nBytes + 2 + 3])&0x07)+ ((impl->readBuf[nBytes + 3+3]>>7)&0x01);//AacGetBits(&pBsi,4); //4 bslbf
+                        //AacGetBits(&pBsi,3); //3 uimsbf
+                        fhADTS.ucLayer =  impl->readBuf[nBytes + 1 + 3]&0x07;
+                        //AacGetBits(&pBsi,5); //5 bslbf
+                        //audioObjectType = (GetInfo_ShowBs(2,1,AIF)>>3)&0x1F;
+                        fhADTS.ucSampRateIdx = 2*((impl->readBuf[nBytes + 2 + 3])&0x07)
+                                               + ((impl->readBuf[nBytes + 3+3]>>7)&0x01);
+                        //AacGetBits(&pBsi,4); //4 bslbf
                         if ( fhADTS.ucSampRateIdx==0xf )
                         {
                             //AacGetBits(&pBsi,24); //24 uimsbf
                             impl->ulSampleRate = ((impl->readBuf[nBytes +3+3]&0x07F)<<17)
-                                                           | (impl->readBuf[nBytes +4+3] << 9)
-                                                           | (impl->readBuf[nBytes +5+3] << 1)
-                                                           | ((impl->readBuf[nBytes +6+3] >> 7)&0x01);
-                            fhADTS.ucChannelConfig = ((impl->readBuf[nBytes +6+3] >> 3)&0x0F);//AacGetBits(&pBsi,4);
+                                                   | (impl->readBuf[nBytes +4+3] << 9)
+                                                   | (impl->readBuf[nBytes +5+3] << 1)
+                                                   | ((impl->readBuf[nBytes +6+3] >> 7)&0x01);
+                            //AacGetBits(&pBsi,4);
+                            fhADTS.ucChannelConfig = ((impl->readBuf[nBytes +6+3] >> 3)&0x0F);
                         }
                         else
                         {
@@ -1143,18 +1193,14 @@ static int AacInit(CdxParserT* parameter)
                         retVal = -1;
                     }    
                 }
-                
-                /*******************************************************************/
-            			    			
             }
             if(i==ERRORFAMENUM)
             {
                 goto AAC_error;
             }
-        
         }
         ////////////////////////////////////////////////////////////////
-        impl->ulChannels		= channelMapTab[fhADTS.ucChannelConfig];
+        impl->ulChannels        = channelMapTab[fhADTS.ucChannelConfig];
     
         impl->uSyncLen = readlength;
         impl->dFileOffset = readlength;        
@@ -1163,8 +1209,8 @@ static int AacInit(CdxParserT* parameter)
         ret =0;
         if(CdxStreamSeek(impl->stream,impl->uSyncLen,SEEK_SET))
         {
-        	CDX_LOGE("CdxStreamSeek error");
-        	goto AAC_error;
+            CDX_LOGE("CdxStreamSeek error");
+            goto AAC_error;
         }
         #ifndef TRYALL
             
@@ -1175,7 +1221,8 @@ static int AacInit(CdxParserT* parameter)
             frameOn++;
             if(retVal==-1)break;
         }
-        readlength =impl->dFileOffset + (cdx_int32)((uintptr_t)impl->readPtr - (uintptr_t)impl->readBuf);
+        readlength =impl->dFileOffset + (cdx_int32)((uintptr_t)impl->readPtr
+                    - (uintptr_t)impl->readBuf);
         if(i==ret)
         {
             readlength_copy =readlength;
@@ -1188,7 +1235,8 @@ static int AacInit(CdxParserT* parameter)
                 if(retVal==-1)break;
             }
         }
-        readlength =impl->dFileOffset + (cdx_int32)((uintptr_t)impl->readPtr - (uintptr_t)impl->readBuf);
+        readlength =impl->dFileOffset
+                    + (cdx_int32)((uintptr_t)impl->readPtr - (uintptr_t)impl->readBuf);
         if(i==ret)
         {
             readlength =readlength - readlength_copy + impl->uSyncLen ;
@@ -1204,14 +1252,16 @@ static int AacInit(CdxParserT* parameter)
         readlength = impl->dFileSize;
         #endif
    
-        impl->ulBitRate			= (int)((double)((double)(readlength-impl->uSyncLen)*(double)8*(double)impl->ulSampleRate)/(double)((double)frameOn*1024));
-        impl->ulDuration    = (int)((double)((double)(impl->dFileSize-impl->uSyncLen)*8000) /(double)impl->ulBitRate);//	
-        
+        impl->ulBitRate        = (int)((double)((double)(readlength-impl->uSyncLen)*(double)8
+                                    *(double)impl->ulSampleRate)/(double)((double)frameOn*1024));
+        impl->ulDuration    = (int)((double)((double)(impl->dFileSize-impl->uSyncLen)*8000)
+                                    /(double)impl->ulBitRate);
         //AAC_format = AAC_FF_ADTS;
     }
     if(impl->ulBitRate>impl->ulSampleRate*impl->ulChannels*16)
     {
-        CDX_LOGE("aac ulBitRate error.rate:%d,fs:%d,ch:%d",impl->ulBitRate,impl->ulSampleRate,impl->ulChannels);
+        CDX_LOGE("aac ulBitRate error.rate:%d,fs:%d,ch:%d",impl->ulBitRate,
+                  impl->ulSampleRate,impl->ulChannels);
         goto AAC_error;//for aac not nBitRate lag
     }
 ////////////////////////////////////////////////////////////////
@@ -1226,21 +1276,21 @@ static int AacInit(CdxParserT* parameter)
     impl->eofReached = 0;
     impl->bytesLeft = 0;
     impl->mErrno = PSR_OK;
-	pthread_cond_signal(&impl->cond);
+    pthread_cond_signal(&impl->cond);
     CDX_LOGW("AAC ulDuration:%lld",impl->ulDuration);
     return 0;
 AAC_error:
     CDX_LOGE("AacOpenThread fail!!!");
     impl->mErrno = PSR_OPEN_FAIL;
-	pthread_cond_signal(&impl->cond);
+    pthread_cond_signal(&impl->cond);
     return -1;
 }
 
 static cdx_int32 __AacParserControl(CdxParserT *parser, cdx_int32 cmd, void *param)
 {
     (void)param;
-	cdx_int64 streamSeekPos = 0, timeUs = 0;
-	cdx_int32 ret = 0,nFrames = 0;
+    cdx_int64 streamSeekPos = 0, timeUs = 0;
+    cdx_int32 ret = 0,nFrames = 0;
     struct AacParserImplS *impl = NULL;    
     impl = CdxContainerOf(parser, struct AacParserImplS, base);
     switch (cmd)
@@ -1255,7 +1305,7 @@ static cdx_int32 __AacParserControl(CdxParserT *parser, cdx_int32 cmd, void *par
     case CDX_PSR_CMD_CLR_FORCESTOP:
         CdxStreamClrForceStop(impl->stream);
         break;
-	case CDX_PSR_CMD_REPLACE_STREAM:
+    case CDX_PSR_CMD_REPLACE_STREAM:
         CDX_LOGD("replace stream!!!");
         if(impl->stream)
         {
@@ -1282,22 +1332,22 @@ static cdx_int32 __AacParserControl(CdxParserT *parser, cdx_int32 cmd, void *par
         {
             CDX_LOGE("CdxStreamSeek fail");
         }
-		memset(impl->readBuf,0x00,2*1024*6*6);
-		impl->readPtr = impl->readBuf;
+        memset(impl->readBuf,0x00,2*1024*6*6);
+        impl->readPtr = impl->readBuf;
         impl->bytesLeft = 0;
-		ret = GetNextFrame(impl);
-		if(ret<0)
-		{
-		    CDX_LOGE("Controll GetNextFrame error");
-		    return CDX_FAILURE;	
-		}
+        ret = GetNextFrame(impl);
+        if(ret<0)
+        {
+            CDX_LOGE("Controll GetNextFrame error");
+            return CDX_FAILURE;
+        }
         impl->eofReached = 0;
-		nFrames = (timeUs/1000000) * impl->ulSampleRate /1024;
+        nFrames = (timeUs/1000000) * impl->ulSampleRate /1024;
         impl->nFrames = nFrames;
 		
         break;
     default :
-        CDX_LOGD("not implement...(%d)", cmd);
+        CDX_LOGW("not implement...(%d)", cmd);
         break;
     }
     impl->nFlags = cmd;
@@ -1346,31 +1396,31 @@ static cdx_int32 __AacParserPrefetch(CdxParserT *parser, CdxPacketT *pkt)
         {
             if(impl->eofReached)
             {
-                CDX_LOGD("CdxStream EOS");
+                CDX_LOGE("CdxStream EOS");
                 impl->mErrno = PSR_EOS;            	
             }
             pkt->length = impl->bytesLeft;
             pkt->pts = -1;
-            CDX_LOGD("maybe sync err");            
+            CDX_LOGE("maybe sync err");
         } 
         else
         {
             pkt->length =  ret;
             pkt->pts = (cdx_int64)impl->nFrames* 1024 *1000000/impl->ulSampleRate;
         }   
-    	
     }
     
     CDX_LOGV("****len:%d,",pkt->length);
     if(pkt->length == 0)
-	{
-	   CDX_LOGE("CdxStream EOS");
-	   impl->mErrno = PSR_EOS;
-	   return CDX_FAILURE;
-	}
+    {
+       CDX_LOGE("CdxStream EOS");
+       impl->mErrno = PSR_EOS;
+       return CDX_FAILURE;
+    }
     
     pkt->flags |= (FIRST_PART|LAST_PART);
-    //pkt->pts = (cdx_int64)impl->frames*impl->frame_samples *1000000/impl->aac_format.nSamplesPerSec;//-1;
+    //pkt->pts = (cdx_int64)impl->frames*impl->frame_samples *1000000
+    //             /impl->aac_format.nSamplesPerSec;//-1;
     
     return CDX_SUCCESS;
 }
@@ -1458,7 +1508,8 @@ static cdx_int32 __AacParserGetMediaInfo(CdxParserT *parser, CdxMediaInfoT *medi
     //cdxProgram->audio[0].nMaxBitRate;
     //cdxProgram->audio[0].nFlags
     cdxProgram->audio[0].nBlockAlign     = 0;//impl->WavFormat.nBlockAlign;
-    //CDX_LOGD("eSubCodecFormat:0x%04x,ch:%d,fs:%d",cdxProgram->audio[0].eSubCodecFormat,cdxProgram->audio[0].nChannelNum,cdxProgram->audio[0].nSampleRate);
+    //CDX_LOGD("eSubCodecFormat:0x%04x,ch:%d,fs:%d",cdxProgram->audio[0].eSubCodecFormat,
+    //            cdxProgram->audio[0].nChannelNum,cdxProgram->audio[0].nSampleRate);
     //CDX_LOGD("AAC ulDuration:%d",cdxProgram->duration);
          
     return CDX_SUCCESS;
@@ -1484,11 +1535,11 @@ static cdx_int32 __AacParserSeekTo(CdxParserT *parser, cdx_int64 timeUs)
         for(i=0;i<skipframeN;i++)
         {
             ret = GetNextFrame(impl);
-			if(impl->eofReached == 1)
-			{
-            	skipframeN = i;
-				break;
-			}
+            if(impl->eofReached == 1)
+            {
+                skipframeN = i;
+                break;
+            }
             if(ret<0)
             {
                 CDX_LOGE("GetNextFrame error");
@@ -1509,8 +1560,8 @@ static cdx_int32 __AacParserSeekTo(CdxParserT *parser, cdx_int64 timeUs)
                 CDX_LOGE("GetBeforeFrame error");
                 return CDX_FAILURE;	
             }
-		 }
-		impl->nFrames -=skipframeN;
+         }
+        impl->nFrames -=skipframeN;
         impl->eofReached = 0;
     
     }
@@ -1575,25 +1626,29 @@ static cdx_int32 AacProbe(CdxStreamProbeDataT *p)
     ptr = p->buf;
     /*We give up the judgement of id3 tag, instead of moving it to id3 parser*/
 #if 0
-	if((p->buf[0]==0x49)&&(p->buf[1]==0x44)&&(p->buf[2]==0x33))//for id3
-	{
+    if((p->buf[0]==0x49)&&(p->buf[1]==0x44)&&(p->buf[2]==0x33))//for id3
+    {
         CDX_LOGE("AAC ID3 SKIPING!");
-		cdx_int32 Id3v2len = 0;
-		Id3v2len = ((cdx_int32)(p->buf[6]&0x7f))<<7 | ((cdx_int32)(p->buf[7]&0x7f));
-		Id3v2len = Id3v2len<<7 | ((cdx_int32)(p->buf[8]&0x7f));
-		Id3v2len = Id3v2len<<7 | ((cdx_int32)(p->buf[9]&0x7f));
-		Id3v2len +=10;
-		offset = Id3v2len;
-	}
-	
-	if(offset > (int)p->len)
-	{
+        cdx_int32 Id3v2len = 0;
+        Id3v2len = ((cdx_int32)(p->buf[6]&0x7f))<<7 | ((cdx_int32)(p->buf[7]&0x7f));
+        Id3v2len = Id3v2len<<7 | ((cdx_int32)(p->buf[8]&0x7f));
+        Id3v2len = Id3v2len<<7 | ((cdx_int32)(p->buf[9]&0x7f));
+        Id3v2len +=10;
+        offset = Id3v2len;
+    }
+
+    if(offset > (int)p->len)
+    {
         CDX_LOGE("Warning! offset > p->len   offset:%d,len:%d",offset,p->len);
-	}
+    }
 #endif	
-    if((((ptr[offset]&0xff)==0xff)&&((ptr[offset + 1]&0xf0)==0xf0)&&(((ptr[offset + 1] & (0x3<<1)) == 0x0<<1)||((ptr[offset + 1] & (0x3<<1)) == 0x3<<1))&&((ptr[offset + 2] & (0xf<<2)) < (12<<2))&&(((ptr[offset + 2]&0x01)|(ptr[offset + 3]&(0x03<<6)))!=0))
-    ||(((ptr[offset]&0xff)==0x56)&&((ptr[offset + 1]&0xe0)==0xe0))
-    ||(((ptr[offset]&0xff)=='A')&&((ptr[offset + 1]&0xff)=='D')&&((ptr[offset + 2]&0xff)=='I')&&((ptr[offset + 3]&0xff)=='F')))
+    if((((ptr[offset]&0xff)==0xff)&&((ptr[offset + 1]&0xf0)==0xf0)
+        &&(((ptr[offset + 1] & (0x3<<1)) == 0x0<<1)
+        ||((ptr[offset + 1] & (0x3<<1)) == 0x3<<1))&&((ptr[offset + 2] & (0xf<<2)) < (12<<2))
+        &&(((ptr[offset + 2]&0x01)|(ptr[offset + 3]&(0x03<<6)))!=0))
+        ||(((ptr[offset]&0xff)==0x56)&&((ptr[offset + 1]&0xe0)==0xe0))
+        ||(((ptr[offset]&0xff)=='A')&&((ptr[offset + 1]&0xff)=='D')
+        &&((ptr[offset + 2]&0xff)=='I')&&((ptr[offset + 3]&0xff)=='F')))
     {
         return CDX_TRUE;
     }
@@ -1630,7 +1685,7 @@ static CdxParserT *__AacParserOpen(CdxStreamT *stream, cdx_uint32 flags)
     memset(impl, 0x00, sizeof(*impl));
     impl->stream = stream;
     impl->base.ops = &aacParserOps;
-	pthread_cond_init(&impl->cond, NULL);
+    pthread_cond_init(&impl->cond, NULL);
     //ret = pthread_create(&impl->openTid, NULL, AacOpenThread, (void*)impl);
     //CDX_FORCE_CHECK(!ret);
     impl->mErrno = PSR_INVALID;

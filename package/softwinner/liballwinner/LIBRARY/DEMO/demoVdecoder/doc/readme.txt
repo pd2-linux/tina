@@ -9,5 +9,3 @@ step 4:  ./demoVdecoder
 
 example
 ./demoVdecoder -i /mnt/TestStream/h265.mp4 -n 50 #decode h265.mp4 50 frames
-
-

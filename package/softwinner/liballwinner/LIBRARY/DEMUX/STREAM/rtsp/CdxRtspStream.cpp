@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxRtspStream.cpp
+ * Description : Rtsp stream implementation.
+ * History :
+ *
+ */
+
 //#define CONFIG_LOG_LEVEL 4
 
 #include <CdxRtspStream.h>
@@ -18,7 +28,6 @@ static int streamIndx = 0;
         (((cdx_uint32)a) | (((cdx_uint32)b) << 8)| \
         (((cdx_uint32)c) << 16 ) | (((cdx_uint32)d) << 24))
 
-
 #define TABLE_INIT(n, t)                \
     do {                                \
         (n) = 0;                        \
@@ -35,7 +44,6 @@ static int streamIndx = 0;
         (t)[n] = (p);                         \
         (n)++;                                  \
       } while(0)
-
 
 #ifdef __cplusplus
 extern "C"
@@ -94,7 +102,6 @@ char *DecodeUri (char *str)
     
     return str;
 }
-
 
 void RtspUrlParse (RtspUrlT *url, const char *pStr, unsigned char opt)
 {
@@ -197,7 +204,6 @@ void RtspUrlParse (RtspUrlT *url, const char *pStr, unsigned char opt)
     if (url->pPath != NULL)
         *url->pPath = '/'; /* restore leading slash */
 }
-
 
 static int RtspRollOverTcp( CdxRtspStreamImplT *impl) //* todo
 {
@@ -360,7 +366,8 @@ static void ReadAsfDataToBuffer(CdxRtspStreamImplT *impl, char bMarker, void *bu
 #if __RTSP_SAVE_BITSTREAMS
                 int n;
                 n = fwrite(impl->bufWritePtr, 1, iBuf, impl->fp_rtsp);
-                CDX_LOGD("xxx write size(%d), n=(%d), errno(%d), impl->fp_rtsp(%p)", iBuf, n, errno, impl->fp_rtsp);
+                CDX_LOGD("xxx write size(%d), n=(%d), errno(%d), impl->fp_rtsp(%p)", iBuf, n,
+                    errno, impl->fp_rtsp);
                 fsync(fileno(impl->fp_rtsp));
 #endif                
                 pthread_mutex_lock(&impl->bufferMutex);
@@ -373,14 +380,14 @@ static void ReadAsfDataToBuffer(CdxRtspStreamImplT *impl, char bMarker, void *bu
                 }
                 pthread_mutex_unlock(&impl->bufferMutex);
                 
-
                 free(tempBuf);
                 tempBuf = NULL;
             }
         }
         else
         {
-            logd("Broken packet detected (%u vs %u or %u + %u vs %u)", iOffset, iBuf, iOffset, iPayload, pktSize);
+            logd("Broken packet detected (%u vs %u or %u + %u vs %u)",
+                iOffset, iBuf, iOffset, iPayload, pktSize);
             iBuf = 0;
         }
 
@@ -388,14 +395,14 @@ static void ReadAsfDataToBuffer(CdxRtspStreamImplT *impl, char bMarker, void *bu
         len  -= iHdrsize + iPayload;
     }
 
-
 #if 0
     memcpy(impl->bufWritePtr, buf, len);
     
 #if __RTSP_SAVE_BITSTREAMS
     int n;
     n = fwrite(buf, 1, len, impl->fp_rtsp);
-    CDX_LOGD("xxx write size(%d), n=(%d), errno(%d), impl->fp_rtsp(%p)", len, n, errno, impl->fp_rtsp);
+    CDX_LOGD("xxx write size(%d), n=(%d), errno(%d), impl->fp_rtsp(%p)",
+        len, n, errno, impl->fp_rtsp);
     fsync(fileno(impl->fp_rtsp));
 #endif
     
@@ -413,6 +420,48 @@ static void ReadAsfDataToBuffer(CdxRtspStreamImplT *impl, char bMarker, void *bu
 #endif
 
     return;
+}
+
+static int WriteToBuffer(CdxRtspStreamImplT *impl, void *buf, int len)
+{
+    int freeSpace;
+    int copySize;
+    while (len > 0) {
+        if(impl->exitFlag)
+        {
+            pthread_mutex_lock(&impl->lock);
+            impl->ioState = CDX_IO_STATE_ERROR;
+            pthread_mutex_unlock(&impl->lock);
+            return -1;
+        }
+
+        pthread_mutex_lock(&impl->bufferMutex);
+        if (impl->bufWritePtr > impl->bufEndPtr)
+            impl->bufWritePtr -= impl->maxBufSize;
+
+        if (impl->bufWritePtr == impl->bufReadPtr && impl->validDataSize > 0)
+        {
+            pthread_mutex_unlock(&impl->bufferMutex);
+            logd("buffer is full...");
+            usleep(50000);
+            continue;
+        }
+
+        if (impl->bufWritePtr < impl->bufReadPtr)
+            freeSpace = impl->bufReadPtr - impl->bufWritePtr;
+        else
+            freeSpace = impl->bufEndPtr - impl->bufWritePtr + 1;
+
+        copySize = freeSpace >= len ? len : freeSpace;
+        memcpy(impl->bufWritePtr, buf, copySize);
+        impl->bufWritePtr += copySize;
+        impl->validDataSize += copySize;
+        impl->bufPos += copySize;
+        len -= copySize;
+        pthread_mutex_unlock(&impl->bufferMutex);
+    }
+
+    return 0;
 }
 
 static void RtspStreamRead( void *p_private, unsigned int i_size,
@@ -437,7 +486,6 @@ static void RtspStreamRead( void *p_private, unsigned int i_size,
     //logd("========== iPts(%lld), tk->fNpt(%lld)", iPts, (cdx_int64)tk->fNpt);
 
     logv( "StreamRead size=%d pts=%lld", i_size, pts.tv_sec * 1000000LL + pts.tv_usec );
-
 
     // grow buffer if it looks like buffer is too small, but don't eat
     // up all the memory on strange streams
@@ -495,7 +543,8 @@ static void RtspStreamRead( void *p_private, unsigned int i_size,
         memcpy( &impl->mCurptk.pktData[4], tk->pBuffer, i_size );
         
         impl->mCurptk.pktHeader.length = i_size + 4;
-        logv("========== h264 i_size(%u), impl->mCurptk.pktData(%p)", i_size, impl->mCurptk.pktData);
+        logv("========== h264 i_size(%u), impl->mCurptk.pktData(%p)", i_size,
+            impl->mCurptk.pktData);
     }
 #if 1    
     else if( tk->bAsf )
@@ -505,6 +554,10 @@ static void RtspStreamRead( void *p_private, unsigned int i_size,
 
     }
 #endif    
+    else if (tk->rtpPt == MP2T)
+    {
+        WriteToBuffer(impl, tk->pBuffer, i_size);
+    }
     else
     {
         impl->mCurptk.pktData = (cdx_uint8 *)malloc( i_size );
@@ -555,7 +608,8 @@ static void RtspStreamRead( void *p_private, unsigned int i_size,
         tk->iPts = iPts;
     }
     
-    logv("========== RtspStreamRead type(%d), length(%d), pts(%lld)", impl->mCurptk.pktHeader.type, impl->mCurptk.pktHeader.length, impl->mCurptk.pktHeader.pts);
+    logv("========== RtspStreamRead type(%d), length(%d), pts(%lld)", impl->mCurptk.pktHeader.type,
+        impl->mCurptk.pktHeader.length, impl->mCurptk.pktHeader.pts);
 }
 
 static void CdxTaskInterruptData(void *pPrivate)
@@ -607,7 +661,8 @@ static int GetOneFrame(CdxRtspStreamImplT *impl)
     {
         tk->waiting = 1;
         tk->sub->readSource()->getNextFrame( tk->pBuffer, tk->iBuffer,
-                                      RtspStreamRead, tk, RtspStreamClose, tk ); //* 注册具体处理函数RtspStreamRead，读取数据，以便给处理函数处理
+            RtspStreamRead, tk, RtspStreamClose, tk );
+            //* 注册具体处理函数RtspStreamRead，读取数据，以便给处理函数处理
     }
 
     /* Create a task that will be called if we wait more than 10s
@@ -616,15 +671,14 @@ static int GetOneFrame(CdxRtspStreamImplT *impl)
     if (!impl->bRtsptcp && !pSys->bMulticast)
         task = pSys->scheduler->scheduleDelayedTask(10 * 1000 * 1000, CdxTaskInterruptData, impl);
      
-
     //* Do the read 
-    pSys->scheduler->doEventLoop( &pSys->eventData ); //* 调用RtspStreamRead，读到数据后改变eventData使doEventLoop返回
+    pSys->scheduler->doEventLoop( &pSys->eventData );
+    //* 调用RtspStreamRead，读到数据后改变eventData使doEventLoop返回
     
     //* remove the task
     if (!impl->bRtsptcp && !pSys->bMulticast)
         pSys->scheduler->unscheduleDelayedTask(task);
     
-
     if( pSys->bMulticast && pSys->bNoData &&
         ( pSys->iNodatati > 120 ) )
     {
@@ -634,7 +688,7 @@ static int GetOneFrame(CdxRtspStreamImplT *impl)
               pSys->bNoData && ( pSys->iNodatati > 0 ) )
     {
         logw("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-        int bRtsptcp =  impl->bRtsphttp || impl->bRtsptcp;
+        int bRtsptcp = impl->bRtsphttp || impl->bRtsptcp;
 
         if( !bRtsptcp && pSys->rtsp && pSys->ms )
         {
@@ -669,19 +723,19 @@ static int __CdxRtspStreamRead(CdxStreamT *stream, void *buf, cdx_uint32 len)
     
     impl = CdxContainerOf(stream, CdxRtspStreamImplT, base);
 
-	pthread_mutex_lock(&impl->lock);
-	if(impl->exitFlag)
-	{
-		pthread_mutex_unlock(&impl->lock);
-		return -1;
-	}
-	pthread_mutex_unlock(&impl->lock);
+    pthread_mutex_lock(&impl->lock);
+    if(impl->exitFlag)
+    {
+        pthread_mutex_unlock(&impl->lock);
+        return -1;
+    }
+    pthread_mutex_unlock(&impl->lock);
 
-    if(impl->pSys->bOutAsf)
+    if(impl->pSys->bOutAsf || impl->pSys->track[0]->rtpPt == MP2T)
     {
         while(impl->validDataSize < len)
         {
-            if(impl->exitFlag)
+            if (impl->exitFlag || impl->ioState == CDX_IO_STATE_ERROR)
             {
                 sendSize = -1;
                 goto __exit;
@@ -727,7 +781,8 @@ __exit:
     }
     else
     {
-        logv("impl->bPktheaderRead=%d, impl->bPktdataRead=%d, impl->mPos.type=%d, len=%d", impl->bPktheaderRead, impl->bPktdataRead, impl->mPos.type, len);
+        logv("impl->bPktheaderRead=%d, impl->bPktdataRead=%d, impl->mPos.type=%d, len=%d",
+            impl->bPktheaderRead, impl->bPktdataRead, impl->mPos.type, len);
 
         if(!impl->bPktheaderRead && !impl->bPktdataRead)
         {
@@ -772,7 +827,8 @@ __exit:
                 {
                     if(impl->mCurptk.pktData)
                     {
-                        unitLen = CedarXMin(len, impl->mCurptk.pktHeader.length - impl->mPos.offset);//* ring buf
+                        unitLen = CedarXMin(len, impl->mCurptk.pktHeader.length -
+                            impl->mPos.offset);//* ring buf
                         memcpy((cdx_uint8 *)buf, (cdx_uint8 *)impl->mCurptk.pktData 
                                         + impl->mPos.offset, unitLen);
                         impl->mPos.offset += unitLen;
@@ -786,7 +842,8 @@ __exit:
                         }
                         else
                         {
-                            logd("=========== impl->mPos.offset(%d), impl->mCurptk.pktHeader.length(%d)", impl->mPos.offset, impl->mCurptk.pktHeader.length);
+                            logd("impl->mPos.offset(%d), impl->mCurptk.pktHeader.length(%d)",
+                                impl->mPos.offset, impl->mCurptk.pktHeader.length);
                         }
                     }
                     else
@@ -795,7 +852,6 @@ __exit:
                         return -1;
                     }
                 }
-                
                 
                 break;
             }
@@ -851,7 +907,8 @@ static cdx_int32 __CdxRtspStreamControl(CdxStreamT *stream, cdx_int32 cmd, void 
     return 0;
 }
 
-static cdx_int32 __CdxRtspStreamGetMetaData(CdxStreamT *stream, const cdx_char *key, cdx_void **pVal)
+static cdx_int32 __CdxRtspStreamGetMetaData(CdxStreamT *stream, const cdx_char *key,
+    cdx_void **pVal)
 {
     CdxRtspStreamImplT *impl;    
     impl = CdxContainerOf(stream, CdxRtspStreamImplT, base);
@@ -942,8 +999,7 @@ static void CdxTaskInterruptRTSP(void *pPrivate)
     impl->pSys->eventRtsp = 0xff;
 }
 
-
-static void DefaultLive555Callback( RTSPClient* client, int resultCode, char* resultString )
+static void DefaultLive555Callback( RTSPClient* client, int resultCode, char* resultString)
 {
     CdxRTSPClient *cdxclient = static_cast<CdxRTSPClient *> ( client );
     StreamSysT *pSys = cdxclient->pSys;
@@ -999,7 +1055,7 @@ static void CdxContinueAfterDESCRIBE(RTSPClient* client, int resultCode,
     }
     else
         pSys->bError = 1;
-    delete[] resultString;
+    delete [] resultString;
     pSys->eventRtsp = 1;
 }
 
@@ -1016,7 +1072,7 @@ static void CdxContinueAfterOPTIONS(RTSPClient* client, int resultCode,
       && resultString != NULL
       && strstr(resultString, "GET_PARAMETER") != NULL;
     client->sendDescribeCommand(CdxContinueAfterDESCRIBE);
-    delete[] resultString;
+    delete [] resultString;
 }
 
 //* connect to RTSP server to setup the session DESCRIBE
@@ -1083,7 +1139,8 @@ create:
 
 describe:
     authenticator.setUsernameAndPassword(pUser, pPwd);
-    //* 在发送完sendOptionsCommand请求，收到它的应答后调用回调函数continueAfterOPTIONS，在continueAfterOPTIONS函数中发送Describe请求；
+    //* 在发送完sendOptionsCommand请求，收到它的应答后调用回调函数continueAfterOPTIONS，
+    //在continueAfterOPTIONS函数中发送Describe请求；
     pSys->rtsp->sendOptionsCommand(&CdxContinueAfterOPTIONS, &authenticator);
 
     if(!WaitLive555Response(impl, iTimeout))
@@ -1210,7 +1267,7 @@ static cdx_uint8 *RtspParseVorbisConfigStr( char const* configStr,
         assert(!p_extra);
         memcpy( p_extra, p_cfg+headerSkip, configSize );
     }
-    delete[] p_cfg;
+    delete [] p_cfg;
     return p_extra;
 }
 
@@ -1228,6 +1285,7 @@ static int ExtractMediaInfo(MediaSubsession *sub, CdxRtspStreamImplT *impl)
     }
     tk->impl        = impl;
     tk->sub         = sub;
+    tk->rtpPt = INVALID;
     //tk->pEs        = NULL;
     tk->bQuicktime = 0;
     tk->bAsf       = 0;
@@ -1261,7 +1319,8 @@ static int ExtractMediaInfo(MediaSubsession *sub, CdxRtspStreamImplT *impl)
             !strcmp( sub->codecName(), "MPA-ROBUST" ) ||
             !strcmp( sub->codecName(), "X-MP3-DRAFT-00" ) )
         {
-            pMediaInfo->program[0].audio[impl->nAudiotrack].eCodecFormat = AUDIO_CODEC_FORMAT_MPEG_AAC_LC; //* to check
+            pMediaInfo->program[0].audio[impl->nAudiotrack].eCodecFormat =
+                AUDIO_CODEC_FORMAT_MPEG_AAC_LC; //* to check
             pMediaInfo->program[0].audio[impl->nAudiotrack].nSampleRate = 0;
 
             tk->fmt.iCodec = AUDIO_CODEC_FORMAT_MPEG_AAC_LC;
@@ -1347,9 +1406,11 @@ static int ExtractMediaInfo(MediaSubsession *sub, CdxRtspStreamImplT *impl)
                                                      i_extra ) ) )
             {
                 pMediaInfo->program[0].audio[impl->nAudiotrack].nCodecSpecificDataLen = i_extra;
-                pMediaInfo->program[0].audio[impl->nAudiotrack].pCodecSpecificData = (char*)malloc(i_extra);
-                memcpy(pMediaInfo->program[0].audio[impl->nAudiotrack].pCodecSpecificData, p_extra, i_extra);
-                delete[] p_extra;
+                pMediaInfo->program[0].audio[impl->nAudiotrack].pCodecSpecificData =
+                    (char*)malloc(i_extra);
+                memcpy(pMediaInfo->program[0].audio[impl->nAudiotrack].pCodecSpecificData,
+                    p_extra, i_extra);
+                delete [] p_extra;
             }
         }
         else if( !strcmp( sub->codecName(), "MPEG4-GENERIC" ) )
@@ -1357,16 +1418,19 @@ static int ExtractMediaInfo(MediaSubsession *sub, CdxRtspStreamImplT *impl)
             unsigned int i_extra;
             unsigned char *p_extra;
 
-            pMediaInfo->program[0].audio[impl->nAudiotrack].eCodecFormat = AUDIO_CODEC_FORMAT_MPEG_AAC_LC;
+            pMediaInfo->program[0].audio[impl->nAudiotrack].eCodecFormat =
+                AUDIO_CODEC_FORMAT_MPEG_AAC_LC;
             tk->fmt.iCodec = AUDIO_CODEC_FORMAT_MPEG_AAC_LC;
 
             if( ( p_extra = parseGeneralConfigStr( sub->fmtp_config(),
                                                    i_extra ) ) )
             {
                 pMediaInfo->program[0].audio[impl->nAudiotrack].nCodecSpecificDataLen = i_extra;
-                pMediaInfo->program[0].audio[impl->nAudiotrack].pCodecSpecificData = (char *)malloc( i_extra );
-                memcpy( pMediaInfo->program[0].audio[impl->nAudiotrack].pCodecSpecificData, p_extra, i_extra );
-                delete[] p_extra;
+                pMediaInfo->program[0].audio[impl->nAudiotrack].pCodecSpecificData =
+                    (char *)malloc( i_extra );
+                memcpy( pMediaInfo->program[0].audio[impl->nAudiotrack].pCodecSpecificData,
+                    p_extra, i_extra );
+                delete [] p_extra;
             }
         }
         else if( !strcmp( sub->codecName(), "X-ASF-PF" ) )
@@ -1392,7 +1456,8 @@ static int ExtractMediaInfo(MediaSubsession *sub, CdxRtspStreamImplT *impl)
                                                 i_extra ) ) )
             {
                 pMediaInfo->program[0].audio[impl->nAudiotrack].nCodecSpecificDataLen = i_extra;
-                pMediaInfo->program[0].audio[impl->nAudiotrack].pCodecSpecificData = (char *)p_extra;
+                pMediaInfo->program[0].audio[impl->nAudiotrack].pCodecSpecificData =
+                    (char *)p_extra;
             }
             else
             {
@@ -1439,13 +1504,14 @@ static int ExtractMediaInfo(MediaSubsession *sub, CdxRtspStreamImplT *impl)
                 pMediaInfo->program[0].video[0].pCodecSpecificData = (char *)malloc( i_extra );
                 memcpy( pMediaInfo->program[0].video[0].pCodecSpecificData, p_extra, i_extra );
 
-                delete[] p_extra;
+                delete [] p_extra;
             }
 #endif
         }
         else if( !strcmp( sub->codecName(), "JPEG" ) )
         {
-             pMediaInfo->program[0].video[impl->nVideotrack].eCodecFormat = VIDEO_CODEC_FORMAT_MJPEG;
+             pMediaInfo->program[0].video[impl->nVideotrack].eCodecFormat =
+                VIDEO_CODEC_FORMAT_MJPEG;
              tk->fmt.iCodec = VIDEO_CODEC_FORMAT_MJPEG;
         }
         else if( !strcmp( sub->codecName(), "MP4V-ES" ) )
@@ -1461,9 +1527,11 @@ static int ExtractMediaInfo(MediaSubsession *sub, CdxRtspStreamImplT *impl)
                                                    i_extra ) ) )
             {
                 pMediaInfo->program[0].video[impl->nVideotrack].nCodecSpecificDataLen = i_extra;
-                pMediaInfo->program[0].video[impl->nVideotrack].pCodecSpecificData = (char *)malloc( i_extra );
-                memcpy( pMediaInfo->program[0].video[impl->nVideotrack].pCodecSpecificData, p_extra, i_extra );
-                delete[] p_extra;
+                pMediaInfo->program[0].video[impl->nVideotrack].pCodecSpecificData =
+                    (char *)malloc( i_extra );
+                memcpy( pMediaInfo->program[0].video[impl->nVideotrack].pCodecSpecificData,
+                    p_extra, i_extra );
+                delete [] p_extra;
             }
         }
         else if( !strcmp( sub->codecName(), "X-QT" ) ||
@@ -1478,10 +1546,9 @@ static int ExtractMediaInfo(MediaSubsession *sub, CdxRtspStreamImplT *impl)
         else if( !strcmp( sub->codecName(), "MP2T" ) )
         {
             tk->bMuxed = 1;
+            tk->rtpPt = MP2T;
             if(impl->pSys->bOutMuxed == 0)
                 impl->pSys->bOutMuxed = 1;
-                
-            logw("mp2t not support");
         }
         else if( !strcmp( sub->codecName(), "MP2P" ) ||
                  !strcmp( sub->codecName(), "MP1S" ) )
@@ -1542,7 +1609,6 @@ static int RtspSessionsSetup(CdxRtspStreamImplT *impl)
 
     bRtsptcp    = impl->bRtsptcp || impl->bRtsphttp;
     iClientport = -1; //* todo    //var_InheritInteger( impl, "rtp-client-port" );
-
 
     //* Create the session from the SDP
     if(!(pSys->ms = MediaSession::createNew(*pSys->env, pSys->pSdp)))
@@ -1718,7 +1784,12 @@ static int RtspPlay(CdxRtspStreamImplT *impl)
     if(pSys->rtsp)
     {
         //* PLAY request
-        pSys->rtsp->sendPlayCommand( *pSys->ms, DefaultLive555Callback, pSys->fNptStart, -1, 1 );
+        if (impl->startTime != NULL)
+            pSys->rtsp->sendPlayCommand(*pSys->ms,
+                DefaultLive555Callback, impl->startTime, impl->endTime, 1);
+        else
+            pSys->rtsp->sendPlayCommand(*pSys->ms,
+                DefaultLive555Callback, pSys->fNptStart, -1.0, 1);
 
         if( !WaitLive555Response(impl) )
         {
@@ -1732,7 +1803,8 @@ static int RtspPlay(CdxRtspStreamImplT *impl)
             pSys->iTimeout = 60; /* default value from RFC2326 */
     
         /* start timeout-thread only if GET_PARAMETER is supported by the server */
-        /* or start it if wmserver dialect, since they don't report that GET_PARAMETER is supported correctly */
+        /* or start it if wmserver dialect, since they don't report that GET_PARAMETER
+            is supported correctly */
         if( !pSys->pTimeout && ( pSys->bGetparam /*"rtsp-wmserver"*/ ) )
         {
             logd( "We have a timeout of %d seconds",  pSys->iTimeout );
@@ -1762,7 +1834,7 @@ static int RtspPlay(CdxRtspStreamImplT *impl)
     
     /* Retrieve the starttime if possible */
     pSys->fNptStart = pSys->ms->playStartTime();
-    if( pSys->ms->playEndTime() > 0 )
+    if (pSys->ms->playEndTime() > 0)
         pSys->fNptLength = pSys->ms->playEndTime();
     
     logd( "play start: %f stop:%f", pSys->fNptStart, pSys->fNptLength );
@@ -1781,7 +1853,12 @@ static int __CdxRtspStreamClose(CdxStreamT *stream)
     impl->exitFlag = 1;
     pthread_mutex_unlock(&impl->lock);
 
-    pthread_join(impl->threadId, NULL);
+    if (pthread_join(impl->threadId, NULL) == 0)
+    {
+        pthread_mutex_destroy(&impl->bufferMutex);
+        pthread_mutex_destroy(&impl->lock);
+        pthread_cond_destroy(&impl->cond);
+    }
 
     if(pSys)
     {
@@ -1819,59 +1896,31 @@ static int __CdxRtspStreamClose(CdxStreamT *stream)
             free( tk );
         }
          
-        if( pSys->bOutAsf ) 
-        {
-            if(impl->buffer)
-            {
-                free(impl->buffer);
-            }
-            if(impl->bufAsfheader)
-            {
-                free(impl->bufAsfheader);
-            }
-            
-            pthread_mutex_destroy(&impl->bufferMutex);
-            pthread_mutex_destroy(&impl->lock);
-            pthread_cond_destroy(&impl->cond);
-        }
-         
         delete pSys->scheduler;
-        if(pSys->pSdp)
-            free( pSys->pSdp );
-        if(pSys->pPath)
-            free( pSys->pPath );
-        
-        if(pSys->url.pHost)
-            free(pSys->url.pHost);
-        if(pSys->url.pBuffer)
-            free(pSys->url.pBuffer);
-        // if(pSys->url.pPath)
-        //     free(pSys->url.pPath);
+
+        free(pSys->pSdp);
+        free(pSys->pPath);
+        free(pSys->url.pHost);
+        free(pSys->url.pBuffer);
         free(pSys);
         impl->pSys = NULL;
     }
 
+    free(impl->buffer);
+    free(impl->bufAsfheader);
 
-    if(impl->url)
-    {
-        free(impl->url);
-        impl->url = NULL;
-    }
-    if(impl->mediaInfo.program[0].audio[0].pCodecSpecificData)
-    {
-        free(impl->mediaInfo.program[0].audio[0].pCodecSpecificData);
-        impl->mediaInfo.program[0].audio[0].pCodecSpecificData = NULL;
-    }    
-    if(impl->mediaInfo.program[0].video[0].pCodecSpecificData)
-    {
-        free(impl->mediaInfo.program[0].video[0].pCodecSpecificData);
-        impl->mediaInfo.program[0].video[0].pCodecSpecificData = NULL;
-    }
-    if(impl->probeData.buf)
-    {
-        free(impl->probeData.buf);
-        impl->probeData.buf = NULL;
-    }
+    free(impl->url);
+    impl->url = NULL;
+
+    free(impl->startTime);
+    free(impl->endTime);
+
+    free(impl->mediaInfo.program[0].audio[0].pCodecSpecificData);
+    impl->mediaInfo.program[0].audio[0].pCodecSpecificData = NULL;
+    free(impl->mediaInfo.program[0].video[0].pCodecSpecificData);
+    impl->mediaInfo.program[0].video[0].pCodecSpecificData = NULL;
+    free(impl->probeData.buf);
+    impl->probeData.buf = NULL;
 
 #if __RTSP_SAVE_BITSTREAMS
     fclose(impl->fp_rtsp);
@@ -2070,7 +2119,8 @@ static void GetPktSize (AsfHdrT *hdr,cdx_uint8 *pHeader, int iHeader )
         loge("not asf format file.");
         return ;
     }
-    BufferGetMemory(&buf, NULL, 30 - 16); //*Object Size(8B), Number of Header Objects(4B),Reserved1(1B), Reserved2(1)
+    BufferGetMemory(&buf, NULL, 30 - 16);
+    //*Object Size(8B), Number of Header Objects(4B),Reserved1(1B), Reserved2(1)
 
     for( ;; )
     {
@@ -2215,7 +2265,8 @@ static int GetAsfHeaderInfo(CdxRtspStreamImplT *impl)
     nHeader = Base64Decode( (cdx_uint8*)pHeader, nHeader, pAsf );
 
     //logd("nHeader(%d), Hdrbase64(%s)", nHeader, pAsf);
-    //logd("pHeader[%x %x %x %x %x %x]", pHeader[0], pHeader[1], pHeader[2], pHeader[3], pHeader[4],pHeader[5]);
+    /*logd("pHeader[%x %x %x %x %x %x]", pHeader[0], pHeader[1], pHeader[2],
+        pHeader[3], pHeader[4],pHeader[5]);*/
     if( nHeader <= 0 )
     {
         loge("nHeader <= 0.");
@@ -2274,21 +2325,6 @@ static void *StartRtspStreamThread(void *pArg)
 {
     CdxRtspStreamImplT *impl = (CdxRtspStreamImplT *)pArg;
     int ret = 0;
-
-    //* copy asf header 
-    memcpy(impl->bufWritePtr, impl->bufAsfheader, impl->bufAsfhSize);
-#if __RTSP_SAVE_BITSTREAMS
-    int n;
-    n = fwrite(impl->bufAsfheader, 1, impl->bufAsfhSize, impl->fp_rtsp);
-    CDX_LOGD("xxx write bufAsfhSize(%d), n=(%d), errno(%d), impl->fp_rtsp(%p)", impl->bufAsfhSize, n, errno, impl->fp_rtsp);
-    fsync(fileno(impl->fp_rtsp));
-#endif
-
-    pthread_mutex_lock(&impl->bufferMutex);
-    impl->bufWritePtr += impl->bufAsfhSize;
-    impl->validDataSize += impl->bufAsfhSize;
-    impl->bufPos = impl->bufAsfhSize;
-    pthread_mutex_unlock(&impl->bufferMutex);
 
     pthread_mutex_lock(&impl->lock);
     impl->ioState = CDX_IO_STATE_OK;
@@ -2369,17 +2405,7 @@ static cdx_int32 __CdxRtspStreamConnect(CdxStreamT *stream)
         goto err_out;
     }
 
-    if(strncasecmp(impl->url, "sdp", 3)) //* for what?
-    {
-        char *p  = pSys->pPath;
-        while((p = strchr(p, ' ')) != NULL)
-            *p = '+';
-    }
-
-    //* 1. option, describe
-    if(0)    //* sdp stream is NULL, todo...
-        ;
-    else if((iRet = RtspConnect(impl)) != 0)
+    if((iRet = RtspConnect(impl)) != 0)
     {
         loge("failed to connect with %s", impl->url);
         goto err_out;
@@ -2389,6 +2415,22 @@ static cdx_int32 __CdxRtspStreamConnect(CdxStreamT *stream)
     {
         loge("failed to retrieve the rtsp session description.");
         goto err_out;
+    }
+
+    /* 1. There is no simple way to find out we should use tcp or udp.
+     * 2. Try udp first and switch to tcp is too slow in our implementation.
+     * 3. For wide area network, tcp is more likely to be used.
+     * 4. RTSP + TS + TCP is the single real use case for now.
+     */
+    char *p;
+    int payloadType;
+    p = strstr(pSys->pSdp, "m=video");
+    if (p != NULL &&
+            (sscanf(p, "m=video %*u %*s %d", &payloadType)) == 1 &&
+            payloadType == MP2T)
+    {
+        impl->bRtsptcp = 1;
+        logd("use tcp interleaved mode");
     }
 
     //* 2. setup
@@ -2430,6 +2472,15 @@ static cdx_int32 __CdxRtspStreamConnect(CdxStreamT *stream)
             goto err_out;
         }
         
+        //* copy asf header
+        memcpy(impl->bufWritePtr, impl->bufAsfheader, impl->bufAsfhSize);
+
+        //pthread_mutex_lock(&impl->bufferMutex);
+        impl->bufWritePtr += impl->bufAsfhSize;
+        impl->validDataSize += impl->bufAsfhSize;
+        impl->bufPos = impl->bufAsfhSize;
+        //pthread_mutex_unlock(&impl->bufferMutex);
+
         //* create a download thread
         iRet = pthread_create(&impl->threadId, NULL, StartRtspStreamThread, (void *)impl);
         if(iRet)
@@ -2447,15 +2498,53 @@ static cdx_int32 __CdxRtspStreamConnect(CdxStreamT *stream)
         }
         pthread_mutex_unlock(&impl->lock);
     
-        
         impl->probeData.buf = (char *)malloc(16);
         memcpy(impl->probeData.buf, asf_header, 16);
         impl->probeData.len = 16;
     }
     else if(pSys->bOutMuxed) 
     {
-        logw("pSys->bOutMuxed(%d)", pSys->bOutMuxed);
-        goto err_out;
+        if (pSys->track[0]->rtpPt != MP2T)
+            goto err_out;
+
+        if(CreateRtspStreamBuffer(impl) < 0)
+        {
+            loge("CreateRtspStreamBuffer failed.");
+            goto err_out;
+        }
+
+        //* create a download thread
+        iRet = pthread_create(&impl->threadId, NULL, StartRtspStreamThread, (void *)impl);
+        if(iRet)
+        {
+            loge("create thread failed.");
+            impl->ioState = CDX_IO_STATE_ERROR;
+            goto err_out;
+        }
+        pthread_mutex_lock(&impl->lock);
+        while(impl->ioState != CDX_IO_STATE_OK
+              && impl->ioState != CDX_IO_STATE_EOS
+              && impl->ioState != CDX_IO_STATE_ERROR)
+        {
+            pthread_cond_wait(&impl->cond, &impl->lock);
+        }
+        pthread_mutex_unlock(&impl->lock);
+
+        /* We should do a stream read actually. However, I prefer speed and
+         * trust the SDP file.
+         * I don't want to change Ts parser, so no probeData.buf = "tsrtsp".
+         */
+        const int tsPacketNum = 5;
+        int i;
+        impl->probeData.len = 188 * tsPacketNum;
+        impl->probeData.buf = (char *)malloc(impl->probeData.len);
+        memset(impl->probeData.buf, 0xff, impl->probeData.len);
+        for (i = 0; i < tsPacketNum; i++)
+        {
+            impl->probeData.buf[i * 188] = 0x47;
+            impl->probeData.buf[i * 188 + 1] = 0x1f;
+            impl->probeData.buf[i * 188 + 3] = 0x1f;
+        }
     }
     else //* raw data
     {
@@ -2498,19 +2587,53 @@ tell:      __CdxRtspStreamTell,
 size:      __CdxRtspStreamSize,
 };
 
-static CdxRtspStreamImplT *CreateRtspStreamImpl(void)
+#if 0
+static time_t str2second(const char *str)
 {
-    CdxRtspStreamImplT *impl = NULL;
+    struct tm tm;
+    char *p;
+    p = strptime(str, "%Y%m%dT%H%M%SZ", &tm);
+    if (p == NULL || *p != '\0')
+        return -1;
     
-    impl = (CdxRtspStreamImplT *)malloc(sizeof(CdxRtspStreamImplT));
-    if(!impl)
+    tm.tm_isdst = 0;
+    return mktime(&tm);
+}
+#endif
+
+static void extraDataParse(CdxRtspStreamImplT *impl, CdxKeyedVectorT *header)
+{
+    int i;
+    int size = CdxKeyedVectorGetSize(header);
+    for (i = 0; i < size; i++)
     {
-        CDX_LOGE("malloc failed, size(%u)", (unsigned int)sizeof(CdxRtspStreamImplT));
-        return NULL;
-    }
-    memset(impl, 0x00, sizeof(CdxRtspStreamImplT));
+        char *key = CdxKeyedVectorGetKey(header, i);
+        if (key == NULL || strcmp(key, "Range") != 0)
+           continue;
+
+        /* clock=19961108T142300Z-19961108T143520Z */
+        char *str = CdxKeyedVectorGetValue(header, i);
+        if (str == NULL || strncmp(str, "clock=", 6) != 0)
+            continue;
     
-    return impl;
+        str += strlen("clock=");
+
+        char *str2;
+        for (str2 = str; *str2 != '\0'; str2++)
+        {
+            if (*str2 == '-')
+            {
+                *str2++ = '\0';
+                break;
+            }
+        }
+
+        logd("start time %s, end time %s", str, str2);
+        impl->startTime = strdup(str);
+        if (*str2 != '\0')
+            impl->endTime = strdup(str2);
+        break;
+    }
 }
 
 static CdxStreamT *__CdxRtspStreamCreate(CdxDataSourceT *source)
@@ -2519,8 +2642,8 @@ static CdxStreamT *__CdxRtspStreamCreate(CdxDataSourceT *source)
 
     CDX_LOGD("source uri:(%s)", source->uri);
     
-	if(strncasecmp("rtsp://", source->uri, 7) != 0) 
-	{
+    if(strncasecmp("rtsp://", source->uri, 7) != 0)
+    {
         CDX_LOGE("not rtsp source.");
         return NULL;
     }
@@ -2531,16 +2654,21 @@ static CdxStreamT *__CdxRtspStreamCreate(CdxDataSourceT *source)
         return NULL;
     }    
 
-    impl = CreateRtspStreamImpl();
+    impl = (CdxRtspStreamImplT *)calloc(1, sizeof(*impl));
     if (NULL == impl)
     {
         CDX_LOGE("CreateRtspStreamImpl fail...");
         return NULL;
     }
+
     impl->base.ops = &rtspStreamOps;
     impl->url = strdup(source->uri);
     impl->ioState = CDX_IO_STATE_INVALID;
     impl->mPos.type = PKT_HEADER;
+
+    if (source->extraData != NULL &&
+            source->extraDataType == EXTRA_DATA_RTSP)
+        extraDataParse(impl, (CdxKeyedVectorT *)source->extraData);
 
 #if __RTSP_SAVE_BITSTREAMS
     //sprintf(impl->location, "/data/camera/rtsp_stream_%d.es", streamIndx++);
@@ -2548,7 +2676,6 @@ static CdxStreamT *__CdxRtspStreamCreate(CdxDataSourceT *source)
     impl->fp_rtsp = fopen("/data/camera/rtsp_stream", "wb");
     logd("errno=%d", errno);
 #endif 
-
 
     CDX_LOGD("create rtsp stream ok.");
     
@@ -2563,5 +2690,3 @@ create:  __CdxRtspStreamCreate
 #ifdef __cplusplus
 }
 #endif
-
-

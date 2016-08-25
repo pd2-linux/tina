@@ -30,12 +30,15 @@ int initMov(Mp4MuxContext *impl)
     if ((mov->cache_keyframe_ptr = (cdx_uint32*)malloc(KEYFRAME_CACHE_SIZE)) == NULL)
     {
         loge("mov->cache_keyframe_ptr malloc failed\n");
+		free(mov);
         return -2;
     }
 
     if ((impl->mov_inf_cache = (cdx_int8*)malloc(TOTAL_CACHE_SIZE * 4)) == NULL)
     {
         loge("Mp4MuxContext->mov_inf_cache malloc failed\n");
+		free(mov->cache_keyframe_ptr);
+		free(mov);
         return -3;
     }
       
@@ -498,4 +501,3 @@ CdxMuxerCreatorT mp4MuxerCtor =
 {
     .create = __CdxMp4MuxerOpen
 };
-

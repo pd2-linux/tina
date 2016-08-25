@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxUrl.h
+ * Description : Url
+ * History :
+ *
+ */
+
 #ifndef CDX_URL
 #define CDX_URL
 

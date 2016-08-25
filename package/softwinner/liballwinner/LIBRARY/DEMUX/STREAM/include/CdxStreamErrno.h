@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxStreamErrno.h
+ * Description : StreamErrno
+ * History :
+ *
+ */
+
 #ifndef CDX_STREAM_ERRNO_H
 #define CDX_STREAM_ERRNO_H
 

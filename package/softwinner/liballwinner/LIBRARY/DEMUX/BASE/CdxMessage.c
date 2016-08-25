@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxMessage.c
+ * Description : Message
+ * History :
+ *
+ */
+
 #include <CdxMessage.h>
 
 #include <CdxMemory.h>
@@ -121,9 +131,9 @@ static cdx_int32 __CdxDeliverPostUS(CdxDeliverT *deliver, CdxMessageT *msg,
     if (timeout == 0LL)
     {
         CdxQueuePush(impl->eventQueue, msg);        
-		CdxMutexLock(&impl->mutex); /*lock*/
+        CdxMutexLock(&impl->mutex); /*lock*/
         CdxCondSignal(&impl->cond);
-		CdxMutexUnlock(&impl->mutex); /*unlock*/
+        CdxMutexUnlock(&impl->mutex); /*unlock*/
     }
     else
     {
@@ -167,13 +177,13 @@ static cdx_void *DeliverProcess(cdx_void *arg)
 
         if (CdxQueueEmpty(impl->eventQueue))
         {
-			if (impl->threadExit)
-			{
-				break;
-			}
-			struct timespec abstime;
-			abstime.tv_sec = time(0) + 1;
-			abstime.tv_nsec = 0;
+            if (impl->threadExit)
+            {
+                break;
+            }
+            struct timespec abstime;
+            abstime.tv_sec = time(0) + 1;
+            abstime.tv_nsec = 0;
             CdxMutexLock(&impl->mutex); /*lock*/
             CdxCondTimedwait(&impl->cond, &impl->mutex, &abstime);
             CdxMutexUnlock(&impl->mutex); /*unlock*/
@@ -269,9 +279,9 @@ cdx_void CdxDeliverDestroy(CdxDeliverT *deliver)
     selfPool = impl->pool;
     impl->threadExit = CDX_TRUE;
     
-	CdxMutexLock(&impl->mutex); /*lock*/
+    CdxMutexLock(&impl->mutex); /*lock*/
     CdxCondBroadcast(&impl->cond);
-	CdxMutexUnlock(&impl->mutex); /*unlock*/
+    CdxMutexUnlock(&impl->mutex); /*unlock*/
 
     CDX_LOGD("wait thread, pid(%ld)", (unsigned long)impl->pid);
     pthread_join(impl->pid, NULL);
@@ -507,5 +517,3 @@ cdx_void CdxHandlerDestroy(CdxHandlerT *hdr)
 }
 
 /*--------------------------msg handler end----------------------------*/
-
-

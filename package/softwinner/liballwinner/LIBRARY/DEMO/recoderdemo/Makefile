@@ -74,10 +74,6 @@ LoadFlags +=   -lawrecorder -lcdc_vencoder -lcdc_aencoder \
                -lcdx_base -lcdx_muxer -lcdc_base -lcdc_ve \
                -lcdc_memory -lpthread -ldl -lstdc++ -lrt 
 
-ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_UCGNUEABI))
-LoadFlags += -laacenc -lmp3enc -lpcmenc
-endif
-
 ifeq ($(CONFIG_HAVE_ZLIB), $(OPTION_HAVE_ZLIB))
 LoadFlags += -lz
 endif
@@ -112,9 +108,15 @@ LoadFlags += -L../../libcedarc/library/lib32/linuxgnueabi
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI))
-LoadFlags +=-L../../EXTERNAL/lib32/muslgnueabi
-LoadFlags += -L../../libcedarc/library/lib32/muslgnueabi
+    ifeq ($(LINUX_VERSION),$(LINUX_VERSION_3_10))
+    LoadFlags +=-L../../libcedarc/library/lib32/muslgnueabi_linux310
+    else
+    LoadFlags +=-L../../libcedarc/library/lib32/muslgnueabi
+    endif
+
+    LoadFlags +=-L../../EXTERNAL/lib32/muslgnueabi
 endif
+
 ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI64))
 LoadFlags +=-L../../EXTERNAL/lib64/muslgnueabi
 endif
@@ -167,5 +169,3 @@ ifneq ($(MAKECMDGOALS),cleanall)
 endif
 endif
 endif
-
-

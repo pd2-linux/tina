@@ -1,22 +1,14 @@
-/*******************************************************************************
---                                                                            --
---                    CedarX Multimedia Framework                             --
---                                                                            --
---          the Multimedia Framework for Linux/Android System                 --
---                                                                            --
---       This software is confidential and proprietary and may be used        --
---        only as expressly authorized by a licensing agreement from          --
---                         Softwinner Products.                               --
---                                                                            --
---                   (C) COPYRIGHT 2011 SOFTWINNER PRODUCTS                   --
---                            ALL RIGHTS RESERVED                             --
---                                                                            --
---                 The entire notice above must be reproduced                 --
---                  on all copies and should not be removed.                  --
---                                                                            --
-*******************************************************************************/
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxAviParser.c
+ * Description : AVI parser implementation.
+ * History :
+ *
+ */
 
-//#define LOG_NDEBUG 0
+//#define CONFIG_LOG_LEVEL 4
 #define LOG_TAG "CdxAviParser"
 #include <CdxTypes.h>
 #include <assert.h>
@@ -38,24 +30,29 @@ enum CdxAviStatusE
     CDX_AVI_EOS,
 };
 
-static cdx_uint8 aviHeaders[][8] = {{ 0x52, 0x49, 0x46, 0x46, 0x41, 0x56, 0x49, 0x20 }, // 'R', 'I', 'F', 'F', 'A', 'V', 'I', ' '
-                                    { 0x52, 0x49, 0x46, 0x46, 0x41, 0x56, 0x49, 0x58 }, // 'R', 'I', 'F', 'F', 'A', 'V', 'I', 'X'
-                                    { 0x52, 0x49, 0x46, 0x46, 0x41, 0x56, 0x49, 0x19 }, // 'R', 'I', 'F', 'F', 'A', 'V', 'I', 0x19
-                                    { 0x4f, 0x4e, 0x32, 0x20, 0x4f, 0x4e, 0x32, 0x66 }, // 'O', 'N', '2', ' ', 'O', 'N', '2', 'f'
-                                    { 0x52, 0x49, 0x46, 0x46, 0x41, 0x4d, 0x56, 0x20 }, // 'R', 'I', 'F', 'F', 'A', 'M', 'V', ' '
+static cdx_uint8 aviHeaders[][8] = {{ 0x52, 0x49, 0x46, 0x46, 0x41, 0x56, 0x49, 0x20 },
+                                    // 'R', 'I', 'F', 'F', 'A', 'V', 'I', ' '
+                                    { 0x52, 0x49, 0x46, 0x46, 0x41, 0x56, 0x49, 0x58 },
+                                    // 'R', 'I', 'F', 'F', 'A', 'V', 'I', 'X'
+                                    { 0x52, 0x49, 0x46, 0x46, 0x41, 0x56, 0x49, 0x19 },
+                                    // 'R', 'I', 'F', 'F', 'A', 'V', 'I', 0x19
+                                    { 0x4f, 0x4e, 0x32, 0x20, 0x4f, 0x4e, 0x32, 0x66 },
+                                    // 'O', 'N', '2', ' ', 'O', 'N', '2', 'f'
+                                    { 0x52, 0x49, 0x46, 0x46, 0x41, 0x4d, 0x56, 0x20 },
+                                    // 'R', 'I', 'F', 'F', 'A', 'M', 'V', ' '
                                     { 0 } };
 
 static cdx_int32 AviProbe(CdxStreamProbeDataT *p) 
 {
-	cdx_int32 i;
+    cdx_int32 i;
 
-	/* check file header */
-	for (i = 0; aviHeaders[i][0]; i++)
-		if (!memcmp(p->buf, aviHeaders[i], 4) && !memcmp(p->buf + 8,
-				aviHeaders[i] + 4, 4))
-			return CDX_TRUE;
+    /* check file header */
+    for (i = 0; aviHeaders[i][0]; i++)
+        if (!memcmp(p->buf, aviHeaders[i], 4) && !memcmp(p->buf + 8,
+                aviHeaders[i] + 4, 4))
+            return CDX_TRUE;
 
-	return CDX_FALSE;
+    return CDX_FALSE;
 }
 
 static int GetChunkDataDummy(CdxAviParserImplT *impl, CdxPacketT *pkt)
@@ -153,13 +150,13 @@ static cdx_int32 CdxAviParserClrForceStop(CdxParserT *parser)
         impl->mErrno = PSR_INVALID_OPERATION;
         return -1;
     }
-	impl->exitFlag = 0;
+    impl->exitFlag = 0;
     if(stream)
     {
         CdxStreamClrForceStop(stream);
     }
 
-	return 0;
+    return 0;
 }
 static int AviGetCacheState(CdxAviParserImplT *impl, struct ParserCacheStateS *cacheState)
 {
@@ -220,18 +217,18 @@ static cdx_int32 __CdxAviParserControl(CdxParserT *parser, cdx_int32 cmd, void *
             }
             break;
         }
-	    case CDX_PSR_CMD_SET_FORCESTOP:
-	    {
+        case CDX_PSR_CMD_SET_FORCESTOP:
+        {
             return CdxAviParserForceStop(parser);
-	    }
-	    case CDX_PSR_CMD_CLR_FORCESTOP:
-	    {
+        }
+        case CDX_PSR_CMD_CLR_FORCESTOP:
+        {
             return CdxAviParserClrForceStop(parser);
-	    }
-	    case CDX_PSR_CMD_GET_CACHESTATE:
-	    {
+        }
+        case CDX_PSR_CMD_GET_CACHESTATE:
+        {
             return AviGetCacheState(impl, param);
-	    }
+        }
         default:
         {
             CDX_LOGW("xxx cmd(%d) not support yet...", cmd);
@@ -239,7 +236,7 @@ static cdx_int32 __CdxAviParserControl(CdxParserT *parser, cdx_int32 cmd, void *
         }
     }
 
-	return CDX_SUCCESS;    
+    return CDX_SUCCESS;
 
 }
 
@@ -272,7 +269,7 @@ static cdx_int32 __CdxAviParserPrefetch(CdxParserT *parser, CdxPacketT *pkt)
     AviChunkT          *chunk;
     AviFileInT         *aviIn;
     cdx_int32          nIgnoreFlg = 0;
-	cdx_int8           streamId = -1;  //video stream id
+    cdx_int8           streamId = -1;  //video stream id
     cdx_int8           vSteamIndex;    //video stream index
 
     impl = CdxContainerOf(parser, CdxAviParserImplT, base);
@@ -290,7 +287,7 @@ static cdx_int32 __CdxAviParserPrefetch(CdxParserT *parser, CdxPacketT *pkt)
     
     if(impl->mErrno == PSR_EOS)
     {
-        CDX_LOGI("Avi eos.");
+        CDX_LOGD("Avi eos.");
         return -1;
     }
 
@@ -309,7 +306,7 @@ static cdx_int32 __CdxAviParserPrefetch(CdxParserT *parser, CdxPacketT *pkt)
         return -1;
     }
     impl->mStatus = CDX_AVI_PREFETCHING;
-	impl->mErrno = PSR_OK;
+    impl->mErrno = PSR_OK;
     pthread_mutex_unlock(&impl->lock);
     
 _read_one_chunk:
@@ -333,7 +330,7 @@ _read_one_chunk:
             {
                 CDX_LOGW("change audio fail.");
                 impl->mErrno = PSR_UNKNOWN_ERR;
-				result = -1;
+                result = -1;
                 goto __exit;
             }
         }
@@ -363,13 +360,14 @@ _read_one_chunk:
         case CDX_CKTYPE_DIB_BITS:
         case CDX_CKTYPE_DIB_COMPRESSED:
         {
-			if(impl->hasVideo == 2)
+            if(impl->hasVideo == 2)
             {
                 if(CDX_STREAM_FROM_FOURCC(chunk->fcc) == impl->videoStreamIndexArray[0]
                     || CDX_STREAM_FROM_FOURCC(chunk->fcc) == impl->videoStreamIndexArray[1]) 
                 {
                     pkt->type = CDX_MEDIA_VIDEO;
-                    if(CDX_STREAM_FROM_FOURCC(chunk->fcc) == impl->videoStreamIndexArray[1])// minor_stream
+                    if(CDX_STREAM_FROM_FOURCC(chunk->fcc) == impl->videoStreamIndexArray[1])
+                        // minor_stream
                     {
                         pkt->flags |= MINOR_STREAM;
                     }
@@ -381,10 +379,10 @@ _read_one_chunk:
                     //CDX_LOGV("xxx pkt->type = CDX_MEDIA_UNKNOWN");
                     nIgnoreFlg = 1;
                 }
-			}
-			else
-			{
-				//check if the stream number is wanted
+            }
+            else
+            {
+                //check if the stream number is wanted
                 if(CDX_STREAM_FROM_FOURCC(chunk->fcc) == impl->videoStreamIndex)
                 {
                     pkt->type = CDX_MEDIA_VIDEO;
@@ -397,7 +395,8 @@ _read_one_chunk:
                 else
                 {
                     pkt->type = CDX_MEDIA_UNKNOWN;
-                   // CDX_LOGV("unknown type of bitstream, tag:%x, len:%d!\n", chunk->fcc, chunk->length);
+                   // CDX_LOGV("unknown type of bitstream, tag:%x, len:%d!\n",
+                   //chunk->fcc, chunk->length);
                     nIgnoreFlg = 1;
                 }				
             }
@@ -405,7 +404,7 @@ _read_one_chunk:
         }
         case CDX_CKTYPE_WAVE_BYTES:
         {
-/*            cdx_int32   streamId; // for support switch audio stream in CdxAviParserControl, may not use...
+/*          cdx_int32   streamId; // for support switch audio stream in CdxAviParserControl
             //check if the stream number is wanted
             streamId = CDX_STREAM_FROM_FOURCC(chunk->fcc);
             if(streamId == impl->audioStreamIndex)
@@ -425,7 +424,8 @@ _read_one_chunk:
                     pkt->pts *= 1000;
                     aviIn->nAudChunkCounterArray[impl->curAudStreamNum]++;
                     aviIn->nAudFrameCounterArray[impl->curAudStreamNum] += 
-                        CalcAviChunkAudioFrameNum(&aviIn->audInfoArray[impl->curAudStreamNum], chunk->length);
+                        CalcAviChunkAudioFrameNum(&aviIn->audInfoArray[impl->curAudStreamNum],
+                        chunk->length);
                         
                     aviIn->nAudChunkTotalSizeArray[impl->curAudStreamNum] += chunk->length;
                 }
@@ -447,12 +447,14 @@ _read_one_chunk:
                 {
                     aviIn->nAudChunkCounterArray[nAudStreamNum]++;
                     aviIn->nAudFrameCounterArray[nAudStreamNum] += 
-                            CalcAviChunkAudioFrameNum(&aviIn->audInfoArray[nAudStreamNum], chunk->length);
+                            CalcAviChunkAudioFrameNum(&aviIn->audInfoArray[nAudStreamNum],
+                            chunk->length);
                             
                     aviIn->nAudChunkTotalSizeArray[nAudStreamNum] += chunk->length;
                 }
                 pkt->type = CDX_MEDIA_UNKNOWN;
-                //CDX_LOGV("unknown type of bitstream, tag:%x, len:%d!\n", chunk->fcc, chunk->length);
+                //CDX_LOGV("unknown type of bitstream, tag:%x, len:%d!\n", chunk->fcc,
+                chunk->length);
                 nIgnoreFlg = 1;
             }*/
             cdx_int32   streamId;
@@ -499,7 +501,8 @@ _read_one_chunk:
             else
             {
                 pkt->type = CDX_MEDIA_UNKNOWN;
-                //CDX_LOGV("unknown type of bitstream, tag:%x, len:%d!\n", chunk->fcc, chunk->length);
+                //CDX_LOGV("unknown type of bitstream, tag:%x, len:%d!\n", chunk->fcc,
+                //chunk->length);
                 nIgnoreFlg = 1;
             }
             break;
@@ -535,7 +538,8 @@ _read_one_chunk:
                 {
                     pkt->pts = subPts*1000;
                     pkt->duration = subDuration*1000;
-                    CDX_LOGV("avi sub index[%d], sub pts:[%lld], sub duration:[%lld].",nSubStreamNum, pkt->pts, pkt->duration);
+                    CDX_LOGV("avi sub index[%d], sub pts:[%lld], sub duration:[%lld].",
+                        nSubStreamNum, pkt->pts, pkt->duration);
                         
                     pkt->length = chunk->length - 27;
                     pkt->type = CDX_MEDIA_SUBTITLE;
@@ -591,7 +595,8 @@ _read_one_chunk:
     {
         if(aviIn->readmode == READ_CHUNK_BY_INDEX && (pkt->type == CDX_MEDIA_UNKNOWN))
         {
-            CDX_LOGW("Chunk size(%x) is invalid, but we can skip it by index table!\n", pkt->length);
+            CDX_LOGW("Chunk size(%x) is invalid, but we can skip it by index table!\n",
+                pkt->length);
         }
         else
         {
@@ -620,11 +625,14 @@ _read_one_chunk:
                 }
                 for(i=0;(i+4)<=nAnalyseDataLen;i++)
                 {
-                    if((pAnalyseBuf[i]=='0' && pAnalyseBuf[i+1]=='0' && pAnalyseBuf[i+2]=='d' && pAnalyseBuf[i+3]=='c')
-                    || (pAnalyseBuf[i]=='0' && pAnalyseBuf[i+1]=='1' && pAnalyseBuf[i+2]=='w' && pAnalyseBuf[i+3]=='b'))
+                    if((pAnalyseBuf[i]=='0' && pAnalyseBuf[i+1]=='0' && pAnalyseBuf[i+2]=='d'
+                        && pAnalyseBuf[i+3]=='c')
+                        || (pAnalyseBuf[i]=='0' && pAnalyseBuf[i+1]=='1' && pAnalyseBuf[i+2]=='w'
+                        && pAnalyseBuf[i+3]=='b'))
                     {
-                        CDX_LOGV("find new valid avi chunk! [%c%c%c%c],i=%d", pAnalyseBuf[i], pAnalyseBuf[i+1], 
-                                                                              pAnalyseBuf[i+2], pAnalyseBuf[i+3], i);
+                        CDX_LOGV("find new valid avi chunk! [%c%c%c%c],i=%d",
+                            pAnalyseBuf[i], pAnalyseBuf[i+1],
+                            pAnalyseBuf[i+2], pAnalyseBuf[i+3], i);
                         nFindNewValidChunkFlag = 1;
                         break;
                     }
@@ -644,7 +652,8 @@ _read_one_chunk:
                 }
                 else
                 {
-                    CDX_LOGW("cannot find new valid avi chunk, quit! cur pos(%x)",(cdx_int32)(CdxStreamTell(aviIn->fp)&0xFFFFFFFF));
+                    CDX_LOGW("cannot find new valid avi chunk, quit! cur pos(%x)",
+                        (cdx_int32)(CdxStreamTell(aviIn->fp)&0xFFFFFFFF));
                     impl->mErrno = PSR_UNKNOWN_ERR;
                     result = AVI_ERR_FILE_FMT_ERR;
                     goto __exit;
@@ -665,24 +674,19 @@ _read_one_chunk:
         impl->unkownChunkNum = 0;
     }
     
-    if(pkt->length == 0)
-    {
-        CDX_LOGV("pkt->length=0, prefetch again.");
-        GetChunkDataDummy(impl, pkt);
-        goto  _read_one_chunk;
-    }
-
     if(pkt->type == CDX_MEDIA_AUDIO)
     {
         if(impl->bDiscardAud || impl->curAudStreamNum != impl->nextCurAudStreamNum)
         {
-        	GetChunkDataDummy(impl, pkt);
+            GetChunkDataDummy(impl, pkt);
             CDX_LOGV("bDiscardAud[%d], AudStreamNum[%d][%d]\n",impl->bDiscardAud, 
                 impl->curAudStreamNum, impl->nextCurAudStreamNum);
             goto _read_one_chunk;
         }
         //pkt->streamIndex = impl->curAudStreamNum;//
-        //CDX_LOGV("xxxxxxxxx pkt->streamIndex(%d) impl->curAudStreamNum(%d), impl->nextCurAudStreamNum(%d)",pkt->streamIndex,impl->curAudStreamNum, impl->nextCurAudStreamNum);
+        //CDX_LOGV("xxxxxxxxx pkt->streamIndex(%d) impl->curAudStreamNum(%d),
+        //impl->nextCurAudStreamNum(%d)",pkt->streamIndex,impl->curAudStreamNum,
+        //impl->nextCurAudStreamNum);
     }
     else if(pkt->type == CDX_MEDIA_UNKNOWN)
     {
@@ -707,45 +711,48 @@ _read_one_chunk:
         cdx_int64   tmpPts;
 
         tmpPts = impl->aviFormat.nMicSecPerFrame;
-		//when there are two Video streams
-		if(impl->hasVideo == 2)
-		{
-			for(vSteamIndex = 0; vSteamIndex < 2; vSteamIndex++)
-			{
-				if(impl->videoStreamIndexArray[(cdx_int32)vSteamIndex] == CDX_STREAM_FROM_FOURCC(chunk->fcc))
-				{
-					streamId = vSteamIndex;
-					break;
-				}
-			}
-			if(streamId == 0)
-			{
-				aviIn->frameIndex++;
-				tmpPts = tmpPts * aviIn->frameIndex1++;
-			}
-			else 
-			{
-				tmpPts = tmpPts * aviIn->frameIndex2++;			 
-			}
-		}
+        //when there are two Video streams
+        if(impl->hasVideo == 2)
+        {
+            for(vSteamIndex = 0; vSteamIndex < 2; vSteamIndex++)
+            {
+                if(impl->videoStreamIndexArray[(cdx_int32)vSteamIndex] ==
+                    CDX_STREAM_FROM_FOURCC(chunk->fcc))
+                {
+                    streamId = vSteamIndex;
+                    break;
+                }
+            }
+            if(streamId == 0)
+            {
+                aviIn->frameIndex++;
+                tmpPts = tmpPts * aviIn->frameIndex1++;
+            }
+            else
+            {
+                tmpPts = tmpPts * aviIn->frameIndex2++;
+            }
+        }
         //when only one Video stream
-	    else
-		{
-			tmpPts = tmpPts * (aviIn->frameIndex - 1);//because we stat frame_index in GetNextChunkInfo().
-		}
+        else
+        {
+            tmpPts = tmpPts * (aviIn->frameIndex - 1);
+            //because we stat frame_index in GetNextChunkInfo().
+        }
 
         pkt->pts = impl->nVidPtsOffset * 1000 + tmpPts;
-        CDX_LOGV("avi video pts: %lld[ms], pkt_length[0x%x], aviIn->frameIndex[%d], tmpPts[%lld]", pkt->pts/1000, pkt->length, aviIn->frameIndex, tmpPts);
+        CDX_LOGV("avi video pts: %lld[ms], pkt_length[0x%x], aviIn->frameIndex[%d], tmpPts[%lld]",
+            pkt->pts/1000, pkt->length, aviIn->frameIndex, tmpPts);
     }
 
     if(pkt->type == CDX_MEDIA_UNKNOWN)
     {
         GetChunkDataDummy(impl, pkt);
-        //CDX_LOGV("pkt->type == CDX_MEDIA_UNKNOWN, prefetch again."); //skip others...
+        CDX_LOGD("pkt->type == CDX_MEDIA_UNKNOWN, prefetch again."); //skip others...
         goto _read_one_chunk;
     }
     pkt->flags |= (FIRST_PART|LAST_PART);
-   	memcpy(&impl->pkt, pkt, sizeof(CdxPacketT));
+       memcpy(&impl->pkt, pkt, sizeof(CdxPacketT));
     result = 0;
     
 __exit:
@@ -834,57 +841,66 @@ static cdx_int32 __CdxAviParserRead(CdxParserT *parser, CdxPacketT *pkt)
     }
     else 
     {
-		if(pkt->length <= pkt->buflen) 
-		{
-			readSize = CdxStreamRead(fp, pkt->buf,pkt->length);
-			if(readSize < 0)
-			{
+        if(pkt->length <= pkt->buflen)
+        {
+            readSize = CdxStreamRead(fp, pkt->buf,pkt->length);
+            if(readSize < 0)
+            {
                 CDX_LOGW("read failed.");
                 return AVI_ERR_FAIL;
-			}
+            }
 #if 0
-			if(fp->data_src_desc.thirdpart_stream_type == CEDARX_THIRDPART_STREAM_USER1) 
-			{
-				if(pkt->pkt_type == CDX_PacketVideo &&
-						(fp->data_src_desc.thirdpart_encrypted_type & CEDARX_THIRDPART_ENCRYPTED_VIDEO)) 
-			    {
-					fp->decrypt(pkt->pkt_info.epdk_read_pkt_info.pkt_buf0, read_size, (int)CDX_PacketVideo, fp);
-				}
-			}
+            if(fp->data_src_desc.thirdpart_stream_type == CEDARX_THIRDPART_STREAM_USER1)
+            {
+                if(pkt->pkt_type == CDX_PacketVideo &&
+                        (fp->data_src_desc.thirdpart_encrypted_type &
+                        CEDARX_THIRDPART_ENCRYPTED_VIDEO))
+                {
+                    fp->decrypt(pkt->pkt_info.epdk_read_pkt_info.pkt_buf0,
+                        read_size, (int)CDX_PacketVideo, fp);
+                }
+            }
 #endif
-		}
-		else 
-		{
-			readSize = CdxStreamRead(fp, pkt->buf, pkt->buflen);
-			if(readSize < 0)
-			{
+        }
+        else
+        {
+            readSize = CdxStreamRead(fp, pkt->buf, pkt->buflen);
+            if(readSize < 0)
+            {
                 CDX_LOGW("read failed.");
                 return AVI_ERR_FAIL;
-			}
+            }
 #if 0
-			if(fp->data_src_desc.thirdpart_stream_type == CEDARX_THIRDPART_STREAM_USER1) {
-				if(pkt->pkt_type == CDX_PacketVideo &&
-						(fp->data_src_desc.thirdpart_encrypted_type & CEDARX_THIRDPART_ENCRYPTED_VIDEO)) {
-					fp->decrypt(pkt->pkt_info.epdk_read_pkt_info.pkt_buf0, read_size, (int)CDX_PacketVideo, fp);
-				}
-			}
+            if(fp->data_src_desc.thirdpart_stream_type == CEDARX_THIRDPART_STREAM_USER1)
+            {
+                if(pkt->pkt_type == CDX_PacketVideo &&
+                        (fp->data_src_desc.thirdpart_encrypted_type &
+                        CEDARX_THIRDPART_ENCRYPTED_VIDEO))
+                {
+                    fp->decrypt(pkt->pkt_info.epdk_read_pkt_info.pkt_buf0,
+                        read_size, (int)CDX_PacketVideo, fp);
+                }
+            }
 #endif
-			readSize = CdxStreamRead(fp, pkt->ringBuf, pkt->length - pkt->buflen);			
-			if(readSize < 0)
-			{
+            readSize = CdxStreamRead(fp, pkt->ringBuf, pkt->length - pkt->buflen);
+            if(readSize < 0)
+            {
                 CDX_LOGW("read failed.");
                 return AVI_ERR_FAIL;
-			}
+            }
 #if 0			
-			if(fp->data_src_desc.thirdpart_stream_type == CEDARX_THIRDPART_STREAM_USER1) 
-			{
-				if(pkt->pkt_type == CDX_PacketVideo &&
-						(fp->data_src_desc.thirdpart_encrypted_type & CEDARX_THIRDPART_ENCRYPTED_VIDEO)) {
-					fp->decrypt(pkt->pkt_info.epdk_read_pkt_info.pkt_buf1, read_size, (int)CDX_PacketVideo, fp);
-				}
-			}
+            if(fp->data_src_desc.thirdpart_stream_type == CEDARX_THIRDPART_STREAM_USER1)
+            {
+                if(pkt->pkt_type == CDX_PacketVideo &&
+                        (fp->data_src_desc.thirdpart_encrypted_type &
+                        CEDARX_THIRDPART_ENCRYPTED_VIDEO))
+                {
+                    fp->decrypt(pkt->pkt_info.epdk_read_pkt_info.pkt_buf1, read_size,
+                        (int)CDX_PacketVideo, fp);
+                }
+            }
 #endif
-		}
+        }
     }
 
     impl->mStatus = CDX_AVI_IDLE;
@@ -919,22 +935,30 @@ static cdx_int32 __CdxAviParserGetMediaInfo(CdxParserT *parser, CdxMediaInfoT *p
         if(i < impl->hasAudio && impl->hasAudio <= AUDIO_STREAM_LIMIT)
         {
        
-            memcpy(&pMediaInfo->program[0].audio[i], &impl->aFormatArray[i], sizeof(AudioStreamInfo));
-            strcpy((char*)pMediaInfo->program[0].audio[i].strLang, (const char*)aviIn->audInfoArray[i].sStreamName);
+            memcpy(&pMediaInfo->program[0].audio[i], &impl->aFormatArray[i],
+                sizeof(AudioStreamInfo));
+            strcpy((char*)pMediaInfo->program[0].audio[i].strLang,
+                (const char*)aviIn->audInfoArray[i].sStreamName);
             //CDX_LOGD("xxxxxxxxxxxxxx %s", pMediaInfo->program[0].audio[i].strLang);
 
-            if(impl->aFormatArray[i].nCodecSpecificDataLen > 0 && impl->aFormatArray[i].pCodecSpecificData)
+            if(impl->aFormatArray[i].nCodecSpecificDataLen > 0 &&
+                impl->aFormatArray[i].pCodecSpecificData)
             {
-                pMediaInfo->program[0].audio[i].pCodecSpecificData = malloc(impl->aFormatArray[i].nCodecSpecificDataLen);
-                memcpy(pMediaInfo->program[0].audio[i].pCodecSpecificData,impl->aFormatArray[i].pCodecSpecificData,
-                                                                impl->aFormatArray[i].nCodecSpecificDataLen);
-                pMediaInfo->program[0].audio[i].nCodecSpecificDataLen = impl->aFormatArray[i].nCodecSpecificDataLen;
+                pMediaInfo->program[0].audio[i].pCodecSpecificData =
+                    malloc(impl->aFormatArray[i].nCodecSpecificDataLen);
+                memcpy(pMediaInfo->program[0].audio[i].pCodecSpecificData,
+                    impl->aFormatArray[i].pCodecSpecificData,
+                    impl->aFormatArray[i].nCodecSpecificDataLen);
+                pMediaInfo->program[0].audio[i].nCodecSpecificDataLen =
+                    impl->aFormatArray[i].nCodecSpecificDataLen;
             }
             else 
             {
-            	//below set is for PCM format  TODO_DEL
-				pMediaInfo->program[0].audio[i].pCodecSpecificData = impl->aFormatArray[i].pCodecSpecificData; //Be careful, this point is used as  a value in audio decoder
-				pMediaInfo->program[0].audio[i].nCodecSpecificDataLen = impl->aFormatArray[i].nCodecSpecificDataLen; // it is equal to zero
+                //below set is for PCM format  TODO_DEL
+                pMediaInfo->program[0].audio[i].pCodecSpecificData =
+                impl->aFormatArray[i].pCodecSpecificData;
+                pMediaInfo->program[0].audio[i].nCodecSpecificDataLen =
+                    impl->aFormatArray[i].nCodecSpecificDataLen; // it is equal to zero
             }
         }
         else
@@ -949,23 +973,28 @@ static cdx_int32 __CdxAviParserGetMediaInfo(CdxParserT *parser, CdxMediaInfoT *p
         {
             CDX_LOGV("i %d, hasVideo num %d", i, impl->hasVideo);
             //set video bitstream information. 
-            memcpy(&pMediaInfo->program[0].video[i],&impl->aviFormat.vFormat,sizeof(VideoStreamInfo));
+            memcpy(&pMediaInfo->program[0].video[i],
+            &impl->aviFormat.vFormat, sizeof(VideoStreamInfo));
 
-            if(impl->aviFormat.vFormat.nCodecSpecificDataLen > 0 && impl->aviFormat.vFormat.pCodecSpecificData)
+            if(impl->aviFormat.vFormat.nCodecSpecificDataLen > 0 &&
+                impl->aviFormat.vFormat.pCodecSpecificData)
             {
-            	assert(impl->aviFormat.vFormat.nCodecSpecificDataLen < 1024*128);
-            	pMediaInfo->program[0].video[i].nCodecSpecificDataLen = impl->aviFormat.vFormat.nCodecSpecificDataLen;
-            	pMediaInfo->program[0].video[i].pCodecSpecificData = 
-            	                    (cdx_char *)malloc(pMediaInfo->program[0].video[i].nCodecSpecificDataLen);
-            	memcpy(pMediaInfo->program[0].video[i].pCodecSpecificData, impl->aviFormat.vFormat.pCodecSpecificData,
-            			pMediaInfo->program[0].video[i].nCodecSpecificDataLen);
-            	//CDX_LOGV("pCodecSpecificData(%p),nCodecSpecificDataLen(%d)",
-            	//pMediaInfo->program[0].video[0].pCodecSpecificData,pMediaInfo->program[0].video[0].nCodecSpecificDataLen);		
+                assert(impl->aviFormat.vFormat.nCodecSpecificDataLen < 1024*128);
+                pMediaInfo->program[0].video[i].nCodecSpecificDataLen =
+                    impl->aviFormat.vFormat.nCodecSpecificDataLen;
+                pMediaInfo->program[0].video[i].pCodecSpecificData =
+                    (cdx_char *)malloc(pMediaInfo->program[0].video[i].nCodecSpecificDataLen);
+                memcpy(pMediaInfo->program[0].video[i].pCodecSpecificData,
+                    impl->aviFormat.vFormat.pCodecSpecificData,
+                    pMediaInfo->program[0].video[i].nCodecSpecificDataLen);
+                //CDX_LOGV("pCodecSpecificData(%p),nCodecSpecificDataLen(%d)",
+                //pMediaInfo->program[0].video[0].pCodecSpecificData,
+                //pMediaInfo->program[0].video[0].nCodecSpecificDataLen);
             }
             else
             {
-            	pMediaInfo->program[0].video[i].pCodecSpecificData = NULL;
-            	pMediaInfo->program[0].video[i].nCodecSpecificDataLen = 0;
+                pMediaInfo->program[0].video[i].pCodecSpecificData = NULL;
+                pMediaInfo->program[0].video[i].nCodecSpecificDataLen = 0;
             }
         }
         else
@@ -988,22 +1017,29 @@ static cdx_int32 __CdxAviParserGetMediaInfo(CdxParserT *parser, CdxMediaInfoT *p
     {
         if(i < impl->hasSubTitle && impl->hasSubTitle <= SUBTITLE_STREAM_LIMIT)
         {
-            memcpy(&pMediaInfo->program[0].subtitle[i], &impl->tFormatArray[i], sizeof(SubtitleStreamInfo));
-            strcpy((char*)pMediaInfo->program[0].subtitle[i].strLang, (const char*)aviIn->subInfoArray[i].sStreamName);
+            memcpy(&pMediaInfo->program[0].subtitle[i], &impl->tFormatArray[i],
+                sizeof(SubtitleStreamInfo));
+            strcpy((char*)pMediaInfo->program[0].subtitle[i].strLang,
+                (const char*)aviIn->subInfoArray[i].sStreamName);
             //CDX_LOGD("xxxxxxxxxxxxxx %s", pMediaInfo->program[0].subtitle[i].strLang);
             
-            if(impl->tFormatArray[i].nCodecSpecificDataLen > 0 && impl->tFormatArray[i].pCodecSpecificData)
+            if(impl->tFormatArray[i].nCodecSpecificDataLen > 0 &&
+                impl->tFormatArray[i].pCodecSpecificData)
             {
-                //CDX_LOGD("xxxxxxxxx impl->tFormatArray[i].pCodecSpecificData(%s)", impl->tFormatArray[i].pCodecSpecificData);
-                pMediaInfo->program[0].subtitle[i].pCodecSpecificData = malloc(impl->tFormatArray[i].nCodecSpecificDataLen);
-                memcpy(pMediaInfo->program[0].subtitle[i].pCodecSpecificData,impl->tFormatArray[i].pCodecSpecificData,
-                                                                impl->tFormatArray[i].nCodecSpecificDataLen);
-                pMediaInfo->program[0].subtitle[i].nCodecSpecificDataLen = impl->tFormatArray[i].nCodecSpecificDataLen;
+                //CDX_LOGD("xxxxxxxxx impl->tFormatArray[i].pCodecSpecificData(%s)",
+                //impl->tFormatArray[i].pCodecSpecificData);
+                pMediaInfo->program[0].subtitle[i].pCodecSpecificData =
+                malloc(impl->tFormatArray[i].nCodecSpecificDataLen);
+                memcpy(pMediaInfo->program[0].subtitle[i].pCodecSpecificData,
+                    impl->tFormatArray[i].pCodecSpecificData,
+                    impl->tFormatArray[i].nCodecSpecificDataLen);
+                pMediaInfo->program[0].subtitle[i].nCodecSpecificDataLen =
+                    impl->tFormatArray[i].nCodecSpecificDataLen;
             }
             else
             {
-            	pMediaInfo->program[0].subtitle[i].pCodecSpecificData = NULL;
-            	pMediaInfo->program[0].subtitle[i].nCodecSpecificDataLen = 0;
+                pMediaInfo->program[0].subtitle[i].pCodecSpecificData = NULL;
+                pMediaInfo->program[0].subtitle[i].nCodecSpecificDataLen = 0;
             }
         }
         else
@@ -1013,7 +1049,8 @@ static cdx_int32 __CdxAviParserGetMediaInfo(CdxParserT *parser, CdxMediaInfoT *p
     }
 
     //set total time
-    pMediaInfo->program[0].duration = (cdx_int64)impl->totalFrames * impl->aviFormat.nMicSecPerFrame / 1000;
+    pMediaInfo->program[0].duration = (cdx_int64)impl->totalFrames *
+        impl->aviFormat.nMicSecPerFrame / 1000;
     if(pMediaInfo->fileSize > 0 && pMediaInfo->program[0].duration > 0)
     {
         pMediaInfo->bitrate = pMediaInfo->fileSize / pMediaInfo->program[0].duration * 8;
@@ -1055,7 +1092,7 @@ static cdx_int32 __CdxAviParserSeekTo(CdxParserT *parser, cdx_int64 timeUs)
         return 0;
     }
     
-	pthread_mutex_lock(&impl->lock);
+    pthread_mutex_lock(&impl->lock);
     if(impl->exitFlag)
     {
         pthread_mutex_unlock(&impl->lock);
@@ -1069,7 +1106,7 @@ static cdx_int32 __CdxAviParserSeekTo(CdxParserT *parser, cdx_int64 timeUs)
     {
         CDX_LOGE("ReconfigAviReadContext failed.");
         impl->mErrno = PSR_UNKNOWN_ERR;
-		ret = -1;
+        ret = -1;
         goto __exit;
     }
     
@@ -1084,11 +1121,13 @@ static cdx_int32 __CdxAviParserSeekTo(CdxParserT *parser, cdx_int64 timeUs)
 __exit:
     pthread_mutex_lock(&impl->lock);
     impl->mStatus = CDX_AVI_IDLE;
+    impl->mErrno = PSR_OK;
     pthread_mutex_unlock(&impl->lock);
     pthread_cond_signal(&impl->cond);
     return ret;
 }
-static cdx_uint32 __CdxAviParserAttribute(CdxParserT *parser) /*return flags define as open's flags*/
+/*return flags define as open's flags*/
+static cdx_uint32 __CdxAviParserAttribute(CdxParserT *parser)
 {
     CdxAviParserImplT *impl;
 

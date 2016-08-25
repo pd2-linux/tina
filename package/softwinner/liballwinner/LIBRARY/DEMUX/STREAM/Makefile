@@ -47,6 +47,13 @@ ifeq ($(CONFIG_HAVE_LIVE555), $(OPTION_HAVE_LIVE555))
 SourcePath +=       ./rtsp
 endif
 
+ifeq ($(CONFIG_HAVE_SSL), $(OPTION_HAVE_SSL))
+SourcePath +=       ./ssl
+endif
+
+ifeq ($(CONFIG_MMS), $(OPTION_MMS_ENABLE))
+SourcePath +=       ./mms
+endif
             
 VPATH := $(SourcePath)
 
@@ -91,7 +98,6 @@ endif
 ## set compile flags
 CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -mfpu=neon -O1 -fPIC -ldl
 
-$(warning $(CONFIG_CC))
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABI))
 #CompileFlags += -mfloat-abi=softfp -mfpu=neon 
@@ -128,12 +134,10 @@ ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI64))
 LoadFlags +=-L../../EXTERNAL/lib64/muslgnueabi
 endif
 
-LoadFlags += -L../BASE/
-LoadFlags += -lcdx_base
-
-#LoadFlags += -L../PARSER/
-#LoadFlags += -lcdx_parser
-#LoadFlags += -Wl,--no-undefined
+ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI310))
+LoadFlags +=-L../../EXTERNAL/lib32/muslgnueabi
+LoadFlags += -L../../libcedarc/library/lib32/muslgnueabi_linux310
+endif
 
 ifeq ($(CONFIG_HAVE_ZLIB), $(OPTION_HAVE_ZLIB))
 LoadFlags += -lz
@@ -142,6 +146,17 @@ endif
 ifeq ($(CONFIG_HAVE_LIVE555), $(OPTION_HAVE_LIVE555))
 LoadFlags += -llive555
 endif
+
+ifeq ($(CONFIG_HAVE_SSL), $(OPTION_HAVE_SSL))
+LoadFlags += -lssl -lcrypto
+endif
+
+LoadFlags += -L../BASE/
+LoadFlags += -lcdx_base
+
+#LoadFlags += -L../PARSER/
+#LoadFlags += -lcdx_parser
+#LoadFlags += -Wl,--no-undefined
 
 ################################################################################
 ## make commands, all/clean/cleanall
@@ -194,5 +209,3 @@ ifneq ($(MAKECMDGOALS),cleanall)
 endif
 endif
 endif
-
-

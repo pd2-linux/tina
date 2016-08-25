@@ -116,7 +116,7 @@ typedef struct PlayerContext
     void*                       pUnSurpportVideoBuffer;
     int                         nUnSurpportVideoBufferSize;
 	
-	float 						volume;
+	float						volume;
 	int                         bDiscardAudio;
 	LayerControlOpsT*           pLayerControlOps;
 	SoundControlOpsT*           pSoundControlOps;
@@ -2124,9 +2124,9 @@ int PlayerSetSubtitleStreamInfo(Player* pl, SubtitleStreamInfo* pStreamInfo, int
             }
             if(p->pSubtitleStreamInfo[i].pCodecSpecificData)
             {
-            	free(p->pSubtitleStreamInfo[i].pCodecSpecificData);
-            	p->pSubtitleStreamInfo[i].pCodecSpecificData = NULL;
-            	p->pSubtitleStreamInfo[i].nCodecSpecificDataLen = 0;
+		free(p->pSubtitleStreamInfo[i].pCodecSpecificData);
+		p->pSubtitleStreamInfo[i].pCodecSpecificData = NULL;
+		p->pSubtitleStreamInfo[i].nCodecSpecificDataLen = 0;
             }
         }
 
@@ -2163,7 +2163,7 @@ int PlayerSetSubtitleStreamInfo(Player* pl, SubtitleStreamInfo* pStreamInfo, int
             if(pStreamInfo[i].pCodecSpecificData != NULL &&
                pStreamInfo[i].nCodecSpecificDataLen > 0)
             {
-            	p->pSubtitleStreamInfo[i].nCodecSpecificDataLen = pStreamInfo[i].nCodecSpecificDataLen;
+		p->pSubtitleStreamInfo[i].nCodecSpecificDataLen = pStreamInfo[i].nCodecSpecificDataLen;
                 p->pSubtitleStreamInfo[i].pCodecSpecificData = (char*)malloc(pStreamInfo[i].nCodecSpecificDataLen);
                 if(p->pSubtitleStreamInfo[i].pCodecSpecificData == NULL)
                 {
@@ -2188,9 +2188,9 @@ int PlayerSetSubtitleStreamInfo(Player* pl, SubtitleStreamInfo* pStreamInfo, int
                 }
                 if(p->pSubtitleStreamInfo[i].pCodecSpecificData)
 	            {
-	            	free(p->pSubtitleStreamInfo[i].pCodecSpecificData);
-	            	p->pSubtitleStreamInfo[i].pCodecSpecificData = NULL;
-	            	p->pSubtitleStreamInfo[i].nCodecSpecificDataLen = 0;
+			free(p->pSubtitleStreamInfo[i].pCodecSpecificData);
+			p->pSubtitleStreamInfo[i].pCodecSpecificData = NULL;
+			p->pSubtitleStreamInfo[i].nCodecSpecificDataLen = 0;
 	            }
             }
 
@@ -2257,8 +2257,8 @@ int PlayerAddSubtitleStream(Player* pl, SubtitleStreamInfo* pStreamInfo)
         }
         if(pStreamInfo->pCodecSpecificData != NULL && pStreamInfo->nCodecSpecificDataLen > 0)
         {
-        	newArr[nStreamCount-1].nCodecSpecificDataLen = pStreamInfo->nCodecSpecificDataLen;
-        	newArr[nStreamCount-1].pCodecSpecificData = (char*)malloc(pStreamInfo->nCodecSpecificDataLen);
+		newArr[nStreamCount-1].nCodecSpecificDataLen = pStreamInfo->nCodecSpecificDataLen;
+		newArr[nStreamCount-1].pCodecSpecificData = (char*)malloc(pStreamInfo->nCodecSpecificDataLen);
             if(newArr[nStreamCount-1].pCodecSpecificData == NULL)
             {
                 loge("malloc memory fail.");
@@ -2290,7 +2290,7 @@ int PlayerAddSubtitleStream(Player* pl, SubtitleStreamInfo* pStreamInfo)
                 }
                 if(pStreamInfo->pCodecSpecificData != NULL && pStreamInfo->nCodecSpecificDataLen > 0)
 		        {
-		        	free(newArr[nStreamCount-1].pCodecSpecificData);
+				free(newArr[nStreamCount-1].pCodecSpecificData);
 		            newArr[nStreamCount-1].pCodecSpecificData = NULL;
 		            newArr[nStreamCount-1].nCodecSpecificDataLen = 0;
 		        }
@@ -2641,10 +2641,10 @@ static int CallbackProcess(void* pSelf, int eMessageId, void* param)
         {
             if(p->callback != NULL)
             {
-            	p->callback(p->pUserData, PLAYER_NOTIFY_VIDEO_SIZE, param);
+		p->callback(p->pUserData, PLAYER_NOTIFY_VIDEO_SIZE, param);
                 p->callback(p->pUserData, PLAYER_NOTIFY_FIRST_PICTURE, NULL);
             }
-        	return 0;
+		return 0;
         }
         
         case PLAYER_VIDEO_RENDER_NOTIFY_VIDEO_CROP:
@@ -2655,28 +2655,28 @@ static int CallbackProcess(void* pSelf, int eMessageId, void* param)
             p->sVideoCropWindow[3] = ((int*)param)[3];
             
             if(p->callback != NULL) {
-            	p->callback(p->pUserData, PLAYER_NOTIFY_VIDEO_CROP, param);
+		p->callback(p->pUserData, PLAYER_NOTIFY_VIDEO_CROP, param);
             }
 
-        	return 0;
+		return 0;
         }
 
         case PLAYER_VIDEO_RENDER_NOTIFY_VIDEO_BUFFER:
         {
-        	if(p->callback)
-        	{
-        		p->callback(p->pUserData, PLAYER_NOTIFY_VIDEO_PIC_DATA, param);
-        	}
-        	return 0;
+		if(p->callback)
+		{
+			p->callback(p->pUserData, PLAYER_NOTIFY_VIDEO_PIC_DATA, param);
+		}
+		return 0;
         }
         
         case PLAYER_AUDIO_RENDER_NOTIFY_AUDIO_BUFFER:
         {
-        	if(p->callback)
-        	{
-        		p->callback(p->pUserData, PLAYER_NOTIFY_AUDIO_PCM_DATA, param);
-        	}
-        	return 0;
+		if(p->callback)
+		{
+			p->callback(p->pUserData, PLAYER_NOTIFY_AUDIO_PCM_DATA, param);
+		}
+		return 0;
         }
 
         case PLAYER_VIDEO_RENDER_NOTIFY_FIRST_PICTURE:
@@ -2753,14 +2753,14 @@ static int CallbackProcess(void* pSelf, int eMessageId, void* param)
         
         case PLAYER_AUDIO_RENDER_NOTIFY_FIRST_FRAME:
         {
-        	if(p->bDiscardAudio)
+		if(p->bDiscardAudio)
                 return TIMER_DROP_AUDIO_DATA;
                 
             if(p->bInFastMode)
             {
                 //* discard audio in fast mode for IPTV
                 if(p->bDiscardAudio)
-                	return TIMER_DROP_AUDIO_DATA;
+			return TIMER_DROP_AUDIO_DATA;
                 	
                 //* in fast mode, video is showed without any synchronization, 
                 //* audio data is discard if overtime.
@@ -3247,7 +3247,7 @@ static int CallbackProcess(void* pSelf, int eMessageId, void* param)
             
             if(p->bDiscardAudio)
             {
-            	pthread_mutex_unlock(&p->timerMutex);
+		pthread_mutex_unlock(&p->timerMutex);
                 return TIMER_DROP_AUDIO_DATA;
             }
             
@@ -3258,7 +3258,7 @@ static int CallbackProcess(void* pSelf, int eMessageId, void* param)
 
                 //* discard audio in fast mode for IPTV
                 if(p->bDiscardAudio)
-                	return TIMER_DROP_AUDIO_DATA;
+			return TIMER_DROP_AUDIO_DATA;
                 
                 //* in fast mode, video is showed without any synchronization, 
                 //* audio data is discard if overtime.
@@ -3299,8 +3299,8 @@ static int CallbackProcess(void* pSelf, int eMessageId, void* param)
                 //* time difference is too big, we can not adjust the timer speed to make it 
                 //* become synchronize in a short time, 
                 //* so, just reset the timer, this will make the video display flush or stuff.
-                logw("reset the timer to %.3f, time difference is %.3f", 
-                    nCurAudioTime/1000000.0, nTimeDiff/1000000.0);
+                //logw("reset the timer to %.3f, time difference is %.3f",
+                //    nCurAudioTime/1000000.0, nTimeDiff/1000000.0);
                 p->pAvTimer->SetTime(p->pAvTimer, nCurAudioTime);
                 p->nLastTimeTimerAdjusted = nAudioPts;
                 
@@ -3560,7 +3560,7 @@ static int CallbackProcess(void* pSelf, int eMessageId, void* param)
         case PLAYER_VIDEO_RENDER_NOTIFY_VIDEO_FRAME:
             if(p->callback != NULL)
             {
-                logd("===== notify render key frame in fast mode");
+                //logd("===== notify render key frame in fast mode");
                 p->callback(p->pUserData, PLAYER_NOTIFY_VIDEO_RENDER_FRAME, NULL);
             }
             break;
@@ -3746,7 +3746,7 @@ static int PlayerInitialVideo(PlayerContext* p)
 
     if(p->pLayerControlOps)
     {
-    	VideoRenderCompSetLayerCtlOps(p->pVideoRender, p->pLayerControlOps);
+	VideoRenderCompSetLayerCtlOps(p->pVideoRender, p->pLayerControlOps);
     }
 
     //* set video stream info for videorender
@@ -3825,7 +3825,7 @@ static int PlayerInitialAudio(PlayerContext* p)
 
     if(p->pSoundControlOps)
     {
-    	AudioRenderSetSoundCtlOps(p->pAudioRender, p->pSoundControlOps);
+	AudioRenderSetSoundCtlOps(p->pAudioRender, p->pSoundControlOps);
     }
     
     AudioRenderCompSetVolume(p->pAudioRender, p->volume);
@@ -3880,7 +3880,7 @@ static int PlayerInitialSubtitle(PlayerContext* p)
         p->pSubtitleDecComp = NULL;
         return -1;
     }
- 	SubtitleRenderCompSetVideoOrAudioFirstPts(p->pSubtitleRender, p->nFirstPts);
+	SubtitleRenderCompSetVideoOrAudioFirstPts(p->pSubtitleRender, p->nFirstPts);
     SubtitleRenderCompSetCallback(p->pSubtitleRender, CallbackProcess, (void*)p);
     SubtitleRenderCompSetTimer(p->pSubtitleRender, p->pAvTimer);
     SubtitleRenderCompSetDecodeComp(p->pSubtitleRender, p->pSubtitleDecComp);
@@ -3906,7 +3906,7 @@ int PlayerSetVolume(Player* pl, float volume)
     p->volume = volume;
     if(!p->pAudioRender)
     {
-    	logd("!p->pAudioRender");
+	logd("!p->pAudioRender");
         return -1;
     }
 	return AudioRenderCompSetVolume(p->pAudioRender, p->volume);

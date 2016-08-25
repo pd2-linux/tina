@@ -1,8 +1,23 @@
+/*
+* Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+* All rights reserved.
+*
+* File : sdecoder.h
+* Description :
+* History :
+*   Author  : xyliu <xyliu@allwinnertech.com>
+*   Date    : 2016/04/13
+*   Comment :
+*
+*
+*/
+
 #ifndef SDECODER_H
 #define SDECODER_H
 
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -133,23 +148,35 @@ struct SUBTITLEITEM
     int                  nEndY;
     
     //* font style.
-    int                  nFontSize;             //* 0 means don't care.
-    int                  bBold;                 //* -1 means don't care.
-    int                  bItalic;               //* -1 means don't care.
-    int                  bUnderlined;           //* -1 means don't care.
-    unsigned int         nPrimaryColor;         //* ARGB, 0 means don't care.
-    unsigned int         nSecondaryColor;       //* ARGB, 0 means don't care.
-    char                 strFontName[SUBBITLE_DECODER_MAX_LANG_CHAR_SIZE];   //* SUBTITLE_FONT_NAME_X, 
+    int                  nFontSize;
+    //* 0 means don't care.
+    int                  bBold;
+    //* -1 means don't care.
+    int                  bItalic;
+    //* -1 means don't care.
+    int                  bUnderlined;
+    //* -1 means don't care.
+    unsigned int         nPrimaryColor;
+    //* ARGB, 0 means don't care.
+    unsigned int         nSecondaryColor;
+    //* ARGB, 0 means don't care.
+    char                 strFontName[SUBBITLE_DECODER_MAX_LANG_CHAR_SIZE];
+    //* SUBTITLE_FONT_NAME_X,
     
     //* subtitle content.
-    int                  bText;                 //* 0 means bitmap, 1 means text.
+    int                  bText;
+    //* 0 means bitmap, 1 means text.
     char*                pText;
-    int                  nTextLength;           //* in unit of bytes.
+    int                  nTextLength;
+    //* in unit of bytes.
     ESubtitleTextFormat  eTextFormat;
     char*                pBitmapData;
-    int                  nBitmapWidth;          //* for bitmap subtitle item.
-    int                  nBitmapHeight;         //* for bitmap subtitle item.
-    ESubtitlePixelFormat ePixelFormat;          //* currently output ARGB only.
+    int                  nBitmapWidth;
+    //* for bitmap subtitle item.
+    int                  nBitmapHeight;
+    //* for bitmap subtitle item.
+    ESubtitlePixelFormat ePixelFormat;
+    //* currently output ARGB only.
 };
 
 
@@ -166,9 +193,14 @@ typedef struct SUBTITLESTREAMDATAINFO
 typedef void* SubtitleDecoder;
 
 //* memory for stream info is allocated inside, user should free it.
-int ProbeSubtitleStream(const char* strFilePath, SubtitleStreamInfo** ppStreamInfo, int* pStreamCount);
+int ProbeSubtitleStream(const char* strFilePath,
+                    SubtitleStreamInfo** ppStreamInfo,
+                    int* pStreamCount);
 
-int ProbeSubtitleStreamFd(int fd,int offet,int len, SubtitleStreamInfo** ppStreamInfo, int* pStreamCount);
+int ProbeSubtitleStreamFd(int fd,int offet,
+                      int len,
+                      SubtitleStreamInfo** ppStreamInfo,
+                      int* pStreamCount);
 
 //* create a subtitle decoder for a subtitle stream.
 SubtitleDecoder* CreateSubtitleDecoder(SubtitleStreamInfo* pStreamInfo);
@@ -189,15 +221,14 @@ typedef enum ESUBTITLERESULT
     SDECODE_RESULT_NO_FRAME_BUFFER = 4,
 }ESubtResult;
 
-int DecodeSubtitleStream(SubtitleDecoder* p, SubtitleStreamDataInfo* pStreamData);
+int DecodeSubtitleStream(SubtitleDecoder* p,
+                     SubtitleStreamDataInfo* pStreamData);
 
 SubtitleItem* NextSubtitleItem(SubtitleDecoder* p);
 
 SubtitleItem* RequestSubtitleItem(SubtitleDecoder* p);
 
 void FlushSubtitleItem(SubtitleDecoder* p, SubtitleItem* pItem);
-
-
 
 #ifdef __cplusplus
 }

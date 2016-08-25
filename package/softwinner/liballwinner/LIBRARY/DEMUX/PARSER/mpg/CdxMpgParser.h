@@ -179,6 +179,7 @@ typedef struct CdxMpgParserS
     cdx_int16            bReadFileEndFlag;
     cdx_int32            nError;
     cdx_uint32           nAttribute;
+    CdxPacketT           mCurPacketT;
 
     cdx_int16   (*open)(struct CdxMpgParserS *MpgParser, CdxStreamT *stream);
     cdx_int16   (*close)(struct CdxMpgParserS *MpgParser);

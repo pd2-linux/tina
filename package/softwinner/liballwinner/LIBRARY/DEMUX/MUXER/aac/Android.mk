@@ -34,4 +34,3 @@ ifeq ($(TARGET_ARCH),arm)
 endif
 
 include $(BUILD_STATIC_LIBRARY)
-

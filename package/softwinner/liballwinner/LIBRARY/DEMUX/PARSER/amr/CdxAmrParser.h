@@ -1,3 +1,12 @@
+/*
+* Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+* All rights reserved.
+*
+* File : CdxAmrParser.h
+* Description : Amr Parser
+* History :
+*
+*/
 #ifndef CDX_AMR_PARSER_H
 #define CDX_AMR_PARSER_H
 
@@ -11,7 +20,7 @@ typedef struct AmrParserImplS
      CdxParserT base;
      CdxStreamT *stream;   
      cdx_int64 ulDuration;//ms    
-	 pthread_cond_t cond;
+     pthread_cond_t cond;
      cdx_int64 fileSize;//total file length
      cdx_int64 file_offset; //now read location 
      cdx_int32 mErrno; //Parser Status
@@ -32,7 +41,9 @@ typedef struct AmrParserImplS
 static const char AMR_header [] = "#!AMR\n";
 static const char AMRWB_header [] = "#!AMR-WB\n";
 
-static const cdx_uint8 block_size_NB[16] = { 12, 13, 15, 17, 19, 20, 26, 31, 5, 0, 0, 0, 0, 0, 0, 0 };
-static const cdx_uint8 block_size_WB[16] = {18, 24, 33, 37, 41, 47, 51, 59, 61, 6, 6, 0, 0, 0, 1, 1};
+static const cdx_uint8 block_size_NB[16] = { 12, 13, 15, 17, 19, 20, 26,
+                                             31, 5, 0, 0, 0, 0, 0, 0, 0 };
+static const cdx_uint8 block_size_WB[16] = {18, 24, 33, 37, 41, 47, 51,
+                                            59, 61, 6, 6, 0, 0, 0, 1, 1};
 
 #endif

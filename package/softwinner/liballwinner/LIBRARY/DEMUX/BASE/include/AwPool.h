@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : AwPool.h
+ * Description : Pool
+ * History :
+ *
+ */
+
 #ifndef AW_POOL_H
 #define AW_POOL_H
 
@@ -56,4 +66,3 @@ void *AwRealloc(AwPoolT *pool, void *p, int size, char *file, int line);
 #endif
 
 #endif /* AW_POOL_H */
-

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxOggParser.h
+ * Description : OggParser
+ * History :
+ *
+ */
+
 #ifndef OGG_PARSER_H
 #define OGG_PARSER_H
 #include <stdint.h>
@@ -48,8 +58,6 @@
 #define CDX_AV_METADATA_DONT_STRDUP_KEY 4
 #define CDX_AV_METADATA_DONT_STRDUP_VAL 8
 #define CDX_AV_METADATA_DONT_OVERWRITE 16
-
-
 
 #define OGG_FLAG_CONT 1
 #define OGG_FLAG_BOS  2
@@ -193,10 +201,10 @@ enum CodecID {
     CDX_CODEC_ID_ESCAPE124,
     CDX_CODEC_ID_DIRAC,
     CDX_CODEC_ID_BFI,
-	CDX_CODEC_ID_DIVX3,
-	CDX_CODEC_ID_DIVX4,
-	CDX_CODEC_ID_DIVX5,
-	CDX_CODEC_ID_V_UNKNOWN,
+    CDX_CODEC_ID_DIVX3,
+    CDX_CODEC_ID_DIVX4,
+    CDX_CODEC_ID_DIVX5,
+    CDX_CODEC_ID_V_UNKNOWN,
 
     // various PCM "codecs"
     CDX_CODEC_ID_PCM_S16LE= 0x10000,
@@ -311,7 +319,7 @@ enum CodecID {
     CDX_CODEC_ID_WMAPRO,
     CDX_CODEC_ID_WMALOSSLESS,
     CDX_CODEC_ID_ATRAC3P,
-	CDX_CODEC_ID_A_UNKNOWN,
+    CDX_CODEC_ID_A_UNKNOWN,
 
     // subtitle codecs
     CDX_CODEC_ID_DVD_SUBTITLE= 0x17000,
@@ -324,7 +332,8 @@ enum CodecID {
     // other specific kind of codecs (generally used for attachments)
     CDX_CODEC_ID_TTF= 0x18000,
 
-    CDX_CODEC_ID_MPEG2TS= 0x20000, //_FAKE_ codec to indicate a raw MPEG-2 TS stream (only used by libavformat)
+    CDX_CODEC_ID_MPEG2TS= 0x20000, //_FAKE_ codec to indicate a
+                                   //raw MPEG-2 TS stream (only used by libavformat)
 };
 
 typedef struct AVCodecTag {
@@ -377,7 +386,8 @@ static const AVCodecTag ff_codec_wav_tags[] = {
     { CDX_CODEC_ID_AAC,             0x4143 },
     { CDX_CODEC_ID_FLAC,            0xF1AC },
     { CDX_CODEC_ID_ADPCM_SWF,       ('S'<<8)+'F' },
-    { CDX_CODEC_ID_VORBIS,          ('V'<<8)+'o' }, //HACK/FIXME, does vorbis in WAV/AVI have an (in)official id?
+    { CDX_CODEC_ID_VORBIS,          ('V'<<8)+'o' }, //HACK/FIXME, does vorbis
+                                                    //in WAV/AVI have an (in)official id?
 
     /* FIXME: All of the IDs below are not 16 bit and thus illegal. */
     // for NuppelVideo (nuv.c)
@@ -391,7 +401,8 @@ enum AVStreamParseType {
     AVSTREAM_PARSE_OS_NONE,
     AVSTREAM_PARSE_OS_FULL,       /**< full parsing and repack */
     AVSTREAM_PARSE_OS_HEADERS,    /**< Only parse headers, do not repack. */
-    AVSTREAM_PARSE_OS_TIMESTAMPS, /**< full parsing and interpolation of timestamps for frames not starting on a packet boundary */
+    AVSTREAM_PARSE_OS_TIMESTAMPS, /**< full parsing and interpolation of timestamps for
+                                       frames not starting on a packet boundary */
 };
 
 struct oggvorbis_private {
@@ -404,12 +415,12 @@ typedef struct {
     char *key;
 }AVMetadataTag;
 
-typedef struct{
+typedef struct {
     int count;
     AVMetadataTag *elems;
 }AVMetadata;
 
-typedef struct AVRational{
+typedef struct AVRational {
     int num; ///< numerator
     int den; ///< denominator
 } AVRational;
@@ -422,32 +433,30 @@ typedef struct AVChapter {
 } AVChapter;
 
 typedef struct AVCodecContext {
-	enum CDXAVMediaType codec_type; /* see AVMEDIA_TYPE_xxx */
+    enum CDXAVMediaType codec_type; /* see AVMEDIA_TYPE_xxx */
     enum CodecID codec_id; /* see CODEC_ID_xxx */
 
-	unsigned char *extradata;
+    unsigned char *extradata;
     int extradata_size;
 
-	int bit_rate;
-	unsigned int codec_tag;
+    int bit_rate;
+    unsigned int codec_tag;
 
-	int width, height;
-	AVRational time_base;
+    int width, height;
+    AVRational time_base;
     cdx_int64 nFrameDuration;
-	int sample_rate;
-	int channels;
+    int sample_rate;
+    int channels;
 
-	AVRational sample_aspect_ratio;
+    AVRational sample_aspect_ratio;
 
-	long long reordered_opaque;
+    long long reordered_opaque;
 
 }AVCodecContext;
-
 
 typedef struct AVFrac {
     long long val, num, den;
 } AVFrac;
-
 
 typedef struct AVStream {
     int index;    /**< stream index in AVFormatContext */
@@ -512,7 +521,6 @@ typedef struct AVStream {
     long long reference_dts;
 
 } AVStream;
-
 
 typedef struct CdxOggParserS CdxOggParser;
 
@@ -586,34 +594,30 @@ struct ogg_stream {
     int streamIndex;
 };
 
-
-enum CdxParserStatus
-{
+enum CdxParserStatus {
     CDX_PSR_INITIALIZED,
     CDX_PSR_IDLE,
     CDX_PSR_PREFETCHING,
     CDX_PSR_PREFETCHED,
     CDX_PSR_SEEKING,
 };
-typedef struct
-{
+typedef struct {
     cdx_uint8 *probeBuf;
     unsigned probeBufSize;
     unsigned probeDataSize;
 }ProbeSpecificDataBuf;
 
-struct CdxOggParserS
-{
-	CdxParserT base;
-	cdx_uint32 flags;/*使能标志*/
+struct CdxOggParserS {
+    CdxParserT base;
+    cdx_uint32 flags;/*使能标志*/
     
-	enum CdxParserStatus status;
+    enum CdxParserStatus status;
     pthread_mutex_t statusLock;
     pthread_cond_t cond;
     int mErrno;
-	int forceStop;
+    int forceStop;
 	
-	CdxStreamT *file;
+    CdxStreamT *file;
     cdx_int64 fileSize;
     int seekable;
     cdx_uint8 *buf;
@@ -625,7 +629,7 @@ struct CdxOggParserS
     char     hasVideo;               //video flag, =0:no video bitstream; >0:video bitstream count
     char     hasAudio;               //audio flag, =0:no audio bitstream; >0:audio bitstream count
     char     hasSubTitle;            //lyric flag, =0:no lyric bitstream; >0:lyric bitstream count
-    long long 	  pos;//
+    long long       pos;//
 
     intptr_t nb_chapters;
     AVChapter **chapters;
@@ -649,7 +653,6 @@ struct CdxOggParserS
     //int firstPacket;
     cdx_int64 seekTimeUs;
 
-    
 #if OGG_SAVE_VIDEO_STREAM
     FILE* fpVideoStream[2];
 #endif

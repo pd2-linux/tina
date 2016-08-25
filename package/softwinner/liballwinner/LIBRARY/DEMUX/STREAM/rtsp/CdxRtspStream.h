@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxRtspStream.h
+ * Description : Part of rtsp stream.
+ * History :
+ *
+ */
+
 #ifndef CDX_RTSP_STREAM_H
 #define CDX_RTSP_STREAM_H
 
@@ -84,12 +94,18 @@ typedef struct asfGuids
 
 typedef struct CdxRtspStreamImplS CdxRtspStreamImplT;
 
+enum PayloadType {
+    INVALID = -1,
+    MP2T = 33,
+};
+
 typedef struct LiveTrackS
 {
     CdxRtspStreamImplT *impl;
     MediaSubsession *sub;
 
     EsFormatT     fmt;
+    enum PayloadType rtpPt;
     //es_out_id_t     *pEs;
 
     int            bMuxed;
@@ -122,7 +138,7 @@ typedef struct TimeoutThreadS
     sem_t       sem;
 }TimeoutThreadT;
 
-typedef struct StreamSysS
+struct StreamSysS
 {
     char            *pSdp;      /* XXX mallocated */
     char            *pPath;     /* URL-encoded path */
@@ -131,7 +147,7 @@ typedef struct StreamSysS
     MediaSession     *ms;
     UsageEnvironment *env ; 
     TaskScheduler    *scheduler;
-	CdxRTSPClient    *rtsp;
+    CdxRTSPClient    *rtsp;
 	
     /* */
     int              iTrack;
@@ -168,7 +184,7 @@ typedef struct StreamSysS
     int              iLive555ret; /* live555 callback return code */
 
     float            fSeekRequest; /* In case we receive a seek request while paused*/
-}StreamSysT;
+};
 
 typedef struct CdxRtspStreamImplS
 {
@@ -225,9 +241,10 @@ typedef struct CdxRtspStreamImplS
     void *sft_stream_handle;
     cdx_int32 demuxType;
     pthread_mutex_t sft_handle_mutex;
+
+    char *startTime;
+    char *endTime;
 }CdxRtspStreamImplT;
-
-
 
 enum RtspStreamStateE
 {

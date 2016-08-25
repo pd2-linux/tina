@@ -1,20 +1,12 @@
-/*******************************************************************************
---                                                                            --
---                    CedarX Multimedia Framework                             --
---                                                                            --
---          the Multimedia Framework for Linux/Android System                 --
---                                                                            --
---       This software is confidential and proprietary and may be used        --
---        only as expressly authorized by a licensing agreement from          --
---                         Softwinner Products.                               --
---                                                                            --
---                   (C) COPYRIGHT 2011 SOFTWINNER PRODUCTS                   --
---                            ALL RIGHTS RESERVED                             --
---                                                                            --
---                 The entire notice above must be reproduced                 --
---                  on all copies and should not be removed.                  --
---                                                                            --
-*******************************************************************************/
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxAviDepackSequence.c
+ * Description : Part of avi parser.
+ * History :
+ *
+ */
 
 //#define LOG_NDEBUG 0
 #define LOG_TAG "AVI_TAG"
@@ -22,10 +14,9 @@
 #include "CdxAviInclude.h"
 #include <string.h>
 
-//==============================================================================
 //1.FFRRKeyframeTable
 /*
-*********************************************************************************************************
+**********************************************************************************************
 *                       BUILD FRAME INDEX TABLE
 *
 *Description: Build frame index table.
@@ -35,19 +26,16 @@
 *Return     : result of build index table
 *               = 0     build index table successed;
                 AVI_SUCCESS
-
 *               
                 >0
                 AVI_ERR_INDEX_HAS_NO_KEYFRAME      
                 AVI_ERR_NO_INDEX_TABLE             
                                         
-
-                
                 < 0     build index table failed.
                 AVI_ERR_PARA_ERR        
                 AVI_ERR_REQMEM_FAIL     
                 AVI_ERR_READ_FILE_FAIL  
-*********************************************************************************************************
+**********************************************************************************************
 */
 cdx_int16 AviBuildIdxForIdx1SequenceMode(CdxAviParserImplT *p)
 {
@@ -63,8 +51,8 @@ cdx_int16 AviBuildIdxForIdx1SequenceMode(CdxAviParserImplT *p)
     cdx_int32           curFilePos;
     OldIdxTableItemT    *pSeqKeyFrameTableEntry;
     cdx_uint32          *chunkBuf;
-    cdx_int32           audChkCntrArray[MAX_AUDIO_STREAM] = {0}; //  audio chunk, vbr , tmpAudChkCnt
-    cdx_int64           audDatSizeCntrArray[MAX_AUDIO_STREAM] = {0};  //tmpDatSize=0,  audio data size. cbr 
+    cdx_int32        audChkCntrArray[MAX_AUDIO_STREAM] = {0}; //audio chunk, vbr, tmpAudChkCnt
+    cdx_int64        audDatSizeCntrArray[MAX_AUDIO_STREAM] = {0};//tmpDatSize=0,audio data size.cbr
     
     cdx_int32           iAud = 0;
     cdx_int32           nKeyframeTableSize = 0; //keyframeTable OLD_IDX_TABLE_ITEM
@@ -138,7 +126,7 @@ cdx_int16 AviBuildIdxForIdx1SequenceMode(CdxAviParserImplT *p)
         if(bufIdxItem == 0)
         {
             //calculate need read file length
-            if(leftIdxItem > MAX_CHUNK_BUF_SIZE/sizeof(AviIndexEntryT))  //avi_in->data_chunk.buffer MAX_CHUNK_BUF_SIZE, AVI_init() 
+            if(leftIdxItem > MAX_CHUNK_BUF_SIZE/sizeof(AviIndexEntryT))
             {
                 bufIdxItem = MAX_CHUNK_BUF_SIZE /sizeof(AviIndexEntryT);
                 leftIdxItem -= bufIdxItem;
@@ -151,7 +139,7 @@ cdx_int16 AviBuildIdxForIdx1SequenceMode(CdxAviParserImplT *p)
 
             //check if need read file data
             if(bufIdxItem * sizeof(AviIndexEntryT) != 
-                (cdx_uint32)CdxStreamRead(aviIn->fp, chunkBuf, bufIdxItem * sizeof(AviIndexEntryT)))
+             (cdx_uint32)CdxStreamRead(aviIn->fp, chunkBuf, bufIdxItem * sizeof(AviIndexEntryT)))
             {
                 CDX_LOGE("Read error.");
                 return AVI_ERR_READ_FILE_FAIL;
@@ -170,17 +158,19 @@ cdx_int16 AviBuildIdxForIdx1SequenceMode(CdxAviParserImplT *p)
             if(mIdx->dwFlags & CDX_AVIIF_KEYFRAME)
             {
                 pSeqKeyFrameTableEntry->frameIdx = frameCount;
-                //CDX_LOGD("xxxxxxxxx keyframe idx(%d), AviBuildIdxForIdx1SequenceMode", pSeqKeyFrameTableEntry->frameIdx);
+                //CDX_LOGD("xxxxxxxxx keyframe idx(%d), AviBuildIdxForIdx1SequenceMode",
+                                                        //pSeqKeyFrameTableEntry->frameIdx);
                 pSeqKeyFrameTableEntry->vidChunkOffset = aviIn->ckBaseOffset + mIdx->dwChunkOffset;
                 for(iAud = 0; iAud < p->hasAudio; iAud++)
                 {
                     pSeqKeyFrameTableEntry->audPtsArray[iAud]
                         = (cdx_uint32)CalcAviAudioChunkPts(&aviIn->audInfoArray[iAud],
-                            audDatSizeCntrArray[iAud], audChkCntrArray[iAud]);//tmpDatSize, tmpAudChkCnt
+                            audDatSizeCntrArray[iAud], audChkCntrArray[iAud]);
                 }
-                CDX_LOGV("keyFrame:frmidx[%d],pts[%d]s, audioPts[%d]ms, mIdx->dwFlags[%u]",pSeqKeyFrameTableEntry->frameIdx, 
-                        pSeqKeyFrameTableEntry->frameIdx*FRAME_RATE_BASE/p->aviFormat.vFormat.nFrameRate, 
-                            pSeqKeyFrameTableEntry->audPtsArray[0], mIdx->dwFlags);
+                CDX_LOGV("keyFrame:frmidx[%d],pts[%d]s, audioPts[%d]ms, mIdx->dwFlags[%u]",
+                pSeqKeyFrameTableEntry->frameIdx,
+                pSeqKeyFrameTableEntry->frameIdx*FRAME_RATE_BASE/p->aviFormat.vFormat.nFrameRate,
+                pSeqKeyFrameTableEntry->audPtsArray[0], mIdx->dwFlags);
                 aviIn->indexCountInKeyfrmTbl++;
                 pSeqKeyFrameTableEntry++;
                 if(nKeyframeTableSize <= aviIn->indexCountInKeyfrmTbl)
@@ -203,7 +193,8 @@ cdx_int16 AviBuildIdxForIdx1SequenceMode(CdxAviParserImplT *p)
             {
                 if(id == p->audioStreamIndexArray[iAud])
                 {
-                    audChkCntrArray[iAud] += CalcAviChunkAudioFrameNum(&aviIn->audInfoArray[iAud], mIdx->dwChunkLength);
+                    audChkCntrArray[iAud] += CalcAviChunkAudioFrameNum(&aviIn->audInfoArray[iAud],
+                        mIdx->dwChunkLength);
                     //LOGV("Audio[%d]FrameCount[%d]", iAud, AudChkCntrArray[iAud]);
                     audDatSizeCntrArray[iAud] += mIdx->dwChunkLength;
                     break;
@@ -217,8 +208,10 @@ cdx_int16 AviBuildIdxForIdx1SequenceMode(CdxAviParserImplT *p)
         bufIdxItem--;
         mIdx++;
     }
-    CDX_LOGV("KeyframeTable done, keyfrm entry cnt=%d, table_maxcnt=%d, total chunk[%d], video chunk[%d], nIdx1RecNum[%d]\n", 
-        aviIn->indexCountInKeyfrmTbl,  nKeyframeTableSize, aviIn->idx1Total - nIdx1RecNum, frameCount, nIdx1RecNum);
+    CDX_LOGV("KeyframeTable done, keyfrm entry cnt=%d, table_maxcnt=%d,"
+        "total chunk[%d], video chunk[%d], nIdx1RecNum[%d]\n",
+        aviIn->indexCountInKeyfrmTbl,  nKeyframeTableSize,
+        aviIn->idx1Total - nIdx1RecNum, frameCount, nIdx1RecNum);
 
     if(p->totalFrames == 0)
     {
@@ -342,7 +335,6 @@ Return:
     AVI_ERR_NO_INDEX_TABLE
     AVI_ERR_PART_INDEX_TABLE
 
-
     <0:
     AVI_ERR_PARA_ERR
     AVI_ERR_READ_FILE_FAIL
@@ -444,9 +436,10 @@ cdx_int16 AviBuildIdxForOdmlSequenceMode(CdxAviParserImplT *p)
                 //because chunk_idx has increase 1 in search_next_ODML_index_entry()
                 //CDX_LOGD("nStdindexEntryNum(%d), is keyframe.", nStdindexEntryNum);
                 pSeqKeyFrameTableEntry->frameIdx = aviIn->vidIndxReader.chunkCounter - 1;
-                //CDX_LOGD("xxxxxxxxx keyframe idx(%d), AviBuildIdxForOdmlSequenceMode", pSeqKeyFrameTableEntry->frameIdx);
+                //CDX_LOGD("xxxxxxxxx keyframe idx(%d)", pSeqKeyFrameTableEntry->frameIdx);
                 pSeqKeyFrameTableEntry->vidChunkOffset = chunkPos.ckOffset;
-                vframePts = (cdx_uint32)((cdx_int64)pSeqKeyFrameTableEntry->frameIdx*p->aviFormat.nMicSecPerFrame / 1000);
+                vframePts = (cdx_uint32)((cdx_int64)pSeqKeyFrameTableEntry->frameIdx *
+                    p->aviFormat.nMicSecPerFrame / 1000);
                 for(i = 0; i < p->hasAudio; i++)
                 {
                     pSeqKeyFrameTableEntry->audPtsArray[i] = vframePts;
@@ -455,9 +448,11 @@ cdx_int16 AviBuildIdxForOdmlSequenceMode(CdxAviParserImplT *p)
                 aviIn->indexCountInKeyfrmTbl++;
                 if(aviIn->indexCountInKeyfrmTbl >= nKeyframeTableSize)
                 {
-                    CDX_LOGW("FFRRKeyframe Table full,[%d] == [%d], cur_std_indx[%d], total indx[%d], entry num[%d]\n", 
+                    CDX_LOGW("FFRRKeyframe Table full,[%d] == [%d], cur_std_indx[%d],"
+                        " total indx[%d], entry num[%d]\n",
                         aviIn->indexCountInKeyfrmTbl, nKeyframeTableSize,
-                        aviIn->vidIndxReader.indxTblEntryIdx, aviIn->vidIndxReader.indxTblEntryCnt, nStdindexEntryNum);
+                        aviIn->vidIndxReader.indxTblEntryIdx,
+                        aviIn->vidIndxReader.indxTblEntryCnt, nStdindexEntryNum);
                     break;
                 }
             }
@@ -491,7 +486,8 @@ cdx_int16 AviBuildIdxForOdmlSequenceMode(CdxAviParserImplT *p)
             indexChunkOkFlag = 0;
             break;
         }
-        ret = InitialPsrIndxTableReader(&aviIn->audIndxReader, aviIn, p->audioStreamIndexArray[iAud]);
+        ret = InitialPsrIndxTableReader(&aviIn->audIndxReader, aviIn,
+            p->audioStreamIndexArray[iAud]);
         if(ret != AVI_SUCCESS)
         {
             indexChunkOkFlag = 0;
@@ -503,7 +499,8 @@ cdx_int16 AviBuildIdxForOdmlSequenceMode(CdxAviParserImplT *p)
         {
             nTotalSuperIndexDwDuration += (aviIn->audIndxReader.indxTblEntryArray+i)->dwDuration;
         }
-        CDX_LOGV("audio[stream num %d] super index entry total dwDuration is [%d]\n", p->audioStreamIndexArray[iAud], nTotalSuperIndexDwDuration);
+        CDX_LOGV("audio[stream num %d] super index entry total dwDuration is [%d]\n",
+            p->audioStreamIndexArray[iAud], nTotalSuperIndexDwDuration);
         pSeqKeyFrameTableEntry = (OldIdxTableItemT *)aviIn->idx1Buf;
         pAudStrmInfo = &aviIn->audInfoArray[iAud];
         for(i=0; i<aviIn->indexCountInKeyfrmTbl; i++)
@@ -514,7 +511,8 @@ cdx_int16 AviBuildIdxForOdmlSequenceMode(CdxAviParserImplT *p)
                 ret = AVI_ERR_ABORT;
                 goto _err0;
             }
-            srchRet = SearchAudioChunkIndxEntryOdmlSequence(&aviIn->audIndxReader, pSeqKeyFrameTableEntry, iAud, pAudStrmInfo);
+            srchRet = SearchAudioChunkIndxEntryOdmlSequence(&aviIn->audIndxReader,
+                pSeqKeyFrameTableEntry, iAud, pAudStrmInfo);
             if(srchRet < AVI_SUCCESS) 
             {
                 if(srchRet == AVI_ERR_READ_FILE_FAIL)
@@ -543,8 +541,8 @@ cdx_int16 AviBuildIdxForOdmlSequenceMode(CdxAviParserImplT *p)
     }
     else
     {
-        ret = AVI_ERR_NO_INDEX_TABLE;   //if odml index chunk is not full, we think avi file is not full.forbit jump!
-    }
+        ret = AVI_ERR_NO_INDEX_TABLE;   //if odml index chunk is not full,
+    }                                   //we think avi file is not full.forbit jump!
     
     //restore file position
     if(CdxStreamSeek(aviIn->fp, (cdx_uint32)curFilePos, STREAM_SEEK_SET) < 0)
@@ -564,10 +562,8 @@ _err0:
     return ret;
 }
 
-//==============================================================================
-//2.״̬ת��SetProcMode()��,�ֱ�ΪFFRR->PLAY��PLAY->FFRR
 /*
-*********************************************************************************************************
+**********************************************************************************************
 *                       GET INDEX BY TIME
 *
 *Description: This function looks up index table to get the key frame's position which
@@ -584,14 +580,15 @@ _err0:
 *                           =1, goto last key frame,
 *             file_pst      the key frame's position in the file
 *             keyfrmnum     the key frame number
-*             diff          the time difference between the video key frame and the followed audio frame
+*             diff          the time difference between the video key frame and the
+                            followed audio frame
 *
 *Return     : result of get index
 *               = 0     get index successed;
                          ֻҪFFRRKeyframeTable
 *               < 0     get index failed.
                         AVI_ERR_PARA_ERR:
-*********************************************************************************************************
+*********************************************************************************************
 */
 cdx_int16 AviGetIndexByMsReadMode0(CdxAviParserImplT *p, cdx_uint32 timeMs,
                     cdx_uint32 *keyfrmIdx, cdx_int32 direction, cdx_int32 lastOrNext,
@@ -617,7 +614,8 @@ cdx_int16 AviGetIndexByMsReadMode0(CdxAviParserImplT *p, cdx_uint32 timeMs,
 
     if(*keyfrmIdx >= (cdx_uint32)aviIn->indexCountInKeyfrmTbl)
     {
-        CDX_LOGV("sth wrong! keyfrmidx_inkeyframetable[%d] >= total[%d]\n", *keyfrmIdx, aviIn->indexCountInKeyfrmTbl);
+        CDX_LOGV("sth wrong! keyfrmidx_inkeyframetable[%d] >= total[%d]\n", *keyfrmIdx,
+            aviIn->indexCountInKeyfrmTbl);
         if(aviIn->indexCountInKeyfrmTbl > 0)
         {
             // get the last key frame in the index table
@@ -843,18 +841,17 @@ cdx_int32 ReconfigAviReadContextReadMode0(CdxAviParserImplT *p, cdx_uint32 vidTi
     return AVI_SUCCESS;
 }
 
-//==============================================================================
 /*
-*********************************************************************************************************
+*******************************************************************************************
 *                           GET CHUNK HEADER
 *
 *Description: get chunk header information. for read avi file sequence mode.
 *Arguments  : avi_file  avi reader handle;
-                Because in cedar MOD, encapsulate a struct cdx_stream_info operation , read 64K more
-                in buffer. So need use two fp to enhance performance.
+                Because in cedar MOD, encapsulate a struct cdx_stream_info operation,
+                read 64K more in buffer. So need use two fp to enhance performance.
 *
 *Return     : result;
-*********************************************************************************************************
+******************************************************************************************
 */
 cdx_int16 AviReaderGetChunkHeader(CdxAviParserImplT *p)
 {
@@ -877,7 +874,6 @@ cdx_int16 AviReaderGetChunkHeader(CdxAviParserImplT *p)
         return AVI_ERR_END_OF_MOVI;
     }
         
-
 check_next_chunk_head:
     // read a data chunk
     if(GetNextChunkHead(aviFile->fp, &aviFile->dataChunk, &length) < 0)
@@ -890,8 +886,8 @@ check_next_chunk_head:
     if(chunk->fcc == CDX_LIST_HEADER_LIST)
     {
         //skip list header,  RIFF AVIX LIST movi LIST rec chunk......  moe_more.avi
-        if(CdxStreamSeek(aviFile->fp, (cdx_int64)length, STREAM_SEEK_CUR))    //rec  LIST, length, "rec " "rec "
-        {
+        if(CdxStreamSeek(aviFile->fp, (cdx_int64)length, STREAM_SEEK_CUR))
+        {//rec LIST,length,"rec " "rec "
             CDX_LOGE("seek avi file list header failed!");
             return AVI_ERR_READ_FILE_FAIL;
         }
@@ -927,7 +923,8 @@ check_next_chunk_head:
         }
     }
     
-    //Do we need to add the chunk length checking? Sometimes the length is very very big becuase of error.
+    //Do we need to add the chunk length checking? Sometimes the length is
+    //very very big becuase of error.
     //GetNextChunkInfo() chunk
     return AVI_SUCCESS;
 }
@@ -967,4 +964,3 @@ cdx_int16 AviReadSequence(CdxAviParserImplT *p)
     }
     return ret;
 }
-

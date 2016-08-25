@@ -1,20 +1,12 @@
-/*******************************************************************************
---                                                                            --
---                    CedarX Multimedia Framework                             --
---                                                                            --
---          the Multimedia Framework for Linux/Android System                 --
---                                                                            --
---       This software is confidential and proprietary and may be used        --
---        only as expressly authorized by a licensing agreement from          --
---                         Softwinner Products.                               --
---                                                                            --
---                   (C) COPYRIGHT 2011 SOFTWINNER PRODUCTS                   --
---                            ALL RIGHTS RESERVED                             --
---                                                                            --
---                 The entire notice above must be reproduced                 --
---                  on all copies and should not be removed.                  --
---                                                                            --
-*******************************************************************************/
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxAviOdmlIndx.c
+ * Description : Part of avi parser.
+ * History :
+ *
+ */
 
 //#define LOG_NDEBUG 0
 #define LOG_TAG "CdxAviOdmlIndx"
@@ -188,16 +180,7 @@ cdx_int32 LoadIndxChunk(ODML_SUPERINDEX_READER *pSuperReader, cdx_int32 indxTblE
 /*******************************************************************************
 Function name: search_indx_entry
 Description:
-    1. search indx entry in one indx chunk, ���ڶ�����������һ��entry
-    2. default think ODML_INDEX_READER is init done.
-    3. fp_pos will be set immediately to read.
-    4. ������AVI_ERR_SEARCH_INDEX_CHUNK_END��ʱ����û�ж���chunk entry��ʱ��
-       ֻҪ�ܶ���chunk entry, ��ʹ�����������һ��chunk entryʱ����Ȼ���ص���AVI_SUCCESS;
-       ����һ�ζ������������ŷ���AVI_ERR_SEARCH_INDEX_CHUNK_END
-    5. ��ȡentry�Ĺ����,ODML_SUPERINDEX_READER��chunk_idx, chunk_ixtbl_ent_offset,
-                chunk_size, totalChunkSize����֮����
-    6. load_indx_chunk()�ѳ�ʼ��ODML_INDEX_READER��Ȼ���ڵ��ñ�����search_indx_one_chunk()��
-        ���������ﲻ��Ҫ��ʼ����
+
 Parameters:
 
 Return:
@@ -206,8 +189,7 @@ Return:
     AVI_ERR_SEARCH_INDEX_CHUNK_END;
 Time: 2009/6/3
 *******************************************************************************/
-//cdx_int32 search_indx_one_chunk(ODML_SUPERINDEX_READER *pSuperReader, AVI_CHUNK_POSITION *pck_pos, cdx_int32 *pchunk_body_size)//avistdindex_enty
-cdx_int32 SearchIndxEntry(ODML_SUPERINDEX_READER *pSuperReader, AVI_CHUNK_POSITION *pCkPos)//avistdindex_enty
+cdx_int32 SearchIndxEntry(ODML_SUPERINDEX_READER *pSuperReader, AVI_CHUNK_POSITION *pCkPos)
 {
     ODML_INDEX_READER   *pReader = NULL;
     cdx_int32   entrySize = 0;
@@ -244,7 +226,8 @@ cdx_int32 SearchIndxEntry(ODML_SUPERINDEX_READER *pSuperReader, AVI_CHUNK_POSITI
                 return AVI_ERR_READ_FILE_FAIL;
             }
             if((pReader->bufIdxItem * entrySize) != 
-                CdxStreamRead(pSuperReader->idxFp, pReader->pFileBuffer, pReader->bufIdxItem * entrySize))
+                CdxStreamRead(pSuperReader->idxFp, pReader->pFileBuffer, pReader->bufIdxItem *
+                entrySize))
             {
                 CDX_LOGE("file read error!\n");
                 return AVI_ERR_READ_FILE_FAIL;
@@ -289,12 +272,11 @@ Description:
     1. indx_reader is init.
     2. search a chunk which chunkid is match to reader->dwChunkId.
     3. search all indx chunk!
-    4. ������AVI_ERR_SEARCH_INDEX_CHUNK_END��ʱ��1��ʾ���꣬2��ʾû�ж���chunk entry�ˡ�
        
 Parameters:
     *ck_offset: chunk offset.
     *ixtbl_ent_offset: chunk index entry offset.
-    *pchunk_body_size:indx������ָʾ��chunkbody�ĳ��ȡ�
+    *pchunk_body_size:indx chunkbody
 Return:
     AVI_ERR_PARA_ERR;
     AVI_ERR_READ_FILE_FAIL
@@ -303,7 +285,6 @@ Return:
     //AVI_ERR_FILE_DATA_WRONG
 Time: 2009/6/2
 *******************************************************************************/
-//cdx_int32 search_next_ODML_index_entry(ODML_SUPERINDEX_READER *pSuperReader, AVI_CHUNK_POSITION *pck_pos, cdx_int32 *pchunk_body_size)
 cdx_int32 SearchNextODMLIndexEntry(ODML_SUPERINDEX_READER *pSuperReader, AVI_CHUNK_POSITION *pCkPos)
 {
     cdx_int32   ret;
@@ -519,7 +500,8 @@ cdx_int16 AviBuildIdxForODMLIndexMode(CdxAviParserImplT *p)
         }
     }
     memset(aviIn->idx1Buf, 0, MAX_IDX_BUF_SIZE_FOR_INDEX_MODE);
-    aviIn->idx1BufEnd = (cdx_uint32*)((cdx_uint8 *)aviIn->idx1Buf + MAX_IDX_BUF_SIZE_FOR_INDEX_MODE);
+    aviIn->idx1BufEnd = (cdx_uint32*)((cdx_uint8 *)aviIn->idx1Buf +
+        MAX_IDX_BUF_SIZE_FOR_INDEX_MODE);
 
     //backup current file pointer.
     curFilePos = CdxStreamTell(aviIn->fp);   //movi_start
@@ -559,7 +541,8 @@ cdx_int16 AviBuildIdxForODMLIndexMode(CdxAviParserImplT *p)
             {
                 //because chunk_idx has increase 1 in search_next_ODML_index_entry()
                 pIdxItem->frameIdx = vidReader->chunkCounter - 1;
-                //CDX_LOGD("xxxxxxxxx keyframe idx(%d), AviBuildIdxForODMLIndexMode", pIdxItem->frameIdx);
+                //CDX_LOGD("xxxxxxxxx keyframe idx(%d), AviBuildIdxForODMLIndexMode",
+                //pIdxItem->frameIdx);
                 pIdxItem->vidChunkOffset = chunkPos.ckOffset;
                 pIdxItem->vidChunkIndexOffset = chunkPos.ixTblEntOffset;
                 pIdxItem++;
@@ -602,7 +585,8 @@ cdx_int16 AviBuildIdxForODMLIndexMode(CdxAviParserImplT *p)
             indexChunkOkFlag = 0;
             break;
         }
-        ret = InitialPsrIndxTableReader(&aviIn->audIndxReader, aviIn, p->audioStreamIndexArray[iAud]);
+        ret = InitialPsrIndxTableReader(&aviIn->audIndxReader, aviIn,
+            p->audioStreamIndexArray[iAud]);
         if(ret != AVI_SUCCESS)
         {
             indexChunkOkFlag = 0;
@@ -619,8 +603,9 @@ cdx_int16 AviBuildIdxForODMLIndexMode(CdxAviParserImplT *p)
                 ret = AVI_ERR_ABORT;
                 goto __err0_idx1_buf;
             }
-            vidPts = (cdx_uint32)pIdxItem->frameIdx*p->aviFormat.nMicSecPerFrame/1000;   //unit : ms
-            srchRet = SearchAudioChunkIndxEntryOdmlIndex(audReader, vidPts, pIdxItem, iAud, pAudStrmInfo);
+            vidPts = (cdx_uint32)pIdxItem->frameIdx*p->aviFormat.nMicSecPerFrame/1000; //unit : ms
+            srchRet = SearchAudioChunkIndxEntryOdmlIndex(audReader, vidPts, pIdxItem,
+                iAud, pAudStrmInfo);
             if(srchRet < AVI_SUCCESS) 
             {
                 if(srchRet == AVI_ERR_READ_FILE_FAIL)
@@ -714,7 +699,6 @@ Description:
         Don't call init_psr_indx_table_reader() repeatly and not
         call deinit_psr_indx_table_reader().
 
-
     4.��ʼ��preader�����ɱ�����
       �����ڴ��preader->indxtbl_entry_array��preader->odml_ix_reader.
 
@@ -733,7 +717,8 @@ Return:
     AVI_ERR_FAIL
 Time: 2009/6/2
 *******************************************************************************/
-cdx_int32 InitialPsrIndxTableReader(ODML_SUPERINDEX_READER *pReader, AviFileInT *aviIn, cdx_int32 streamIndex)
+cdx_int32 InitialPsrIndxTableReader(ODML_SUPERINDEX_READER *pReader, AviFileInT *aviIn,
+    cdx_int32 streamIndex)
 {
     cdx_int32   i;
     cdx_int32   ret;
@@ -746,7 +731,7 @@ cdx_int32 InitialPsrIndxTableReader(ODML_SUPERINDEX_READER *pReader, AviFileInT 
     }
     if(aviIn->readmode == READ_CHUNK_SEQUENCE)
     {
-        CDX_LOGD("odml avi in readmode=READ_CHUNK_SEQUENCE, use avi_in->fp in InitialPsrIndxTableReader()");
+        CDX_LOGD("odml avi in readmode=READ_CHUNK_SEQUENCE, use avi_in->fp");
         indxFp = aviIn->fp;   //because in readmode READ_CHUNK_SEQUENCE, idx_fp is NULL.
     }
     else
@@ -760,23 +745,28 @@ cdx_int32 InitialPsrIndxTableReader(ODML_SUPERINDEX_READER *pReader, AviFileInT 
         pReader->dwChunkId = sInfo->indx->dwChunkId;//byte low->high, "00db"
         pReader->indxTblEntryCnt = sInfo->indx->nEntriesInUse;
         pReader->indxTblEntryIdx = -1;
-        pReader->fpSuperindexTable = pReader->fpPos = sInfo->indxTblOffset;  //first default point to super index chunk's header.
+        pReader->fpSuperindexTable = pReader->fpPos = sInfo->indxTblOffset;
+        //first default point to super index chunk's header.
         pReader->idxFp = indxFp;
         pReader->readEndFlg = 0;
-        CDX_LOGV("stream index[%d], indxtbl_entry_cnt[%d]\n", streamIndex, pReader->indxTblEntryCnt);
+        CDX_LOGV("stream index[%d], indxtbl_entry_cnt[%d]\n", streamIndex,
+            pReader->indxTblEntryCnt);
         if(pReader->indxTblEntryCnt > 0)
         {
-            pReader->indxTblEntryArray = malloc(pReader->indxTblEntryCnt * sizeof(struct OdmlIndxTblEntry));
+            pReader->indxTblEntryArray = malloc(pReader->indxTblEntryCnt *
+                sizeof(struct OdmlIndxTblEntry));
             if(NULL == pReader->indxTblEntryArray)
             {
                 ret = AVI_ERR_REQMEM_FAIL;
                 goto _error1;
             }
-            memset(pReader->indxTblEntryArray, 0, pReader->indxTblEntryCnt * sizeof(struct OdmlIndxTblEntry));
+            memset(pReader->indxTblEntryArray, 0, pReader->indxTblEntryCnt *
+                sizeof(struct OdmlIndxTblEntry));
             for(i=0; i<pReader->indxTblEntryCnt; i++)
             {
                 (pReader->indxTblEntryArray + i)->qwOffset
-                    = (cdx_int64)sInfo->indx->aIndex[i]->offsetHigh<<32 | sInfo->indx->aIndex[i]->offsetLow;
+                    = (cdx_int64)sInfo->indx->aIndex[i]->offsetHigh<<32 |
+                    sInfo->indx->aIndex[i]->offsetLow;
                 (pReader->indxTblEntryArray + i)->dwSize = sInfo->indx->aIndex[i]->size;
                 (pReader->indxTblEntryArray + i)->dwDuration = sInfo->indx->aIndex[i]->duration;
             }
@@ -845,7 +835,8 @@ cdx_int32 InitialPsrIndxTableReader(ODML_SUPERINDEX_READER *pReader, AviFileInT 
             ret = AVI_ERR_REQMEM_FAIL;
             goto _error2;
         }
-        preader->fp_pos = sinfo->indxtbl_offset;  //first default point to super index chunk's header.
+        preader->fp_pos = sinfo->indxtbl_offset;
+        //first default point to super index chunk's header.
         preader->idx_fp = indx_fp;
         preader->read_end_flg = 0;
         ret = AVI_SUCCESS;
@@ -878,4 +869,3 @@ void DeinitialPsrIndxTableReader(ODML_SUPERINDEX_READER *pReader)
     }
     memset(pReader, 0, sizeof(ODML_SUPERINDEX_READER));
 }
-

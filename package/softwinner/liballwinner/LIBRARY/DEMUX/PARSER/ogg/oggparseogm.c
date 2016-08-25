@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : oggparseogm.c
+ * Description : oggparseogm
+ * History :
+ *
+ */
+
 //#define LOG_NDEBUG 0
 #define LOG_TAG "ParseOgm"
 #include "CdxOggParser.h"
@@ -59,7 +69,8 @@ static AVCodecTag ff_codec_bmp_tags[] = {
     { CDX_CODEC_ID_MPEG4,        MKTAG('U', 'L', 'D', 'X') },
     { CDX_CODEC_ID_MPEG4,        MKTAG('G', 'E', 'O', 'V') },
     { CDX_CODEC_ID_MPEG4,        MKTAG('S', 'I', 'P', 'P') }, /* Samsung SHR-6040 */
-    { CDX_CODEC_ID_MSMPEG4V3,    MKTAG('D', 'I', 'V', '3') }, /* default signature when using MSMPEG4 */
+    { CDX_CODEC_ID_MSMPEG4V3,    MKTAG('D', 'I', 'V', '3') }, /* default signature
+                                                                 when using MSMPEG4 */
     { CDX_CODEC_ID_MSMPEG4V3,    MKTAG('M', 'P', '4', '3') },
     { CDX_CODEC_ID_MSMPEG4V3,    MKTAG('M', 'P', 'G', '3') },
     { CDX_CODEC_ID_MSMPEG4V3,    MKTAG('D', 'I', 'V', '5') },
@@ -106,8 +117,10 @@ static AVCodecTag ff_codec_bmp_tags[] = {
     { CDX_CODEC_ID_MJPEG,        MKTAG('m', 'j', 'p', 'a') },
     { CDX_CODEC_ID_LJPEG,        MKTAG('L', 'J', 'P', 'G') },
     { CDX_CODEC_ID_MJPEG,        MKTAG('J', 'P', 'G', 'L') }, /* Pegasus lossless JPEG */
-    { CDX_CODEC_ID_JPEGLS,       MKTAG('M', 'J', 'L', 'S') }, /* JPEG-LS custom FOURCC for avi - encoder */
-    { CDX_CODEC_ID_MJPEG,        MKTAG('M', 'J', 'L', 'S') }, /* JPEG-LS custom FOURCC for avi - decoder */
+    { CDX_CODEC_ID_JPEGLS,       MKTAG('M', 'J', 'L', 'S') }, /* JPEG-LS custom FOURCC
+                                                                 for avi - encoder */
+    { CDX_CODEC_ID_MJPEG,        MKTAG('M', 'J', 'L', 'S') }, /* JPEG-LS custom FOURCC
+                                                                 for avi - decoder */
     { CDX_CODEC_ID_MJPEG,        MKTAG('j', 'p', 'e', 'g') },
     { CDX_CODEC_ID_MJPEG,        MKTAG('I', 'J', 'P', 'G') },
     { CDX_CODEC_ID_MJPEG,        MKTAG('A', 'V', 'R', 'n') },
@@ -226,7 +239,6 @@ static AVCodecTag ff_codec_bmp_tags[] = {
 
 int cdx_vorbis_comment(CdxOggParser *ogg, AVMetadata **m, const cdx_uint8 *buf, int size);
 
-
 static cdx_uint32 bytestream_get_buffer(const cdx_uint8 **b, cdx_uint8 *dst, cdx_uint32 size)
 {
     memcpy(dst, *b, size);
@@ -310,7 +322,6 @@ ogm_header(CdxOggParser *ogg, int idx)
     return 1;
 }
 
-
 static int
 ogm_packet(CdxOggParser *ogg, int idx_os)
 {
@@ -357,4 +368,3 @@ const struct ogg_codec cdx_ff_ogm_text_codec = {
     .granule_is_start = 1,
     .nb_header = 2,
 };
-

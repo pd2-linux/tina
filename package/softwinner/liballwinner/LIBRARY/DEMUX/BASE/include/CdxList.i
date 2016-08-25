@@ -173,5 +173,3 @@ CDX_INTERFACE int CdxListIsSingular(const struct CdxListS *list)
 {
 	return !CdxListEmpty(list) && (list->head == list->tail);
 }
-
-

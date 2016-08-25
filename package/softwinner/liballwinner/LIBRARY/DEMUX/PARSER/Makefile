@@ -90,7 +90,10 @@ ifeq ($(CONFIG_HAVE_LIVE555), $(OPTION_HAVE_LIVE555))
 SourcePath +=       ./remux
 endif
                        
-SourcePath := $(filter-out $(MpgPath), $(SourcePath))
+ifeq ($(CONFIG_MMS), $(OPTION_MMS_ENABLE))
+SourcePath +=       ./mms \
+                    ./mmshttp
+endif
                        
 VPATH := $(SourcePath)
 
@@ -163,9 +166,15 @@ ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI))
 LoadFlags +=-L../../EXTERNAL/lib32/muslgnueabi
 LoadFlags +=-L../../libcedarc/library/lib32/muslgnueabi
 endif
+
 ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI64))
 LoadFlags +=-L../../EXTERNAL/lib64/muslgnueabi
 LoadFlags +=-L../../libcedarc/library/lib64/muslgnueabi64
+endif
+
+ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI310))
+LoadFlags +=-L../../EXTERNAL/lib32/muslgnueabi
+LoadFlags += -L../../libcedarc/library/lib32/muslgnueabi_linux310
 endif
 
 LoadFlags += -L../BASE/
@@ -226,7 +235,7 @@ $(DependFiles):$(DepCommonPath)/%.d:%.c
 	$(CC) -MM $(CompileFlags) $< > $@.$$$$; \
 	sed 's,.*\.o[:]*,$(ObjCommonPath)\/$*\.o $@: ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
-	@echo "updating    $@"
+#	@echo "updating    $@"
 
 ## include the .d files to set dependency rules.
 ifneq ($(MAKECMDGOALS),clean)
@@ -236,5 +245,3 @@ ifneq ($(MAKECMDGOALS),cleanall)
 endif
 endif
 endif
-
-

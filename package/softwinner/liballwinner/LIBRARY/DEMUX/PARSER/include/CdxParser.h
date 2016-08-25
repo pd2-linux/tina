@@ -1,14 +1,29 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxParser.h
+ * Description : Parser
+ * History :
+ *
+ */
+
 #ifndef CDX_PARSER_H
 #define CDX_PARSER_H
 
 #include <errno.h>
 #include <stdint.h>
+#include <string.h>
 #include <CdxTypes.h>
 #include <CdxLog.h>
 #include <CdxStream.h>
 #include <vdecoder.h>
 #include <adecoder.h>
 #include <sdecoder.h>
+
+#ifdef __ANDROID__
+#include <cutils/properties.h>
+#endif
 
 enum CdxParserTypeE
 {
@@ -61,7 +76,6 @@ typedef struct CdxParserCreatorS CdxParserCreatorT;
 typedef struct CdxParserS CdxParserT;
 //typedef struct ParserMetaDataS ParserMetaDataT;
 
-
 #define MINOR_STREAM    0x0001 /*0 major stream, 1 minor stream*/
 #define FIRST_PART      0x0002
 #define LAST_PART       0x0004
@@ -107,8 +121,8 @@ enum EPARSERNOTIFY  //* notify.
 {
     PARSER_NOTIFY_VIDEO_STREAM_CHANGE = 0x100,
     PARSER_NOTIFY_AUDIO_STREAM_CHANGE,
+    PARSER_NOTIFY_TIMESHIFT_END_INFO,
 };
-
 
 enum CdxParserCommandE
 {
@@ -121,7 +135,7 @@ enum CdxParserCommandE
 
     CDX_PSR_CMD_SET_DURATION,
     CDX_PSR_CMD_REPLACE_STREAM,
-	CDX_PSR_CMD_SET_LASTSEGMENT_FLAG,
+    CDX_PSR_CMD_SET_LASTSEGMENT_FLAG,
     CDX_PSR_CMD_CLR_INFO,
     
     CDX_PSR_CMD_STREAM_SEEK,
@@ -133,25 +147,28 @@ enum CdxParserCommandE
     CDX_PSR_CMD_SET_HDCP,
     CDX_PSR_CMD_SET_SECURE_BUFFER_COUNT,
     CDX_PSR_CMD_SET_SECURE_BUFFERS,
-	CDX_PSR_CMD_GET_STREAM_EXTRADATA,
+    CDX_PSR_CMD_GET_STREAM_EXTRADATA,
 
     // get the shiftTimeUrl for cmcc livemode1&2 seekTo
     CDX_PSR_CMD_GET_REDIRECT_URL,
 
     // for cmcc get the stream url in LogRecorder
     CDX_PSR_CMD_GET_URL,
-	// get the statusCode of http
+    // get the statusCode of http
     CDX_PSR_CMD_GET_STREAM_STATUSCODE,
-	// for Ali YUNOS get TS info
-	CDX_PSR_CMD_GET_TS_M3U_BANDWIDTH,
-	CDX_PSR_CMD_GET_TS_SEQ_NUM,
-	CDX_PSR_CMD_GET_TS_LENGTH,
-	CDX_PSR_CMD_GET_TS_DURATION,
-	CDX_PSR_CMD_SET_YUNOS_UUID,
+    // for Ali YUNOS get TS info
+    CDX_PSR_CMD_GET_TS_M3U_BANDWIDTH,
+    CDX_PSR_CMD_GET_TS_SEQ_NUM,
+    CDX_PSR_CMD_GET_TS_LENGTH,
+    CDX_PSR_CMD_GET_TS_DURATION,
+    CDX_PSR_CMD_SET_YUNOS_UUID,
+
+    // for cmcc timeShift set lastSeqNum
+    CDX_PSR_CMD_SET_TIMESHIFT_LAST_SEQNUM,
 
     // parser and stream use the same setCallback cmd, 
     // the code below must be the end of  this structure
-	CDX_PSR_CMD_SET_CALLBACK = STREAM_CMD_SET_CALLBACK,
+    CDX_PSR_CMD_SET_CALLBACK = STREAM_CMD_SET_CALLBACK,
 };
 
 enum CdxParserStatusE
@@ -170,7 +187,6 @@ enum CdxParserStatusE
 #define AUDIO_STREAM_LIMIT 32
 #define VIDEO_STREAM_LIMIT 1
 #define SUBTITLE_STREAM_LIMIT 32
-
 
 struct VideoInfo
 {
@@ -191,7 +207,6 @@ struct SubtitleInfo
     SubtitleStreamInfo subtitle[SUBTITLE_STREAM_LIMIT];
 };
 
-
 struct CdxProgramS
 {
     cdx_int32 id;
@@ -200,11 +215,13 @@ struct CdxProgramS
     cdx_int32 audioNum, audioIndex;
     cdx_int32 videoNum, videoIndex;
     cdx_int32 subtitleNum, subtitleIndex;
-	cdx_int64 firstPts;
+    cdx_int64 firstPts;
     
     AudioStreamInfo    audio[AUDIO_STREAM_LIMIT];
     VideoStreamInfo    video[VIDEO_STREAM_LIMIT];
     SubtitleStreamInfo subtitle[SUBTITLE_STREAM_LIMIT];
+    cdx_uint64 audioIndexMask;
+    cdx_uint64 videoIndexMask;
 };
 
 #define PROGRAM_LIMIT 1 //no switch program interface now, so limit 1
@@ -221,24 +238,24 @@ struct CdxMediaInfoS
     cdx_void *privData;
 
     cdx_uint8   album[64];
-	cdx_int32   albumsz;
-	cdx_int32	albumCharEncode;
+    cdx_int32   albumsz;
+    cdx_int32    albumCharEncode;
 
-	cdx_uint8   author[64];
-	cdx_int32   authorsz;
-	cdx_int32   authorCharEncode;
+    cdx_uint8   author[64];
+    cdx_int32   authorsz;
+    cdx_int32   authorCharEncode;
 
-	cdx_uint8   genre[64];
-	cdx_int32   genresz;
-	cdx_int32   genreCharEncode;
+    cdx_uint8   genre[64];
+    cdx_int32   genresz;
+    cdx_int32   genreCharEncode;
 	
     cdx_uint8   title[64];
-	cdx_int32   titlesz;
-	cdx_int32   titleCharEncode;
+    cdx_int32   titlesz;
+    cdx_int32   titleCharEncode;
 
-	cdx_uint8   year[64];
-	cdx_int32   yearsz;
-	cdx_int32   yearCharEncode;
+    cdx_uint8   year[64];
+    cdx_int32   yearsz;
+    cdx_int32   yearCharEncode;
 	
     cdx_uint8   composer[64];
     cdx_uint8   date[64];
@@ -249,8 +266,8 @@ struct CdxMediaInfoS
     cdx_uint8   location[64];
     cdx_uint8   rotate[4];
     cdx_int32   discNumber;
-	cdx_uint8   *pAlbumArtBuf;
-	cdx_int32	nAlbumArtBufSize;
+    cdx_uint8   *pAlbumArtBuf;
+    cdx_int32    nAlbumArtBufSize;
 };
 
 #define MUTIL_AUDIO         0x0001U /*will disable switch audio*/
@@ -290,14 +307,15 @@ struct CdxMediaInfoS
 typedef struct HdcpOpsS HdcpOps;
 struct HdcpOpsS
 {
-	int (*init)(void **);
+    int (*init)(void **);
     void (*deinit)(void *);
-    cdx_uint32 (*decrypt)(void *handle, const cdx_uint8 privateData[16], const cdx_uint8 *in, cdx_uint8 *out, cdx_uint32 len, int streamType);
+    cdx_uint32 (*decrypt)(void *handle, const cdx_uint8 privateData[16],
+                          const cdx_uint8 *in, cdx_uint8 *out, cdx_uint32 len, int streamType);
 };
 typedef struct DownloadObjectS DownloadObject;
 struct DownloadObjectS
 {
-	int seqNum;
+    int seqNum;
     char *uri;
     int statusCode; //http statusCode
     cdx_int64 seqSize;    //segment size, byte
@@ -306,29 +324,36 @@ struct DownloadObjectS
     cdx_int64 rate;       //bps
 };
 
+typedef struct TimeShiftEndInfoS TimeShiftEndInfoT;
+struct TimeShiftEndInfoS
+{
+    int timeShiftLastSeqNum;
+    cdx_int64 timeShiftDuration;
+};
+
 struct CdxParserCreatorS
 {
-	CdxParserT *(*create)(CdxStreamT *, cdx_uint32 /*flags*/);
-	cdx_uint32 (*probe)(CdxStreamProbeDataT *);/*return score(0-100)*/
+    CdxParserT *(*create)(CdxStreamT *, cdx_uint32 /*flags*/);
+    cdx_uint32 (*probe)(CdxStreamProbeDataT *);/*return score(0-100)*/
 };
 
 struct CdxParserOpsS
 {
-	cdx_int32 (*control)(CdxParserT *, cdx_int32 /* cmd */, void * /* param */);
+    cdx_int32 (*control)(CdxParserT *, cdx_int32 /* cmd */, void * /* param */);
 	
-	cdx_int32 (*prefetch)(CdxParserT *, CdxPacketT * /* pkt */);
+    cdx_int32 (*prefetch)(CdxParserT *, CdxPacketT * /* pkt */);
 	
-	cdx_int32 (*read)(CdxParserT *, CdxPacketT * /* pkt */);
+    cdx_int32 (*read)(CdxParserT *, CdxPacketT * /* pkt */);
 	
-	cdx_int32 (*getMediaInfo)(CdxParserT *, CdxMediaInfoT * /* MediaInfo */);
+    cdx_int32 (*getMediaInfo)(CdxParserT *, CdxMediaInfoT * /* MediaInfo */);
 
-	cdx_int32 (*seekTo)(CdxParserT *, cdx_int64 /* timeUs */);
+    cdx_int32 (*seekTo)(CdxParserT *, cdx_int64 /* timeUs */);
 
     cdx_uint32 (*attribute)(CdxParserT *); /*return falgs define as open's falgs*/
 
     cdx_int32 (*getStatus)(CdxParserT *); /*return enum CdxPrserStatusE*/
     
-	cdx_int32 (*close)(CdxParserT *);
+    cdx_int32 (*close)(CdxParserT *);
 
     cdx_int32 (*init)(CdxParserT *);
 };
@@ -355,8 +380,9 @@ extern "C"
 int AwParserRegister(CdxParserCreatorT *creator, CdxParserTypeT type, 
                     struct ParserUriKeyInfoS *keyInfo);
 
-int CdxParserPrepare(CdxDataSourceT *source, cdx_uint32 flags, pthread_mutex_t *mutex, cdx_bool *exit,
-    CdxParserT **parser, CdxStreamT **stream, ContorlTask *parserTasks, ContorlTask *streamTasks);
+int CdxParserPrepare(CdxDataSourceT *source, cdx_uint32 flags, pthread_mutex_t *mutex,
+                     cdx_bool *exit, CdxParserT **parser, CdxStreamT **stream,
+                     ContorlTask *parserTasks, ContorlTask *streamTasks);
 CdxParserT *CdxParserCreate(CdxStreamT *, cdx_uint32 /*flags*/);
 int CdxParserOpen(CdxStreamT *stream, cdx_uint32 flags, pthread_mutex_t *mutex, cdx_bool *exit,
     CdxParserT **parser, ContorlTask *parserTasks);
@@ -395,73 +421,165 @@ static void PrintMediaInfo(CdxMediaInfoT *mediaInfo)
     CDX_LOGD("*********PrintMediaInfo begin*********");
     struct CdxProgramS *program = &mediaInfo->program[0];
 	
-	CDX_LOGD("fileSize = %lld, "
-			"bSeekable = %d, "
-			"duration = %d, "
-			"audioNum = %d, "
-			"videoNum = %d, "
-			"subtitleNum = %d ",
-			mediaInfo->fileSize,
-			mediaInfo->bSeekable,
-			program->duration,
-			program->audioNum,
-			program->videoNum,
-			program->subtitleNum);
+    CDX_LOGD("fileSize = %lld, "
+            "bSeekable = %d, "
+            "duration = %d, "
+            "audioNum = %d, "
+            "videoNum = %d, "
+            "subtitleNum = %d ",
+            mediaInfo->fileSize,
+            mediaInfo->bSeekable,
+            program->duration,
+            program->audioNum,
+            program->videoNum,
+            program->subtitleNum);
     int i;
     for (i = 0; i < VIDEO_STREAM_LIMIT && i < program->videoNum; i++)
     {
         VideoStreamInfo *video = program->video + i;
-        CDX_UNUSE(video);
-		CDX_LOGD("***Video[%d]*** "
-				"eCodecFormat = 0x%x, "
-				"nWidth = %d, "
-				"nHeight = %d, "
-				"nFrameRate = %d, "
-				"nFrameDuration = %d, "
-				"bIs3DStream = %d ",
-				i,
-				video->eCodecFormat,
-				video->nWidth,
-				video->nHeight,
-				video->nFrameRate,
-				video->nFrameDuration,
-				video->bIs3DStream);
+        CDX_LOGD("***Video[%d]*** "
+                "eCodecFormat = 0x%x, "
+                "nWidth = %d, "
+                "nHeight = %d, "
+                "nFrameRate = %d, "
+                "nFrameDuration = %d, "
+                "bIs3DStream = %d ",
+                i,
+                video->eCodecFormat,
+                video->nWidth,
+                video->nHeight,
+                video->nFrameRate,
+                video->nFrameDuration,
+                video->bIs3DStream);
 
     }
     
     for (i = 0; i < AUDIO_STREAM_LIMIT && i < program->audioNum; i++)
     {
         AudioStreamInfo *audio = program->audio + i;
-        CDX_UNUSE(audio);
         CDX_LOGD("***Audio[%d]*** "
-				"eCodecFormat = 0x%x, "
-				"eSubCodecFormat = 0x%x, "
-				"nChannelNum = %d, "
-				"nBitsPerSample = %d, "
-				"nSampleRate = %d ",
-				i,
-				audio->eCodecFormat,
-				audio->eSubCodecFormat,
-				audio->nChannelNum,
-				audio->nBitsPerSample,
-				audio->nSampleRate);
+                "eCodecFormat = 0x%x, "
+                "eSubCodecFormat = 0x%x, "
+                "nChannelNum = %d, "
+                "nBitsPerSample = %d, "
+                "nSampleRate = %d ",
+                i,
+                audio->eCodecFormat,
+                audio->eSubCodecFormat,
+                audio->nChannelNum,
+                audio->nBitsPerSample,
+                audio->nSampleRate);
 
     }
     
     for (i = 0; i < SUBTITLE_STREAM_LIMIT && i < program->subtitleNum; i++)
     {
         SubtitleStreamInfo *subtitle = program->subtitle + i;
-        CDX_UNUSE(subtitle);
-		CDX_LOGD("***Subtitle[%d]*** "
-				"eCodecFormat = 0x%x, "
-				"strLang = (%s) ",
-				i,
-				subtitle->eCodecFormat,
-				subtitle->strLang);
+
+        CDX_LOGD("***Subtitle[%d]*** "
+                "eCodecFormat = 0x%x, "
+                "strLang = (%s) ",
+                i,
+                subtitle->eCodecFormat,
+                subtitle->strLang);
     }
 
     CDX_LOGD("*********PrintMediaInfo end*********");
 }
+
+#ifdef __ANDROID__
+#define ACODEC "ro.codec.audio."
+#define VCODEC "ro.codec.video."
+static int AudioCodecIsForbidden(int eCodecFormat)
+{
+    char value[PROP_VALUE_MAX] = {0};
+    switch (eCodecFormat)
+    {
+    case AUDIO_CODEC_FORMAT_AC3:
+    case AUDIO_CODEC_FORMAT_DTS:
+        property_get(ACODEC "dts", value, "0");
+        if (!strcmp(value, "off"))
+            return 1;
+        break;
+    case AUDIO_CODEC_FORMAT_COOK:
+        property_get(ACODEC "cook", value, "0");
+        if (!strcmp(value, "off"))
+            return 1;
+        break;
+    case AUDIO_CODEC_FORMAT_WMA_STANDARD:
+    case AUDIO_CODEC_FORMAT_WMA_LOSS:
+    case AUDIO_CODEC_FORMAT_WMA_PRO:
+        property_get(ACODEC "wma", value, "0");
+        if (!strcmp(value, "off"))
+            return 1;
+        break;
+    default:
+        break;
+    }
+
+    return 0;
+}
+
+static int VideoCodecIsForbidden(int eCodecFormat)
+{
+    char value[PROP_VALUE_MAX] = {0};
+    switch (eCodecFormat)
+    {
+    case VIDEO_CODEC_FORMAT_DIVX5:
+        property_get(VCODEC "divx5", value, "0");
+        if (!strcmp(value, "off"))
+            return 1;
+        break;
+    case VIDEO_CODEC_FORMAT_RX:
+        property_get(VCODEC "rx", value, "0");
+        if (!strcmp(value, "off"))
+            return 1;
+        break;
+    case VIDEO_CODEC_FORMAT_WMV3:
+        property_get(VCODEC "vc-1", value, "0");
+        if (!strcmp(value, "off"))
+            return 1;
+        break;
+    default:
+        break;
+    }
+
+    return 0;
+}
+
+static int FilterForbiddenStream(CdxMediaInfoT *mediaInfo)
+{
+    struct CdxProgramS *program = &mediaInfo->program[0];
+    int i;
+
+    int videoNum = program->videoNum;
+    program->videoIndexMask = 0;
+    for (i = 0; i < videoNum && i < VIDEO_STREAM_LIMIT; i++)
+    {
+        VideoStreamInfo *video = program->video + i;
+        if (VideoCodecIsForbidden(video->eCodecFormat))
+        {
+            logw("video codec %d is forbidden", video->eCodecFormat);
+            program->videoIndexMask |= 1 << i;
+        }
+    }
+
+    int audioNum = program->audioNum;
+    program->audioIndexMask = 0;
+    for (i = 0;  i < audioNum && i < AUDIO_STREAM_LIMIT; i++)
+    {
+        AudioStreamInfo *audio = program->audio + i;
+        if (AudioCodecIsForbidden(audio->eCodecFormat))
+        {
+            logw("audio codec %d is forbidden", audio->eCodecFormat);
+            /* Todo: forbidden the evil one, not anyone */
+            program->audioIndexMask |= 1 << i;
+        }
+    }
+
+    return 0;
+}
+#endif
 
 static inline cdx_int32 CdxParserGetMediaInfo(CdxParserT *parser, CdxMediaInfoT *mediaInfo)
 {
@@ -471,6 +589,9 @@ static inline cdx_int32 CdxParserGetMediaInfo(CdxParserT *parser, CdxMediaInfoT 
     CDX_CHECK(parser->ops->getMediaInfo);
     ret = parser->ops->getMediaInfo(parser, mediaInfo);
     PrintMediaInfo(mediaInfo);
+#ifdef __ANDROID__
+    FilterForbiddenStream(mediaInfo);
+#endif
     return ret;
 }
 
@@ -513,12 +634,11 @@ static inline cdx_int32 CdxParserInit(CdxParserT *parser)
     CDX_CHECK(parser->ops->init);
     return parser->ops->init(parser);
 }
-enum
-{
-	PROBE_SPECIFIC_DATA_ERROR =-3,
-	PROBE_SPECIFIC_DATA_NONE  =-2,
-	PROBE_SPECIFIC_DATA_UNCOMPELETE = -1,
-	PROBE_SPECIFIC_DATA_SUCCESS  = 1,
+enum {
+    PROBE_SPECIFIC_DATA_ERROR =-3,
+    PROBE_SPECIFIC_DATA_NONE  =-2,
+    PROBE_SPECIFIC_DATA_UNCOMPELETE = -1,
+    PROBE_SPECIFIC_DATA_SUCCESS  = 1,
 };
 cdx_int32 ProbeVideoSpecificData(VideoStreamInfo* pVideoInfo, cdx_uint8* pDataBuf, 
     cdx_uint32 dataLen, cdx_uint32 eVideoCodecFormat, enum CdxParserTypeE type);
@@ -529,4 +649,3 @@ cdx_int32 probeH265RefPictureNumber(cdx_uint8* pDataBuf, cdx_uint32 nDataLen);
 #endif
 
 #endif
-

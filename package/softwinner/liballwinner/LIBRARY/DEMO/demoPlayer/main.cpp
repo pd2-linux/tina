@@ -119,22 +119,22 @@ static int readCommand(char* strCommandLine, int nMaxLineSize)
     {
         if(FD_ISSET(STDIN_FILENO, &readFdSet))
         {
-    		nReadBytes = read(STDIN_FILENO, &strCommandLine[0], nMaxLineSize);
-    		if(nReadBytes > 0)
-    		{
-    		    p = strCommandLine;
-    		    while(*p != 0)
-    		    {
-    		        if(*p == 0xa)
-    		        {
-    		            *p = 0;
-    		            break;
-    		        }
-    		        p++;
-    		    }
-    		}
-    		
-    		return 0;
+		nReadBytes = read(STDIN_FILENO, &strCommandLine[0], nMaxLineSize);
+		if(nReadBytes > 0)
+		{
+		    p = strCommandLine;
+		    while(*p != 0)
+		    {
+		        if(*p == 0xa)
+		        {
+		            *p = 0;
+		            break;
+		        }
+		        p++;
+		    }
+		}
+
+		return 0;
         }
 	}
 	
@@ -641,4 +641,3 @@ int main(int argc, char** argv)
 	
 	return 0;
 }
-

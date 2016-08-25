@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxHttpStream.c
+ * Description : Http stream implementation.
+ * History :
+ *
+ */
+
 //#define CONFIG_LOG_LEVEL 3
 #define LOG_TAG "httpStream"
 
@@ -11,7 +21,7 @@
 #include <stdint.h>
 
 #define PROBE_DATA_LEN_DEFAULT (128*1024) 
-#define MAX_STREAM_BUF_SIZE (2*1024*1024)//(5*1024*1024)
+#define MAX_STREAM_BUF_SIZE (10*1024*1024)
 #define PROTECT_AREA_SIZE (512*1024)  //should not too big
 #define TEMP_HTTP_DATA_BUF (PROBE_DATA_LEN_DEFAULT + 4096)
 #define RE_CONNECT_TIME (3600) //* unit: second
@@ -44,23 +54,23 @@ static cdx_int64 GetNowUs()
 
 static int CallbackProcess(void* pUserData, int eMessageId, void* param)
 {
-	CdxHttpStreamImplT *impl = (CdxHttpStreamImplT *)pUserData;
+    CdxHttpStreamImplT *impl = (CdxHttpStreamImplT *)pUserData;
 
     switch(eMessageId)
     {
         case STREAM_EVT_DOWNLOAD_DOWNLOAD_ERROR:
-		{
-			if(param != NULL)
-			{
-				impl->callback(impl->pUserData, STREAM_EVT_DOWNLOAD_DOWNLOAD_ERROR, param);
-			}
-			break;
+        {
+            if(param != NULL)
+            {
+                impl->callback(impl->pUserData, STREAM_EVT_DOWNLOAD_DOWNLOAD_ERROR, param);
+            }
+            break;
         }
         default:
             logw("ignore demux callback message, eMessageId = 0x%x.", eMessageId);
             return -1;
     }
-	return 0;
+    return 0;
 }
 
 static cdx_int32 CdxHttpSendRequest(CdxHttpStreamImplT *impl, cdx_int64 pos)
@@ -110,7 +120,8 @@ static cdx_int32 CdxHttpSendRequest(CdxHttpStreamImplT *impl, cdx_int64 pos)
             snprintf(str, sizeof(str), "%s: %s",impl->pHttpHeader[i].key,
                                                 impl->pHttpHeader[i].val);
             CdxHttpSetField(httpHdr, str);
-            //CDX_LOGV("xxx http header key: %s, val:%s", impl->pHttpHeader[i].key,impl->pHttpHeader[i].val);
+            /*CDX_LOGV("xxx http header key: %s, val:%s",
+            impl->pHttpHeader[i].key,impl->pHttpHeader[i].val);*/
         }
     }
     snprintf(str, sizeof(str), "User-Agent: %s",impl->ua);//set User-Agent
@@ -118,18 +129,26 @@ static cdx_int32 CdxHttpSendRequest(CdxHttpStreamImplT *impl, cdx_int64 pos)
 
     if(setRangeFlag == 0)//user not set Range
     {
-        if (pos >= 0)//pos=0, whence=SEEK_SET, for detecting if a server supports seeking by analysing the reply headers.
+        if (pos >= 0)
+            /*pos=0, whence=SEEK_SET, for detecting if a server supports seeking by
+            analysing the reply headers.*/
         {
-            snprintf(str, sizeof(str), "Range: bytes=%lld-", pos);//"Range: bytes=pos-" field. PRId64=lld    
+            snprintf(str, sizeof(str), "Range: bytes=%lld-", pos);
+            //"Range: bytes=pos-" field. PRId64=lld
             CdxHttpSetField(httpHdr, str);
         }
     }
 
     //referer pass from app...
     //snprintf(str, sizeof(str), "Referer: %s://%s", serverUrl->protocol, serverUrl->hostname);
-    //CdxHttpSetField(httpHdr, str);//if no referer header, for example(http://flv.cntv.wscdns.com/live/flv/channel15.flv), response 403.
-
-    CdxHttpSetField(httpHdr, "Connection: close");//"Connection: close" field. Keep-Alive?
+    //CdxHttpSetField(httpHdr, str);
+    /*if no referer header, for example(http://flv.cntv.wscdns.com/live/flv/channel15.flv),
+    response 403.*/
+#ifndef HTTP_KEEP_ALIVE
+    CdxHttpSetField(httpHdr, "Connection: close");
+#else
+    CdxHttpSetField(httpHdr, "Connection: Keep-Alive");
+#endif
     
     httpHdr->httpMinorVersion = 1;
     if(CdxHttpBuildRequest(httpHdr) == NULL) //store in http_hdr->buffer
@@ -166,65 +185,68 @@ static cdx_int32 CdxHttpSendRequest(CdxHttpStreamImplT *impl, cdx_int64 pos)
 
     tcpSource.uri = str;
 	
-	cdx_int64 startConnect, endConnect, connectTimeMs;
+    cdx_int64 startConnect, endConnect, connectTimeMs;
     startConnect = GetNowUs();
 
-	if(impl->callback)
-	{
-		//* Add Callback for CdxTcpStream
-		struct CallBack cb;
-		cb.callback = CallbackProcess;
-		cb.pUserData = (void *)impl;
-		ContorlTask streamContorlTask;
-		streamContorlTask.cmd = STREAM_CMD_SET_CALLBACK;
-		streamContorlTask.param = (void *)&cb;
-		streamContorlTask.next = NULL;
+    if(impl->callback)
+    {
+        //* Add Callback for CdxTcpStream
+        struct CallBack cb;
+        cb.callback = CallbackProcess;
+        cb.pUserData = (void *)impl;
+        ContorlTask streamContorlTask;
+        streamContorlTask.cmd = STREAM_CMD_SET_CALLBACK;
+        streamContorlTask.param = (void *)&cb;
+        streamContorlTask.next = NULL;
 
-		ret = CdxStreamOpen(&tcpSource, &impl->lock, &impl->forceStopFlag, &impl->tcpStream, &streamContorlTask);//__CdxTcpStreamOpen
-	}
-	else
-	{
-		ret = CdxStreamOpen(&tcpSource, &impl->lock, &impl->forceStopFlag, &impl->tcpStream, NULL);//__CdxTcpStreamOpen
-	}
+        ret = CdxStreamOpen(&tcpSource, &impl->lock, &impl->forceStopFlag, &impl->tcpStream,
+            &streamContorlTask);//__CdxTcpStreamOpen
+    }
+    else
+    {
+        ret = CdxStreamOpen(&tcpSource, &impl->lock, &impl->forceStopFlag, &impl->tcpStream, NULL);
+        //__CdxTcpStreamOpen
+    }
 
-	if(ret < 0)
-	{
-		CDX_LOGE("CdxStreamOpen failed. '%s'", tcpSource.uri);
-		if(ret == -2)
-		{
-			CDX_LOGE("network disconnect! ");
-			int flag = 1;
-			if(impl->callback)
-		    {
-		        impl->callback(impl->pUserData, STREAM_EVT_NET_DISCONNECT, &flag);
-		    }
-		}
-		goto err_out;
-	}
+    if(ret < 0)
+    {
+        CDX_LOGE("CdxStreamOpen failed. '%s'", tcpSource.uri);
+        if(ret == -2)
+        {
+            CDX_LOGE("network disconnect! ");
+            int flag = 1;
+            if(impl->callback)
+            {
+                impl->callback(impl->pUserData, STREAM_EVT_NET_DISCONNECT, &flag);
+            }
+        }
+        goto err_out;
+    }
 
-	int flag = 0;
+    int flag = 0;
     endConnect = GetNowUs();
     connectTimeMs = (endConnect - startConnect) / 1000;
-	if(impl->callback)
+    if(impl->callback)
     {
         impl->callback(impl->pUserData, STREAM_EVT_NET_DISCONNECT, &flag);
 
         //*cmcc 2.1.7.12-m3
         char cmccLog[4096] = "";
-        sprintf(cmccLog, "[info][%s %s %d]Connect server OK! spend time: %lldms", LOG_TAG, __FUNCTION__, __LINE__, connectTimeMs);
+        sprintf(cmccLog, "[info][%s %s %d]Connect server OK! spend time: %lldms",
+            LOG_TAG, __FUNCTION__, __LINE__, connectTimeMs);
         impl->callback(impl->pUserData, STREAM_EVT_CMCC_LOG_RECORD, (void*)cmccLog);
     }
 
-	//cdx_int64 start, end;
-	//start = GetNowUs();
-	ret = CdxStreamWrite(impl->tcpStream, httpHdr->buffer, httpHdr->bufferSize);
-	//end = GetNowUs();
-	//CDX_LOGV("xxx CdxStreamWrite spend time: %lld", end-start);
-	if (ret < 0) 
-	{
-		CDX_LOGE("send error.");
-		goto err_out;
-	}
+    //cdx_int64 start, end;
+    //start = GetNowUs();
+    ret = CdxStreamWrite(impl->tcpStream, httpHdr->buffer, httpHdr->bufferSize);
+    //end = GetNowUs();
+    //CDX_LOGV("xxx CdxStreamWrite spend time: %lld", end-start);
+    if (ret < 0)
+    {
+        CDX_LOGE("send error.");
+        goto err_out;
+    }
 
     CdxHttpFree(httpHdr);
     return 0;
@@ -293,11 +315,11 @@ static CdxHttpHeaderT *CdxHttpReadResponse(CdxHttpStreamImplT *impl)
     }
 
 #if( CONFIG_ALI_YUNOS == OPTION_ALI_YUNOS_YES)
-	impl->downloadFirstTime = GetNowUs();//Ali YUNOS invoke info
-	if(impl->callback)
-	{
-		impl->callback(impl->pUserData, STREAM_EVT_DOWNLOAD_FIRST_TIME, &(impl->downloadFirstTime));
-	}
+    impl->downloadFirstTime = GetNowUs();//Ali YUNOS invoke info
+    if(impl->callback)
+    {
+        impl->callback(impl->pUserData, STREAM_EVT_DOWNLOAD_FIRST_TIME, &(impl->downloadFirstTime));
+    }
 #endif
 
     end = GetNowUs();
@@ -309,15 +331,15 @@ static CdxHttpHeaderT *CdxHttpReadResponse(CdxHttpStreamImplT *impl)
     }
 
 #if( CONFIG_ALI_YUNOS == OPTION_ALI_YUNOS_YES)
-	//Ali YUNOS invoke info http respond header
-	if(httpHdr->posHdrSep > 0)
+    //Ali YUNOS invoke info http respond header
+    if(httpHdr->posHdrSep > 0)
     {
         char *tmpBuf = malloc(httpHdr->posHdrSep);
         memset(tmpBuf, 0x00, httpHdr->posHdrSep);
         memcpy(tmpBuf, httpHdr->buffer, httpHdr->posHdrSep);
 
-		if(impl->callback)
-			impl->callback(impl->pUserData, STREAM_EVT_DOWNLOAD_RESPONSE_HEADER, tmpBuf);
+        if(impl->callback)
+            impl->callback(impl->pUserData, STREAM_EVT_DOWNLOAD_RESPONSE_HEADER, tmpBuf);
         free(tmpBuf);
     }
 #endif
@@ -367,13 +389,13 @@ int AnalyseHttpHeader(CdxHttpStreamImplT *impl, int *haveCookie)
                 *haveCookie = 1;
                 break;
             }
-		#if 0
+        #if 0
             else if(strcasecmp("Set-Cookie", impl->pHttpHeader[i].key) == 0)
             {
                 ret++;
                 *haveCookie = 1;
             }
-		#endif
+        #endif
         }
     }
     return ret;
@@ -391,8 +413,10 @@ void MakeExtraDataContainer(CdxHttpStreamImplT *impl, CdxHttpHeaderT* httpHdr)
     }
     if(num + impl->nHttpHeaderSize > 0)
     {
-        CdxHttpHeaderFieldsT *extraData = (CdxHttpHeaderFieldsT *)malloc(sizeof(CdxHttpHeaderFieldsT));
-        CdxHttpHeaderFieldT *pHttpHeader = (CdxHttpHeaderFieldT *)malloc((num + impl->nHttpHeaderSize) * sizeof(CdxHttpHeaderFieldT));
+        CdxHttpHeaderFieldsT *extraData =
+            (CdxHttpHeaderFieldsT *)malloc(sizeof(CdxHttpHeaderFieldsT));
+        CdxHttpHeaderFieldT *pHttpHeader = (CdxHttpHeaderFieldT *)malloc(
+            (num + impl->nHttpHeaderSize) * sizeof(CdxHttpHeaderFieldT));
         if(!extraData || !pHttpHeader)
         {
             CDX_LOGE("malloc fail.");
@@ -472,7 +496,8 @@ static cdx_int32 ReSetHeaderFields(CdxHttpHeaderFieldsT *pHdrs, CdxHttpStreamImp
     }
 
     impl->nHttpHeaderSize = pHdrs->num;
-    impl->pHttpHeader = (CdxHttpHeaderFieldT *)Palloc(impl->pool, pHdrs->num * sizeof(CdxHttpHeaderFieldT));
+    impl->pHttpHeader = (CdxHttpHeaderFieldT *)Palloc(impl->pool, pHdrs->num *
+        sizeof(CdxHttpHeaderFieldT));
     if(impl->pHttpHeader == NULL)
     {
         loge("malloc failed.");
@@ -481,10 +506,13 @@ static cdx_int32 ReSetHeaderFields(CdxHttpHeaderFieldsT *pHdrs, CdxHttpStreamImp
     
     for(i = 0; i < impl->nHttpHeaderSize; i++)
     {
-        (impl->pHttpHeader + i)->key = (const char *)Pstrdup(impl->pool, (pHdrs->pHttpHeader + i)->key);
-        (impl->pHttpHeader + i)->val = (const char *)Pstrdup(impl->pool, (pHdrs->pHttpHeader + i)->val);
+        (impl->pHttpHeader + i)->key = (const char *)Pstrdup(impl->pool,
+            (pHdrs->pHttpHeader + i)->key);
+        (impl->pHttpHeader + i)->val = (const char *)Pstrdup(impl->pool,
+            (pHdrs->pHttpHeader + i)->val);
         
-        CDX_LOGV("extraDataContainer %s %s", (impl->pHttpHeader + i)->key, (impl->pHttpHeader + i)->val);
+        CDX_LOGV("extraDataContainer %s %s", (impl->pHttpHeader + i)->key,
+            (impl->pHttpHeader + i)->val);
     }
 
     return 0;
@@ -509,11 +537,11 @@ static cdx_int32 CdxHttpStreamingStart(CdxHttpStreamImplT *impl)
 
     do
     {
-    	if(impl->forceStopFlag)
-    	{
-    		CDX_LOGD("forcestop");
-    		goto err_out;
-    	}
+        if(impl->forceStopFlag)
+        {
+            CDX_LOGD("forcestop");
+            goto err_out;
+        }
         if (redirect == 1)
         {
             CdxStreamClose(impl->tcpStream);
@@ -542,7 +570,8 @@ static cdx_int32 CdxHttpStreamingStart(CdxHttpStreamImplT *impl)
         }
         MakeExtraDataContainer(impl, httpHdr);
                         
-        if(httpHdr->httpMinorVersion == 0) //http/1.0 not support range, but some http/1.0 server may not really http/1.0...
+        if(httpHdr->httpMinorVersion == 0)
+            //http/1.0 not support range, but some http/1.0 server may not really http/1.0...
         {
             //seekable = 0;
             CDX_LOGD("Http server version: HTTP/1.%u", httpHdr->httpMinorVersion);
@@ -551,7 +580,8 @@ static cdx_int32 CdxHttpStreamingStart(CdxHttpStreamImplT *impl)
         if(impl->callback)
         {
             char cmccLog[4096] = "";
-            sprintf(cmccLog, "[info][%s %s %d]http status code: %d", LOG_TAG, __FUNCTION__, __LINE__, httpHdr->statusCode);
+            sprintf(cmccLog, "[info][%s %s %d]http status code: %d",
+                LOG_TAG, __FUNCTION__, __LINE__, httpHdr->statusCode);
             impl->callback(impl->pUserData, STREAM_EVT_CMCC_LOG_RECORD, (void*)cmccLog);
         }
         
@@ -578,17 +608,18 @@ static cdx_int32 CdxHttpStreamingStart(CdxHttpStreamImplT *impl)
                 {
                     if((contentRange = CdxHttpGetField(httpHdr, "Content-Range")))
                     {
-						char *p = strchr(contentRange,'/');
-						if(p != NULL)
-						{
-							impl->totalSize = atoll(p + 1);
-							CDX_LOGV("Content-Range: %s, totalSize(%lld)", contentRange, impl->totalSize);
-						}
-						else
-						{
-							CDX_LOGV("wrong Content-Range str->[%s]", p);
-							impl->totalSize = -1;
-						}
+                        char *p = strchr(contentRange,'/');
+                        if(p != NULL)
+                        {
+                            impl->totalSize = atoll(p + 1);
+                            CDX_LOGV("Content-Range: %s, totalSize(%lld)",
+                                contentRange, impl->totalSize);
+                        }
+                        else
+                        {
+                            CDX_LOGV("wrong Content-Range str->[%s]", p);
+                            impl->totalSize = -1;
+                        }
                     }
                     else
                     {
@@ -620,7 +651,8 @@ static cdx_int32 CdxHttpStreamingStart(CdxHttpStreamImplT *impl)
                 contentEncoding = CdxHttpGetField(httpHdr, "Content-Encoding");
                 if(contentEncoding)
                 {
-                    if(!strcasecmp(contentEncoding, "gzip") || !strcasecmp(contentEncoding, "deflate"))
+                    if(!strcasecmp(contentEncoding, "gzip") ||
+                        !strcasecmp(contentEncoding, "deflate"))
                     {
 #if __CONFIG_ZLIB
                         impl->compressed = 1;
@@ -641,6 +673,17 @@ static cdx_int32 CdxHttpStreamingStart(CdxHttpStreamImplT *impl)
 #endif
                     }
                 }
+
+                char *conn = CdxHttpGetField(httpHdr, "Connection");
+                if (conn != NULL)
+                {
+                    if (strcmp(conn, "Keep-Alive") == 0)
+                    {
+                        logd("http keep alive");
+                        impl->keepAlive = 1;
+                    }
+                }
+
                 goto out; 
             }
             // Redirect
@@ -656,7 +699,8 @@ static cdx_int32 CdxHttpStreamingStart(CdxHttpStreamImplT *impl)
                 if(impl->callback)
                 {
                     char cmccLog[4096] = "";
-                    sprintf(cmccLog, "[info][%s %s %d]Redirect url: %s", LOG_TAG, __FUNCTION__, __LINE__, nextUrl);
+                    sprintf(cmccLog, "[info][%s %s %d]Redirect url: %s",
+                        LOG_TAG, __FUNCTION__, __LINE__, nextUrl);
                     impl->callback(impl->pUserData, STREAM_EVT_CMCC_LOG_RECORD, (void*)cmccLog);
                 }
                 
@@ -685,7 +729,7 @@ static cdx_int32 CdxHttpStreamingStart(CdxHttpStreamImplT *impl)
                 else
                 {
                     CDX_LOGW("No redirect uri?");
-					goto err_out;
+                    goto err_out;
                 }
 
                 //*
@@ -699,11 +743,12 @@ static cdx_int32 CdxHttpStreamingStart(CdxHttpStreamImplT *impl)
             {
 
 #if( CONFIG_ALI_YUNOS == OPTION_ALI_YUNOS_YES)
-				if(impl->callback)
-				{
-					impl->mYunOSstatusCode = 3401; //Ali YUNOS invoke info
-				    impl->callback(impl->pUserData, STREAM_EVT_DOWNLOAD_DOWNLOAD_ERROR, &(impl->mYunOSstatusCode));
-				}
+                if(impl->callback)
+                {
+                    impl->mYunOSstatusCode = 3401; //Ali YUNOS invoke info
+                    impl->callback(impl->pUserData, STREAM_EVT_DOWNLOAD_DOWNLOAD_ERROR,
+                        &(impl->mYunOSstatusCode));
+                }
 #endif
                 if(CdxHttpAuthenticate(httpHdr, url, &authRetry)<0)
                 {   
@@ -719,11 +764,13 @@ static cdx_int32 CdxHttpStreamingStart(CdxHttpStreamImplT *impl)
                 CDX_LOGE("something error happened,statusCode(%d)", httpHdr->statusCode);
                 if(impl->callback)
                 {
-					impl->callback(impl->pUserData, STREAM_EVT_DOWNLOAD_ERROR, &httpHdr->statusCode);
+                    impl->callback(impl->pUserData, STREAM_EVT_DOWNLOAD_ERROR,
+                        &httpHdr->statusCode);
 
 #if( CONFIG_ALI_YUNOS == OPTION_ALI_YUNOS_YES)
-					impl->mYunOSstatusCode = 3500;//Ali YUNOS invoke info
-					impl->callback(impl->pUserData, STREAM_EVT_DOWNLOAD_DOWNLOAD_ERROR, &(impl->mYunOSstatusCode));
+                    impl->mYunOSstatusCode = 3500;//Ali YUNOS invoke info
+                    impl->callback(impl->pUserData, STREAM_EVT_DOWNLOAD_DOWNLOAD_ERROR,
+                        &(impl->mYunOSstatusCode));
 #endif
                 }
                 goto err_out;
@@ -733,7 +780,8 @@ static cdx_int32 CdxHttpStreamingStart(CdxHttpStreamImplT *impl)
                 CDX_LOGE("shoud not be here. statusCode(%d)", httpHdr->statusCode);
                 if(impl->callback)
                 {
-                    impl->callback(impl->pUserData, STREAM_EVT_DOWNLOAD_ERROR, &httpHdr->statusCode);
+                    impl->callback(impl->pUserData, STREAM_EVT_DOWNLOAD_ERROR,
+                        &httpHdr->statusCode);
                 }
                 goto err_out;
             }
@@ -755,41 +803,41 @@ size_t Hex2Oct(char* src)
 }
 cdx_int32 CopyChunkSize(cdx_char *srcBuf, cdx_int32 *pNum)//pNum: length of "len" in "len\r\n".
 {
-	cdx_char  result[10] = {0};
-	cdx_int32 pos = 0;
+    cdx_char  result[10] = {0};
+    cdx_int32 pos = 0;
     cdx_char *tmpSrcBuf = srcBuf;
     
-	while (1) 
-	{
-		cdx_char byte;
+    while (1)
+    {
+        cdx_char byte;
 
-		byte = *tmpSrcBuf++;
+        byte = *tmpSrcBuf++;
 
-		if((byte >= '0' && byte <= '9') 
-		    || (byte >= 'a' && byte <= 'f')
-		    || (byte >= 'A' && byte <= 'F')) 
-		{
-			result[pos++] = byte;
-			*pNum = pos;
-			continue;
-		}
-		else if(byte == '\r') 
-		{
-			byte = *tmpSrcBuf++;
-			if(byte != '\n')
-			{
+        if((byte >= '0' && byte <= '9')
+            || (byte >= 'a' && byte <= 'f')
+            || (byte >= 'A' && byte <= 'F'))
+        {
+            result[pos++] = byte;
+            *pNum = pos;
+            continue;
+        }
+        else if(byte == '\r')
+        {
+            byte = *tmpSrcBuf++;
+            if(byte != '\n')
+            {
                 CDX_LOGW("No lf after len flag.");
                 return -1;
-			}
-			break;
-		}
-		else 
-		{
-			CDX_LOGW("check the content.");
-			return -2;
-		}
-	}
-	return strtol(result, NULL, 16);
+            }
+            break;
+        }
+        else
+        {
+            CDX_LOGW("check the content.");
+            return -2;
+        }
+    }
+    return strtol(result, NULL, 16);
 }
 
 //Transfer-Encoding: chunked
@@ -914,14 +962,18 @@ static int CdxReadChunkedData(CdxHttpStreamImplT *impl,void* buf, int len)
                     impl->chunkedLen = 0;
                 }
                 else 
-                {   // chunked size has been force stop last time, in order to continue read the chunked data this time, need to combine "len".
-                    if(impl->tmpChunkedSize > 0) // last read chunked size been force stop, combine "len" this time. should clear when not forcestop.
+                {   /*chunked size has been force stop last time, in order to
+                    continue read the chunked data this time, need to combine "len".*/
+                    if(impl->tmpChunkedSize > 0)
+                        /*last read chunked size been force stop,
+                        combine "len" this time. should clear when not forcestop.*/
                     {
                         strcpy(chunkedLenChar, impl->tmpChunkedLen);
                         chunkedSizeInt = impl->tmpChunkedSize; 
                         memset(impl->tmpChunkedLen, 0, 10);
                         impl->tmpChunkedSize = 0;
-                        needReadLen = ReadChunkedSize(impl->tcpStream, impl->tmpChunkedLen, &impl->tmpChunkedSize);
+                        needReadLen = ReadChunkedSize(impl->tcpStream, impl->tmpChunkedLen,
+                            &impl->tmpChunkedSize);
                         if(needReadLen >= 0)
                         {                        
                             if(impl->tmpChunkedSize > 0)
@@ -959,7 +1011,8 @@ static int CdxReadChunkedData(CdxHttpStreamImplT *impl,void* buf, int len)
                                     impl->ioState = CDX_IO_STATE_EOS;
                                     break;
                                 }
-                                CDX_LOGW("Forcestop, Next chunk will begin with LF, chunkedLen(%d)", impl->chunkedLen);
+                                CDX_LOGW("Forcestop, Next chunk will begin with LF, chunkedLen(%d)",
+                                    impl->chunkedLen);
                                 return -2;
                             }
                             CDX_LOGE("Io error.");
@@ -975,7 +1028,8 @@ static int CdxReadChunkedData(CdxHttpStreamImplT *impl,void* buf, int len)
                     {
                         memset(impl->tmpChunkedLen, 0, 10);
                         impl->tmpChunkedSize = 0;
-                        needReadLen = ReadChunkedSize(impl->tcpStream, impl->tmpChunkedLen, &impl->tmpChunkedSize);
+                        needReadLen = ReadChunkedSize(impl->tcpStream, impl->tmpChunkedLen,
+                            &impl->tmpChunkedSize);
                         CDX_LOGV("xxxxxxx chunkSize=%d", needReadLen);
                         if(needReadLen == 0)
                         {
@@ -985,7 +1039,8 @@ static int CdxReadChunkedData(CdxHttpStreamImplT *impl,void* buf, int len)
                         }
                         else if(needReadLen < 0)
                         {
-                            if(needReadLen == -2) // force stop while get xxx\r, next time need to combine...
+                            if(needReadLen == -2)
+                                // force stop while get xxx\r, next time need to combine...
                             {
                                 CDX_LOGW("force stop CdxReadChunkedData while get len.");
                                 return -2;
@@ -1000,7 +1055,8 @@ static int CdxReadChunkedData(CdxHttpStreamImplT *impl,void* buf, int len)
                                     impl->ioState = CDX_IO_STATE_EOS;
                                     break;
                                 }
-                                CDX_LOGW("Forcestop, Next chunk will begin with LF, chunkedLen(%d)", impl->chunkedLen);
+                                CDX_LOGW("Forcestop, Next chunk will begin with LF, chunkedLen(%d)",
+                                    impl->chunkedLen);
                                 return -2;
                             }
                             CDX_LOGE("Io error.");
@@ -1121,7 +1177,6 @@ static cdx_int32 CdxSeekReconnect(CdxStreamT *stream, cdx_int64 offset)
         impl->httpDataSize = 0;
     }
 
-
     do
     {
         if(impl->forceStopFlag)
@@ -1204,7 +1259,8 @@ static cdx_int32 CdxSeekReconnect(CdxStreamT *stream, cdx_int64 offset)
                     goto err_out;
                 }
                 
-                logv("============ seek reconnect redirect, url:(%s), offset:(%lld)", url->url, offset);
+                logv("============ seek reconnect redirect, url:(%s), offset:(%lld)",
+                    url->url, offset);
                 break;
             }
             default:
@@ -1218,7 +1274,6 @@ static cdx_int32 CdxSeekReconnect(CdxStreamT *stream, cdx_int64 offset)
 
     }while(redirect);
     
-
     if(impl->ioState != CDX_IO_STATE_EOS)
     {
         impl->ioState = CDX_IO_STATE_OK;
@@ -1256,11 +1311,11 @@ static cdx_void ClearDataSourceFields(CdxHttpStreamImplT *impl)
         }
         Pfree(impl->pool, impl->pHttpHeader);
         impl->pHttpHeader = NULL;
-		if(impl->hfsContainer.extraData)
-		{
-			free(impl->hfsContainer.extraData);
-			impl->hfsContainer.extraData = NULL;
-		}
+        if(impl->hfsContainer.extraData)
+        {
+            free(impl->hfsContainer.extraData);
+            impl->hfsContainer.extraData = NULL;
+        }
     }
 
     return;
@@ -1278,7 +1333,8 @@ static cdx_int32 SetDataSourceFields(CdxDataSourceT * source, CdxHttpStreamImplT
         {
             impl->nHttpHeaderSize = pHttpHeaders->num;
             
-            impl->pHttpHeader = (CdxHttpHeaderFieldT *)Palloc(impl->pool, impl->nHttpHeaderSize * sizeof(CdxHttpHeaderFieldT));
+            impl->pHttpHeader = (CdxHttpHeaderFieldT *)Palloc(impl->pool, impl->nHttpHeaderSize *
+                sizeof(CdxHttpHeaderFieldT));
             if(impl->pHttpHeader == NULL)
             {
                 CDX_LOGE("Palloc failed.");
@@ -1288,30 +1344,36 @@ static cdx_int32 SetDataSourceFields(CdxDataSourceT * source, CdxHttpStreamImplT
             memset(impl->pHttpHeader, 0x00, sizeof(CdxHttpHeaderFieldT));
             for(i = 0; i < impl->nHttpHeaderSize; i++)
             {
-            	if(0 == strcasecmp(pHttpHeaders->pHttpHeader[i].key, "Set-Cookie"))
-            	{
-					impl->pHttpHeader[i].key = (const char*)Pstrdup(impl->pool, "Cookie");
-				}
-				else
-				{
-					impl->pHttpHeader[i].key = (const char*)Pstrdup(impl->pool, pHttpHeaders->pHttpHeader[i].key);
-				}
+                if(0 == strcasecmp(pHttpHeaders->pHttpHeader[i].key, "Set-Cookie"))
+                {
+                    impl->pHttpHeader[i].key = (const char*)Pstrdup(impl->pool, "Cookie");
+                }
+                else
+                {
+                    impl->pHttpHeader[i].key = (const char*)Pstrdup(impl->pool,
+                        pHttpHeaders->pHttpHeader[i].key);
+                }
                 if(impl->pHttpHeader[i].key == NULL)
                 {
                     CDX_LOGE("dup key failed.");
                     ClearDataSourceFields(impl);
                     return -1;
                 }
-                impl->pHttpHeader[i].val = (const char*)Pstrdup(impl->pool, pHttpHeaders->pHttpHeader[i].val);
+                impl->pHttpHeader[i].val = (const char*)Pstrdup(impl->pool,
+                    pHttpHeaders->pHttpHeader[i].val);
                 if(impl->pHttpHeader[i].val == NULL)
                 {
                     CDX_LOGE("dup val failed.");
                     ClearDataSourceFields(impl);
                     return -1;
                 }
-				CDX_LOGV("============ impl->pHttpHeader[i].val(%s):%s", impl->pHttpHeader[i].key, impl->pHttpHeader[i].val);
+                CDX_LOGV("============ impl->pHttpHeader[i].val(%s):%s",
+                    impl->pHttpHeader[i].key, impl->pHttpHeader[i].val);
             }
         }
+
+        if (source->probeSize > 0)
+            impl->probeData.len = source->probeSize;
     }
     return 0;
 }
@@ -1340,14 +1402,14 @@ static cdx_int32 __CdxHttpStreamRead(CdxStreamT *stream, void *buf, cdx_uint32 l
     CDX_CHECK(stream);
     impl = CdxContainerOf(stream, CdxHttpStreamImplT, base);
     
-	pthread_mutex_lock(&impl->lock);
-	if(impl->forceStopFlag)
-	{
-		pthread_mutex_unlock(&impl->lock);
-		return -1;
-	}
+    pthread_mutex_lock(&impl->lock);
+    if(impl->forceStopFlag)
+    {
+        pthread_mutex_unlock(&impl->lock);
+        return -1;
+    }
     CdxAtomicSet(&impl->state, HTTP_STREAM_READING);
-	pthread_mutex_unlock(&impl->lock);
+    pthread_mutex_unlock(&impl->lock);
 	
     sendSize = len;
     //keep validDataSize >= size
@@ -1362,14 +1424,15 @@ static cdx_int32 __CdxHttpStreamRead(CdxStreamT *stream, void *buf, cdx_uint32 l
         if(impl->ioState == CDX_IO_STATE_EOS)
         {
             sendSize = impl->validDataSize;
-            CDX_LOGD("xxx impl->ioState(%d), sendSize(%u) impl->validDataSize(%lld)", impl->ioState, sendSize, impl->validDataSize);
+            CDX_LOGD("xxx impl->ioState(%d), sendSize(%u) impl->validDataSize(%lld)",
+                impl->ioState, sendSize, impl->validDataSize);
             break;
         }
         else if(impl->ioState == CDX_IO_STATE_ERROR)
         {
             if(!impl->seekAble)
             {
-				CDX_LOGE("not support seek.");
+                CDX_LOGE("not support seek.");
                 sendSize = -1;
                 goto __exit;
             }
@@ -1390,15 +1453,16 @@ static cdx_int32 __CdxHttpStreamRead(CdxStreamT *stream, void *buf, cdx_uint32 l
 
                 if(ret == 0)
                 {
-                    CDX_LOGD("reconnect at(%lld/%lld)ok, continue read.", impl->readPos, impl->totalSize);
+                    CDX_LOGD("reconnect at(%lld/%lld)ok, continue read.",
+                        impl->readPos, impl->totalSize);
                     pthread_mutex_unlock(&impl->bufferMutex);
                     break;
                 }
 #if(CONFIG_CMCC == OPTION_CMCC_YES) 
                 else if(ret == -2 || impl->isHls)
                 {
-					sendSize = -1;
-					pthread_mutex_unlock(&impl->bufferMutex);
+                    sendSize = -1;
+                    pthread_mutex_unlock(&impl->bufferMutex);
                     goto __exit;
                 }
 #endif
@@ -1470,10 +1534,10 @@ static cdx_int32 __CdxHttpStreamRead(CdxStreamT *stream, void *buf, cdx_uint32 l
     pthread_mutex_unlock(&impl->bufferMutex);
 
 __exit:
-	pthread_mutex_lock(&impl->lock);
+    pthread_mutex_lock(&impl->lock);
     CdxAtomicSet(&impl->state, HTTP_STREAM_IDLE);
-	pthread_mutex_unlock(&impl->lock);
-	pthread_cond_signal(&impl->cond);
+    pthread_mutex_unlock(&impl->lock);
+    pthread_cond_signal(&impl->cond);
     return sendSize;
 }
 static cdx_int32 CdxHttpStreamForceStop(CdxStreamT *stream)
@@ -1498,8 +1562,9 @@ static cdx_int32 CdxHttpStreamForceStop(CdxStreamT *stream)
     while((ref = CdxAtomicRead(&impl->state)) != HTTP_STREAM_IDLE)
     {
 
-        if(/*((ref = CdxAtomicRead(&impl->state)) == HTTP_STREAM_CONNECTING) && */(impl->tcpStream != NULL)/* && 
-                                                (CdxStreamGetIoState(impl->tcpStream) == CDX_IO_STATE_OK)*/)
+        if(/*((ref = CdxAtomicRead(&impl->state)) == HTTP_STREAM_CONNECTING) && */
+            (impl->tcpStream != NULL)
+            /* &&(CdxStreamGetIoState(impl->tcpStream) == CDX_IO_STATE_OK)*/)
         {
             CdxStreamForceStop(impl->tcpStream);
         }
@@ -1556,16 +1621,13 @@ static void ExitGetNetworkData(void *pArg)
 static cdx_int32 __CdxHttpStreamClose(CdxStreamT *stream)
 {
     CdxHttpStreamImplT *impl;
+    //long ref;
+    //cdx_int32 ret = 0;
     AwPoolT *pool;
     CDX_CHECK(stream);
     impl = CdxContainerOf(stream, CdxHttpStreamImplT, base);
 
     pool = impl->pool;
-    
-    if(impl->exitFlag == 1)//in case of close more than 2 times
-    {
-        return 0;
-    }
     
     CDX_LOGV("xxxx http close begin. stream(%p)", stream);
     impl->exitFlag = 1;
@@ -1578,11 +1640,14 @@ static cdx_int32 __CdxHttpStreamClose(CdxStreamT *stream)
 
     ExitGetNetworkData(impl);// exit from GetNetworkData
 
-	if(impl->threadId)
-		pthread_join(impl->threadId, NULL);
+    if(impl->threadId)
+        pthread_join(impl->threadId, NULL);
 	
     if(impl->tcpStream)
     {
+        if (impl->bStreamReadEos == 1 && impl->keepAlive == 1)
+            CdxStreamControl(impl->tcpStream, STREAM_CMD_SET_EOF, NULL);
+
         CdxStreamClose(impl->tcpStream);//close tcp first.
         impl->tcpStream = NULL;
         impl->ioState = CDX_IO_STATE_INVALID;
@@ -1614,7 +1679,7 @@ static cdx_int32 __CdxHttpStreamClose(CdxStreamT *stream)
         CdxHttpFree((CdxHttpHeaderT *)impl->data);
         impl->data = NULL;
     }
-	ClearDataSourceFields(impl);
+    ClearDataSourceFields(impl);
     if(impl->probeData.buf)
     {
         Pfree(impl->pool, impl->probeData.buf);
@@ -1635,7 +1700,7 @@ static cdx_int32 __CdxHttpStreamClose(CdxStreamT *stream)
 
     free(impl);
     AwPoolDestroy(pool);
-	CDX_LOGV("xxxx http close finish.");  
+    CDX_LOGV("xxxx http close finish.");
     return 0;
 }
 
@@ -1662,22 +1727,6 @@ int GetEstimatedBandwidthKbps(CdxHttpStreamImplT *impl, cdx_int32 *kbps)//0424
     return 0;
 }
 
-/*
-int GetEstimatedBandwidthKbps(CdxHttpStreamImplT *impl, cdx_int32 *kbps)
-{
-    if(impl->mTotalTransferBytes == 0 || impl->mTotalTransferTimeUs == 0)
-    {
-        *kbps = 0;
-    }
-    else
-    {
-        *kbps = ((double)impl->mTotalTransferBytes * 8E3 
-                                            / impl->mTotalTransferTimeUs);
-    }
-    return 0;
-}*/
-
-
 void TransferMeasurement(CdxHttpStreamImplT *impl, cdx_int32 numBytes, cdx_int64 delayUs) //0424
 {
     BandwidthEntryT begin;
@@ -1692,7 +1741,8 @@ void TransferMeasurement(CdxHttpStreamImplT *impl, cdx_int32 numBytes, cdx_int64
     impl->bandWidthHistory[impl->index].mNumBytes = numBytes;
     impl->mTotalTransferBytes += numBytes;
     impl->mTotalTransferTimeUs += delayUs;
-    //CDX_LOGD("xxx11 mTotalTransferBytes(%d),mTotalTransferTimeUs(%lld), impl->mBandwidthTimes(%d)", impl->mTotalTransferBytes, impl->mTotalTransferTimeUs, impl->mBandwidthTimes);
+    /*CDX_LOGD("mTotalTransferBytes(%d),mTotalTransferTimeUs(%lld), impl->mBandwidthTimes(%d)",
+    impl->mTotalTransferBytes, impl->mTotalTransferTimeUs, impl->mBandwidthTimes);*/
 
     impl->mBandwidthTimes++;
     if(impl->mBandwidthTimes > 100)// || impl->bufFullFlag == 1)
@@ -1717,18 +1767,18 @@ static int GetCacheState(struct StreamCacheStateS *cacheState, CdxStreamT *strea
     cdx_int64 bufPos = impl->bufPos;
     //cdx_int64 readPos = impl->readPos;
     cdx_int32 percent = 0;
-	cdx_int32 kbps = 0;//4000;//512KB/s
+    cdx_int32 kbps = 0;//4000;//512KB/s
 	
     memset(cacheState, 0, sizeof(struct StreamCacheStateS));
 
-	if (totSize > 0) 
-	{
-		percent = 100 * bufPos/totSize;
-	} 
-	else
-	{
-		percent = 0;
-	}
+    if (totSize > 0)
+    {
+        percent = 100 * bufPos/totSize;
+    }
+    else
+    {
+        percent = 0;
+    }
 
     cacheState->nPercentage = percent;
 
@@ -1744,10 +1794,10 @@ static int GetCacheState(struct StreamCacheStateS *cacheState, CdxStreamT *strea
     cacheState->nCacheCapacity = impl->maxBufSize;
     cacheState->nCacheSize = impl->validDataSize;
     
-	//CDX_LOGD("nCacheSize:%d, nCacheCapacity %d, nBandwidthKbps:%dkbps, percent:%d%%",
-	//		cacheState->nCacheSize, cacheState->nCacheCapacity,
-	//		cacheState->nBandwidthKbps, cacheState->nPercentage);
-	return 0;
+    //CDX_LOGD("nCacheSize:%d, nCacheCapacity %d, nBandwidthKbps:%dkbps, percent:%d%%",
+    //        cacheState->nCacheSize, cacheState->nCacheCapacity,
+    //        cacheState->nBandwidthKbps, cacheState->nPercentage);
+    return 0;
 }
 
 //mSec: in unit of millisecond
@@ -1778,7 +1828,7 @@ static cdx_int32 __CdxHttpStreamControl(CdxStreamT *stream, cdx_int32 cmd, void 
     switch(cmd)
     {
         case STREAM_CMD_GET_CACHESTATE:
-    		return GetCacheState((struct StreamCacheStateS *)param, stream);
+            return GetCacheState((struct StreamCacheStateS *)param, stream);
 
         case STREAM_CMD_SET_FORCESTOP:
             //CDX_LOGV("xxx STREAM_CMD_SET_FORCESTOP");
@@ -1796,9 +1846,9 @@ static cdx_int32 __CdxHttpStreamControl(CdxStreamT *stream, cdx_int32 cmd, void 
 
         case STREAM_CMD_SET_ISHLS:
         {
-        	CDX_LOGD("======= set ishls");
-        	impl->isHls = 1;
-        	return 0;
+            CDX_LOGD("======= set ishls");
+            impl->isHls = 1;
+            return 0;
         }
 
         default:
@@ -1819,15 +1869,15 @@ static cdx_int32 __CdxHttpStreamSeek(CdxStreamT *stream, cdx_int64 offset, cdx_i
     CDX_CHECK(stream);
     impl = CdxContainerOf(stream, CdxHttpStreamImplT, base);
 
-	pthread_mutex_lock(&impl->lock);
-	if(impl->forceStopFlag)
-	{
-		pthread_mutex_unlock(&impl->lock);
-		//CDX_LOGV("force stop http seek.");
-		return -1;
-	}
+    pthread_mutex_lock(&impl->lock);
+    if(impl->forceStopFlag)
+    {
+        pthread_mutex_unlock(&impl->lock);
+        //CDX_LOGV("force stop http seek.");
+        return -1;
+    }
     CdxAtomicSet(&impl->state, HTTP_STREAM_SEEKING);
-	pthread_mutex_unlock(&impl->lock);
+    pthread_mutex_unlock(&impl->lock);
 
     fileLen = impl->totalSize;
 
@@ -1873,15 +1923,15 @@ static cdx_int32 __CdxHttpStreamSeek(CdxStreamT *stream, cdx_int64 offset, cdx_i
     if((offset <= impl->bufPos) && (offset >= impl->protectAreaPos))//a. [protectAreaPos, bufPos]
     {
         //CDX_LOGV("Seek not reconnect.");
-        //CDX_LOGV("xxx __CdxHttpStreamSeek offset(%lld),impl->validDataSize(%lld), [(%lld),(%lld)],impl->readPos(%lld)", 
-        //                        offset, impl->validDataSize, impl->protectAreaPos,impl->bufPos,impl->readPos);
+        //CDX_LOGV("xxx offset(%lld),validDataSize(%lld), [(%lld),(%lld)],impl->readPos(%lld)",
+        //          offset, impl->validDataSize, impl->protectAreaPos,impl->bufPos,impl->readPos);
         goto out;
     }
     else // b. < protectAreaPos || > bufPos
     {
         //CDX_LOGV("Seek reconnect.");
-        //CDX_LOGV("xxx __CdxHttpStreamSeek offset(%lld),impl->validDataSize(%lld), [(%lld),(%lld)],impl->readPos(%lld)", 
-        //                        offset, impl->validDataSize, impl->protectAreaPos, impl->bufPos,impl->readPos);
+        //CDX_LOGV("xxx offset(%lld),validDataSize(%lld), [(%lld),(%lld)],impl->readPos(%lld)",
+        //         offset, impl->validDataSize, impl->protectAreaPos, impl->bufPos,impl->readPos);
         goto re_connect;
     }
 
@@ -1906,7 +1956,8 @@ out:
     else // seek back
     {
         impl->protectAreaSize += (offset - impl->readPos); 
-        //CDX_LOGD("xxx1 impl->protectAreaSize %lld, offset(%lld),impl->readPos(%lld),impl->bufPos(%lld)", impl->protectAreaSize,offset,impl->readPos,impl->bufPos);
+        /*CDX_LOGD("xxx protectAreaSize(%lld),offset(%lld),impl->readPos(%lld),impl->bufPos(%lld)",
+        impl->protectAreaSize,offset,impl->readPos,impl->bufPos);*/
     }
     
     impl->bufReadPtr += (offset - impl->readPos);
@@ -1923,10 +1974,10 @@ out:
     }
     pthread_mutex_unlock(&impl->bufferMutex);    
 
-	pthread_mutex_lock(&impl->lock);
+    pthread_mutex_lock(&impl->lock);
     CdxAtomicSet(&impl->state, HTTP_STREAM_IDLE);
-	pthread_mutex_unlock(&impl->lock);
-	pthread_cond_signal(&impl->cond);
+    pthread_mutex_unlock(&impl->lock);
+    pthread_cond_signal(&impl->cond);
     return 0;
     
 re_connect:
@@ -1945,12 +1996,12 @@ re_connect:
         CdxStreamClrForceStop(impl->tcpStream);
     }
    
-	pthread_mutex_lock(&impl->pauseReadDataMutex);
-	while(impl->pauseReadDataFlag == -1)
-	{
-		pthread_cond_wait(&impl->pauseReadDataCond, &impl->pauseReadDataMutex);
-	}
-	pthread_mutex_unlock(&impl->pauseReadDataMutex);
+    pthread_mutex_lock(&impl->pauseReadDataMutex);
+    while(impl->pauseReadDataFlag == -1)
+    {
+        pthread_cond_wait(&impl->pauseReadDataCond, &impl->pauseReadDataMutex);
+    }
+    pthread_mutex_unlock(&impl->pauseReadDataMutex);
     
     if(impl->tcpStream)
     {
@@ -1981,10 +2032,10 @@ re_connect:
     pthread_cond_signal(&impl->seekCond);
     pthread_mutex_unlock(&impl->seekMutex);
 
-	pthread_mutex_lock(&impl->lock);
+    pthread_mutex_lock(&impl->lock);
     CdxAtomicSet(&impl->state, HTTP_STREAM_IDLE);
-	pthread_mutex_unlock(&impl->lock);
-	pthread_cond_signal(&impl->cond);
+    pthread_mutex_unlock(&impl->lock);
+    pthread_cond_signal(&impl->cond);
     return 0;
     
 err_out:
@@ -1993,10 +2044,10 @@ err_out:
     pthread_cond_signal(&impl->seekCond);
     pthread_mutex_unlock(&impl->seekMutex);
 
-	pthread_mutex_lock(&impl->lock);
+    pthread_mutex_lock(&impl->lock);
     CdxAtomicSet(&impl->state, HTTP_STREAM_IDLE);
-	pthread_mutex_unlock(&impl->lock);
-	pthread_cond_signal(&impl->cond);
+    pthread_mutex_unlock(&impl->lock);
+    pthread_cond_signal(&impl->cond);
 
     return -1;
 }
@@ -2083,12 +2134,12 @@ static cdx_int32 __CdxHttpStreamGetMetaData(CdxStreamT *stream, const cdx_char *
     }
     else if(strcmp(key, "statusCode") == 0)
     {
-    	if(httpHdr)
-    	{
-    	CDX_LOGD("++++++ statusCode in http: %d", httpHdr->statusCode);
-    	*pVal = (void*)&httpHdr->statusCode;
-    	CDX_LOGD("++++++ *pVal = %p", *pVal);
-    	}
+        if(httpHdr)
+        {
+        CDX_LOGD("++++++ statusCode in http: %d", httpHdr->statusCode);
+        *pVal = (void*)&httpHdr->statusCode;
+        CDX_LOGD("++++++ *pVal = %p", *pVal);
+        }
     }
     else
     {
@@ -2100,7 +2151,6 @@ static cdx_int32 __CdxHttpStreamGetMetaData(CdxStreamT *stream, const cdx_char *
     }
     return 0;
 }
-
 static int CdxGetProbeData(CdxHttpStreamImplT *impl)
 {
     if (impl->probeData.len <= 0 || impl->probeData.len > PROBE_DATA_LEN_DEFAULT)
@@ -2175,7 +2225,8 @@ static cdx_int32 StreamReadCompressed(CdxHttpStreamImplT *impl, cdx_int8 *buf, i
         }
         if(readSize <= 0)
         {
-            CDX_LOGD("==== size(%lld), pos(%lld), readSize(%d)", impl->totalSize, impl->bufPos, readSize);
+            CDX_LOGD("==== size(%lld), pos(%lld), readSize(%d)",
+                impl->totalSize, impl->bufPos, readSize);
             return readSize;
         }
         impl->inflateStream.next_in = impl->inflateBuffer;
@@ -2188,7 +2239,8 @@ static cdx_int32 StreamReadCompressed(CdxHttpStreamImplT *impl, cdx_int8 *buf, i
     ret = inflate(&impl->inflateStream, Z_SYNC_FLUSH);
     if (ret != Z_OK && ret != Z_STREAM_END)
     {
-        CDX_LOGD("inflate return: %d, %s; size: %d, %u", ret, impl->inflateStream.msg, size, impl->inflateStream.avail_out);
+        CDX_LOGD("inflate return: %d, %s; size: %d, %u", ret, impl->inflateStream.msg,
+            size, impl->inflateStream.avail_out);
     }
     
     return size - impl->inflateStream.avail_out;
@@ -2250,7 +2302,8 @@ static cdx_int32 StreamRead(CdxHttpStreamImplT *impl, void *buf, cdx_uint32 len,
 
         if(impl->totalSize > 0)
         {
-            wantToReadLen = (len < impl->totalSize - impl->bufPos) ? len : (impl->totalSize - impl->bufPos);
+            wantToReadLen = (len < impl->totalSize - impl->bufPos) ?
+                            len : (impl->totalSize - impl->bufPos);
             CDX_LOGV("wantToReadLen (%u), totalSize(%lld), bufPos(%lld), len(%u)", 
                                     wantToReadLen, impl->totalSize, impl->bufPos, len);
         }
@@ -2275,7 +2328,8 @@ static cdx_int32 StreamRead(CdxHttpStreamImplT *impl, void *buf, cdx_uint32 len,
             CDX_LOGD("xxx readLen=0.");
             if(impl->totalSize != -1)
             {
-                CDX_LOGE("xxx readLen=0, totalSize(%lld), bufPos(%lld).", impl->totalSize, impl->bufPos);
+                CDX_LOGE("xxx readLen=0, totalSize(%lld), bufPos(%lld).",
+                    impl->totalSize, impl->bufPos);
                 impl->ioState = CDX_IO_STATE_ERROR;
                 goto err_out; 
             }
@@ -2289,8 +2343,9 @@ static cdx_int32 StreamRead(CdxHttpStreamImplT *impl, void *buf, cdx_uint32 len,
         {
             if((impl->totalSize > 0) && (impl->bufPos + size == impl->totalSize))
             {
-                CDX_LOGD("xxx EOS, impl->bufPos(%lld), readLen(%d), totsize(%lld)", impl->bufPos, size, impl->totalSize);
-				*isEos = 1;
+                CDX_LOGD("xxx EOS, impl->bufPos(%lld), readLen(%d), totsize(%lld)",
+                    impl->bufPos, size, impl->totalSize);
+                *isEos = 1;
             }
         }
 #if __SAVE_BITSTREAMS
@@ -2340,13 +2395,14 @@ void *GetNetworkData(void *pArg)
         PrintCacheState(1000, &lastNotifyTime, &impl->base);
         startTime = GetNowUs();
         
-        if(CDX_IO_STATE_EOS == impl->ioState)//not exit GetNetworkData, continue work when seek back.
+        if(CDX_IO_STATE_EOS == impl->ioState)
+            //not exit GetNetworkData, continue work when seek back.
         {
             //CDX_LOGD("EOS, usleep.");
             pthread_mutex_lock(&impl->pauseReadDataMutex);
             impl->pauseReadDataFlag = 1;
             pthread_mutex_unlock(&impl->pauseReadDataMutex);
-			pthread_cond_signal(&impl->pauseReadDataCond);
+            pthread_cond_signal(&impl->pauseReadDataCond);
             
             usleep(10*1000);
             continue;
@@ -2399,7 +2455,7 @@ void *GetNetworkData(void *pArg)
 
         if(impl->ioState == CDX_IO_STATE_OK) //after seek may io error or eos.
         {
-        	cdx_bool isEos = 0;
+            cdx_bool isEos = 0;
             ret = StreamRead(impl, impl->bufWritePtr, restSize, &isEos);//read data from network.
             if(ret < 0)
             {
@@ -2440,30 +2496,32 @@ void *GetNetworkData(void *pArg)
             impl->validDataSize += ret;
             impl->bufWritePtr   += ret;
             impl->bufPos        += ret;
-			if(isEos)
-			{
-				impl->ioState = CDX_IO_STATE_EOS;
-			}
+            if(isEos)
+            {
+                impl->ioState = CDX_IO_STATE_EOS;
+            }
 
-			if(CDX_IO_STATE_EOS == impl->ioState)
-			{
-				impl->downloadEnd = GetNowUs();
-				impl->downloadTimeMs = (impl->downloadEnd - impl->downloadStart) / 1000;
-				if(impl->callback && callbackEndFlag == 0)
-				{
-					CDX_LOGV("eos set STREAM_EVT_DOWNLOAD_END impl->downloadTimeMs(%lld ms)", impl->downloadTimeMs);
+            if(CDX_IO_STATE_EOS == impl->ioState)
+            {
+                impl->downloadEnd = GetNowUs();
+                impl->downloadTimeMs = (impl->downloadEnd - impl->downloadStart) / 1000;
+                if(impl->callback && callbackEndFlag == 0)
+                {
+                    CDX_LOGV("eos set STREAM_EVT_DOWNLOAD_END impl->downloadTimeMs(%lld ms)",
+                        impl->downloadTimeMs);
                     ExtraDataContainerT httpExtradata;
                     httpExtradata.extraData = &(impl->downloadTimeMs);
                     httpExtradata.extraDataType = EXTRA_DATA_HTTP;
-					impl->callback(impl->pUserData, STREAM_EVT_DOWNLOAD_END, &httpExtradata);
+                    impl->callback(impl->pUserData, STREAM_EVT_DOWNLOAD_END, &httpExtradata);
 
 #if( CONFIG_ALI_YUNOS == OPTION_ALI_YUNOS_YES)
-					impl->downloadLastTime = GetNowUs();//Ali YUNOS invoke info
-					impl->callback(impl->pUserData, STREAM_EVT_DOWNLOAD_END_TIME, &(impl->downloadLastTime));
+                    impl->downloadLastTime = GetNowUs();//Ali YUNOS invoke info
+                    impl->callback(impl->pUserData, STREAM_EVT_DOWNLOAD_END_TIME,
+                        &(impl->downloadLastTime));
 #endif
-					callbackEndFlag = 1;
-				}
-			}
+                    callbackEndFlag = 1;
+                }
+            }
             if(impl->bufWritePtr > impl->bufEndPtr)
             {
                 impl->bufWritePtr -= impl->maxBufSize;
@@ -2487,7 +2545,6 @@ void *GetNetworkData(void *pArg)
 static void *StartGetNetworkDataThread(void *pArg)
 {
     CdxHttpStreamImplT *impl;
-    cdx_int32 ret;
     
     impl = (CdxHttpStreamImplT *)pArg;
     CDX_FORCE_CHECK(impl);
@@ -2499,53 +2556,8 @@ static void *StartGetNetworkDataThread(void *pArg)
     //start get network data.
     GetNetworkData(impl);
 
-
-#if 0
-    if(impl->eosFlag == 1)
-    {
-        impl->downloadTimeMs = (impl->downloadEnd - impl->downloadStart) / 1000;
-        if(impl->callback)
-        {
-            ExtraDataContainerT httpExtradata;
-            httpExtradata.extraData = &(impl->downloadTimeMs);
-            httpExtradata.extraDataType = EXTRA_DATA_HTTP;
-            impl->callback(impl->pUserData, STREAM_EVT_DOWNLOAD_END, &httpExtradata);
-
-#if( CONFIG_ALI_YUNOS == OPTION_ALI_YUNOS_YES)
-			impl->downloadLastTime = GetNowUs();//Ali YUNOS invoke info
-			impl->callback(impl->pUserData, STREAM_EVT_DOWNLOAD_END_TIME, &(impl->downloadLastTime));
-#endif
-        }
-        pthread_mutex_lock(&impl->lock);
-        impl->ioState = CDX_IO_STATE_EOS;
-		pthread_cond_signal(&impl->cond);
-		pthread_mutex_unlock(&impl->lock);
-    }
-    else
-    {
-        pthread_mutex_lock(&impl->lock);
-        impl->ioState = CDX_IO_STATE_OK;
-		pthread_cond_signal(&impl->cond);
-		pthread_mutex_unlock(&impl->lock);
-        //start get network data.
-        GetNetworkData(impl);
-    }
-#endif
-
-    return NULL;
-    
-err_out:
- 
-    ClearDataSourceFields(impl);
-    pthread_mutex_lock(&impl->lock);
-	impl->ioState = CDX_IO_STATE_ERROR;
-	pthread_cond_signal(&impl->cond);
-	pthread_mutex_unlock(&impl->lock);
-    CdxAtomicSet(&impl->state, HTTP_STREAM_IDLE);
-
     return NULL;
 }
-
 
 static cdx_int32 __CdxHttpStreamConnect(CdxStreamT *stream)
 {
@@ -2617,23 +2629,23 @@ static cdx_int32 __CdxHttpStreamConnect(CdxStreamT *stream)
     }
 
 #if 0
-	pthread_mutex_lock(&impl->lock);
-	while(impl->ioState != CDX_IO_STATE_OK 
-		&& impl->ioState != CDX_IO_STATE_EOS 
-		&& impl->ioState != CDX_IO_STATE_ERROR
-		&& !impl->forceStopFlag)
-	{
-		pthread_cond_wait(&impl->cond, &impl->lock);		
-	}
-	pthread_mutex_unlock(&impl->lock);
+    pthread_mutex_lock(&impl->lock);
+    while(impl->ioState != CDX_IO_STATE_OK
+        && impl->ioState != CDX_IO_STATE_EOS
+        && impl->ioState != CDX_IO_STATE_ERROR
+        && !impl->forceStopFlag)
+    {
+        pthread_cond_wait(&impl->cond, &impl->lock);
+    }
+    pthread_mutex_unlock(&impl->lock);
 #endif
 
 __exit:
-	pthread_mutex_lock(&impl->lock);
+    pthread_mutex_lock(&impl->lock);
     CdxAtomicSet(&impl->state, HTTP_STREAM_IDLE);
-	pthread_mutex_unlock(&impl->lock);
-	pthread_cond_signal(&impl->cond);
-	return (impl->ioState == CDX_IO_STATE_ERROR || impl->forceStopFlag == 1) ? -1 : 0;
+    pthread_mutex_unlock(&impl->lock);
+    pthread_cond_signal(&impl->cond);
+    return (impl->ioState == CDX_IO_STATE_ERROR || impl->forceStopFlag == 1) ? -1 : 0;
 }
 
 static struct CdxStreamOpsS CdxHttpStreamOps = 
@@ -2680,7 +2692,6 @@ static void DestroyHttpStreamImpl(CdxHttpStreamImplT *impl)
     }
     return;
 }
-
 
 CdxStreamT *__CdxHttpStreamCreate(CdxDataSourceT *source)
 {
@@ -2757,11 +2768,10 @@ CdxStreamT *__CdxHttpStreamCreate(CdxDataSourceT *source)
     pthread_cond_init(&impl->pauseReadDataCond, NULL);
 
     pthread_mutex_init(&impl->lock, NULL);
-	pthread_cond_init(&impl->cond, NULL);
+    pthread_cond_init(&impl->cond, NULL);
     CdxAtomicSet(&impl->state, HTTP_STREAM_IDLE);
 
-    CDX_LOGD("http stream open. stream(%p)", &impl->base);
-    
+    CDX_LOGV("http stream open.");
     return &impl->base;
     
 err_out:
@@ -2793,12 +2803,10 @@ err_out:
         free(impl);
         AwPoolDestroy(pool);
     }
-	return NULL;
+    return NULL;
 }
-
 
 CdxStreamCreatorT httpStreamCtor = 
 {
     .create = __CdxHttpStreamCreate
 };
-

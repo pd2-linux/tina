@@ -194,4 +194,3 @@ void StreamCacheFlushAll(StreamCache* c)
     pthread_mutex_unlock(&c->mutex);
     return;
 }
-

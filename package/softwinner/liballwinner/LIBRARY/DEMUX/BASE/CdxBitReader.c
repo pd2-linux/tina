@@ -1,10 +1,20 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxBitReader.c
+ * Description : BitReader
+ * History :
+ *
+ */
+
 #include <CdxBitReader.h>
 #include <CdxMemory.h>
 #include <CdxLog.h>
 
 struct CdxBitReaderImplS
 {
-	struct CdxBitReaderS base;
+    struct CdxBitReaderS base;
     const cdx_uint8 *mData;
     cdx_uint32 mSize;
     cdx_uint32 mReservoir;  // left-aligned bits
@@ -142,5 +152,3 @@ CdxBitReaderT *CdxBitReaderCreate(const cdx_uint8 *data, cdx_uint32 size)
     impl->base.ops = &gBitReaderOps;
     return &impl->base;
 }
-
-

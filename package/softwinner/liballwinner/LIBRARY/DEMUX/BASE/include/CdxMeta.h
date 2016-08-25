@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxMeta.h
+ * Description : Meta
+ * History :
+ *
+ */
+
 #ifndef CDX_META_H
 #define CDX_META_H
 #include <CdxTypes.h>
@@ -60,7 +70,6 @@ static inline cdx_void CdxMetaDecRef(CdxMetaT  *meta)
     CDX_CHECK(meta->ops->decRef);
     return meta->ops->decRef(meta);
 }
-
 
 static inline cdx_err CdxMetaSetInt32(CdxMetaT  *meta, 
                                 cdx_char *name, cdx_int32 val)

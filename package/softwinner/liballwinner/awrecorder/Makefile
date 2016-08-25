@@ -103,9 +103,16 @@ ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI))
 LoadFlags +=-L../LIBRARY/EXTERNAL/lib32/muslgnueabi
 LoadFlags +=-L../LIBRARY/libcedarc/library/lib32/muslgnueabi
 endif
+
 ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI64))
 LoadFlags +=-L../LIBRARY/EXTERNAL/lib64/muslgnueabi
 endif
+
+ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI310))
+LoadFlags +=-L../LIBRARY/EXTERNAL/lib32/muslgnueabi
+LoadFlags +=-L../LIBRARY/libcedarc/library/lib32/muslgnueabi_linux310
+endif
+
 ################################################################################
 ## make commands, all/clean/cleanall
 ################################################################################
@@ -154,5 +161,3 @@ ifneq ($(MAKECMDGOALS),cleanall)
 endif
 endif
 endif
-
-

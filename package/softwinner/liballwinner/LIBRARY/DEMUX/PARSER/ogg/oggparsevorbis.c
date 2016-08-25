@@ -1,9 +1,18 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : oggparsevorbis.c
+ * Description : oggparsevorbis
+ * History :
+ *
+ */
+
 //#define LOG_NDEBUG 0
 #define LOG_TAG "ParseVorbis"
 #include "CdxOggParser.h"
 #include <CdxLog.h>
 #include <CdxMemory.h>
-
 
 static AVMetadataTag *
 av_metadata_get(AVMetadata *m, const char *key, const AVMetadataTag *prev, int flags)
@@ -76,7 +85,7 @@ static int aw_metadata_set2(AVMetadata **pm, const char *key, const char *value,
 
 static void ff_dynarray_add(intptr_t **tab_ptr, intptr_t *nb_ptr, intptr_t elem)//intptr_t  int
 {
-	intptr_t nb, nb_alloc;
+    intptr_t nb, nb_alloc;
     intptr_t *tab;
 
     nb = *nb_ptr;
@@ -98,11 +107,15 @@ static void ff_dynarray_add(intptr_t **tab_ptr, intptr_t *nb_ptr, intptr_t elem)
 }
 
 #define dynarray_add(tab, nb_ptr, elem)\
-	do {\
+    do {\
     ff_dynarray_add((intptr_t **)(tab), nb_ptr, (intptr_t)(elem));\
 } while(0)
 
-static AVChapter *ff_new_chapter(CdxOggParser *ogg, int id, AVRational time_base, long long start, long long end, const char *title)
+static AVChapter *ff_new_chapter(CdxOggParser *ogg, int id,
+                                 AVRational time_base,
+                                 long long start,
+                                 long long end,
+                                 const char *title)
 {
     AVChapter *pCpt = NULL;
     int i;
@@ -243,7 +256,6 @@ int cdx_vorbis_comment(CdxOggParser *ogg, AVMetadata **m, const cdx_uint8 *buf, 
  * [blocksize_1] = read 4 bits as unsigned integer | Not Used
  * [framing_flag] = read one bit | Not Used
  */
-
 
 cdx_uint32 av_xiphlacing(unsigned char *s, cdx_uint32 v)
 {

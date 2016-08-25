@@ -9,14 +9,19 @@
 #include "log.h"
 
 #define SAVE_PCM_DATA 0
+#define SAVE_YUV_DATA 0
 
 #if SAVE_PCM_DATA
 	FILE* savaPcmFd = NULL;
 #endif
 
+#if SAVE_YUV_DATA
+	FILE* savaYuvFd = NULL;
+#endif
+
+
 namespace aw{
 
-	SoundCtrl* gSoundCtrl = NULL;
 	static SoundCtrl* _SoundDeviceInit(void* pAudioSink){
 		logd("_SoundDeviceInit()");
 		SoundCtrl* soundCtrl = NULL;
@@ -65,6 +70,7 @@ namespace aw{
 				}
 			}
 		#endif
+		//logd(" _SoundDeviceWrite(),finish ");
 		return ret;
 	}
 
@@ -180,7 +186,6 @@ namespace aw{
 	            logd(" ****NOTIFY_PLAYBACK_COMPLETE****");
 				if(p){
 					if(p->mLoop == 0){
-						logd(" ****NOTIFY_PLAYBACK_COMPLETE,close the sound card****");
 						app_msg = TINA_NOTIFY_PLAYBACK_COMPLETE;
 					}
 				}
@@ -207,52 +212,65 @@ namespace aw{
 
 	        case NOTIFY_VIDEO_FRAME:
 	        {
-				//in this version,NOTIFY_VIDEO_FRAME can not be called backed,20160320
-				
-				//VideoPicData* videodata = (VideoPicData*)param1;
-				//if(videodata)
-				//{
-				//	if(videodata->ePixelFormat == VIDEO_PIXEL_FORMAT_YUV_MB32_420)
-				//	{
-				//		char filename[024];
-			    //    	sprintf(filename, "/mnt/UDISK/mb32_%d.dat", pDemoPlayer->mVideoFrameNum);
-			    //    	FILE* outFp = fopen(filename, "wb");
-			    //    	if(outFp != NULL)
-				//	    {
-				//	    	int height64Align = (videodata->nHeight + 63)& ~63;
-				//	    	fwrite(videodata->pData0, videodata->nWidth*videodata->nHeight, 1, outFp);
-				//	    	fwrite(videodata->pData1, videodata->nWidth*height64Align/2, 1, outFp);
-				//	    	fclose(outFp);
-				//	    }
-				//	}
-			    //}	
-			    //app_msg = TINA_NOTIFY_VIDEO_FRAME;
-				//TLOGD(" NOTIFY_VIDEO_FRAME\n");
-	        	break;
+				#if SAVE_YUV_DATA
+					VideoPicData* videodata = (VideoPicData*)param1;
+					if(videodata){
+						logd("*****NOTIFY_VIDEO_FRAME****,videodata->nPts = %lld ms",videodata->nPts/1000);
+						if(savaYuvFd!=NULL){
+							if(p->mVideoFrameNum == 200){
+								logd(" *****NOTIFY_VIDEO_FRAME****,videodata->ePixelFormat = %d,videodata->nWidth = %d,videodata->nHeight=%d",videodata->ePixelFormat,videodata->nWidth,videodata->nHeight);
+								int write_ret0 = fwrite(videodata->pData0, 1, videodata->nWidth*videodata->nHeight, savaYuvFd);
+								if(write_ret0 <= 0){
+									loge("yuv write0 error,err str: %s",strerror(errno));
+								}
+								int write_ret1 = fwrite(videodata->pData1, 1, videodata->nWidth*videodata->nHeight/2, savaYuvFd);
+								if(write_ret1 <= 0){
+									loge("yuv write1 error,err str: %s",strerror(errno));
+								}
+								logd("only save 1 video frame\n");
+								fclose(savaYuvFd);
+								savaYuvFd = NULL;
+							}
+							p->mVideoFrameNum++;
+							//if(p->mVideoFrameNum >= 100){
+							//	logd("only save 100 video frame\n");
+							//	fclose(savaYuvFd);
+							//	savaYuvFd = NULL;
+							//}
+						}
+					}
+				#endif
+				app_msg = TINA_NOTIFY_VIDEO_FRAME;
+				break;
 	        }
 
 	        case NOTIFY_AUDIO_FRAME:
 	        {
-				//in this version,NOTIFY_AUDIO_FRAME can not be called backed,20160320
-				
-				//TLOGD(" NOTIFY_AUDIO_FRAME\n");
-				//AudioPcmData* pcmData = (AudioPcmData*)param1;
-				//#if SAVE_PCM_DATA
-				//	if(savaPcmFd!=NULL){
-				//		int write_ret = fwrite(pcmData->pData, 1, pcmData->nSize, savaPcmFd);
-						//TLOGD("PCM write_ret = %d\n",write_ret);
-				//		if(write_ret <= 0){
-				//			TLOGD("err str: %s\n",strerror(errno));
-				//		}
-				//	}
-				//#endif
-				//app_msg = TINA_NOTIFY_AUDIO_FRAME;
-	        	break;
+				#if SAVE_PCM_DATA
+					AudioPcmData* pcmData = (AudioPcmData*)param1;
+					if(pcmData){
+						if(savaPcmFd!=NULL){
+							//logd(" *****NOTIFY_AUDIO_FRAME#####,*pcmData->pData = %p,pcmData->nSize = %d",*(pcmData->pData),pcmData->nSize);
+							int write_ret = fwrite(pcmData->pData, 1, pcmData->nSize, savaPcmFd);
+							if(write_ret <= 0){
+								loge("pcm write error,err str: %s",strerror(errno));
+							}
+							p->mAudioFrameNum++;
+							if(p->mAudioFrameNum >= 500){
+								logd("only save 500 audio frame\n");
+								fclose(savaPcmFd);
+								savaPcmFd = NULL;
+							}
+						}
+					}
+				#endif
+				app_msg = TINA_NOTIFY_AUDIO_FRAME;
+				break;
 	        }
 
 	        case NOTIFY_VIDEO_PACKET:
 	        {
-	        	//DemuxData* videoData = (DemuxData*)param1;
+			//DemuxData* videoData = (DemuxData*)param1;
 				//logd("videoData pts: %lld", videoData->nPts);
 				//static int frame = 0;
 				//if(frame == 0)
@@ -268,15 +286,15 @@ namespace aw{
 		        //	}
 		        //	fclose(outFp);
 		        //	frame ++;
-	        	//}
-	        	//TLOGD(" NOTIFY_VIDEO_PACKET\n");
-	        	//app_msg = TINA_NOTIFY_VIDEO_PACKET;
-	        	break;
+			//}
+			//TLOGD(" NOTIFY_VIDEO_PACKET\n");
+			//app_msg = TINA_NOTIFY_VIDEO_PACKET;
+			break;
 	        }
 
 	        case NOTIFY_AUDIO_PACKET:
 	        {
-	        	//DemuxData* audioData = (DemuxData*)param1;
+			//DemuxData* audioData = (DemuxData*)param1;
 				//logd("audio pts: %lld", audioData->nPts);
 				//static int audioframe = 0;
 				//if(audioframe == 0)
@@ -292,10 +310,10 @@ namespace aw{
 		        //	}
 		        //	fclose(outFp);
 		        //	audioframe ++;
-	        	//}
-	        	//TLOGD(" NOTIFY_AUDIO_PACKET\n");
-	        	//app_msg = TINA_NOTIFY_AUDIO_PACKET;
-	        	break;
+			//}
+			//TLOGD(" NOTIFY_AUDIO_PACKET\n");
+			//app_msg = TINA_NOTIFY_AUDIO_PACKET;
+			break;
 	        	
 	        }
 	        
@@ -317,6 +335,8 @@ namespace aw{
 		mLoop = 0;
 		mNotifier = NULL;
 		mUserData = NULL;
+		mVideoFrameNum = 0;
+		mAudioFrameNum = 0;
 		mPlayer = (void*)new AwPlayer();
 		initSoundControlOpsT();
 		((AwPlayer*)mPlayer)->setControlOps(NULL, &gSoundControl);
@@ -328,7 +348,7 @@ namespace aw{
 		logd(" ~TinaPlayer() contructor begin");
 		if(((AwPlayer*)mPlayer) != NULL){
 			delete ((AwPlayer*)mPlayer);
-    		mPlayer = NULL;
+		mPlayer = NULL;
 		}
 		logd(" ~TinaPlayer() contructor finish");
 	}
@@ -392,7 +412,7 @@ namespace aw{
 	int TinaPlayer::start()
 	{
 		#if SAVE_PCM_DATA
-			savaPcmFd = fopen("/mnt/UDISK/save.pcm", "wb");
+			savaPcmFd = fopen("/tmp/save.pcm", "wb");
 			if(savaPcmFd==NULL){
 				loge("fopen save.pcm fail****");
 				loge("err str: %s",strerror(errno));
@@ -400,9 +420,16 @@ namespace aw{
 				fseek(savaPcmFd,0,SEEK_SET);
 			}
 		#endif
-		logd("tinaplayer start begin");
+		#if SAVE_YUV_DATA
+			savaYuvFd = fopen("/tmp/save.yuv", "wb");
+			if(savaYuvFd==NULL){
+				loge("fopen save.yuv fail****");
+				loge("err str: %s",strerror(errno));
+			}else{
+				fseek(savaYuvFd,0,SEEK_SET);
+			}
+		#endif
 		int ret = ((AwPlayer*)mPlayer)->start();
-		logd("tinaplayer start finish");
 		return ret;
 	}
 	
@@ -412,6 +439,12 @@ namespace aw{
 			if(savaPcmFd!=NULL){
 				fclose(savaPcmFd);
 				savaPcmFd = NULL;
+			}
+		#endif
+		#if SAVE_YUV_DATA
+			if(savaYuvFd!=NULL){
+				fclose(savaYuvFd);
+				savaYuvFd = NULL;
 			}
 		#endif
 		return ((AwPlayer*)mPlayer)->stop();
@@ -433,6 +466,12 @@ namespace aw{
 			if(savaPcmFd!=NULL){
 				fclose(savaPcmFd);
 				savaPcmFd = NULL;
+			}
+		#endif
+		#if SAVE_YUV_DATA
+			if(savaYuvFd!=NULL){
+				fclose(savaYuvFd);
+				savaYuvFd = NULL;
 			}
 		#endif
 		pid_t tid = syscall(SYS_gettid);
@@ -488,5 +527,8 @@ namespace aw{
 		}
 	}
 
-}
+	int TinaPlayer::setVideoOutputScaleRatio(int horizonScaleDownRatio,int verticalScaleDownRatio){
+		return ((AwPlayer*)mPlayer)->setVideoOutputScaleRatio(horizonScaleDownRatio,verticalScaleDownRatio);
+	}
 
+}

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxMeta.c
+ * Description : Meta
+ * History :
+ *
+ */
+
 #include <CdxMeta.h>
 
 #include <CdxTypes.h>
@@ -127,7 +137,6 @@ static cdx_void __CdxMetaDecRef(struct CdxMetaS *meta)
     }
     return ;
 }
-
 
 static cdx_err __CdxMetaSetInt32(struct CdxMetaS *meta, 
                                 cdx_char * name, cdx_int32 val)

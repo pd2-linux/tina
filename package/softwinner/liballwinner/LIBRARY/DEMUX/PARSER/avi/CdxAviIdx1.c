@@ -1,20 +1,12 @@
-/*******************************************************************************
---                                                                            --
---                    CedarX Multimedia Framework                             --
---                                                                            --
---          the Multimedia Framework for Linux/Android System                 --
---                                                                            --
---       This software is confidential and proprietary and may be used        --
---        only as expressly authorized by a licensing agreement from          --
---                         Softwinner Products.                               --
---                                                                            --
---                   (C) COPYRIGHT 2011 SOFTWINNER PRODUCTS                   --
---                            ALL RIGHTS RESERVED                             --
---                                                                            --
---                 The entire notice above must be reproduced                 --
---                  on all copies and should not be removed.                  --
---                                                                            --
-*******************************************************************************/
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxAviIdx1.c
+ * Description : Part of avi parser.
+ * History :
+ *
+ */
 
 //#define LOG_NDEBUG 0
 #define LOG_TAG "TEMP_TAG"
@@ -83,7 +75,8 @@ Return:
     AVI_ERR_FILE_FMT_ERR
 Time: 2009/5/25
 *******************************************************************************/
-cdx_int32 SearchNextIdx1IndexEntry(struct PsrIdx1TableReader *pReader, AVI_CHUNK_POSITION *pChunkPos)
+cdx_int32 SearchNextIdx1IndexEntry(struct PsrIdx1TableReader *pReader,
+    AVI_CHUNK_POSITION *pChunkPos)
 {
     cdx_int32   chunkid = 0;
     cdx_int32   findFlag = 0;
@@ -110,8 +103,9 @@ cdx_int32 SearchNextIdx1IndexEntry(struct PsrIdx1TableReader *pReader, AVI_CHUNK
                 CDX_LOGE("file seek error!");
                 return AVI_ERR_READ_FILE_FAIL;
             }
-            if(pReader->bufIdxItem*sizeof(AviIndexEntryT) != (cdx_uint32)CdxStreamRead(pReader->idxFp,
-                                    pReader->fileBuffer, pReader->bufIdxItem*sizeof(AviIndexEntryT)))
+            if(pReader->bufIdxItem*sizeof(AviIndexEntryT) !=
+                (cdx_uint32)CdxStreamRead(pReader->idxFp,
+                pReader->fileBuffer, pReader->bufIdxItem*sizeof(AviIndexEntryT)))
             {
                 return AVI_ERR_READ_FILE_FAIL;
             }
@@ -123,13 +117,12 @@ cdx_int32 SearchNextIdx1IndexEntry(struct PsrIdx1TableReader *pReader, AVI_CHUNK
         chunkid = CDX_STREAM_FROM_FOURCC(pReader->pIdxEntry->ckid);
         if(chunkid == pReader->streamIdx)
         {
-            pChunkPos->ckOffset        = pReader->pIdxEntry->dwChunkOffset + pReader->ckBaseOffset;
+            pChunkPos->ckOffset       = pReader->pIdxEntry->dwChunkOffset + pReader->ckBaseOffset;
             pChunkPos->chunkBodySize  = pReader->pIdxEntry->dwChunkLength;
             pChunkPos->ixTblEntOffset = pReader->fpPos - pReader->bufIdxItem*sizeof(AviIndexEntryT);
-            pChunkPos->isKeyframe      = (pReader->pIdxEntry->dwFlags & CDX_AVIIF_KEYFRAME) ? 1 : 0;
+            pChunkPos->isKeyframe     = (pReader->pIdxEntry->dwFlags & CDX_AVIIF_KEYFRAME) ? 1 : 0;
             pReader->bufIdxItem--;
             pReader->pIdxEntry++;
-            //��дreader��ͳ����Ϣ
             pReader->chunkCounter++;
             pReader->chunkSize = pChunkPos->chunkBodySize;
             pReader->chunkIndexOffset = pChunkPos->ixTblEntOffset;
@@ -293,7 +286,8 @@ cdx_int16 AviBuildIdxForIndexMode(CdxAviParserImplT *p)
         }
     }
     memset(aviIn->idx1Buf, 0, MAX_IDX_BUF_SIZE_FOR_INDEX_MODE);
-    aviIn->idx1BufEnd = (cdx_uint32 *)((cdx_uint8 *)aviIn->idx1Buf + MAX_IDX_BUF_SIZE_FOR_INDEX_MODE);
+    aviIn->idx1BufEnd = (cdx_uint32 *)((cdx_uint8 *)aviIn->idx1Buf +
+        MAX_IDX_BUF_SIZE_FOR_INDEX_MODE);
 
     //back current file position
     curFilePos = CdxStreamTell(aviIn->fp);
@@ -318,7 +312,7 @@ cdx_int16 AviBuildIdxForIndexMode(CdxAviParserImplT *p)
     ret = InitialPsrIdx1TableReader(&aviIn->vidIdx1Reader, aviIn, p->videoStreamIndex);
     if(ret < AVI_SUCCESS)
     {
-       goto  __err1_idx1_buf;
+       goto __err1_idx1_buf;
     }
     while(1)
     {
@@ -328,7 +322,8 @@ cdx_int16 AviBuildIdxForIndexMode(CdxAviParserImplT *p)
             ret = AVI_ERR_ABORT;
             goto __err1_idx1_buf;
         }
-        //srchret = search_next_ODML_index_entry(&avi_in->vid_indx_reader, &chunk_pos, &chunk_body_size);
+        //srchret = search_next_ODML_index_entry(&avi_in->vid_indx_reader,
+        //&chunk_pos, &chunk_body_size);
         srchRet = SearchNextIdx1IndexEntry(&aviIn->vidIdx1Reader, &indexChunkEntry);
         if(AVI_SUCCESS == srchRet)
         {
@@ -345,12 +340,14 @@ cdx_int16 AviBuildIdxForIndexMode(CdxAviParserImplT *p)
             {
                 //because chunk_idx has increase 1 in search_next_ODML_index_entry()
                 pKeyFrameTableEntry->frameIdx = aviIn->vidIdx1Reader.chunkCounter - 1;
-                //CDX_LOGD("xxxxxxxxx keyframe idx(%d), AviBuildIdxForIndexMode", pKeyFrameTableEntry->frameIdx);
-                pKeyFrameTableEntry->vidChunkOffset = indexChunkEntry.ckOffset;  //chunk_pos.ck_offset;
+                //CDX_LOGD("xxxxxxxxx keyframe idx(%d), AviBuildIdxForIndexMode",
+                //pKeyFrameTableEntry->frameIdx);
+                pKeyFrameTableEntry->vidChunkOffset =
+                    indexChunkEntry.ckOffset;//chunk_pos.ck_offset;
                 pKeyFrameTableEntry->vidChunkIndexOffset = indexChunkEntry.ixTblEntOffset;
                 vframePts = (cdx_uint32)((cdx_int64)pKeyFrameTableEntry->frameIdx 
                                                          * p->aviFormat.nMicSecPerFrame / 1000);
-                for(i = 0; i < p->hasAudio; i++)    //��дaudio��Ĭ�ϵ�pts���Ⱥ�keyframe��pts��ͬ
+                for(i = 0; i < p->hasAudio; i++)
                 {
                     pKeyFrameTableEntry->audPtsArray[i] = vframePts;
                 }
@@ -379,7 +376,8 @@ cdx_int16 AviBuildIdxForIndexMode(CdxAviParserImplT *p)
         }
     }
     DeinitialPsrIdx1TableReader(&aviIn->vidIdx1Reader);
-    CDX_LOGV("KeyframeTable index video done, cnt=%d, maxcnt=%d\n", aviIn->indexCountInKeyfrmTbl,  nKeyframeTableSize);
+    CDX_LOGV("KeyframeTable index video done, cnt=%d, maxcnt=%d\n",
+        aviIn->indexCountInKeyfrmTbl,  nKeyframeTableSize);
     //2. fill audio_chunk and audio pts.
     if(!p->hasAudio)
     {
@@ -400,7 +398,8 @@ cdx_int16 AviBuildIdxForIndexMode(CdxAviParserImplT *p)
             indexChunkOkFlag = 0;
             break;
         }
-        ret = InitialPsrIdx1TableReader(&aviIn->audIdx1Reader, aviIn, p->audioStreamIndexArray[iAud]);
+        ret = InitialPsrIdx1TableReader(&aviIn->audIdx1Reader, aviIn,
+            p->audioStreamIndexArray[iAud]);
         if(ret != AVI_SUCCESS)
         {
             indexChunkOkFlag = 0;
@@ -417,9 +416,10 @@ cdx_int16 AviBuildIdxForIndexMode(CdxAviParserImplT *p)
                 ret = AVI_ERR_ABORT;
                 goto __err1_idx1_buf;
             }
-            vidPts = (cdx_int64)pKeyFrameTableEntry->frameIdx * p->aviFormat.nMicSecPerFrame /1000;//unit : ms
+            vidPts = (cdx_int64)pKeyFrameTableEntry->frameIdx *
+                p->aviFormat.nMicSecPerFrame /1000;//unit : ms
             srchRet = SearchAudioChunkIdx1EntrySequence(&aviIn->audIdx1Reader, vidPts, 
-                                                                    pKeyFrameTableEntry, iAud, pAudStrmInfo);
+                                               pKeyFrameTableEntry, iAud, pAudStrmInfo);
             if(srchRet < AVI_SUCCESS) 
             {
                 CDX_LOGV("ret[%d], build ffrr table for idx1 index mode fail.", srchRet);
@@ -499,4 +499,3 @@ __err1_idx1_buf:
     DeinitialPsrIdx1TableReader(&aviIn->vidIdx1Reader);
     return ret;
 }
-

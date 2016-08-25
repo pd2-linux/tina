@@ -1,20 +1,12 @@
-/*******************************************************************************
---                                                                            --
---                    CedarX Multimedia Framework                             --
---                                                                            --
---          the Multimedia Framework for Linux/Android System                 --
---                                                                            --
---       This software is confidential and proprietary and may be used        --
---        only as expressly authorized by a licensing agreement from          --
---                         Softwinner Products.                               --
---                                                                            --
---                   (C) COPYRIGHT 2011 SOFTWINNER PRODUCTS                   --
---                            ALL RIGHTS RESERVED                             --
---                                                                            --
---                 The entire notice above must be reproduced                 --
---                  on all copies and should not be removed.                  --
---                                                                            --
-*******************************************************************************/
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxAviDepack.c
+ * Description : Part of avi parser.
+ * History :
+ *
+ */
 
 //#define CONFIG_LOG_LEVEL 4
 #define LOG_TAG "CdxAviDepack"
@@ -49,14 +41,21 @@ cdx_int32 ConvertSubStreamidToArrayNum(CdxAviParserImplT *p, cdx_int32 streamId)
 cdx_int32 EvaluateStrhValid(AVIStreamHeaderT *pabsHdr)
 {
     cdx_int32   ret = AVI_ERR_PARA_ERR;
+
     if(0 == pabsHdr->dwRate || 0 == pabsHdr->dwScale)
     {
+        logd("pabsHdr->dwRate=%u, pabsHdr->dwScale=%u", pabsHdr->dwRate, pabsHdr->dwScale);
         return AVI_ERR_PARA_ERR;
     }
+
+    //STRH_DWSCALE_THRESH & MIN_BYTERATE may just empiric value, not seen in spec.
+    #if 0
     if(pabsHdr->dwSampleSize > 0 || pabsHdr->dwScale < STRH_DWSCALE_THRESH)
     {
         if(pabsHdr->dwRate/pabsHdr->dwScale < MIN_BYTERATE) 
         {
+            logd("pabsHdr->dwSampleSize=%u, pabsHdr->dwScale=%u, %u",
+                pabsHdr->dwSampleSize, pabsHdr->dwScale, pabsHdr->dwRate/pabsHdr->dwScale);
             ret = AVI_ERR_PARA_ERR;
         }
         else
@@ -69,6 +68,9 @@ cdx_int32 EvaluateStrhValid(AVIStreamHeaderT *pabsHdr)
         ret = AVI_SUCCESS;
     }
     return ret;
+    #endif
+
+    return AVI_SUCCESS;
 }
 /*******************************************************************************
 Function name: calc_avi_audio_chunk_pts
@@ -77,7 +79,8 @@ Description:
 *******************************************************************************/
 //CDX_S32 calc_avi_audio_chunk_pts(AVIStreamHeader *pabs_hdr,
 //                    WAVEFORMATEX *pabs_fmt, CDX_S64 total_size, CDX_S32 total_num)
-cdx_int32 CalcAviAudioChunkPts(AudioStreamInfoT *pAudioStreamInfo, cdx_int64 totalSize, cdx_int32 totalNum)
+cdx_int32 CalcAviAudioChunkPts(AudioStreamInfoT *pAudioStreamInfo, cdx_int64 totalSize,
+    cdx_int32 totalNum)
 
 {
     cdx_int32   audioPts = 0;
@@ -88,7 +91,7 @@ cdx_int32 CalcAviAudioChunkPts(AudioStreamInfoT *pAudioStreamInfo, cdx_int64 tot
     else
     {
         audioPts = (cdx_int32)((cdx_int64)totalNum * pAudioStreamInfo->sampleNumPerFrame * 1000 
-                                                                        / pAudioStreamInfo->sampleRate);
+                                                     / pAudioStreamInfo->sampleRate);
     }
     return audioPts;
 }
@@ -166,7 +169,7 @@ Time: 2011/6/30
 *******************************************************************************/
 cdx_int32 CalcAviChunkAudioFrameNum(AudioStreamInfoT *pAudStrmInfo, cdx_int32 nChunkSize)
 {
-	cdx_int32 num;
+    cdx_int32 num;
     if(NULL == pAudStrmInfo)    //说明不是avi audio chunk.返回0就行了
     {
         return 0;
@@ -175,7 +178,7 @@ cdx_int32 CalcAviChunkAudioFrameNum(AudioStreamInfoT *pAudStrmInfo, cdx_int32 nC
     {
         if(pAudStrmInfo->nBlockAlign)
         {
-            num = (nChunkSize + pAudStrmInfo->nBlockAlign - 1)/pAudStrmInfo->nBlockAlign;   //必须roundup
+            num = (nChunkSize + pAudStrmInfo->nBlockAlign - 1)/pAudStrmInfo->nBlockAlign;
         }
         else
         {
@@ -183,7 +186,7 @@ cdx_int32 CalcAviChunkAudioFrameNum(AudioStreamInfoT *pAudStrmInfo, cdx_int32 nC
         }
         if(0 == num)
         {
-            CDX_LOGW("fatal error!aud chunk size[%x]\n", nChunkSize);
+            CDX_LOGD("aud chunk size[%x]\n", nChunkSize);
             num = 1;
         }
         return num;
@@ -261,7 +264,7 @@ cdx_int16 GetNextChunkHead(CdxStreamT *pf, AviChunkT *chunk, cdx_uint32 *length)
 }
 
 /*
-*********************************************************************************************************
+*********************************************************************************************
 *                           GET NEXT CHUNK
 *
 *Description: Get next chunk for parse the file structure.
@@ -269,7 +272,7 @@ cdx_int16 GetNextChunkHead(CdxStreamT *pf, AviChunkT *chunk, cdx_uint32 *length)
 * fcc + length + data
 * if fcc is RIFF/LIST, data size is 4, otherwise it is chunk length.
 *
-*********************************************************************************************************
+*********************************************************************************************
 */
 cdx_int16 GetNextChunk(CdxStreamT *fp, AviChunkT *chunk)
 {
@@ -301,7 +304,8 @@ cdx_int16 GetNextChunk(CdxStreamT *fp, AviChunkT *chunk)
             return AVI_ERR_CHUNK_OVERFLOW;
         }
 
-        if(CdxStreamRead(fp, chunk->buffer, length) != (cdx_int32)length)// for RIFF/LIST, length=4; for data chunk, length=chunk->length
+        if(CdxStreamRead(fp, chunk->buffer, length) != (cdx_int32)length)
+            // for RIFF/LIST, length=4; for data chunk, length=chunk->length
         {
             CDX_LOGE("file read error happened!");
             return -1;
@@ -312,7 +316,8 @@ cdx_int16 GetNextChunk(CdxStreamT *fp, AviChunkT *chunk)
 }
 
 //searchDirection: 1:forward 0:backward
-cdx_int32 ReconfigAviReadContext(CdxAviParserImplT *p, cdx_uint32 vidTime, cdx_int32 searchDirection, cdx_int32 searchMode)
+cdx_int32 ReconfigAviReadContext(CdxAviParserImplT *p, cdx_uint32 vidTime,
+    cdx_int32 searchDirection, cdx_int32 searchMode)
 {
     cdx_int32   ret = AVI_EXCEPTION;
     AviFileInT  *aviIn = (AviFileInT *)p->privData;
@@ -340,9 +345,9 @@ cdx_int32 ReconfigAviReadContext(CdxAviParserImplT *p, cdx_uint32 vidTime, cdx_i
 }
 
 /*
-*********************************************************************************************************
+***********************************************************************************************
 *  
-*********************************************************************************************************
+***********************************************************************************************
 */
 AviStreamInfoT *GetNextStreamInfo(AviFileInT *s)
 {
@@ -375,7 +380,6 @@ AviStreamInfoT *GetNextStreamInfo(AviFileInT *s)
     streamInfo->streamType = 'u';
     streamInfo->mediaType  = 'u';
     streamInfo->isODML     =  0;
-
 
     while((fpOffset = CdxStreamTell(pf)) < listEnd - 1)  
     {
@@ -485,12 +489,14 @@ AviStreamInfoT *GetNextStreamInfo(AviFileInT *s)
                 streamInfo->indx = (AviSuperIndexChunkT *)malloc(sizeof(AviSuperIndexChunkT));
                 memcpy((cdx_uint8*)streamInfo->indx, chunk->buffer, 0x18);
                 streamInfo->indxTblOffset = fpOffset;
-                //For 'indx', bIndexSubType must be 0, and here indx chunk should point to index chunk
+                //For 'indx', bIndexSubType must be 0, and here indx chunk
+                //should point to index chunk
                 if(streamInfo->indx->bIndexSubType
                     || streamInfo->indx->bIndexType != CDX_AVI_INDEX_OF_INDEXES
-                    || streamInfo->indx->wLongsPerEntry != 4) //-- bIndexSubType ?   0 | CDX_AVI_INDEX_2FIELD
+                    || streamInfo->indx->wLongsPerEntry != 4)//bIndexSubType?0|CDX_AVI_INDEX_2FIELD
                 {
-                    CDX_LOGW("special ODML index! IndexSubType[%x],IndexType[%x], wLongsperEntry[%d]\n",
+                    CDX_LOGW("special ODML index! IndexSubType[%x],IndexType[%x],"
+                        " wLongsperEntry[%d]\n",
                         streamInfo->indx->bIndexSubType,
                         streamInfo->indx->bIndexType,
                         streamInfo->indx->wLongsPerEntry);
@@ -505,13 +511,15 @@ AviStreamInfoT *GetNextStreamInfo(AviFileInT *s)
                 if(s->fileSize>0 && ((cdx_uint64)streamInfo->indx->baseOffsetHigh << 32
                         | streamInfo->indx->baseOffsetLow) >= s->fileSize)
                 {
-                    CDX_LOGW("indx offset >= filesize ? I don't know why write this, if happen, check code!\n");
+                    CDX_LOGW("indx offset >= filesize ? I don't know why write this,"
+                        " if happen, check code!\n");
                     break;
                 }
 
                 if(streamInfo->indx->nEntriesInUse > MAX_IX_ENTRY_NUM)
                 {
-                    CDX_LOGW("nEntriesInUse[%d] > MAX_IX_ENTRY_NUM[128]",streamInfo->indx->nEntriesInUse);
+                    CDX_LOGW("nEntriesInUse[%d] > MAX_IX_ENTRY_NUM[128]",
+                        streamInfo->indx->nEntriesInUse);
                     streamInfo->indx->nEntriesInUse = MAX_IX_ENTRY_NUM;
                 }
 
@@ -521,8 +529,10 @@ AviStreamInfoT *GetNextStreamInfo(AviFileInT *s)
                 {
                     if(streamInfo->indx->bIndexType == CDX_AVI_INDEX_OF_INDEXES)
                     {
-                        streamInfo->indx->aIndex[i] = (AviSuperIndexEntryT *)malloc(sizeof(AviSuperIndexEntryT));
-                        memcpy(streamInfo->indx->aIndex[i], chunk->buffer + off, sizeof(AviSuperIndexEntryT));
+                        streamInfo->indx->aIndex[i] =
+                            (AviSuperIndexEntryT *)malloc(sizeof(AviSuperIndexEntryT));
+                        memcpy(streamInfo->indx->aIndex[i], chunk->buffer + off,
+                            sizeof(AviSuperIndexEntryT));
                         off += sizeof(AviSuperIndexEntryT);
                     }
                 }
@@ -566,7 +576,7 @@ cdx_int32 GetIdx1Info(AviFileInT *aviIn)
             return AVI_ERR_GET_INDEX_ERR;
         }
         aviIn->idx1Start = CdxStreamTell(aviIn->fp);
-        if(CdxStreamSeek(aviIn->fp, aviIn->dataChunk.length, STREAM_SEEK_CUR))//CdxStreamSeek(aviIn->fp, aviIn->dataChunk.length, STREAM_SEEK_CUR)
+        if(CdxStreamSeek(aviIn->fp, aviIn->dataChunk.length, STREAM_SEEK_CUR))
         {
             aviIn->idx1Total = 0;
             CDX_LOGE("seek failed.");
@@ -597,7 +607,8 @@ cdx_int32 GetIdx1Info(AviFileInT *aviIn)
             }
             while(1)
             {
-                if(CdxStreamRead(aviIn->fp, &mIdx, sizeof(AviIndexEntryT)) != sizeof(AviIndexEntryT))
+                if(CdxStreamRead(aviIn->fp, &mIdx, sizeof(AviIndexEntryT)) !=
+                    sizeof(AviIndexEntryT))
                 {
                     aviIn->idx1Total = 0;
                     CDX_LOGE("read failed.");
@@ -612,7 +623,8 @@ cdx_int32 GetIdx1Info(AviFileInT *aviIn)
                     CDX_LOGV("idx1 has 'rec ' structure, skip to next index entry\n");
                 }
             }
-            if(CdxStreamSeek(aviIn->fp, (cdx_int64)mIdx.dwChunkOffset, STREAM_SEEK_SET))//dwChunkOffset: from file start
+            if(CdxStreamSeek(aviIn->fp, (cdx_int64)mIdx.dwChunkOffset, STREAM_SEEK_SET))
+                //dwChunkOffset: from file start
             {
                 aviIn->idx1Total = 0;
                 CDX_LOGE("seek failed.");
@@ -637,7 +649,8 @@ cdx_int32 GetIdx1Info(AviFileInT *aviIn)
             }
             else
             {
-                if(CdxStreamSeek(aviIn->fp, (cdx_int64)(mIdx.dwChunkOffset+aviIn->moviStart-4), STREAM_SEEK_SET))//dwChunkOffset: from movi
+                if(CdxStreamSeek(aviIn->fp, (cdx_int64)(mIdx.dwChunkOffset+aviIn->moviStart-4),
+                    STREAM_SEEK_SET))//dwChunkOffset: from movi
                 {
                     aviIn->idx1Total = 0;
                     CDX_LOGE("seek failed.");
@@ -690,7 +703,7 @@ cdx_int32 GetIdx1Info(AviFileInT *aviIn)
 }
 
 /*
-*********************************************************************************************************
+***********************************************************************************************
 *                       RELEASE THE MEMORY RESOURCE OF A CHUNK
 *
 *Description: Release the memory resource of a chunk.
@@ -698,7 +711,7 @@ cdx_int32 GetIdx1Info(AviFileInT *aviIn)
 *Arguments  : chunk     the pointer to the chunk buffer.
 *
 *Return     : none.
-*********************************************************************************************************
+***********************************************************************************************
 */
 void ReleaseChunk(AviChunkT *chunk)
 {
@@ -714,7 +727,7 @@ void ReleaseChunk(AviChunkT *chunk)
 }
 
 /*
-*********************************************************************************************************
+************************************************************************************************
 *                       RELEASE THE MEMORY RESOURCE OF A BITSTREAM INFORMATION
 *
 *Description: Release the memory resource of a bitstream information.
@@ -722,7 +735,7 @@ void ReleaseChunk(AviChunkT *chunk)
 *Arguments  : SInfo     the pointer to the bitstream information.
 *
 *Return     : none.
-*********************************************************************************************************
+************************************************************************************************
 */
 void ReleaseStreamInfo(AviStreamInfoT *sInfo)
 {
@@ -768,7 +781,7 @@ void ReleaseStreamInfo(AviStreamInfoT *sInfo)
 }
 
 /*
-*********************************************************************************************************
+************************************************************************************************
 *                       OPEN AVI struct cdx_stream_info TO READ
 *
 *Description: open avi file to read.
@@ -779,9 +792,9 @@ void ReleaseStreamInfo(AviStreamInfoT *sInfo)
 *Return     : open avi file result;
 *               =   0   open avi file successed;
 *               <   0   open avi file failed;
-*********************************************************************************************************
+************************************************************************************************
 */
-cdx_int16 AVIReaderOpenFile(CdxAviParserImplT *impl)//(AviFileInT *aviFile)// CedarXDataSourceDesc *datasrc_desc)
+cdx_int16 AVIReaderOpenFile(CdxAviParserImplT *impl)
 {
     cdx_int32           i, ret;
     AviChunkT           *chunk = NULL;
@@ -812,7 +825,8 @@ cdx_int16 AVIReaderOpenFile(CdxAviParserImplT *impl)//(AviFileInT *aviFile)// Ce
     
     // verify that this is an AVI file
     ret = GetNextChunk(aviFile->fp, &aviFile->dataChunk);
-    if((ret < 0) || (chunk->fcc != CDX_FORM_HEADER_RIFF) || (strncmp((char *)chunk->buffer, "AVI ", 4) != 0))
+    if((ret < 0) || (chunk->fcc != CDX_FORM_HEADER_RIFF) || (strncmp((char *)chunk->buffer,
+        "AVI ", 4) != 0))
     {
         CdxStreamClose(aviFile->fp);
         aviFile->fp = NULL;
@@ -865,7 +879,8 @@ cdx_int16 AVIReaderOpenFile(CdxAviParserImplT *impl)//(AviFileInT *aviFile)// Ce
     for(i = 0; i < aviFile->nStream; i++)    
     {
         aviFile->sInfo[i] = GetNextStreamInfo(aviFile);
-        CDX_LOGV("xxxxxxxxxxxxxx aviFile->sInfo[%d].mediaType(%d) ",i, aviFile->sInfo[i]->mediaType);
+        CDX_LOGV("xxxxxxxxxxxxxx aviFile->sInfo[%d].mediaType(%d) ", i,
+            aviFile->sInfo[i]->mediaType);
         if(aviFile->sInfo[i]->isODML)
         {
             aviFile->hasIndx = 1; 
@@ -877,7 +892,7 @@ cdx_int16 AVIReaderOpenFile(CdxAviParserImplT *impl)//(AviFileInT *aviFile)// Ce
 }
 
 /*
-*********************************************************************************************************
+**********************************************************************************************
 *                       CLOSE struct cdx_stream_info
 *
 *Description: Close file, release some memory resource.
@@ -885,7 +900,7 @@ cdx_int16 AVIReaderOpenFile(CdxAviParserImplT *impl)//(AviFileInT *aviFile)// Ce
 *Arguments  : avi_file  the pointer to the avi file information.
 *
 *Return     : none.
-*********************************************************************************************************
+**********************************************************************************************
 */
 cdx_int16 AviReaderCloseFile(AviFileInT *aviFile)
 {
@@ -947,12 +962,8 @@ cdx_int16 AviReaderCloseFile(AviFileInT *aviFile)
     return 0;
 }
 
-
-
-
-
 /*
-*********************************************************************************************************
+**********************************************************************************************
 *                       GET BITSTREAM INFORMATION
 *
 *Description: Get the bitstream information from the bitstream information buffer.
@@ -964,7 +975,7 @@ cdx_int16 AviReaderCloseFile(AviFileInT *aviFile)
 *Return     : get bitstream information result;
 *               =   0   get bitstream information successed;
 *               <   0   get bitstream information failed.
-*********************************************************************************************************
+**********************************************************************************************
 */
 cdx_int16 AviReaderGetStreamInfo(AviFileInT *aviFile, AviStreamInfoT *sInfo, cdx_int32 index)
 {
@@ -1010,7 +1021,8 @@ cdx_int32 SetFileParserVideoInfo(CdxAviParserImplT *p)
         p->aviFormat.vFormat.nHeight = bmpInfoHdr->biHeight;
         p->totalFrames = strmHdr->dwLength;
 #endif
-        CDX_LOGV("avih->dwTotalFrames[%x],strm_hdr->dwLength[%x]\n", avih->dwTotalFrames, strmHdr->dwLength);
+        CDX_LOGV("avih->dwTotalFrames[%x],strm_hdr->dwLength[%x]\n", avih->dwTotalFrames,
+            strmHdr->dwLength);
         if(avih->dwTotalFrames != strmHdr->dwLength)
         {
             CDX_LOGV("avih->dwTotalFrames[%x] != strm_hdr->dwLength[%x]\n", 
@@ -1022,8 +1034,10 @@ cdx_int32 SetFileParserVideoInfo(CdxAviParserImplT *p)
             && (avih->dwMicroSecPerFrame <= 200*1000)))//5-60FPS
         {
             //calculate frame rate with parameter from avi main header
-            p->aviFormat.vFormat.nFrameRate = (cdx_uint16)(1000000 / avih->dwMicroSecPerFrame * FRAME_RATE_BASE);
-            p->aviFormat.vFormat.nFrameRate += (cdx_uint16)((1000000%avih->dwMicroSecPerFrame)* FRAME_RATE_BASE / avih->dwMicroSecPerFrame);
+            p->aviFormat.vFormat.nFrameRate = (cdx_uint16)(1000000 / avih->dwMicroSecPerFrame *
+                FRAME_RATE_BASE);
+            p->aviFormat.vFormat.nFrameRate += (cdx_uint16)((1000000%avih->dwMicroSecPerFrame)*
+                FRAME_RATE_BASE / avih->dwMicroSecPerFrame);
             p->aviFormat.nMicSecPerFrame = avih->dwMicroSecPerFrame;
         }
         else if((strmHdr->dwScale && strmHdr->dwRate)
@@ -1031,42 +1045,48 @@ cdx_int32 SetFileParserVideoInfo(CdxAviParserImplT *p)
             && ((strmHdr->dwRate / strmHdr->dwScale) <= 60))
         {        
             //calculate frame rate with parameter from video bitstream header
-            p->aviFormat.nMicSecPerFrame = /*avih->dwMicroSecPerFrame =*/ (cdx_int64)((cdx_int64)strmHdr->dwScale* 1000000) / strmHdr->dwRate;
-            p->aviFormat.vFormat.nFrameRate = (cdx_int64)((cdx_int64)strmHdr->dwRate* FRAME_RATE_BASE) / strmHdr->dwScale;
+            //avih->dwMicroSecPerFrame
+            p->aviFormat.nMicSecPerFrame =
+                (cdx_int64)((cdx_int64)strmHdr->dwScale* 1000000) / strmHdr->dwRate;
+            p->aviFormat.vFormat.nFrameRate =
+                (cdx_int64)((cdx_int64)strmHdr->dwRate* FRAME_RATE_BASE) / strmHdr->dwScale;
         }
         else
         {
             CDX_LOGD("xxxxxxxxxxxx avih->dwMicroSecPerFrame=%u", avih->dwMicroSecPerFrame);
             p->aviFormat.nMicSecPerFrame = avih->dwMicroSecPerFrame;
-            p->aviFormat.vFormat.nFrameRate = (cdx_uint16)(1000000 / avih->dwMicroSecPerFrame * FRAME_RATE_BASE);
-            p->aviFormat.vFormat.nFrameRate += (cdx_uint16)((1000000%avih->dwMicroSecPerFrame)* FRAME_RATE_BASE / avih->dwMicroSecPerFrame);
+            p->aviFormat.vFormat.nFrameRate = (cdx_uint16)(1000000 / avih->dwMicroSecPerFrame *
+                FRAME_RATE_BASE);
+            p->aviFormat.vFormat.nFrameRate += (cdx_uint16)((1000000%avih->dwMicroSecPerFrame)*
+                FRAME_RATE_BASE / avih->dwMicroSecPerFrame);
             //set default value to try it
             //p->aviFormat.nMicSecPerFrame = /*avih->dwMicroSecPerFrame =*/ 1000000 / 25;
             //p->aviFormat.vFormat.nFrameRate = 25 * FRAME_RATE_BASE;
         }
         //p->vFormat.nMicSecPerFrame = avih->dwMicroSecPerFrame;
         
-        p->nVidPtsOffset = (cdx_uint32)((cdx_uint64)strmHdr->dwStart * FRAME_RATE_BASE * 1000 / (p->aviFormat.vFormat.nFrameRate));
+        p->nVidPtsOffset = (cdx_uint32)((cdx_uint64)strmHdr->dwStart * FRAME_RATE_BASE * 1000 /
+            (p->aviFormat.vFormat.nFrameRate));
         if(0 != p->nVidPtsOffset)
         {
             CDX_LOGV("this file nVidPtsBaseTime[%d]ms\n", p->nVidPtsOffset);
         }
         switch (strmHdr->fccHandler)
         {
-        	case CDX_MMIO_FOURCC('m','p','g','4'):			//MSMPEGV1
-			{
+            case CDX_MMIO_FOURCC('m','p','g','4'):            //MSMPEGV1
+            {
                 CDX_LOGV("video bitstream type: DIVX1!");
                 p->aviFormat.vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_MSMPEG4V1;
                 break;
-			}
-        	case CDX_MMIO_FOURCC('d','i','v','2'):			//MSMPEGV2
-        	case CDX_MMIO_FOURCC('D','I','V','2'):
-        	case CDX_MMIO_FOURCC('M','P','4','2'):
-        	{
+            }
+            case CDX_MMIO_FOURCC('d','i','v','2'):            //MSMPEGV2
+            case CDX_MMIO_FOURCC('D','I','V','2'):
+            case CDX_MMIO_FOURCC('M','P','4','2'):
+            {
                 CDX_LOGV("video bitstream type: DIVX2!");
                 p->aviFormat.vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_MSMPEG4V2;
-        		break;
-        	}
+                break;
+            }
             case CDX_MMIO_FOURCC('d','i','v','3'):
             case CDX_MMIO_FOURCC('D','I','V','3'):
             case CDX_MMIO_FOURCC('d','i','v','4'):
@@ -1093,7 +1113,7 @@ cdx_int32 SetFileParserVideoInfo(CdxAviParserImplT *p)
                     default:
                     {
                         CDX_LOGV("video bitstream type(%x, %x): UNKNOWNVBS!\n", \
-                                                                    strmHdr->fccHandler, bmpInfoHdr->biCompression);
+                            strmHdr->fccHandler, bmpInfoHdr->biCompression);
                         p->aviFormat.vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_UNKNOWN;
                         break;
                     }
@@ -1142,7 +1162,7 @@ cdx_int32 SetFileParserVideoInfo(CdxAviParserImplT *p)
 
                     default:
                     {
-                        CDX_LOGV("video bitstream type(%x, %x): UNKNOWNVBS, try it with xvid!\n",  \
+                        CDX_LOGV("video bitstream type(%x, %x): UNKNOWNVBS, try it with xvid!\n", \
                                                 strmHdr->fccHandler, bmpInfoHdr->biCompression);
                         if(strmHdr->fccHandler == CDX_MMIO_FOURCC('M','S','V','C'))
                         {
@@ -1187,20 +1207,20 @@ cdx_int32 SetFileParserVideoInfo(CdxAviParserImplT *p)
             case CDX_MMIO_FOURCC('F', 'L', 'V', '1'):
             {
                 p->aviFormat.vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_SORENSSON_H263;
-            	break;
+                break;
             }
-
 
             case CDX_MMIO_FOURCC('x','2','6','4'):
             case CDX_MMIO_FOURCC('X','2','6','4'):
             case CDX_MMIO_FOURCC('h','2','6','4'):
-           	case CDX_MMIO_FOURCC('H','2','6','4'):
-           	case CDX_MMIO_FOURCC('A','V','C','1'):
-           	case CDX_MMIO_FOURCC('a','v','c','1'):
+               case CDX_MMIO_FOURCC('H','2','6','4'):
+               case CDX_MMIO_FOURCC('A','V','C','1'):
+               case CDX_MMIO_FOURCC('a','v','c','1'):
             {
                 CDX_LOGV("video bitstream type: H264.");
                 p->aviFormat.vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_H264;
-                CDX_LOGV("aviIn->sInfo[p->videoStreamIndex]->strf->length(%u)",aviIn->sInfo[p->videoStreamIndex]->strf->length);
+                CDX_LOGV("aviIn->sInfo[p->videoStreamIndex]->strf->length(%u)",
+                    aviIn->sInfo[p->videoStreamIndex]->strf->length);
                 if(aviIn->sInfo[p->videoStreamIndex]->strf->length <= 40)
                     break;
                 aviIn->vopPrivInf = malloc(aviIn->sInfo[p->videoStreamIndex]->strf->length - 40);
@@ -1214,9 +1234,11 @@ cdx_int32 SetFileParserVideoInfo(CdxAviParserImplT *p)
                         aviIn->sInfo[p->videoStreamIndex]->strf->buffer + 40,
                         aviIn->sInfo[p->videoStreamIndex]->strf->length - 40);
                 p->aviFormat.vFormat.pCodecSpecificData = aviIn->vopPrivInf;
-                p->aviFormat.vFormat.nCodecSpecificDataLen = aviIn->sInfo[p->videoStreamIndex]->strf->length - 40;
+                p->aviFormat.vFormat.nCodecSpecificDataLen =
+                    aviIn->sInfo[p->videoStreamIndex]->strf->length - 40;
                 CDX_LOGV("pCodecSpecificData(%p),nCodecSpecificDataLen(%u)",
-                                p->aviFormat.vFormat.pCodecSpecificData, p->aviFormat.vFormat.nCodecSpecificDataLen);
+                                p->aviFormat.vFormat.pCodecSpecificData,
+                                p->aviFormat.vFormat.nCodecSpecificDataLen);
                 break;
             }
             
@@ -1284,12 +1306,12 @@ cdx_int32 SetFileParserVideoInfo(CdxAviParserImplT *p)
                         aviIn->sInfo[p->videoStreamIndex]->strf->buffer + 40,
                         aviIn->sInfo[p->videoStreamIndex]->strf->length - 40);
                 p->aviFormat.vFormat.pCodecSpecificData = aviIn->vopPrivInf;
-                p->aviFormat.vFormat.nCodecSpecificDataLen = aviIn->sInfo[p->videoStreamIndex]->strf->length - 40;
+                p->aviFormat.vFormat.nCodecSpecificDataLen =
+                    aviIn->sInfo[p->videoStreamIndex]->strf->length - 40;
                 break;
             }
 
-
-			case CDX_MMIO_FOURCC('m','p','g','2'):
+            case CDX_MMIO_FOURCC('m','p','g','2'):
             case CDX_MMIO_FOURCC('M','P','G','2'):
             case CDX_MMIO_FOURCC('m','p','e','g'):
             case CDX_MMIO_FOURCC('M','P','E','G'):
@@ -1337,23 +1359,24 @@ cdx_int32 SetFileParserVideoInfo(CdxAviParserImplT *p)
 
                     case CDX_MMIO_FOURCC('d','i','v','3'):
                     case CDX_MMIO_FOURCC('D','I','V','3'):
-					case CDX_MMIO_FOURCC('M','P','4','3'):
+                    case CDX_MMIO_FOURCC('M','P','4','3'):
                     {
                         p->aviFormat.vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_DIVX3;
                         break;
                     }
 
                     case CDX_MMIO_FOURCC('x','2','6','4'):
-            		case CDX_MMIO_FOURCC('X','2','6','4'):
-            		case CDX_MMIO_FOURCC('h','2','6','4'):
-            		case CDX_MMIO_FOURCC('H','2','6','4'):
-            		case CDX_MMIO_FOURCC('A','V','C','1'):
-            		case CDX_MMIO_FOURCC('a','v','c','1'):
+                    case CDX_MMIO_FOURCC('X','2','6','4'):
+                    case CDX_MMIO_FOURCC('h','2','6','4'):
+                    case CDX_MMIO_FOURCC('H','2','6','4'):
+                    case CDX_MMIO_FOURCC('A','V','C','1'):
+                    case CDX_MMIO_FOURCC('a','v','c','1'):
                     {
                         p->aviFormat.vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_H264;
                        if(aviIn->sInfo[p->videoStreamIndex]->strf->length<=40)
                             break;
-                        aviIn->vopPrivInf = malloc(aviIn->sInfo[p->videoStreamIndex]->strf->length-40);
+                        aviIn->vopPrivInf =
+                            malloc(aviIn->sInfo[p->videoStreamIndex]->strf->length-40);
                         if(!aviIn->vopPrivInf)
                         {
                             CDX_LOGV("Request memory failed!");
@@ -1364,7 +1387,8 @@ cdx_int32 SetFileParserVideoInfo(CdxAviParserImplT *p)
                                 aviIn->sInfo[p->videoStreamIndex]->strf->buffer + 40,
                                 aviIn->sInfo[p->videoStreamIndex]->strf->length-40);
                         p->aviFormat.vFormat.pCodecSpecificData = aviIn->vopPrivInf;
-                        p->aviFormat.vFormat.nCodecSpecificDataLen = aviIn->sInfo[p->videoStreamIndex]->strf->length-40;                        
+                        p->aviFormat.vFormat.nCodecSpecificDataLen =
+                            aviIn->sInfo[p->videoStreamIndex]->strf->length-40;
                         break;
                     }
                     case CDX_MMIO_FOURCC('v','p','6','2'):
@@ -1375,7 +1399,9 @@ cdx_int32 SetFileParserVideoInfo(CdxAviParserImplT *p)
                         break;
                     }
                     case CDX_MMIO_FOURCC('M','P','E','G'):
-                    case 0x10000002: //* format 0x10000002: mpeg 2; ffmpeg-0.4.9-pre1.ta[CODEC_ID_MPEG2VIDEO]. 20140903 add.
+                    case 0x10000002:
+                    // format 0x10000002: mpeg 2; ffmpeg-0.4.9-pre1.ta[CODEC_ID_MPEG2VIDEO].
+                    // 20140903 add.
                     {
                         CDX_LOGV("video bitstream type: MPEG2!");
                         p->aviFormat.vFormat.eCodecFormat = VIDEO_CODEC_FORMAT_MPEG2;
@@ -1398,11 +1424,11 @@ cdx_int32 SetFileParserVideoInfo(CdxAviParserImplT *p)
 }
 
 /*static int split_xiph_header(unsigned char *codec_priv, int codec_priv_size,
-						unsigned char **extradata, int *extradata_size)
+                        unsigned char **extradata, int *extradata_size)
 {
     #define AV_RN16(a) (*((unsigned short *) (a)))
 
-	unsigned char  *header_start[3];
+    unsigned char  *header_start[3];
     unsigned int header_len[3];
     int i;
     int overall_len;
@@ -1420,7 +1446,8 @@ cdx_int32 SetFileParserVideoInfo(CdxAviParserImplT *p)
             codec_priv += header_len[i];
             if (overall_len > codec_priv_size - (int)header_len[i])
             {
-                CDX_LOGE("overall_len(%d)，codec_priv_size(%d), header_len[%d](%u)", overall_len, codec_priv_size,i, header_len[i]);
+                CDX_LOGE("overall_len(%d)，codec_priv_size(%d), header_len[%d](%u)",
+                overall_len, codec_priv_size,i, header_len[i]);
                 return -1;
             }
             overall_len += header_len[i];
@@ -1462,13 +1489,13 @@ cdx_int32 SetFileParserVideoInfo(CdxAviParserImplT *p)
     for(lacing_fill_2=0; lacing_fill_2*0xff<header_len[2]; lacing_fill_2++);
 
     *extradata_size =  27 + lacing_fill_0 + header_len[0]
-    	       		+  27 + lacing_fill_1 + header_len[1]
-        	    		  + lacing_fill_2 + header_len[2];
+                       +  27 + lacing_fill_1 + header_len[1]
+                          + lacing_fill_2 + header_len[2];
     OggHeader = *extradata = malloc(*extradata_size);
     if(OggHeader == NULL)
     {
         CDX_LOGE("malloc failed.");
-    	return -1;
+        return -1;
     }
     for(i=0; i<26; i++)
     {
@@ -1481,14 +1508,14 @@ cdx_int32 SetFileParserVideoInfo(CdxAviParserImplT *p)
     OggHeader += 27;
     for(i=0; i<lacing_fill; i++)
     {
-    	if(i!=(lacing_fill-1))
-    	{
-    		OggHeader[i] = 0xff;
-    	}
-    	else
-    	{
-    		OggHeader[i] = header_len[0] - (lacing_fill-1)*0xff;
-    	}
+        if(i!=(lacing_fill-1))
+        {
+            OggHeader[i] = 0xff;
+        }
+        else
+        {
+            OggHeader[i] = header_len[0] - (lacing_fill-1)*0xff;
+        }
     }
     OggHeader += lacing_fill;
 
@@ -1506,28 +1533,28 @@ cdx_int32 SetFileParserVideoInfo(CdxAviParserImplT *p)
     lacing_fill = lacing_fill_1;
     for(i=0; i<lacing_fill; i++)
     {
-    	if(i!=(lacing_fill-1))
-    	{
-    		OggHeader[i] = 0xff;
-    	}
-    	else
-    	{
-    		OggHeader[i] = header_len[1] - (lacing_fill-1)*0xff;
-    	}
+        if(i!=(lacing_fill-1))
+        {
+            OggHeader[i] = 0xff;
+        }
+        else
+        {
+            OggHeader[i] = header_len[1] - (lacing_fill-1)*0xff;
+        }
     }
     OggHeader += lacing_fill;
 
     lacing_fill = lacing_fill_2;
     for(i=0; i<lacing_fill; i++)
     {
-    	if(i!=(lacing_fill-1))
-    	{
-    		OggHeader[i] = 0xff;
-    	}
-    	else
-    	{
-    		OggHeader[i] = header_len[2] - lacing_fill*0xff - 1;
-    	}
+        if(i!=(lacing_fill-1))
+        {
+            OggHeader[i] = 0xff;
+        }
+        else
+        {
+            OggHeader[i] = header_len[2] - lacing_fill*0xff - 1;
+        }
     }
     OggHeader += lacing_fill;
 
@@ -1556,7 +1583,7 @@ cdx_int32 SetFileParserAudioInfo(CdxAviParserImplT *p)
     WAVEFORMATEX        *audioFormat;
     cdx_int32           WAVEFORMATEX_size = 18;
     AudioStreamInfoT    *pStrmInfo;
-    AVIStreamHeaderT    *strmHdr;  // = (AVIStreamHeader *)avi_in->SInfo[p->VideoStreamIndex]->strh->buffer;
+    AVIStreamHeaderT    *strmHdr;
     if(p->hasAudio)
     {
         for(i = 0; i < p->hasAudio; i++)
@@ -1565,21 +1592,24 @@ cdx_int32 SetFileParserAudioInfo(CdxAviParserImplT *p)
             audioFormat = (WAVEFORMATEX *)aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->buffer;
             p->aFormatArray[i].nChannelNum = audioFormat->nChannels;
             p->aFormatArray[i].nBitsPerSample = audioFormat->wBitsPerSample;
-            p->aFormatArray[i].nMaxBitRate = p->aFormatArray[i].nAvgBitrate = audioFormat->nAvgBytesPerSec<<3;
+            p->aFormatArray[i].nMaxBitRate = p->aFormatArray[i].nAvgBitrate =
+                audioFormat->nAvgBytesPerSec<<3;
             p->aFormatArray[i].nSampleRate = audioFormat->nSamplesPerSec;
             pStrmInfo = &aviIn->audInfoArray[i];
             if(pStrmInfo->cbrFlag)
             {
-                p->nAudPtsOffsetArray[i] = (cdx_uint32)((cdx_uint64)strmHdr->dwStart*1000/pStrmInfo->avgBytesPerSec);
+                p->nAudPtsOffsetArray[i] = (cdx_uint32)((cdx_uint64)strmHdr->dwStart*1000 /
+                    pStrmInfo->avgBytesPerSec);
             }
             else
             {
-                p->nAudPtsOffsetArray[i] = (cdx_uint32)((cdx_uint64)strmHdr->dwStart * pStrmInfo->sampleNumPerFrame 
-                                                                                        / pStrmInfo->sampleRate);
+                p->nAudPtsOffsetArray[i] = (cdx_uint32)((cdx_uint64)strmHdr->dwStart *
+                    pStrmInfo->sampleNumPerFrame / pStrmInfo->sampleRate);
             }
             if(0 != p->nAudPtsOffsetArray[i])
             {
-                CDX_LOGV("this avi p->nAudPtsOffsetArray[%d] = [%d]ms\n", i, p->nAudPtsOffsetArray[i]);
+                CDX_LOGV("this avi p->nAudPtsOffsetArray[%d] = [%d]ms\n",
+                    i, p->nAudPtsOffsetArray[i]);
             }
             switch(audioFormat->wFormatTag)
             {
@@ -1588,7 +1618,8 @@ cdx_int32 SetFileParserAudioInfo(CdxAviParserImplT *p)
                 case MULAW_TAG:
                     CDX_LOGV("audio bitstream type: AUDIO_CODEC_FORMAT_PCM!\n");
                     p->aFormatArray[i].eCodecFormat = AUDIO_CODEC_FORMAT_PCM;
-                    p->aFormatArray[i].eSubCodecFormat = audioFormat->wFormatTag | ABS_EDIAN_FLAG_LITTLE;
+                    p->aFormatArray[i].eSubCodecFormat =
+                        audioFormat->wFormatTag | ABS_EDIAN_FLAG_LITTLE;
                     //p->aFormatArray[i].audio_bs_src = CEDARLIB_FILE_FMT_AVI;
                     p->aFormatArray[i].nCodecSpecificDataLen = 0;
                     p->aFormatArray[i].pCodecSpecificData = 0;
@@ -1596,10 +1627,11 @@ cdx_int32 SetFileParserAudioInfo(CdxAviParserImplT *p)
                 case ADPCM11_TAG:
                     CDX_LOGV("audio bitstream type: AUDIO_CODEC_FORMAT_ADPCM!\n");
                     p->aFormatArray[i].eCodecFormat = AUDIO_CODEC_FORMAT_ADPCM;
-                    p->aFormatArray[i].eSubCodecFormat = ADPCM_CODEC_ID_IMA_WAV | ABS_EDIAN_FLAG_LITTLE;
+                    p->aFormatArray[i].eSubCodecFormat =
+                        ADPCM_CODEC_ID_IMA_WAV | ABS_EDIAN_FLAG_LITTLE;
                     //p->aFormatArray[i].audio_bs_src = CEDARLIB_FILE_FMT_AVI;
                     p->aFormatArray[i].nCodecSpecificDataLen = 0;
-                    //p->aFormatArray[i].pCodecSpecificData = (char *)(int)audioFormat->nBlockAlign;//--
+                    //p->aFormatArray[i].pCodecSpecificData = (char *)(int)audioFormat->nBlockAlign;
                     p->aFormatArray[i].nBlockAlign = (int)audioFormat->nBlockAlign;
                     break;
                 case ADPCM_TAG:
@@ -1608,7 +1640,7 @@ cdx_int32 SetFileParserAudioInfo(CdxAviParserImplT *p)
                     p->aFormatArray[i].eSubCodecFormat = ADPCM_CODEC_ID_MS | ABS_EDIAN_FLAG_LITTLE;
                     //p->aFormatArray[i].audio_bs_src = CEDARLIB_FILE_FMT_AVI;
                     p->aFormatArray[i].nCodecSpecificDataLen = 0;
-                    //p->aFormatArray[i].pCodecSpecificData = (char *)(int)audioFormat->nBlockAlign;//--
+                    //p->aFormatArray[i].pCodecSpecificData = (char *)(int)audioFormat->nBlockAlign;
                     p->aFormatArray[i].nBlockAlign = (int)audioFormat->nBlockAlign;
                     break;
 
@@ -1641,12 +1673,14 @@ cdx_int32 SetFileParserAudioInfo(CdxAviParserImplT *p)
                     p->aFormatArray[i].eCodecFormat = AUDIO_CODEC_FORMAT_WMA_STANDARD;
                     p->aFormatArray[i].eSubCodecFormat = audioFormat->wFormatTag;
                     p->aFormatArray[i].nBlockAlign = audioFormat->nBlockAlign;
-                    p->aFormatArray[i].nCodecSpecificDataLen = aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->length - 18;
-                    p->aFormatArray[i].pCodecSpecificData = (char *)aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->buffer+18;
+                    p->aFormatArray[i].nCodecSpecificDataLen =
+                        aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->length - 18;
+                    p->aFormatArray[i].pCodecSpecificData =
+                        (char *)aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->buffer+18;
                     break;
                 }
                 case AC3_TAG:
-				case 0xfffe: //for support Video JianGuoDaYe
+                case 0xfffe: //for support Video JianGuoDaYe
                     CDX_LOGV("audio bitstream type: AUDIO_CODEC_FORMAT_AC3!\n");
                     p->aFormatArray[i].eCodecFormat = AUDIO_CODEC_FORMAT_AC3;
                     p->aFormatArray[i].eSubCodecFormat = 0;
@@ -1669,47 +1703,64 @@ cdx_int32 SetFileParserAudioInfo(CdxAviParserImplT *p)
                     //p->aFormatArray[i].audio_bs_src = CEDARLIB_FILE_FMT_AVI;
                     p->aFormatArray[i].nCodecSpecificDataLen = 0;
                     p->aFormatArray[i].pCodecSpecificData = 0;
-                    if(aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->length > (cdx_uint32)WAVEFORMATEX_size)
+                    if(aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->length >
+                        (cdx_uint32)WAVEFORMATEX_size)
                     {
-                        p->aFormatArray[i].nCodecSpecificDataLen = aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->length 
-                                                                    - WAVEFORMATEX_size;
-                        p->aFormatArray[i].pCodecSpecificData = aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->buffer 
-                                                                    + WAVEFORMATEX_size;
+                        p->aFormatArray[i].nCodecSpecificDataLen =
+                            aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->length
+                            - WAVEFORMATEX_size;
+                        p->aFormatArray[i].pCodecSpecificData =
+                            aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->buffer
+                            + WAVEFORMATEX_size;
                     }
                     break;
                /*case VORBIS_TAG: // todo...
                {
-                   CDX_LOGD("audio bitstream type: AUDIO_CODEC_FORMAT_OGG! aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->length(%d)26",aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->length);
+                   CDX_LOGD("audio bitstream type: AUDIO_CODEC_FORMAT_OGG!"
+                   "aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->length(%d)26",
+                    aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->length);
                    p->aFormatArray[i].eCodecFormat = AUDIO_CODEC_FORMAT_OGG;
                    p->aFormatArray[i].eSubCodecFormat = 0;
                    //p->aFormatArray[i].audio_bs_src = CEDARLIB_FILE_FMT_AVI;
                    p->aFormatArray[i].nCodecSpecificDataLen = 0;
                    p->aFormatArray[i].pCodecSpecificData = 0;
-                   //if(aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->length > (cdx_uint32)WAVEFORMATEX_size)
+                   //if(aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->length >
+                   (cdx_uint32)WAVEFORMATEX_size)
                    //{
-                   //    p->aFormatArray[i].nCodecSpecificDataLen = aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->length 
-                   //                                                - WAVEFORMATEX_size;
-                   //    p->aFormatArray[i].pCodecSpecificData = aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->buffer 
-                   //                                                + WAVEFORMATEX_size;
+                   //    p->aFormatArray[i].nCodecSpecificDataLen =
+                   //    aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->length
+                   //    - WAVEFORMATEX_size;
+                   //    p->aFormatArray[i].pCodecSpecificData =
+                   //    aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->buffer
+                   //    + WAVEFORMATEX_size;
                    //}
                    
-                   if(split_xiph_header((cdx_uint8 *)aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->buffer+ WAVEFORMATEX_size,
-                                        (cdx_int32)aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->length-WAVEFORMATEX_size,
-                                        (cdx_uint8 **)&p->aFormatArray[i].pCodecSpecificData, 
-                                        (cdx_int32 *)&p->aFormatArray[i].nCodecSpecificDataLen) == -1)
+                  if(split_xiph_header((cdx_uint8 *)
+                  aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->buffer + WAVEFORMATEX_size,
+               (cdx_int32)aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->length-WAVEFORMATEX_size,
+                  (cdx_uint8 **)&p->aFormatArray[i].pCodecSpecificData,
+                  (cdx_int32 *)&p->aFormatArray[i].nCodecSpecificDataLen) == -1)
 
                    {
-                        CDX_LOGV("split_xiph_header failed.p->aFormatArray[i].pCodecSpecificData(%p), p->aFormatArray[i].nCodecSpecificDataLen(%d)",
-                                                    p->aFormatArray[i].pCodecSpecificData,p->aFormatArray[i].nCodecSpecificDataLen);
-                        if(aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->length > (cdx_uint32)WAVEFORMATEX_size)
+                        CDX_LOGV("split_xiph_header failed."
+                        "p->aFormatArray[i].pCodecSpecificData(%p), "
+                        "p->aFormatArray[i].nCodecSpecificDataLen(%d)",
+                         p->aFormatArray[i].pCodecSpecificData,
+                         p->aFormatArray[i].nCodecSpecificDataLen);
+                        if(aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->length >
+                            (cdx_uint32)WAVEFORMATEX_size)
                         {
-                            p->aFormatArray[i].nCodecSpecificDataLen = aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->length 
+                            p->aFormatArray[i].nCodecSpecificDataLen =
+                            aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->length
                                                                        - WAVEFORMATEX_size;
-                            p->aFormatArray[i].pCodecSpecificData = aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->buffer 
+                            p->aFormatArray[i].pCodecSpecificData =
+                            aviIn->sInfo[p->audioStreamIndexArray[i]]->strf->buffer
                                                                         + WAVEFORMATEX_size;
                         }
-                        CDX_LOGV("split_xiph_header failed.p->aFormatArray[i].pCodecSpecificData(%p), p->aFormatArray[i].nCodecSpecificDataLen(%d)",
-                                                    p->aFormatArray[i].pCodecSpecificData,p->aFormatArray[i].nCodecSpecificDataLen);
+                        CDX_LOGV("failed.p->aFormatArray[i].pCodecSpecificData(%p),
+                        p->aFormatArray[i].nCodecSpecificDataLen(%d)",
+                        p->aFormatArray[i].pCodecSpecificData,
+                        p->aFormatArray[i].nCodecSpecificDataLen);
                    }
                    break;
                }*/
@@ -1735,8 +1786,10 @@ cdx_int32 SetFileParserSubInfo(CdxAviParserImplT *p)
     {
         for(i = 0; i < p->hasSubTitle; i++)
         {
-            strmHdr = (AVIStreamHeaderT *)aviIn->sInfo[p->subtitleStreamIndexArray[i]]->strh->buffer;
-            subFormat = (BITMAPINFOHEADER *)aviIn->sInfo[p->subtitleStreamIndexArray[i]]->strf->buffer;
+            strmHdr =
+                (AVIStreamHeaderT *)aviIn->sInfo[p->subtitleStreamIndexArray[i]]->strh->buffer;
+            subFormat =
+                (BITMAPINFOHEADER *)aviIn->sInfo[p->subtitleStreamIndexArray[i]]->strf->buffer;
             pStrmInfo = &aviIn->subInfoArray[i];
             p->tFormatArray[i].nStreamIndex = i;
             
@@ -1807,7 +1860,8 @@ Return:
     
 Time: 2010/8/18
 *******************************************************************************/
-cdx_int32 AVIGetAudioStreamInfo(AudioStreamInfoT *pAudioStreamInfo, AviStreamInfoT *pAviStreamInfo, cdx_int32 streamIdx)
+cdx_int32 AVIGetAudioStreamInfo(AudioStreamInfoT *pAudioStreamInfo,
+    AviStreamInfoT *pAviStreamInfo, cdx_int32 streamIdx)
 {
     AVIStreamHeaderT *pabsHdr;
     WAVEFORMATEX     *pabsFmt;
@@ -1824,29 +1878,29 @@ cdx_int32 AVIGetAudioStreamInfo(AudioStreamInfoT *pAudioStreamInfo, AviStreamInf
     pAudioStreamInfo->nBlockAlign = pabsFmt->nBlockAlign;
     pAudioStreamInfo->dataEncodeType = SUBTITLE_TEXT_FORMAT_UTF8;
 
-	switch(pabsFmt->wFormatTag)
-	{
-		case PCM_TAG:
-		case ALAW_TAG:
-		case MULAW_TAG:
-		case ADPCM11_TAG:
-		case ADPCM_TAG:
-		case MP3_TAG1:
-		case MP3_TAG2:
-		case WMA1_TAG:
-		case WMA2_TAG:
-		case AC3_TAG:
-		case DTS_TAG:
-		case AAC_TAG:
-		case 0xfffe: //for support Video JianGuoDaYe
-		//case VORBIS_TAG:
-			break;
+    switch(pabsFmt->wFormatTag)
+    {
+        case PCM_TAG:
+        case ALAW_TAG:
+        case MULAW_TAG:
+        case ADPCM11_TAG:
+        case ADPCM_TAG:
+        case MP3_TAG1:
+        case MP3_TAG2:
+        case WMA1_TAG:
+        case WMA2_TAG:
+        case AC3_TAG:
+        case DTS_TAG:
+        case AAC_TAG:
+        case 0xfffe: //for support Video JianGuoDaYe
+        //case VORBIS_TAG:
+            break;
         default:
         {
             CDX_LOGE("Unkown wFormatTag, pabsFmt->wFormatTag(%u)", pabsFmt->wFormatTag);
             return -1;
         }
-	}
+    }
 	
     CreateStreamName(pAudioStreamInfo->sStreamName, AVI_STREAM_NAME_SIZE, streamIdx);
     CDX_LOGV("pabsHdr->dwRate[%d], pabsHdr->dwScale[%d]", pabsHdr->dwRate, pabsHdr->dwScale);
@@ -1856,18 +1910,23 @@ cdx_int32 AVIGetAudioStreamInfo(AudioStreamInfoT *pAudioStreamInfo, AviStreamInf
         case ADPCM11_TAG:
         case ADPCM_TAG:
         {
-            //pcm must be cbr, but pcm strh dwRate/dwScale = samplerate, frame/s; adpcm strh dwRate/dwScale = frame/s
+            //pcm must be cbr, but pcm strh dwRate/dwScale = samplerate, frame/s;
+            //adpcm strh dwRate/dwScale = frame/s
             //we convert to byte/s.
             //(1)if strh is valid.
-            if(pabsHdr->dwScale && pabsFmt->nBlockAlign > 0)    //nBlockAlign in pcm/adpcm is one frame byte size 
+            if(pabsHdr->dwScale && pabsFmt->nBlockAlign > 0)
+                //nBlockAlign in pcm/adpcm is one frame byte size
             {
-                pAudioStreamInfo->avgBytesPerSec = pabsHdr->dwRate * pabsFmt->nBlockAlign / pabsHdr->dwScale;
-                CDX_LOGV("pcmtag[%x], avgBytesPerSec[%d]",pabsFmt->wFormatTag, pAudioStreamInfo->avgBytesPerSec);
+                pAudioStreamInfo->avgBytesPerSec = pabsHdr->dwRate *
+                    pabsFmt->nBlockAlign / pabsHdr->dwScale;
+                CDX_LOGV("pcmtag[%x], avgBytesPerSec[%d]",pabsFmt->wFormatTag,
+                    pAudioStreamInfo->avgBytesPerSec);
             }
             else if(pabsFmt->nAvgBytesPerSec)
             {
                 pAudioStreamInfo->avgBytesPerSec = pabsFmt->nAvgBytesPerSec;
-                CDX_LOGV("use strf, pcmtag[%x], AvgBytesPerSec[%d]",pabsFmt->wFormatTag, pAudioStreamInfo->avgBytesPerSec);
+                CDX_LOGV("use strf, pcmtag[%x], AvgBytesPerSec[%d]",pabsFmt->wFormatTag,
+                    pAudioStreamInfo->avgBytesPerSec);
             }
             else
             {
@@ -1885,7 +1944,8 @@ cdx_int32 AVIGetAudioStreamInfo(AudioStreamInfoT *pAudioStreamInfo, AviStreamInf
             {
                 //cbr
                 CDX_LOGW("avi mp3, strh wrong! must be cbr!");
-                pAudioStreamInfo->avgBytesPerSec = pabsFmt->nAvgBytesPerSec > 0 ? pabsFmt->nAvgBytesPerSec : 1;
+                pAudioStreamInfo->avgBytesPerSec =
+                    pabsFmt->nAvgBytesPerSec > 0 ? pabsFmt->nAvgBytesPerSec : 1;
                 pAudioStreamInfo->cbrFlag = 1;
                 break;
             }
@@ -1900,14 +1960,16 @@ cdx_int32 AVIGetAudioStreamInfo(AudioStreamInfoT *pAudioStreamInfo, AviStreamInf
                 if(pabsFmt->nBlockAlign <= 4)
                 {
                     //we still consider cbr
-                    pAudioStreamInfo->avgBytesPerSec = pabsFmt->nAvgBytesPerSec>0 ? pabsFmt->nAvgBytesPerSec : 1;
+                    pAudioStreamInfo->avgBytesPerSec =
+                    pabsFmt->nAvgBytesPerSec>0 ? pabsFmt->nAvgBytesPerSec : 1;
                     pAudioStreamInfo->cbrFlag = 1;
                 }
-                else if((pabsHdr->dwRate == pabsFmt->nAvgBytesPerSec) && (pabsFmt->nAvgBytesPerSec >= MIN_BYTERATE))
+                else if((pabsHdr->dwRate == pabsFmt->nAvgBytesPerSec) &&
+                    (pabsFmt->nAvgBytesPerSec >= MIN_BYTERATE))
                 {
                     //we still consider cbr
-                    //CDX_LOGD("pabsHdr->dwRate[%d]==pabsFmt->nAvgBytesPerSec[%d], pabsHdr->dwScale[%d]", 
-                    //                            pabsHdr->dwRate, pabsFmt->nAvgBytesPerSec, pabsHdr->dwScale);
+                    //CDX_LOGD(" dwRate[%d]==pabsFmt->nAvgBytesPerSec[%d], pabsHdr->dwScale[%d]",
+                    //               pabsHdr->dwRate, pabsFmt->nAvgBytesPerSec, pabsHdr->dwScale);
                     pAudioStreamInfo->avgBytesPerSec = pabsFmt->nAvgBytesPerSec;
                     pAudioStreamInfo->cbrFlag = 1;
                 }
@@ -1915,11 +1977,13 @@ cdx_int32 AVIGetAudioStreamInfo(AudioStreamInfoT *pAudioStreamInfo, AviStreamInf
                 {
                     // we consider vbr!
                     pAudioStreamInfo->sampleRate = pabsFmt->nSamplesPerSec;
-                    pAudioStreamInfo->sampleNumPerFrame = pabsHdr->dwScale*pabsFmt->nSamplesPerSec/pabsHdr->dwRate;
+                    pAudioStreamInfo->sampleNumPerFrame =
+                        pabsHdr->dwScale*pabsFmt->nSamplesPerSec/pabsHdr->dwRate;
                     pAudioStreamInfo->cbrFlag = 0;
-                    pAudioStreamInfo->avgBytesPerSec = pabsFmt->nAvgBytesPerSec > 0 ? pabsFmt->nAvgBytesPerSec : 1;
-                    CDX_LOGV("avi mp3 vbr, sample_rate[%d], sample_num_per_frame[%d]", pAudioStreamInfo->sampleRate, 
-                            pAudioStreamInfo->sampleNumPerFrame);
+                    pAudioStreamInfo->avgBytesPerSec =
+                        pabsFmt->nAvgBytesPerSec > 0 ? pabsFmt->nAvgBytesPerSec : 1;
+                    CDX_LOGV("avi mp3 vbr, sample_rate[%d], sample_num_per_frame[%d]",
+                        pAudioStreamInfo->sampleRate, pAudioStreamInfo->sampleNumPerFrame);
                 }
             }
             break;
@@ -1928,7 +1992,7 @@ cdx_int32 AVIGetAudioStreamInfo(AudioStreamInfoT *pAudioStreamInfo, AviStreamInf
         {   
             if(AVI_SUCCESS == EvaluateStrhValid(pabsHdr))
             {
-                if(pabsHdr->dwSampleSize > 0 || pabsHdr->dwScale < STRH_DWSCALE_THRESH)
+                if (pabsHdr->dwSampleSize > 0 /*|| pabsHdr->dwScale < STRH_DWSCALE_THRESH*/)
                 {
                     pAudioStreamInfo->avgBytesPerSec = pabsHdr->dwRate/pabsHdr->dwScale;
                     pAudioStreamInfo->cbrFlag = 1;
@@ -1938,12 +2002,14 @@ cdx_int32 AVIGetAudioStreamInfo(AudioStreamInfoT *pAudioStreamInfo, AviStreamInf
                     pAudioStreamInfo->sampleRate = pabsHdr->dwRate;
                     pAudioStreamInfo->sampleNumPerFrame = pabsHdr->dwScale;
                     pAudioStreamInfo->cbrFlag = 0;
-                    pAudioStreamInfo->avgBytesPerSec = pabsFmt->nAvgBytesPerSec>0 ? pabsFmt->nAvgBytesPerSec : 1;
+                    pAudioStreamInfo->avgBytesPerSec =
+                        pabsFmt->nAvgBytesPerSec>0 ? pabsFmt->nAvgBytesPerSec : 1;
                 }
             }
             else 
             {
-                pAudioStreamInfo->avgBytesPerSec = pabsFmt->nAvgBytesPerSec>0 ? pabsFmt->nAvgBytesPerSec : 1;
+                pAudioStreamInfo->avgBytesPerSec =
+                    pabsFmt->nAvgBytesPerSec>0 ? pabsFmt->nAvgBytesPerSec : 1;
                 pAudioStreamInfo->cbrFlag = 1;
             }
             break;
@@ -1972,8 +2038,10 @@ cdx_int32 AVIGetAudioStreamInfo(AudioStreamInfoT *pAudioStreamInfo, AviStreamInf
     }
     return AVI_SUCCESS;
 }
-cdx_int32 AVIGetSubStreamInfo(SubStreamInfoT *pSubStreamInfo, AviStreamInfoT *pAviStreamInfo, cdx_int32 streamIdx)
-{ //The ‘strh’ chunk of a subtitle stream should be as it  is normally defined, with fccType ‘txts’ for text form 
+cdx_int32 AVIGetSubStreamInfo(SubStreamInfoT *pSubStreamInfo,
+    AviStreamInfoT *pAviStreamInfo, cdx_int32 streamIdx)
+{ //The ‘strh’ chunk of a subtitle stream should be as it  is
+  //normally defined, with fccType ‘txts’ for text form
   //of subtitles or ‘vids’ for bitmap form of subtitles. 
     AVIStreamHeaderT  *psbsHdr;
     BITMAPINFOHEADER  *psbsFmt;
@@ -1994,15 +2062,16 @@ cdx_int32 AVIGetSubStreamInfo(SubStreamInfoT *pSubStreamInfo, AviStreamInfoT *pA
 
         switch(psbsFmt->biCompression)
         {
-        	case CDX_MMIO_FOURCC('D','X','S','A'):
+            case CDX_MMIO_FOURCC('D','X','S','A'):
             case CDX_MMIO_FOURCC('D','X','S','B'):
             {
                 //CDX_LOGD("xxxxx XSUB.");
-        		break;
+                break;
             }
             default:
             {
-                CDX_LOGE("Unkown biCompression, psbsFmt->biCompression(%u)", psbsFmt->biCompression);
+                CDX_LOGE("Unkown biCompression, psbsFmt->biCompression(%u)",
+                    psbsFmt->biCompression);
                 return -1;
             }
         }
@@ -2021,7 +2090,7 @@ cdx_int32 AVIGetSubStreamInfo(SubStreamInfoT *pSubStreamInfo, AviStreamInfoT *pA
     return AVI_SUCCESS;
 }
 /*
-*********************************************************************************************************
+*******************************************************************************************
 *                       OPEN AVI struct cdx_stream_info READER
 *
 *Description: avi file reader depack media file structure.
@@ -2037,9 +2106,9 @@ cdx_int32 AVIGetSubStreamInfo(SubStreamInfoT *pSubStreamInfo, AviStreamInfoT *pA
 *             handle, and get the video, audio and subtitle bitstream information from the file
 *             to set in the avi file information handle. Then, set the avi file information handle
 *             to the pAviInfo for return.
-*********************************************************************************************************
+******************************************************************************************
 */
-cdx_int16 AviOpen(CdxAviParserImplT *impl)//(struct FILE_PARSER *p, CedarXDataSourceDesc *datasrc_desc)
+cdx_int16 AviOpen(CdxAviParserImplT *impl)
 {
     cdx_int32           ret;
     cdx_int16           strmIndex;
@@ -2058,7 +2127,6 @@ cdx_int16 AviOpen(CdxAviParserImplT *impl)//(struct FILE_PARSER *p, CedarXDataSo
     tmplength1 = sizeof(OldIdxTableItemT);
     tmplength2 = sizeof(IdxTableItemT);
 
-    
     ret = AVIReaderOpenFile(impl);
     if(ret < 0)
     {
@@ -2077,23 +2145,24 @@ cdx_int16 AviOpen(CdxAviParserImplT *impl)//(struct FILE_PARSER *p, CedarXDataSo
         {
             if(impl->hasVideo < 2)  // may have two stream
             {
-            	impl->videoStreamIndexArray[(cdx_uint8)impl->hasVideo] = strmIndex;
-				impl->videoStreamIndex = strmIndex;
-				impl->hasVideo++;
+                impl->videoStreamIndexArray[(cdx_uint8)impl->hasVideo] = strmIndex;
+                impl->videoStreamIndex = strmIndex;
+                impl->hasVideo++;
             }
-			impl->videoStreamIndex = impl->videoStreamIndexArray[0];
+            impl->videoStreamIndex = impl->videoStreamIndexArray[0];
         }
         else if (strmInfo.mediaType == 'a'/* && p->hasAudio==FALSE*/)
         {
             //p->AudioStreamIndex = strm_index;
             if(impl->hasAudio < MAX_AUDIO_STREAM)
             {
-                ret = AVIGetAudioStreamInfo(&aviIn->audInfoArray[(cdx_uint8)impl->hasAudio], &strmInfo, impl->hasAudio);
-				if(ret < 0)
-				{
-					continue;
-				}
-				impl->audioStreamIndexArray[(cdx_uint8)impl->hasAudio] = strmIndex;
+                ret = AVIGetAudioStreamInfo(&aviIn->audInfoArray[(cdx_uint8)impl->hasAudio],
+                    &strmInfo, impl->hasAudio);
+                if(ret < 0)
+                {
+                    continue;
+                }
+                impl->audioStreamIndexArray[(cdx_uint8)impl->hasAudio] = strmIndex;
                 impl->hasAudio++;
             }
             else
@@ -2106,13 +2175,14 @@ cdx_int16 AviOpen(CdxAviParserImplT *impl)//(struct FILE_PARSER *p, CedarXDataSo
         {
             if(impl->hasSubTitle < MAX_SUBTITLE_STREAM)
             {
-                ret = AVIGetSubStreamInfo(&aviIn->subInfoArray[(cdx_uint8)impl->hasSubTitle], &strmInfo, impl->hasSubTitle);
+                ret = AVIGetSubStreamInfo(&aviIn->subInfoArray[(cdx_uint8)impl->hasSubTitle],
+                    &strmInfo, impl->hasSubTitle);
                 if(ret < 0)
                 {
                     continue;
                 }
                 impl->subtitleStreamIndexArray[(cdx_uint8)impl->hasSubTitle] = strmIndex;
-				impl->hasSubTitle++;
+                impl->hasSubTitle++;
             }
             else
             {
@@ -2157,7 +2227,6 @@ cdx_int16 AviOpen(CdxAviParserImplT *impl)//(struct FILE_PARSER *p, CedarXDataSo
         return AVI_ERR_NO_AV;
     }
 
-
     if (aviIn->moviEnd != 0)
     {
         CDX_LOGE("avi_in->movi_end[%d]!=0, fatal error!\n",aviIn->moviEnd);
@@ -2189,8 +2258,8 @@ cdx_int16 AviOpen(CdxAviParserImplT *impl)//(struct FILE_PARSER *p, CedarXDataSo
                 return AVI_ERR_FILE_FMT_ERR;
             }
 
-			// we do not need code below, or the duration error, see ffmpeg
-			/*
+            // we do not need code below, or the duration error, see ffmpeg
+            /*
             if(chunk->fcc == CDX_CKID_ODMLHEADER)
             {
                 ODMLExtendedAVIHeaderT *tmpOdmlHdr = (ODMLExtendedAVIHeaderT *)chunk->buffer;
@@ -2202,7 +2271,8 @@ cdx_int16 AviOpen(CdxAviParserImplT *impl)//(struct FILE_PARSER *p, CedarXDataSo
                         logd("+++ impl->totalFrames: %d", impl->totalFrames);
                     }
                 }
-                CDX_LOGV("odmlhdr said:total frames[%x], now total frames[%x]\n", tmpOdmlHdr->dwTotalFrames, impl->totalFrames);
+                CDX_LOGV("odmlhdr said:total frames[%x], now total frames[%x]\n",
+                tmpOdmlHdr->dwTotalFrames, impl->totalFrames);
             }*/
         }
         
@@ -2213,7 +2283,8 @@ cdx_int16 AviOpen(CdxAviParserImplT *impl)//(struct FILE_PARSER *p, CedarXDataSo
     aviIn->moviEnd = aviIn->moviStart + chunk->length - 4;
 #if 0
     //process some private information for video header
-    if((impl->aviFormat.vFormat.eCodecFormat == VIDEO_CODEC_FORMAT_H264 && impl->aviFormat.vFormat.nCodecSpecificDataLen == 0) ||
+    if((impl->aviFormat.vFormat.eCodecFormat == VIDEO_CODEC_FORMAT_H264 &&
+        impl->aviFormat.vFormat.nCodecSpecificDataLen == 0) ||
                ((impl->aviFormat.vFormat.eCodecFormat == VIDEO_CODEC_FORMAT_MPEG4
               || impl->aviFormat.vFormat.eCodecFormat == VIDEO_CODEC_FORMAT_XVID
               || impl->aviFormat.vFormat.eCodecFormat == VIDEO_CODEC_FORMAT_MSMPEG4V1
@@ -2225,7 +2296,8 @@ cdx_int16 AviOpen(CdxAviParserImplT *impl)//(struct FILE_PARSER *p, CedarXDataSo
               || impl->aviFormat.vFormat.eCodecFormat == VIDEO_CODEC_FORMAT_SORENSSON_H263
               || impl->aviFormat.vFormat.eCodecFormat == VIDEO_CODEC_FORMAT_H263
               || impl->aviFormat.vFormat.eCodecFormat == VIDEO_CODEC_FORMAT_WMV1
-              || impl->aviFormat.vFormat.eCodecFormat == VIDEO_CODEC_FORMAT_WMV2) && impl->aviFormat.vFormat.nCodecSpecificDataLen == 0))
+              || impl->aviFormat.vFormat.eCodecFormat == VIDEO_CODEC_FORMAT_WMV2) &&
+              impl->aviFormat.vFormat.nCodecSpecificDataLen == 0))
     {
         cdx_int16   rdret;
         aviIn->vopPrivInf = 0;
@@ -2246,12 +2318,13 @@ cdx_int16 AviOpen(CdxAviParserImplT *impl)//(struct FILE_PARSER *p, CedarXDataSo
                 continue;
             }
 
-            if(((chunk->fcc >> 16) == CDX_CKTYPE_DIB_BITS) || ((chunk->fcc >> 16) == CDX_CKTYPE_DIB_COMPRESSED))
+            if(((chunk->fcc >> 16) == CDX_CKTYPE_DIB_BITS) || ((chunk->fcc >> 16) ==
+                CDX_CKTYPE_DIB_COMPRESSED))
             {
                 cdx_int32       i;
                 cdx_uint8       *tmpPtr = (cdx_uint8 *)chunk->buffer;
 
-                for(i = 0; i < (cdx_int32)chunk->length - 4; i++)// avi: h264 not need extradata.       get sps/pps
+                for(i = 0; i < (cdx_int32)chunk->length - 4; i++)// avi: h264 not need extradata.
                 {
                     /*if((tmpPtr[i] == 0x00)
                       && (tmpPtr[i+1] == 0x00)
@@ -2260,7 +2333,8 @@ cdx_int16 AviOpen(CdxAviParserImplT *impl)//(struct FILE_PARSER *p, CedarXDataSo
                          && impl->aviFormat.vFormat.eCodecFormat == VIDEO_CODEC_FORMAT_H264)
                            || (tmpPtr[i+3] == 0xb6 
                          && impl->aviFormat.vFormat.eCodecFormat == VIDEO_CODEC_FORMAT_MPEG4)))*/
-                    if((tmpPtr[i] == 0x00) && (tmpPtr[i+1] == 0x00) && (tmpPtr[i+2] == 0x01) && (tmpPtr[i+3] == 0xb6)
+                    if((tmpPtr[i] == 0x00) && (tmpPtr[i+1] == 0x00) && (tmpPtr[i+2] == 0x01) &&
+                        (tmpPtr[i+3] == 0xb6)
                        &&(impl->aviFormat.vFormat.eCodecFormat == VIDEO_CODEC_FORMAT_MPEG4
                        || impl->aviFormat.vFormat.eCodecFormat == VIDEO_CODEC_FORMAT_XVID
                        || impl->aviFormat.vFormat.eCodecFormat == VIDEO_CODEC_FORMAT_MSMPEG4V1
@@ -2285,7 +2359,8 @@ cdx_int16 AviOpen(CdxAviParserImplT *impl)//(struct FILE_PARSER *p, CedarXDataSo
                         impl->aviFormat.vFormat.pCodecSpecificData = aviIn->vopPrivInf;
                         impl->aviFormat.vFormat.nCodecSpecificDataLen = i;
                         CDX_LOGV("pCodecSpecificData(%p), nCodecSpecificDataLen(%d)", 
-                        impl->aviFormat.vFormat.pCodecSpecificData,impl->aviFormat.vFormat.nCodecSpecificDataLen);
+                        impl->aviFormat.vFormat.pCodecSpecificData,
+                        impl->aviFormat.vFormat.nCodecSpecificDataLen);
                         break;
                     }
                 }
@@ -2322,11 +2397,13 @@ cdx_int16 AviOpen(CdxAviParserImplT *impl)//(struct FILE_PARSER *p, CedarXDataSo
                 continue;
             }
 
-            if(((chunk->fcc >> 16) == CDX_CKTYPE_DIB_BITS) || ((chunk->fcc >> 16) == CDX_CKTYPE_DIB_COMPRESSED))
+            if(((chunk->fcc >> 16) == CDX_CKTYPE_DIB_BITS) || ((chunk->fcc >> 16) ==
+                CDX_CKTYPE_DIB_COMPRESSED))
             {
                 if(1)
                 {
-                    int ret = ProbeVideoSpecificData(&impl->vTempFormat, (cdx_uint8 *)chunk->buffer, chunk->length, impl->aviFormat.vFormat.eCodecFormat, CDX_PARSER_AVI);
+                    int ret = ProbeVideoSpecificData(&impl->vTempFormat, (cdx_uint8 *)chunk->buffer,
+                        chunk->length, impl->aviFormat.vFormat.eCodecFormat, CDX_PARSER_AVI);
                     if(ret == PROBE_SPECIFIC_DATA_ERROR)
                     {
                         CDX_LOGE("probeVideoSpecificData error");
@@ -2349,13 +2426,17 @@ cdx_int16 AviOpen(CdxAviParserImplT *impl)//(struct FILE_PARSER *p, CedarXDataSo
                     {
                         CDX_LOGE("probeVideoSpecificData (%d), it is unknown.", ret);
                     }
-                    if(impl->vTempFormat.nCodecSpecificDataLen > 0 && impl->vTempFormat.pCodecSpecificData)
+                    if(impl->vTempFormat.nCodecSpecificDataLen > 0 &&
+                        impl->vTempFormat.pCodecSpecificData)
                     {
                         aviIn->vopPrivInf = impl->vTempFormat.pCodecSpecificData;
-                        impl->aviFormat.vFormat.pCodecSpecificData = impl->vTempFormat.pCodecSpecificData;
-                        impl->aviFormat.vFormat.nCodecSpecificDataLen = impl->vTempFormat.nCodecSpecificDataLen;
+                        impl->aviFormat.vFormat.pCodecSpecificData =
+                            impl->vTempFormat.pCodecSpecificData;
+                        impl->aviFormat.vFormat.nCodecSpecificDataLen =
+                            impl->vTempFormat.nCodecSpecificDataLen;
                         CDX_LOGD("pCodecSpecificData(%p), nCodecSpecificDataLen(%d)", 
-                                impl->aviFormat.vFormat.pCodecSpecificData,impl->aviFormat.vFormat.nCodecSpecificDataLen);
+                                impl->aviFormat.vFormat.pCodecSpecificData,
+                                impl->aviFormat.vFormat.nCodecSpecificDataLen);
                     }
                 }
                 break;
@@ -2390,7 +2471,7 @@ cdx_int16 AviOpen(CdxAviParserImplT *impl)//(struct FILE_PARSER *p, CedarXDataSo
 }
 
 /*
-*********************************************************************************************************
+**********************************************************************************************
 *                       COLSE AVI struct cdx_stream_info READER
 *
 *Description: free system resource used by avi file reader.
@@ -2398,7 +2479,7 @@ cdx_int16 AviOpen(CdxAviParserImplT *impl)//(struct FILE_PARSER *p, CedarXDataSo
 *Arguments  : p     avi reader handle;
 *
 *Return     : 0;
-*********************************************************************************************************
+**********************************************************************************************
 */
 cdx_int16 AviClose(CdxAviParserImplT *p)
 {
@@ -2419,7 +2500,7 @@ cdx_int16 AviClose(CdxAviParserImplT *p)
 }
 
 /*
-*********************************************************************************************************
+***********************************************************************************************
 *                       AVI struct cdx_stream_info READER READ CHUNK INFORMATION
 *
 *Description: get chunk head information.
@@ -2428,7 +2509,7 @@ cdx_int16 AviClose(CdxAviParserImplT *p)
 *
 *Return     : 0;
     FILE_PARSER_PARA_ERR
-*********************************************************************************************************
+***********************************************************************************************
 */
 cdx_int16 AviRead(CdxAviParserImplT *p)
 {
@@ -2604,7 +2685,8 @@ cdx_int16 AVIBuildIdx(CdxAviParserImplT *p)
             }
             else if(ret == AVI_ERR_INDEX_HAS_NO_KEYFRAME)
             {
-                CDX_LOGW("sequence mode, indx type, no ffrrkeyframe table because index table has no keyframe.");
+                CDX_LOGW("sequence mode, indx type, no ffrrkeyframe table because index "
+                    "table has no keyframe.");
             }
             else
             {
@@ -2625,7 +2707,8 @@ cdx_int16 AVIBuildIdx(CdxAviParserImplT *p)
             }
             else if(ret == AVI_ERR_INDEX_HAS_NO_KEYFRAME)
             {
-                CDX_LOGW("sequence mode, idx1 type, no table because of index table has no keyframe.");
+                CDX_LOGW("sequence mode, idx1 type, no table because of index table "
+                    "has no keyframe.");
             }
             else
             {
@@ -2709,7 +2792,6 @@ cdx_int32 AviFileInDeinitial(AviFileInT *aviIn)
     return AVI_SUCCESS;
 }
 
-
 CdxAviParserImplT *AviInit(cdx_int32 *ret)
 {
     AviFileInT          *aviIn = NULL;
@@ -2749,7 +2831,7 @@ cdx_int16 AviExit(CdxAviParserImplT *p)
     AviFileInT *aviIn = (AviFileInT *)p->privData;
     if(aviIn)
     {
-    	AviFileInDeinitial(aviIn);
+        AviFileInDeinitial(aviIn);
         free(aviIn);
         p->privData = NULL;
     }

@@ -42,7 +42,7 @@ static int64_t GetSysTime();
  /*
 　　位图文件的组成
           结构名称 符 号
- 	位图文件头 (bitmap-file header) BITMAPFILEHEADER bmfh
+	位图文件头 (bitmap-file header) BITMAPFILEHEADER bmfh
 	位图信息头 (bitmap-information header) BITMAPINFOHEADER bmih
 	彩色表　(color table) RGBQUAD aColors[]
 	图象数据阵列字节 BYTE aBitmapBits[]
@@ -286,9 +286,9 @@ static int transformPictureMb32ToRGB(struct ScMemOpsS *memOps, VideoPicture* pPi
     FILE* outFp = fopen("/data/UDISK/rgb.bmp", "wb");
     if(outFp != NULL)
     {
-    	logd("************save_bmp_rgb565\n");
-    	save_bmp_rgb565(outFp, pVideoFrame->mWidth, pVideoFrame->mHeight, pVideoFrame->mData);
-    	fclose(outFp);
+	logd("************save_bmp_rgb565\n");
+	save_bmp_rgb565(outFp, pVideoFrame->mWidth, pVideoFrame->mHeight, pVideoFrame->mData);
+	fclose(outFp);
     }
 #endif
 
@@ -325,7 +325,7 @@ static void clear(AwRetriever* v)
 	
     if(p->mSource.uri)
     {
-    	free(p->mSource.uri);
+	free(p->mSource.uri);
     }
     memset(&p->mMediaInfo, 0, sizeof(CdxMediaInfoT));
 
@@ -350,14 +350,13 @@ AwRetriever* AwRetrieverCreate()
 	}
 	memset(p, 0x00, sizeof(AwRetriverContext));
 
-	AwPluginInit();
     memset(&p->mSource, 0, sizeof(CdxDataSourceT));
 
     p->memops = MemAdapterGetOpsS();
     if(p->memops == NULL)
     {
         free(p);
-    	return NULL;
+	return NULL;
     }
     CdcMemOpen(p->memops);
 
@@ -612,10 +611,10 @@ VideoFrame *AwRetrieverGetFrameAtTime(AwRetriever* v, int64_t timeUs)
 		}
     }
 
- 	if(p->mMediaInfo.program[p->mMediaInfo.programIndex].duration < 30000)
- 	{
- 		timeUs = 0;
- 	}
+	if(p->mMediaInfo.program[p->mMediaInfo.programIndex].duration < 30000)
+	{
+		timeUs = 0;
+	}
 
     //* 3. seek parser to the specific position.
     if(p->mMediaInfo.bSeekable && timeUs > 0 && timeUs < ((int64_t)p->mMediaInfo.program[p->mMediaInfo.programIndex].duration*1000))
@@ -644,7 +643,7 @@ VideoFrame *AwRetrieverGetFrameAtTime(AwRetriever* v, int64_t timeUs)
     do
     {
         //* 4.1 prefetch packet type and packet data size.
-    	packet.flags = 0;
+	packet.flags = 0;
         if(CdxParserPrefetch(p->mParser, &packet) != 0)
         {
             //* prefetch fail, may be file end reached.
@@ -712,7 +711,7 @@ VideoFrame *AwRetrieverGetFrameAtTime(AwRetriever* v, int64_t timeUs)
                 }
                 else
                 {
-                	free(packet.buf);
+			free(packet.buf);
 					
                     //* read data fail, may be data error.
                     loge("read packet from parser fail.");
@@ -847,7 +846,7 @@ VideoFrame *AwRetrieverGetFrameAtTime(AwRetriever* v, int64_t timeUs)
         }
         else
         {
-        	if(transformPicture(p->memops, pPicture, &p->mVideoFrame) < 0)
+		if(transformPicture(p->memops, pPicture, &p->mVideoFrame) < 0)
 	        {
 	            return NULL;
 	        }
@@ -927,7 +926,7 @@ static int transformPicture(struct ScMemOpsS *memOps, VideoPicture* pPicture, Vi
     static const int nClipMax = 535;
     
     if((pPicture->ePixelFormat!= PIXEL_FORMAT_YV12) &&
-    		(pPicture->ePixelFormat!= PIXEL_FORMAT_YUV_PLANER_420))
+		(pPicture->ePixelFormat!= PIXEL_FORMAT_YUV_PLANER_420))
     {
         loge("source pixel format is not YV12, quit.");
         return -1;
@@ -958,12 +957,12 @@ static int transformPicture(struct ScMemOpsS *memOps, VideoPicture* pPicture, Vi
 
     if(pPicture->ePixelFormat== PIXEL_FORMAT_YV12)
     {
-    	pSrcV = (unsigned char*)pPicture->pData1 + (pPicture->nTopOffset/2) * (pPicture->nLineStride/2) + pPicture->nLeftOffset/2;
-    	pSrcU = (unsigned char*)pPicture->pData2 + (pPicture->nTopOffset/2) * (pPicture->nLineStride/2) + pPicture->nLeftOffset/2;
+	pSrcV = (unsigned char*)pPicture->pData1 + (pPicture->nTopOffset/2) * (pPicture->nLineStride/2) + pPicture->nLeftOffset/2;
+	pSrcU = (unsigned char*)pPicture->pData2 + (pPicture->nTopOffset/2) * (pPicture->nLineStride/2) + pPicture->nLeftOffset/2;
     }
     else
     {
-    	pSrcU = (unsigned char*)pPicture->pData1 + (pPicture->nTopOffset/2) * (pPicture->nLineStride/2) + pPicture->nLeftOffset/2;
+	pSrcU = (unsigned char*)pPicture->pData1 + (pPicture->nTopOffset/2) * (pPicture->nLineStride/2) + pPicture->nLeftOffset/2;
         pSrcV = (unsigned char*)pPicture->pData2 + (pPicture->nTopOffset/2) * (pPicture->nLineStride/2) + pPicture->nLeftOffset/2;
     }
 
@@ -1036,4 +1035,3 @@ static int transformPicture(struct ScMemOpsS *memOps, VideoPicture* pPicture, Vi
 
     return 0;
 }
-

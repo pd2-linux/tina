@@ -4,14 +4,15 @@ include $(CLEAR_VARS)
 
 LIB_ROOT=$(LOCAL_PATH)/../..
 include $(LIB_ROOT)/../config.mk
-include $(LIB_ROOT)/STREAM/config.mk
+include $(LIB_ROOT)/stream/config.mk
 
 LOCAL_SRC_FILES = \
 		$(notdir $(wildcard $(LOCAL_PATH)/*.c))
 
 LOCAL_C_INCLUDES:= \
-    $(LIB_ROOT)/BASE/include \
-    $(LIB_ROOT)/STREAM/include \
+    $(LIB_ROOT)/base/include \
+	$(LIB_ROOT)/include \
+    $(LIB_ROOT)/stream/include \
     $(LIB_ROOT)/../            \
 
 LOCAL_CFLAGS += $(CDX_CFLAGS)
@@ -26,4 +27,3 @@ ifeq ($(TARGET_ARCH),arm)
 endif
 
 include $(BUILD_STATIC_LIBRARY)
-

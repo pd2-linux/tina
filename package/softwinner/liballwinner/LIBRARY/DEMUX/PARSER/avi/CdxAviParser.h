@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxAviParser.h
+ * Description : Part of avi parser.
+ * History :
+ *
+ */
+
 #ifndef _CDX_AVI_PARSER_H_
 #define _CDX_AVI_PARSER_H_
 
@@ -5,7 +15,7 @@
 #define AVI_FALSE   (0)
 
 #define MAX_STREAM (15)
-#define MAX_AUDIO_STREAM    (8)//FILE_MAX_AUDIO_STREAM_NUM //MAX_AUDIO_STREAM_NUM        //(4)
+#define MAX_AUDIO_STREAM    (8)//FILE_MAX_AUDIO_STREAM_NUM //MAX_AUDIO_STREAM_NUM
 #define MAX_SUBTITLE_STREAM (10)
 
 #define STRH_DWSCALE_THRESH 100 
@@ -79,7 +89,7 @@
 
 /* Macro to get stream number out of a FOURCC ckid, only for chunk id "01wb"ï¿½ï¿½ */
 #define CDX_FROM_HEX(h)               (((h) >= 'A') ? ((h) + 10 - 'A') : ((h) - '0'))
-#define CDX_STREAM_FROM_FOURCC(fcc)   ((CDX_FROM_HEX((fcc) & 0xff)) << 4) + (CDX_FROM_HEX((fcc >> 8) & 0xff))
+#define CDX_STREAM_FROM_FOURCC(fcc) ((CDX_FROM_HEX((fcc) & 0xff))<<4)+(CDX_FROM_HEX((fcc>>8)&0xff))
 
 /* Macro to get TWOCC chunk type out of a FOURCC ckid */
 #define CDX_TWOCC_FROM_FOURCC(fcc)    (fcc >> 16)
@@ -135,20 +145,20 @@ enum AVI_AUDIO_TAG
 /* The AVI File Header LIST chunk should be padded to this size */
 #define AVI_HEADERSIZE          2048        // size of AVI header list
 
-typedef struct
+typedef struct MainAVIHeaderT
 {
     cdx_uint32        dwMicroSecPerFrame;        // frame display rate (or 0L)
     cdx_uint32        dwMaxBytesPerSec;          // max. transfer rate
     cdx_uint32        dwPaddingGranularity;      // pad to multiples of this size; normally 2K.
     cdx_uint32        dwFlags;                   // the ever-present flags
-    cdx_uint32        dwTotalFrames;             // total frames in file   LIST odml->dmlh->dwTotalFramesÎª×¼
+    cdx_uint32        dwTotalFrames;   // total frames in file   LIST odml->dmlh->dwTotalFramesÎª×¼
     cdx_uint32        dwInitialFrames;           // 
     cdx_uint32        dwStreams;
     cdx_uint32        dwSuggestedBufferSize;
     cdx_uint32        dwWidth;
     cdx_uint32        dwHeight;
     cdx_uint32        dwReserved[4];
-} MainAVIHeaderT;
+}MainAVIHeaderT;
 
 /*
 ** Stream header
@@ -176,9 +186,10 @@ typedef struct _AVISTREAMHEADER_
     cdx_uint16          wLanguage;
     cdx_uint32          dwInitialFrames;
     cdx_uint32          dwScale;    //Êý¾ÝÁ¿£¬ÊÓÆµÃ¿Ö¡µÄ´óÐ¡»òÕßÒôÆµµÄ²ÉÑù´óÐ¡
-    cdx_uint32          dwRate;     // dwRate / dwScale == samples/second, for video:frame/second, for audio:byte/second
+    cdx_uint32          dwRate;     // dwRate / dwScale == samples/second, for video:frame/second,
+                                    // for audio:byte/second
     cdx_uint32          dwStart;        
-    cdx_uint32          dwLength;   //In units above..., for vidoe:frame count;for audio: byte count 
+    cdx_uint32          dwLength;   //In units above, for vidoe:frame count;for audio: byte count
     cdx_uint32          dwSuggestedBufferSize;
     cdx_uint32          dwQuality;
     cdx_uint32          dwSampleSize;
@@ -202,13 +213,13 @@ typedef struct tagWAVEFORMATEX
 #define CDX_AVIIF_NOTIME        0x00000100L // this frame doesn't take any time
 #define CDX_AVIIF_COMPUSE       0x0FFF0000L // these bits are for compressor use
 
-typedef struct
+typedef struct AVIPALCHANGE
 {
     cdx_uint8        bFirstEntry;    /* first entry to change */
     cdx_uint8        bNumEntries;    /* # entries to change (0 if 256) */
     cdx_uint16       wFlags;         /* Mostly to preserve alignment... */
 //    PALETTEENTRY    peNew[];    /* New color specifications */
-} AVIPALCHANGE;
+}AVIPALCHANGE;
 
 typedef struct tagBITMAPINFOHEADER
 {                               // bmih
@@ -244,15 +255,18 @@ typedef struct _AVI_CHUNK_
     cdx_char    *buffer;
 }AviChunkT;
 
-#define CDX_AVI_INDEX_OF_INDEXES        0x00    //when each entry is aIndex array points to an index chunk
-#define CDX_AVI_INDEX_OF_CHUNKS         0x01    //when each entry is aIndex array points to a chunk in the file
-#define CDX_AVI_INDEX_IS_DATA           0x80    //when each entry is aIndex is really the data bIndexSubType codes for INDEX_OF_CHUNKS
-#define CDX_AVI_INDEX_2FIELD            0x01    //when fields within frames are also indexed.
-#define CDX_AVI_INDEX_SUBTYPE_1FRMAE    0x00    //when frame is not indexed to two fileds.
+#define CDX_AVI_INDEX_OF_INDEXES       0x00 //when each entry is aIndex array points to
+                                            // an index chunk
+#define CDX_AVI_INDEX_OF_CHUNKS        0x01 //when each entry is aIndex array points to
+                                            // a chunk in the file
+#define CDX_AVI_INDEX_IS_DATA          0x80 //when each entry is aIndex is really the data
+                                            //bIndexSubType codes for INDEX_OF_CHUNKS
+#define CDX_AVI_INDEX_2FIELD           0x01 //when fields within frames are also indexed.
+#define CDX_AVI_INDEX_SUBTYPE_1FRMAE   0x00 //when frame is not indexed to two fileds.
 
 typedef struct _avisuperindex_entry
 {
-    cdx_uint32       offsetLow;    //ï¿½Ä¼ï¿½ï¿½Ð£ï¿½ï¿½ï¿½Î»ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½Ö½Ú£ï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½
+    cdx_uint32       offsetLow;
     cdx_uint32       offsetHigh;   //point to indx chunk head.
     cdx_uint32       size;          //size of index chunk, two case:
                                     //(1)not include chunk head, (2)include chunk head.
@@ -262,7 +276,8 @@ typedef struct _avisuperindex_entry
 typedef struct _avistdindex_enty
 {
     cdx_uint32       offset; //offset is set to the chunk body, not chunk head!
-    cdx_uint32       size;   //bit31 is set if this is NOT a keyframe!(ref to OpenDML AVI File Format)
+    cdx_uint32       size;   //bit31 is set if this is NOT a keyframe!
+                             //(ref to OpenDML AVI File Format)
 }AviStdIndexEntyT;
 
 typedef struct _avifiledindex_enty
@@ -292,27 +307,27 @@ typedef struct _avistdindex_chunk
     AviStdIndexEntyT    *aIndex;
 }AviStdIndexChunkT;
 
-#define MAX_IX_ENTRY_NUM    128 //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½odml aviï¿½ï¿½video indx chunkï¿½ï¿½98ï¿½ï¿½ï¿½ï¿½
+#define MAX_IX_ENTRY_NUM    128
 typedef struct _avisuperindex_chunk
 {
-    cdx_uint16       wLongsPerEntry; //ï¿½ï¿½DWORD(4ï¿½Ö½ï¿½)Îªï¿½ï¿½Î»ï¿½ï¿½Ò»ï¿½ï¿½Îª4ï¿½ï¿½ï¿½ï¿½16ï¿½ï¿½ï¿½Ö½Ú¡ï¿½sizeof entry in this table
-    cdx_uint8        bIndexSubType;  //Ò»ï¿½ï¿½Îª0ï¿½ï¿½Ò²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½AVI_INDEX_2FILED,etc
+    cdx_uint16       wLongsPerEntry; //sizeof entry in this table
+    cdx_uint8        bIndexSubType;  //AVI_INDEX_2FILED,etc
     cdx_uint8        bIndexType;     //CDX_AVI_INDEX_OF_INDEXES / CDX_AVI_INDEX_OF_CHUNKS
-    cdx_uint32       nEntriesInUse;  //aIndexï¿½ï¿½ï¿½Ë¶ï¿½ï¿½ï¿½ï¿½ï¿½
+    cdx_uint32       nEntriesInUse;  //aIndex
     cdx_uint32       dwChunkId;
     cdx_uint32       baseOffsetLow;
     cdx_uint32       baseOffsetHigh;
     cdx_uint32       dwReserved;
-    AviSuperIndexEntryT *aIndex[MAX_IX_ENTRY_NUM];  //ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½Ú´ï¿½
+    AviSuperIndexEntryT *aIndex[MAX_IX_ENTRY_NUM];
 }AviSuperIndexChunkT;
 
-typedef struct
+typedef struct AVIIXENTRY
 {
     cdx_uint32       position;
     cdx_uint32       length;
 }AVIIXENTRY;
 
-typedef struct
+typedef struct AVIIXCHUNK
 {
     cdx_uint32       ix_tag;
     cdx_uint32       size;
@@ -353,7 +368,7 @@ typedef struct _AVI_STREAM_INFO_
     AviSuperIndexChunkT *indx;     // 
 
     AviChunkT       *strh;  //strh,length, AVIStreamHeader,  malloc
-    AviChunkT       *strf;  //strf ,length, ï¿½ï¿½Ý½á¹¹ï¿½ï¿½video:BITMAPINFOHEADER,audio:WAVEFORMATEX,ï¿½ï¿½Òªmalloc
+    AviChunkT       *strf;  //strf ,length
     AviChunkT       *strd;  //ï¿½ï¿½Òªmalloc
     AviChunkT       *strn;  //strn, length, "string" ï¿½ï¿½Òªmalloc
 
@@ -368,7 +383,8 @@ typedef struct _AUDIO_STREAM_INFO_
     cdx_int32   avgBytesPerSec; //unit: byte/s 
     cdx_int32   nBlockAlign;    //if VBR, indicate an audioframe's max bytes
 
-    cdx_int32   dataEncodeType;    //enum __CEDARLIB_SUBTITLE_ENCODE_TYPE, CDX_SUBTITLE_ENCODE_UTF8,  <==>__cedar_subtitle_encode_t,  CDX_SUBTITLE_ENCODE_UTF8,  
+    cdx_int32   dataEncodeType; //enum __CEDARLIB_SUBTITLE_ENCODE_TYPE,
+    //CDX_SUBTITLE_ENCODE_UTF8,  <==>__cedar_subtitle_encode_t,  CDX_SUBTITLE_ENCODE_UTF8
     cdx_uint8   sStreamName[AVI_STREAM_NAME_SIZE];   
 }AudioStreamInfoT;
 
@@ -408,4 +424,3 @@ typedef struct AviVideoStreamInfo
 }AviVideoStreamInfo;
 
 #endif /* _CDX_AVI_PARSER_H_ */
-

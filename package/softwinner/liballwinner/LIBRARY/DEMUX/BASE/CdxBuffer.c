@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxBuffer.c
+ * Description : Buffer
+ * History :
+ *
+ */
+
 #include <CdxTypes.h>
 #include <CdxMemory.h>
 #include <CdxLog.h>
@@ -274,4 +284,3 @@ cdx_void CdxBufferDestroy(CdxBufferT *buf)
     __CdxBufferDecRef(buf);
     return ;
 }
-

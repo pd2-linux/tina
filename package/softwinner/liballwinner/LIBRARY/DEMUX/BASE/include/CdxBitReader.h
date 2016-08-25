@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxBitReader.h
+ * Description : BitReader
+ * History :
+ *
+ */
+
 #ifndef CDX_BIT_READER_H
 #define CDX_BIT_READER_H
 

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxStrUtil.c
+ * Description : StrUtil
+ * History :
+ *
+ */
+
 #include <CdxStrUtil.h>
 
 #include <string.h>
@@ -150,4 +160,3 @@ cdx_uint32 CdxStrSplit(AwPoolT *pool, cdx_char *str, char sepa, CdxListT *itemLi
     }
     return itemNum;
 }
-

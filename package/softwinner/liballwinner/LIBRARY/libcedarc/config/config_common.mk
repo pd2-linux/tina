@@ -43,11 +43,15 @@ else
 JB42_AND_NEWER = no
 endif
 
+## 3. secure os
 #on semelis secure os, we transform phy addr to secure os to operate the buffer,
 #but we adjust on optee secure os, just transform vir addr.
+ifeq ($(SECURE_OS), yes)
+
 ifeq ($(SECURE_OS_OPTEE), yes)
     LOCAL_CFLAGS +=-DADJUST_ADDRESS_FOR_SECURE_OS_OPTEE=1
 else
     LOCAL_CFLAGS +=-DADJUST_ADDRESS_FOR_SECURE_OS_OPTEE=0
 endif
 
+endif ## 'SECURE_OS == yes'

@@ -20,6 +20,7 @@
 #include "CdxMpgParserImpl.h"
 #include "dvdTitleIfo.h"
 
+static char *const mpgSuffix[] = {".vob", ".mpg", ".mpeg",".dat", ".m1v", ".m2v"};
 
 cdx_int16 SendVidFrmData(CdxMpgParserT  *pCdxMpgParserT, CdxPacketT *pkt)
 {   
@@ -109,8 +110,13 @@ static cdx_int32 CdxMpgParserPrefetch(CdxParserT *parser, CdxPacketT * pkt)
         CDX_LOGE("error operation:: not in the status of IDLE or PREFETCHED when call prefetch()");
         pCdxMpgParserT->nError = PSR_INVALID_OPERATION;
     }
+    if(pCdxMpgParserT->eStatus == CDX_PSR_PREFETCHED)
+    {
+        memcpy(pkt, &pCdxMpgParserT->mCurPacketT, sizeof(CdxPacketT));
+        return CDX_SUCCESS;
+    }
 #if MPG_SEND_VID_FRAME
-    SendVidFrmData(pCdxMpgParserT,pkt);
+    SendVidFrmData(pCdxMpgParserT,&pCdxMpgParserT->mCurPacketT);
 #endif
 
 prefetchData:
@@ -124,14 +130,13 @@ prefetchData:
 
         pCdxMpgParserT->eStatus = CDX_PSR_PREFETCHING;
         nResult = pCdxMpgParserT->read(pCdxMpgParserT);
-        pCdxMpgParserT->eStatus = CDX_PSR_PREFETCHED;
         
         if(nResult==MPG_PSR_RESULT_EOF)
         {   
             pCdxMpgParserT->bReadFileEndFlag = 1;
             pCdxMpgParserT->nError = PSR_EOS;
             #if MPG_SEND_VID_FRAME
-            nResult = SendVidFrmData(pCdxMpgParserT,pkt);
+            nResult = SendVidFrmData(pCdxMpgParserT,&pCdxMpgParserT->mCurPacketT);
             #endif
             if(nResult == -1)
             {
@@ -147,23 +152,23 @@ prefetchData:
         #if MPG_SEND_VID_FRAME
         else if(mMpgParserCxt->mDataChunkT.bWaitingUpdateFlag == 0)
         {
-            SendVidFrmData(pCdxMpgParserT,pkt);
+            SendVidFrmData(pCdxMpgParserT,&pCdxMpgParserT->mCurPacketT);
         }
         #endif
     }
     
-    pkt->length= mMpgParserCxt->mDataChunkT.nUpdateSize;
+    pCdxMpgParserT->mCurPacketT.length= mMpgParserCxt->mDataChunkT.nUpdateSize;
         
     //pkt->pkt_offset = 0;
 
     if(mMpgParserCxt->bIsPsFlag == 0)
     {
-        pkt->type = CDX_MEDIA_VIDEO;
+        pCdxMpgParserT->mCurPacketT.type = CDX_MEDIA_VIDEO;
         //pkt->video_type = VIDEO_TYPE_MAJOR;
     }
     else if(mMpgParserCxt->mDataChunkT.nId == mMpgParserCxt->nVideoId)
     {
-        pkt->type = CDX_MEDIA_VIDEO;
+        pCdxMpgParserT->mCurPacketT.type = CDX_MEDIA_VIDEO;
 
         //* deal with h264
         //  becase h264 decoder decode data based on nuls
@@ -226,22 +231,25 @@ prefetchData:
             {
                 if(pMpgCheckNulT->pEndReadAddr>pMpgCheckNulT->pStartReadAddr)
                 {
-                    pkt->length = pMpgCheckNulT->pEndReadAddr - pMpgCheckNulT->pStartReadAddr;
+                    pCdxMpgParserT->mCurPacketT.length
+                        = pMpgCheckNulT->pEndReadAddr - pMpgCheckNulT->pStartReadAddr;
                 }
                 else
                 {
-                    pkt->length = 0;
-                    pkt->length += pMpgCheckNulT->pEndAddr - pMpgCheckNulT->pStartReadAddr;
-                    pkt->length += pMpgCheckNulT->pEndReadAddr - pMpgCheckNulT->pDataBuf;
+                    pCdxMpgParserT->mCurPacketT.length = 0;
+                    pCdxMpgParserT->mCurPacketT.length
+                        += pMpgCheckNulT->pEndAddr - pMpgCheckNulT->pStartReadAddr;
+                    pCdxMpgParserT->mCurPacketT.length
+                        += pMpgCheckNulT->pEndReadAddr - pMpgCheckNulT->pDataBuf;
                 }
             }
             else
             {
-               pkt->length = 0;
+               pCdxMpgParserT->mCurPacketT.length = 0;
             }
 
             //* if not search 0x00000001 , prefetch again 
-            if(pkt->length==0)
+            if(pCdxMpgParserT->mCurPacketT.length==0)
             {
                 mMpgParserCxt->mDataChunkT.bWaitingUpdateFlag = CDX_FALSE;
                 mMpgParserCxt->mDataChunkT.nUpdateSize = 0;
@@ -285,17 +293,17 @@ prefetchData:
             (pCdxMpgParserT->bIsVOB==1))
     {
         //*just for one subtitle track, we should motify here when surpport multi subtitle tracks
-        pkt->streamIndex = 0;
-        pkt->type = CDX_MEDIA_SUBTITLE;
+        pCdxMpgParserT->mCurPacketT.streamIndex = 0;
+        pCdxMpgParserT->mCurPacketT.type = CDX_MEDIA_SUBTITLE;
         //pkt->video_type = VIDEO_TYPE_NOT_VIDEO;
     }
     else if((mMpgParserCxt->mDataChunkT.nId==mMpgParserCxt->nAudioId)
             ||((mMpgParserCxt->mDataChunkT.nId&0xe0)==MPG_AUDIO_ID))
     {   
-        pkt->streamIndex = mMpgParserCxt->nSendAudioIndex;
+        pCdxMpgParserT->mCurPacketT.streamIndex = mMpgParserCxt->nSendAudioIndex;
         // send the audio pStartAddr nIndex
         
-        pkt->type = CDX_MEDIA_AUDIO;
+        pCdxMpgParserT->mCurPacketT.type = CDX_MEDIA_AUDIO;
         //pkt->video_type = VIDEO_TYPE_NOT_VIDEO;
         if(mMpgParserCxt->bFstAudDataFlag == 0)
         {
@@ -319,17 +327,19 @@ prefetchData:
     }
     else
     {
-        pkt->type = CDX_MEDIA_UNKNOWN;
+        pCdxMpgParserT->mCurPacketT.type = CDX_MEDIA_UNKNOWN;
         //pkt->video_type = VIDEO_TYPE_NOT_VIDEO;
     }
-    pkt->pts  = -1;
+    pCdxMpgParserT->mCurPacketT.pts  = -1;
     if(mMpgParserCxt->mDataChunkT.bHasPtsFlag)
     {   
-        pkt->pts = mMpgParserCxt->mDataChunkT.nPts;
-        pkt->pts *= 1000;
+        pCdxMpgParserT->mCurPacketT.pts = mMpgParserCxt->mDataChunkT.nPts;
+        pCdxMpgParserT->mCurPacketT.pts *= 1000;
     }   
     //CDX_LOGD("prefetch end, pts=%lld, type=%d, streamIndex=%d, cdx_pkt->length=%d",
     //pkt->pts, pkt->type, pkt->streamIndex, pkt->length);
+    memcpy(pkt, &pCdxMpgParserT->mCurPacketT, sizeof(CdxPacketT));
+    pCdxMpgParserT->eStatus = CDX_PSR_PREFETCHED;
     return CDX_SUCCESS;
 }
 
@@ -474,6 +484,7 @@ static cdx_int32 CdxMpgParserRead(CdxParserT *parser, CdxPacketT *pkt)
     mMpgParserCxt->mDataChunkT.bWaitingUpdateFlag = CDX_FALSE;
     mMpgParserCxt->mDataChunkT.nUpdateSize = 0;
     mMpgParserCxt->mDataChunkT.nSegmentNum = 0;
+    pCdxMpgParserT->eStatus = CDX_PSR_IDLE;
     return CDX_SUCCESS;
 }
 
@@ -793,8 +804,25 @@ cdx_int32 CdxMpgParserGetStatus(CdxParserT *parser)
 }
 cdx_int32 CdxMpgParserInit(CdxParserT *parser)
 {
-    //*we do nothing here
-    CDX_UNUSE(parser);
+	int nResult;
+    CdxMpgParserT        *pCdxMpgParserT = NULL;
+    MpgParserContextT  *pMpgParserContextT = NULL;
+
+    pCdxMpgParserT = (CdxMpgParserT*)parser;
+    pMpgParserContextT = (MpgParserContextT*)pCdxMpgParserT->pMpgParserContext;
+
+    //open media file to parse file information
+    nResult = pCdxMpgParserT->open(pCdxMpgParserT, pMpgParserContextT->pStreamT);
+    if(nResult < 0)
+    {
+        CDX_LOGE("open fail !");
+        //CdxStreamClose(stream);
+        pCdxMpgParserT->nError = PSR_OPEN_FAIL;
+        return -1;
+    }
+
+    pCdxMpgParserT->eStatus = CDX_PSR_IDLE;
+    pCdxMpgParserT->nError = PSR_OK;
     return 0;
 }
 
@@ -815,6 +843,7 @@ static CdxParserT *CdxMpgParserOpen(CdxStreamT *stream, cdx_uint32 flag)
 {
     int                   nResult;
     CdxMpgParserT        *pCdxMpgParserT = NULL;
+    MpgParserContextT  *pMpgParserContextT = NULL;
     CDX_UNUSE(flag);
     
     //init mpg parser lib module
@@ -831,29 +860,53 @@ static CdxParserT *CdxMpgParserOpen(CdxStreamT *stream, cdx_uint32 flag)
     }
     pCdxMpgParserT->eStatus = CDX_PSR_INITIALIZED;
 
-    //open media file to parse file information
-    nResult = pCdxMpgParserT->open(pCdxMpgParserT, stream);
-    if(nResult < 0)
-    {
-        CDX_LOGE("open fail !");
-        CdxStreamClose(stream);
-        pCdxMpgParserT->nError = PSR_OPEN_FAIL;
-        return NULL;
-    }
+    pMpgParserContextT = (MpgParserContextT*)pCdxMpgParserT->pMpgParserContext;
+    pMpgParserContextT->pStreamT = stream;
 
     //initial some global parameter
     pCdxMpgParserT->nVidPtsOffset = 0;
     pCdxMpgParserT->nAudPtsOffset = 0;
     pCdxMpgParserT->nSubPtsOffset = 0;
     pCdxMpgParserT->base.ops = &mpgParserOps;
-    pCdxMpgParserT->base.type = CDX_PARSER_MPG;
+	pCdxMpgParserT->base.type = CDX_PARSER_MPG;
 
-    pCdxMpgParserT->eStatus = CDX_PSR_IDLE;
-    pCdxMpgParserT->nError  = PSR_OK;
+    pCdxMpgParserT->nError  = PSR_INVALID;
     
     return &pCdxMpgParserT->base;
 }
 
+static int FdUriToFilepath(char* uri,char* path)
+{
+    int ret;
+    int fd;
+    cdx_int64 offset;
+    cdx_int64 size;
+    char fdInProc[1024] = {0};
+
+    ret = sscanf(uri, "fd://%d?offset=%lld&length=%lld", &fd, &offset, &size);
+    if (ret != 3)
+    {
+        CDX_LOGE("sscanf failure...(%s)", uri);
+        return -1;
+    }
+
+    if (fd < 0)
+    {
+        CDX_LOGE("invalid fd(%d)", fd);
+        return -1;
+    }
+
+    snprintf(fdInProc, sizeof(fdInProc), "/proc/self/fd/%d", fd);
+
+    ret = readlink(fdInProc, path, 1024 - 1);
+    if (ret == -1)
+    {
+        CDX_LOGE("readlink failure, errno(%d)", errno);
+        return -1;
+    }
+
+    return 0;
+}
 
 static cdx_uint32 CdxMpgParserProbe(CdxStreamProbeDataT *probeData)
 {
@@ -871,6 +924,8 @@ static cdx_uint32 CdxMpgParserProbe(CdxStreamProbeDataT *probeData)
     int                 score = 0;
     int                 i = 0;
     int                 nRealVideoPackNum = 0;
+    char                *suffix = NULL;
+    char                filePath[1024] = {0};
 
     if(probeData->len < 4)
     {
@@ -885,7 +940,7 @@ static cdx_uint32 CdxMpgParserProbe(CdxStreamProbeDataT *probeData)
     nextCode= 0xffffffff;
 
     score = 0;
-    while(pBuf <= pBufEnd)
+    while(pBuf < pBufEnd)
     {
         nextCode <<= 8;
         nextCode |= pBuf[0];
@@ -968,7 +1023,33 @@ static cdx_uint32 CdxMpgParserProbe(CdxStreamProbeDataT *probeData)
             score = 100;
         }
     }
-    return score;
+
+    if (!probeData->uri[0])
+        return score;
+
+    if (strncmp("fd://", probeData->uri[0],5) == 0)
+    {
+        if (FdUriToFilepath(probeData->uri[0],filePath) == 0)
+            suffix = strrchr(filePath, '.');
+        else
+            return score;
+    }
+
+    if (!suffix)
+        suffix = strrchr(probeData->uri[0], '.');
+
+    if (suffix)
+    {
+        int mpgSuffixNum = sizeof(mpgSuffix) / sizeof(mpgSuffix[0]);
+        for (i = 0; i < mpgSuffixNum; i++)
+        {
+            if (strcasecmp(mpgSuffix[i], suffix) == 0)
+                return score; // suffix match, I'm sure that it's a mpg.
+        }
+    }
+
+    logd("uri suffix not match for mpg score need cut half");
+    return score/2;
 }
 
 CdxParserCreatorT mpgParserCtor =
@@ -976,4 +1057,3 @@ CdxParserCreatorT mpgParserCtor =
     .create    = CdxMpgParserOpen,
     .probe     = CdxMpgParserProbe
 };
-

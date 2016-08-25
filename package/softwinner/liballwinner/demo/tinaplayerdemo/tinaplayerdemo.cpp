@@ -457,6 +457,25 @@ void CallbackForTinaPlayer(void* pUserData, int msg, int param0, void* param1)
             break;
         }
 
+		case TINA_NOTIFY_VIDEO_FRAME:
+		{
+			VideoPicData* videodata = (VideoPicData*)param1;
+			if(videodata){
+				printf("*****TINA_NOTIFY_VIDEO_FRAME****,videodata->nPts = %lld ms\n",videodata->nPts/1000);
+				printf(" *****TINA_NOTIFY_VIDEO_FRAME****,videodata->ePixelFormat = %d,videodata->nWidth = %d,videodata->nHeight=%d\n",videodata->ePixelFormat,videodata->nWidth,videodata->nHeight);
+			}
+			break;
+		}
+
+		case TINA_NOTIFY_AUDIO_FRAME:
+		{
+			AudioPcmData* pcmData = (AudioPcmData*)param1;
+			if(pcmData){
+				//printf(" *****TINA_NOTIFY_AUDIO_FRAME#####,*pcmData->pData = %p,pcmData->nSize = %d\n",*(pcmData->pData),pcmData->nSize);
+			}
+			break;
+		}
+
         default:
         {
             printf("warning: unknown callback from Tinaplayer.\n");
@@ -578,7 +597,7 @@ int main(int argc, char** argv)
                         break;
                     }
                      printf("setDataSource end\n");
-                    
+					demoPlayer.mTinaPlayer->setVideoOutputScaleRatio(0, 0);
                     //* start preparing.
                     pthread_mutex_lock(&demoPlayer.mMutex);    //* lock to sync with the prepare finish notify.
                     if(demoPlayer.mTinaPlayer->prepareAsync() != 0)

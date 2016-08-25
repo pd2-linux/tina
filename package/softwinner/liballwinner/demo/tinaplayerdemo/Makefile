@@ -65,7 +65,7 @@ CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -Wall -O2 -ldl
 ## set link flags
 LoadFlags = $(CONFIG_FOR_LINK)
 
-#LoadFlags +=   -ltinaplayer -lxplayer -lvdecoder -ladecoder -lsdecoder -lpostprocess \
+#LoadFlags +=   -ltinaplayer -lxplayer -lvdecoder -ladecoder -lsdecoder -lnormal_audio -lpostprocess \
 #               -lcdx_parser  -lplayer -lcdx_stream -lcdx_base -lVE -lMemAdapter \
 #               -law_plugin -lcrypto -lssl  -lpthread -ldl -lstdc++ -lrt
 
@@ -77,6 +77,14 @@ ifeq ($(CONFIG_HAVE_ZLIB), $(OPTION_HAVE_ZLIB))
     LoadFlags += -lz 
 endif
                
+ifeq ($(CONFIG_HAVE_SSL), $(OPTION_HAVE_SSL))
+	LoadFlags += -lcrypto -lssl
+endif
+
+ifeq ($(CONFIG_HAVE_LIVE555), $(OPTION_HAVE_LIVE555))
+LoadFlags += -llive555
+endif
+
 LoadFlags +=  -lasound
 
 LoadFlags += -L../../LIBRARY/DEMUX/BASE/ \
@@ -108,11 +116,20 @@ LoadFlags += -L../../LIBRARY/libcedarc/library/lib32/linuxgnueabi
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI))
+ifeq ($(LINUX_VERSION),$(LINUX_VERSION_3_10))
+LoadFlags +=-L../../LIBRARY/libcedarc/library/lib32/muslgnueabi_linux310
+else
+LoadFlags +=-L../../LIBRARY/libcedarc/library/lib32/muslgnueabi
+endif
 LoadFlags +=-L../../LIBRARY/EXTERNAL/lib32/muslgnueabi
-LoadFlags += -L../../LIBRARY/libcedarc/library/lib32/muslgnueabi
 endif
 ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI64))
 LoadFlags +=-L../../LIBRARY/EXTERNAL/lib64/muslgnueabi
+endif
+
+ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI310))
+LoadFlags +=-L../../LIBRARY/EXTERNAL/lib32/muslgnueabi
+LoadFlags += -L../../LIBRARY/libcedarc/library/lib32/muslgnueabi_linux310
 endif
 
 ################################################################################
@@ -161,5 +178,3 @@ ifneq ($(MAKECMDGOALS),cleanall)
 endif
 endif
 endif
-
-

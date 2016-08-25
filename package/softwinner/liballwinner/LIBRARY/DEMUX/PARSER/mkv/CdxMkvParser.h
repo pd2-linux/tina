@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxMkvParser.h
+ * Description : MkvParser
+ * History :
+ *
+ */
+
 #ifndef CDX__mkv_parser_H
 #define CDX__mkv_parser_H
 
@@ -314,11 +324,10 @@ enum CodecID {
     CODEC_ID_ESCAPE124,
     CODEC_ID_DIRAC,
     CODEC_ID_BFI,
-	CODEC_ID_DIVX3,
-	CODEC_ID_DIVX4,
-	CODEC_ID_DIVX5,
-	CODEC_ID_V_UNKNOWN,
-	
+    CODEC_ID_DIVX3,
+    CODEC_ID_DIVX4,
+    CODEC_ID_DIVX5,
+    CODEC_ID_V_UNKNOWN,
 
     // various PCM "codecs" 
     CODEC_ID_PCM_S16LE= 0x10000,
@@ -433,7 +442,7 @@ enum CodecID {
     CODEC_ID_WMAPRO,
     CODEC_ID_WMALOSSLESS,
     CODEC_ID_ATRAC3P,
-	CODEC_ID_A_UNKNOWN,
+    CODEC_ID_A_UNKNOWN,
 
     // subtitle codecs 
     CODEC_ID_DVD_SUBTITLE= 0x17000,
@@ -447,7 +456,8 @@ enum CodecID {
     // other specific kind of codecs (generally used for attachments) 
     CODEC_ID_TTF= 0x18000,
 
-    CODEC_ID_MPEG2TS= 0x20000, //_FAKE_ codec to indicate a raw MPEG-2 TS stream (only used by libavformat) 
+    CODEC_ID_MPEG2TS= 0x20000, //_FAKE_ codec to indicate a raw MPEG-2 TS stream
+                               //(only used by libavformat)
 };
 
 enum CodecType {
@@ -497,8 +507,11 @@ typedef enum {
 //#define ENOENT  8
 #define AVERROR_EOS 1
 
-#define AVERROR(e) (-(e)) // Returns a negative error code from a POSIX error code, to return from library functions. 
-#define AVUNERROR(e) (-(e)) // Returns a POSIX error code from a library function error return value. 
+// Returns a negative error code from a POSIX error code, to return from library functions.
+#define AVERROR(e) (-(e))
+
+// Returns a POSIX error code from a library function error return value.
+#define AVUNERROR(e) (-(e))
 #define AVERROR_UNKNOWN     AVERROR(EINVAL)  // unknown error 
 #define AVERROR_IO          AVERROR(EIO)     // I/O error 
 #define AVERROR_NUMEXPECTED AVERROR(EDOM)    // Number syntax expected in filename. 
@@ -519,23 +532,24 @@ typedef struct AVCodecTag {
 // Matroska Codec IDs. Strings.
 
 typedef struct CodecTags{
-    char		str[20];
-    enum		CodecID id;
+    char str[20];
+    enum CodecID id;
 }CodecTags;
 
 // max. depth in the EBML tree structure 
 #define EBML_MAX_DEPTH 16
 
 typedef struct AVIndexEntry {
-    cdx_int64		pos;
-    cdx_int64		timestamp;
+    cdx_int64        pos;
+    cdx_int64        timestamp;
 } AVIndexEntry;
 
 typedef struct AVStream {
-    cdx_int32			index;     // stream index in AVFormatContext 
-    cdx_int32			id;        // format specific stream id 
+    cdx_int32            index;     // stream index in AVFormatContext
+    cdx_int32            id;        // format specific stream id
 
-    cdx_int32			bit_rate;  // the average bitrate. 0 or some bitrate if this info is available in the stream.
+    // the average bitrate. 0 or some bitrate if this info is available in the stream.
+    cdx_int32            bit_rate;
 
     /* some codecs need / can use extradata like Huffman tables.
      * mjpeg: Huffman tables
@@ -545,260 +559,278 @@ typedef struct AVStream {
      * than extradata_size to avoid prolems if it is read with the bitstream reader.
      * The bytewise contents of extradata must not depend on the architecture or CPU endianness.
      * - decoding: Set/allocated/freed by user.*/ 
-    char			*extradata;
-    cdx_int32			extradata_size;
+    char            *extradata;
+    cdx_int32            extradata_size;
 
      /* This is the fundamental unit of time (in seconds) in terms
       * of which frame timestamps are represented. For fixed-fps content,
       * timebase should be 1/framerate and timestamp increments should be
       * identically 1.*/
-    cdx_uint64			default_duration;
+    cdx_uint64            default_duration;
 
-    cdx_int32			width, height;	// Note: For compatibility it is possible to set this instead of coded_width/height before decoding.
+    // Note: For compatibility it is possible to set this
+    //       instead of coded_width/height before decoding.
+    cdx_int32            width, height;
 
     // audio only 
-    cdx_int32			sample_rate; // samples per second
-	cdx_int32			channels;    // number of audio channels
+    cdx_int32            sample_rate; // samples per second
+    cdx_int32            channels;    // number of audio channels
 
     // The following data should not be initialized. 
 
-    enum CodecType	codec_type; 
-    enum CodecID	codec_id;
+    enum CodecType    codec_type;
+    enum CodecID    codec_id;
 
-    cdx_int32			block_align;	//number of bytes per packet if constant and known or 0 Used by some WAV based audio codecs.
+    //number of bytes per packet if constant and known or 0 Used by some WAV based audio codecs.
+    cdx_int32            block_align;
 
-    unsigned int			sample_aspect_ratio;	//sample aspect ratio (0 if unknown)
+    unsigned int            sample_aspect_ratio;    //sample aspect ratio (0 if unknown)
 
-    cdx_int32			profile; // FF_PROFILE_UNKNOWN -99; FF_PROFILE_AAC_MAIN 0; FF_PROFILE_AAC_LOW  1; FF_PROFILE_AAC_SSR  2; FF_PROFILE_AAC_LTP  3
+    // FF_PROFILE_UNKNOWN -99; FF_PROFILE_AAC_MAIN 0;
+    // FF_PROFILE_AAC_LOW  1; FF_PROFILE_AAC_SSR  2; FF_PROFILE_AAC_LTP  3
+    cdx_int32            profile;
 
-    cdx_int32			level;   // FF_LEVEL_UNKNOWN -99
+    cdx_int32            level;   // FF_LEVEL_UNKNOWN -99
 
-    unsigned int			time_scale;
+    unsigned int            time_scale;
 
-	cdx_int64			pts;
-	cdx_int64           last_pts;
+    cdx_int64            pts;
+    cdx_int64           last_pts;
 
-    char			language[MAX_SUBTITLE_LANG_SIZE];    // ISO 639 3-letter language code (empty string if undefined) 
+    // ISO 639 3-letter language code (empty string if undefined)
+    char            language[MAX_SUBTITLE_LANG_SIZE];
 
-    AVIndexEntry	*index_entries; // only used if the format does not support seeking natively 
-    cdx_int32			nb_index_entries;
+    AVIndexEntry    *index_entries; // only used if the format does not support seeking natively
+    cdx_int32            nb_index_entries;
 
-    cdx_int32			disposition;              // AV_DISPOSITION_* bitfield 
+    cdx_int32            disposition;              // AV_DISPOSITION_* bitfield
 } AVStream;
 
 #define MAX_STREAMS 26
 
 typedef struct Track {
-    MatroskaTrackType	type;
+    MatroskaTrackType    type;
 
     // for seamless audio/subtitle switch, the stream number of all the audio/subtitle streams
     int                 nStreamIdx;      // it is not same with stream_index
     
-    cdx_int32			encoding_scope;
+    cdx_int32            encoding_scope;
 
-    // Unique track number and track ID. stream_index is the index that the calling app uses for this track. 
-    unsigned int		num;
-    cdx_int32			stream_index;   // number of all the streams( including video, audio,subtitle)
+    // Unique track number and track ID.
+    // stream_index is the index that the calling app uses for this track.
+    unsigned int        num;
 
-    char			    language[MAX_SUBTITLE_LANG_SIZE];   // should 64 bytes
+    // number of all the streams( including video, audio,subtitle)
+    cdx_int32            stream_index;
 
-    enum CodecID	    codec_id;
-	unsigned int		codec_id_addtion;
+    char                language[MAX_SUBTITLE_LANG_SIZE];   // should 64 bytes
 
-    unsigned char		*codec_priv;
-    cdx_int32			codec_priv_size;
+    enum CodecID        codec_id;
+    unsigned int        codec_id_addtion;
     
-    unsigned char		content_comp;
-    unsigned char		*comp_settings;
-    unsigned char		comp_settings_len;
+    unsigned char        *codec_priv;
+    cdx_int32            codec_priv_size;
 
-    double			    time_scale;
-    cdx_uint64			default_duration;
-    MatroskaTrackFlags	flags;
+    unsigned char        content_comp;
+    unsigned char        *comp_settings;
+    unsigned char        comp_settings_len;
 
-	cdx_int32			block_size_type;
+    double                time_scale;
+    cdx_uint64            default_duration;
+    MatroskaTrackFlags    flags;
+
+    cdx_int32            block_size_type;
 } MatroskaTrack;
 
 typedef struct MatroskaVideoTrack {
-    MatroskaTrack	track;
+    MatroskaTrack    track;
 
-    cdx_int32			pixel_width;
-    cdx_int32			pixel_height;
-    cdx_int32			display_width;
-    cdx_int32			display_height;
-	cdx_uint16			frame_rate;
+    cdx_int32            pixel_width;
+    cdx_int32            pixel_height;
+    cdx_int32            display_width;
+    cdx_int32            display_height;
+    cdx_uint16            frame_rate;
 
-    unsigned int			fourcc;
+    unsigned int            fourcc;
 } MatroskaVideoTrack;
 
 typedef struct MatroskaAudioTrack {
-    MatroskaTrack	track;
+    MatroskaTrack    track;
 
-	cdx_int32           tag; // for wma
-    cdx_int32			channels;
-    cdx_int32			bitdepth;
-    cdx_int32			internal_samplerate;
-    cdx_int32			samplerate;
-    cdx_int32			block_align;
+    cdx_int32           tag; // for wma
+    cdx_int32            channels;
+    cdx_int32            bitdepth;
+    cdx_int32            internal_samplerate;
+    cdx_int32            samplerate;
+    cdx_int32            block_align;
     cdx_int32           bitrate;
 
     // real audio header 
-    cdx_int32			coded_framesize;
-    cdx_int32			sub_packet_h;
-    cdx_int32			frame_size;
-    cdx_int32			sub_packet_size;
+    cdx_int32            coded_framesize;
+    cdx_int32            sub_packet_h;
+    cdx_int32            frame_size;
+    cdx_int32            sub_packet_size;
 } MatroskaAudioTrack;
 
 #define MAX_TRACK_SIZE (MKVMAX(sizeof(MatroskaVideoTrack), sizeof(MatroskaAudioTrack)))
 
 typedef struct MatroskaLevel {
-    cdx_uint64			start;
-    cdx_uint64			length;
+    cdx_uint64            start;
+    cdx_uint64            length;
 } MatroskaLevel;
 
 typedef struct MatroskaDemuxIndex {
-	cdx_uint64			pos;   /* of the corresponding *cluster*! */
-	cdx_uint16			track; /* reference to 'num' */
-	cdx_uint64			time;  /* in nanoseconds */
+    cdx_uint64            pos;   /* of the corresponding *cluster*! */
+    cdx_uint16            track; /* reference to 'num' */
+    cdx_uint64            time;  /* in nanoseconds */
 } MatroskaDemuxIndex;
-
 
 #define MAX_SUBTITLE_NUM           MAX_SUBTITLE_STREAM_NUM  // SUBTITLE_MAX_NUM
 #define MAX_STREAM_NUM    10
 typedef struct MatroskaDemuxContext {
-	CdxStreamT			*fp;
+    CdxStreamT            *fp;
 
-	cdx_int64           fileEndPst;
+    cdx_int64           fileEndPst;
 	
-	cdx_int64			vDataPos;
-	cdx_int64			FilePos;
+    cdx_int64            vDataPos;
+    cdx_int64            FilePos;
 
-	unsigned int		nb_streams;
-    AVStream		   *streams[MAX_STREAMS];
+    unsigned int        nb_streams;
+    AVStream           *streams[MAX_STREAMS];
 
     // ebml stuff 
-    cdx_int32			num_levels;
-    MatroskaLevel	    levels[EBML_MAX_DEPTH];
-    cdx_int32			level_up;
-	cdx_int32			num_levels_bak;
+    cdx_int32            num_levels;
+    MatroskaLevel        levels[EBML_MAX_DEPTH];
+    cdx_int32            level_up;
+    cdx_int32            num_levels_bak;
 
-    cdx_int64			time_scale;		// timescale in the file 
-    double			    segment_duration_f;		// decoding: duration of the the segment, in AV_TIME_BASE fractional seconds.
-	cdx_int64			segment_duration;		// decoding: duration of the the segment, in AV_TIME_BASE fractional seconds.
+    cdx_int64            time_scale;        // timescale in the file
+
+    // decoding: duration of the the segment, in AV_TIME_BASE fractional seconds.
+    double                segment_duration_f;
+    // decoding: duration of the the segment, in AV_TIME_BASE fractional seconds.
+    cdx_int64            segment_duration;
 
     // num_streams is the number of streams
-    cdx_int32			num_tracks;
-    cdx_int32			num_streams;
-    MatroskaTrack	    *tracks[MAX_STREAMS];
+    cdx_int32            num_tracks;
+    cdx_int32            num_streams;
+    MatroskaTrack        *tracks[MAX_STREAMS];
 
-    unsigned int		peek_id;			// cache for ID peeking 
+    unsigned int        peek_id;            // cache for ID peeking
 
-    cdx_uint64			segment_start;		// byte position of the segment inside the stream 
+    cdx_uint64            segment_start;        // byte position of the segment inside the stream
     
-    unsigned int		vfw_fourcc;
+    unsigned int        vfw_fourcc;
 
-    cdx_int32			index_parsed;		// index has been parsed
-    cdx_int32			done;				// file end
-	cdx_int32			data_rdy;			// 1: audio or video data is ready for read
-	cdx_int32			parsing_cluster;	// 1: cluster is parsing
+    cdx_int32            index_parsed;        // index has been parsed
+    cdx_int32            done;                // file end
+    cdx_int32            data_rdy;            // 1: audio or video data is ready for read
+    cdx_int32            parsing_cluster;    // 1: cluster is parsing
 
-    cdx_int32			num_indexes;		// the number of index table
-    MatroskaDemuxIndex  *index;			// index table
-	cdx_int32			index_ptr;			//the point if indexs
+    cdx_int32            num_indexes;        // the number of index table
+    MatroskaDemuxIndex  *index;            // index table
+    cdx_int32            index_ptr;            //the point if indexs
 
     // What to skip before effectively reading a packet. 
-    cdx_int32			skip_to_keyframe;    // we find a cluster for seek, and then skip the data until a keyframe
-    AVStream		    *skip_to_stream;
-    cdx_int64			frame_num_between_kframe;
+    // we find a cluster for seek, and then skip the data until a keyframe
+    cdx_int32            skip_to_keyframe;
+    AVStream            *skip_to_stream;
+    cdx_int64            frame_num_between_kframe;
 
-	unsigned char		*data;
-	cdx_int32			data_size;			// the size of *data
-	cdx_int32			sector_align;
+    unsigned char        *data;
+    cdx_int32            data_size;            // the size of *data
+    cdx_int32            sector_align;
 
-	// copy the video data from file directly, not from matroska->pkt_data
-	unsigned char		video_direct_copy;  
+    // copy the video data from file directly, not from matroska->pkt_data
+    unsigned char        video_direct_copy;
 
-	unsigned char		*data_parse;		// the parsing data poiter
-	cdx_int32			size_parse;			// the data has left
+    unsigned char        *data_parse;        // the parsing data poiter
+    cdx_int32            size_parse;            // the data has left
 
-	cdx_uint64			cluster_time;		// the timestamp of cluster
-	cdx_int32			track;				// the track No. of the data in current block , it is the prefetch type
-	cdx_int32			stream_index;		// the stream No. of the data in current block
-	cdx_int32			is_keyframe;        // the data in current block is keyframe?
-	cdx_uint64			blk_duration;		// duration for block
+    cdx_uint64            cluster_time;        // the timestamp of cluster
 
-	unsigned int		*lace_size;
-    cdx_int32			laces;				// the valid lace num
-	cdx_int32			max_laces;			// the *lace_size size
-	cdx_int32			lace_cnt;			// the parsing lace No.
+    // the track No. of the data in current block , it is the prefetch type
+    cdx_int32            track;
 
-	cdx_int32			slice_len;
-	cdx_int32			slice_len_t;
-	unsigned char		*pkt_data;
+    cdx_int32            stream_index;        // the stream No. of the data in current block
+    cdx_int32            is_keyframe;        // the data in current block is keyframe?
+    cdx_uint64            blk_duration;        // duration for block
 
-    //cdx_int32           prefetch_track_num; // ( 1, 2, 3, ..., we should use prefetch_track_num-1 to get the track )
-	unsigned int		chk_type;           //chunk type, audio type, video type, lyric type
-    cdx_int32			t_size;             //total size of the chunk, based on byte
-    cdx_int32			r_size;             //data size has been read out, based on byte
-    cdx_int64			time_stamp;         //time stamp for current video chunk
+    unsigned int        *lace_size;
+    cdx_int32            laces;                // the valid lace num
+    cdx_int32            max_laces;            // the *lace_size size
+    cdx_int32            lace_cnt;            // the parsing lace No.
+
+    cdx_int32            slice_len;
+    cdx_int32            slice_len_t;
+    unsigned char        *pkt_data;
+
+    //cdx_int32           prefetch_track_num;
+    // ( 1, 2, 3, ..., we should use prefetch_track_num-1 to get the track )
+    unsigned int        chk_type;           //chunk type, audio type, video type, lyric type
+    cdx_int32            t_size;             //total size of the chunk, based on byte
+    cdx_int32            r_size;             //data size has been read out, based on byte
+    cdx_int64            time_stamp;         //time stamp for current video chunk
     cdx_int64           time_stamp0;
-    cdx_int64			time_stamp_error;
-    cdx_int64			time_stamp_offset;  //time stamp offset for error case(if some error occur, it will skip to next keyframe))
+    cdx_int64            time_stamp_error;
 
-	cdx_int16			VideoTrackIndex;
-	cdx_int16			AudioTrackIndex;
-	cdx_int16			SubTitleTrackIndex;
+    //time stamp offset for error case(if some error occur, it will skip to next keyframe))
+    cdx_int64            time_stamp_offset;
 
-	cdx_int16			VideoStreamIndex;
-	cdx_int16			AudioStreamIndex;
-	cdx_int16			SubTitleStreamIndex;
-	char                SubTitleStream[MAX_SUBTITLE_NUM];
-	unsigned int        SubTitleCodecType[MAX_SUBTITLE_NUM];
-	unsigned int	    SubTitledata_encode_type[MAX_SUBTITLE_NUM];
-	char                SubTitleTrack[MAX_SUBTITLE_NUM];
-	unsigned char       language[MAX_SUBTITLE_NUM][MAX_SUBTITLE_LANG_SIZE];
-	
-	//use for rmvb
-	unsigned char       *pVbsInf;  
-	unsigned char       slice_num;
-	unsigned char       slice_cnt;
-	unsigned int        slice_offset;
-	
-	//use for audio
-	unsigned char  	    *a_Header;
-	cdx_int32           a_Header_size;
-	
-	//use for ogg
-	cdx_uint64       	ogg_granulepos;
+    cdx_int16            VideoTrackIndex;
+    cdx_int16            AudioTrackIndex;
+    cdx_int16            SubTitleTrackIndex;
+
+    cdx_int16            VideoStreamIndex;
+    cdx_int16            AudioStreamIndex;
+    cdx_int16            SubTitleStreamIndex;
+    char                SubTitleStream[MAX_SUBTITLE_NUM];
+    unsigned int        SubTitleCodecType[MAX_SUBTITLE_NUM];
+    unsigned int        SubTitledata_encode_type[MAX_SUBTITLE_NUM];
+    char                SubTitleTrack[MAX_SUBTITLE_NUM];
+    unsigned char       language[MAX_SUBTITLE_NUM][MAX_SUBTITLE_LANG_SIZE];
+
+    //use for rmvb
+    unsigned char       *pVbsInf;
+    unsigned char       slice_num;
+    unsigned char       slice_cnt;
+    unsigned int        slice_offset;
+
+    //use for audio
+    unsigned char          *a_Header;
+    cdx_int32           a_Header_size;
+
+    //use for ogg
+    cdx_uint64           ogg_granulepos;
     cdx_int32           ogg_pageno;
     unsigned char       ogg_uflag;
     
     //use for COOK RA ATRAC
-    cdx_int32			sub_packet_cnt;
+    cdx_int32            sub_packet_cnt;
     unsigned char       *buf;
     cdx_int32           buf_size;
     
-    unsigned char	    frm_num;
+    unsigned char        frm_num;
     
-    unsigned char		hasAudio;
-    unsigned char		hasVideo;
+    unsigned char        hasAudio;
+    unsigned char        hasVideo;
     unsigned char       seamlessAudioSwitch;
     unsigned char       pkt_dataIndex;
 
-	int                 nVideoStream;   // video stream number
-	int                 nAudioStream;
-	int                 nSubtitleStream;
+    int                 nVideoStream;   // video stream number
+    int                 nAudioStream;
+    int                 nSubtitleStream;
 
-	//use for seek key frame 
-	unsigned char*	tmpbuf;
-	unsigned int    tmpbufsize;
+    //use for seek key frame
+    unsigned char*    tmpbuf;
+    unsigned int    tmpbufsize;
 
+    // get extradata for XVID, when do not have CodecPriv
+    int   priDataLen;
+    char* priData;
 
-	// get extradata for XVID, when do not have CodecPriv
-	int   priDataLen;
-	char* priData;
-
-	cdx_uint64 bitrate; // estinete bitrate, when the keyframe index is not exist. the unit is byte/ms
+    // estinete bitrate, when the keyframe index is not exist. the unit is byte/ms
+    cdx_uint64 bitrate;
 } MatroskaDemuxContext;
 
 //use for RMVB
@@ -832,45 +864,42 @@ typedef struct MatroskaDemuxContext {
 #define ILVC_MSG_SPHI_Deblocking_Strength           0xe000
 #define ILVC_MSG_SPHI_Deblocking_Shift              13
 
-typedef enum
-{
-	FORBIDDEN=0,
-	SQCIF = 1,
-	QCIF = 2,
-	CIF = 3,
-	fCIF = 4,
-	ssCIF = 5,
-	CUSTOM  = 6,
-	EPTYPE = 7,
+typedef enum {
+    FORBIDDEN=0,
+    SQCIF = 1,
+    QCIF = 2,
+    CIF = 3,
+    fCIF = 4,
+    ssCIF = 5,
+    CUSTOM  = 6,
+    EPTYPE = 7,
 }FRAMESIZE;
 
-
-typedef enum
-{
-	PIA_FID_UNDEFINED=0,
-	PIA_FID_RGB4,
-	PIA_FID_CLUT8,
-	PIA_FID_XRGB16_1555,
-	PIA_FID_RGB16_565,
-	PIA_FID_RGB16_655,
-	PIA_FID_RGB16_664,
-	PIA_FID_RGB24,
-	PIA_FID_XRGB32,
-	PIA_FID_MPEG2V,
-	PIA_FID_YVU9,
-	PIA_FID_YUV12,
-	PIA_FID_IYUV,
-	PIA_FID_YV12,
-	PIA_FID_YUY2,
-	PIA_FID_BITMAP16,
-	PIA_FID_H261,
-	PIA_FID_H263,
-	PIA_FID_H263PLUS,
-	PIA_FID_TROMSO,
-	PIA_FID_ILVR,
-	PIA_FID_REALVIDEO21,
-	PIA_FID_REALVIDEO22,
-	PIA_FID_REALVIDEO30,
+typedef enum {
+    PIA_FID_UNDEFINED=0,
+    PIA_FID_RGB4,
+    PIA_FID_CLUT8,
+    PIA_FID_XRGB16_1555,
+    PIA_FID_RGB16_565,
+    PIA_FID_RGB16_655,
+    PIA_FID_RGB16_664,
+    PIA_FID_RGB24,
+    PIA_FID_XRGB32,
+    PIA_FID_MPEG2V,
+    PIA_FID_YVU9,
+    PIA_FID_YUV12,
+    PIA_FID_IYUV,
+    PIA_FID_YV12,
+    PIA_FID_YUY2,
+    PIA_FID_BITMAP16,
+    PIA_FID_H261,
+    PIA_FID_H263,
+    PIA_FID_H263PLUS,
+    PIA_FID_TROMSO,
+    PIA_FID_ILVR,
+    PIA_FID_REALVIDEO21,
+    PIA_FID_REALVIDEO22,
+    PIA_FID_REALVIDEO30,
 }SubIDVersion;
 
 typedef struct __RV_FORMAT_INFO
@@ -911,17 +940,20 @@ typedef struct __OGG_HEADER
 {
     unsigned int       uOggXFcc;       // four character code, "OggS" =0x5367674F
     unsigned char        uVesion;         //must =0;
-    unsigned char        uflag;           //&0x1=continued，即(uflag第0位）如果上一个page的最后一个ubadybytes[lacing_fill-1]＝0xff,continued=1，
-                                 //说明上一个page的最后一个badybytes数据不完整，本page的开始数据是上一个badybytes的数据。否则=0;
-                                 //&0x2=bos;即(uflag第1位）bos为第一个page标志bos＝1，其余为0。
-                                 //&0x4=eos;即(uflag第2位）eos为最后一个page标志eos=1,其余为0。如果不确定是最后一个page，必须=0
+    unsigned char        uflag;
+          //&0x1=continued，即(uflag第0位）如果上一个page的最后一个ubadybytes[lacing_fill-1]＝0xff,
+          //continued=1，说明上一个page的最后一个badybytes数据不完整，
+          //本page的开始数据是上一个badybytes的数据。否则=0;
+          //&0x2=bos;即(uflag第1位）bos为第一个page标志bos＝1，其余为0。
+          //&0x4=eos;即(uflag第2位）eos为最后一个page标志eos=1,其余为0。如果不确定是最后一个page，必须=0
     cdx_uint64       granulepos;      //到本page结束一共有多少个采样值
     unsigned int       serialno;        //序列号，每个page必须相同
     unsigned int       pageno;          //当前为第几个page，第一个为0、跟着为1、2.....
     unsigned int       chksum;          //CRC校验值，如果没有=0。
     unsigned char        lacing_fill;     //本page含有多少个badybytes。       
-    unsigned char        ubadybytes[lacing_fill]; //顺序填放badys的字节数，如果某个bady的字节数大于0xff，badybytes=n*0xff + y
     
+     //顺序填放badys的字节数，如果某个bady的字节数大于0xff，badybytes=n*0xff + y
+    unsigned char        ubadybytes[lacing_fill];
 } __ogg_header_t;*/
 
 /*
@@ -932,10 +964,14 @@ typedef struct ra_format_info_struct
     unsigned int ulActualRate;
     cdx_uint16 usBitsPerSample;
     cdx_uint16 usNumChannels;
-    cdx_uint16 usAudioQuality;		//default = 100;
-    cdx_uint16 usFlavorIndex;		//default = 0;for sipr。aac needn‘t it
-    unsigned int ulBitsPerFrame;       //default=0x100;=ulFrameSize;一帧的大小（bytes），对于aac 1block含1个frame
-    unsigned int ulGranularity;		//default=0x100;ulFramesPerBlock*ulFrameSize传过来block的大小，一个block包含1个或者多个frames
+    cdx_uint16 usAudioQuality;        //default = 100;
+    cdx_uint16 usFlavorIndex;        //default = 0;for sipr。aac needn‘t it
+
+    //default=0x100;=ulFrameSize;一帧的大小（bytes），对于aac 1block含1个frame
+    unsigned int ulBitsPerFrame;
+
+    //default=0x100;ulFramesPerBlock*ulFrameSize传过来block的大小，一个block包含1个或者多个frames
+    unsigned int ulGranularity;
     unsigned int ulOpaqueDataSize;
     unsigned char  *pOpaqueData;
 } ra_format_info;
@@ -968,29 +1004,37 @@ struct CdxMkvParser
     
     void        *priv_data;
 
-    char         hasIndex;               //index table flag, =0:no index table; !=0:has index table
+    char         hasIndex;      //index table flag, =0:no index table; !=0:has index table
 
-    char         hasVideo;               //video flag, =0:no video bitstream; >0:video bitstream count
-    char         hasAudio;               //audio flag, =0:no audio bitstream; >0:audio bitstream count
-    char         hasSubTitle;            //lyric flag, =0:no lyric bitstream; >0:lyric bitstream count
+    char         hasVideo;      //video flag, =0:no video bitstream; >0:video bitstream count
+    char         hasAudio;      //audio flag, =0:no audio bitstream; >0:audio bitstream count
+    char         hasSubTitle;   //lyric flag, =0:no lyric bitstream; >0:lyric bitstream count
     
-    int          nhasVideo;               //video flag, =0:no video bitstream; >0:video bitstream count
-    int          nhasAudio;               //audio flag, =0:no audio bitstream; >0:audio bitstream count
-    int          nhasSubTitle;            //lyric flag, =0:no lyric bitstream; >0:lyric bitstream count
+    int          nhasVideo;     //video flag, =0:no video bitstream; >0:video bitstream count
+    int          nhasAudio;     //audio flag, =0:no audio bitstream; >0:audio bitstream count
+    int          nhasSubTitle;  //lyric flag, =0:no lyric bitstream; >0:lyric bitstream count
     
     char         bDiscardAud;        //  1:discard, 0:transport
 
     int          VideoStreamIndex;       //video bitstream index
-    int          AudioStreamIndex;       //audio bitstream index ( index of all the tracks(video, audio, subtitle)  )
+
+    //audio bitstream index ( index of all the tracks(video, audio, subtitle)  )
+    int          AudioStreamIndex;
+
     int          SubTitleStreamIndex;    //lyric stream index
     int          UserSelSubStreamIdx;    //the lyric stream index which user select.
-    char         SubStreamSyncFlg;       //When user change subtitle,psr need sync.when sync over, set to 0.
+
+    //When user change subtitle,psr need sync.when sync over, set to 0.
+    char         SubStreamSyncFlg;
     
     unsigned int   total_frames;           //total frame count
     unsigned int   picture_num;            //picture number
 
     unsigned int   nPreFRSpeed;            //previous ff/rr speed, for dynamic adjust
-    unsigned int   nFRSpeed;               //fast forward and fast backward speed, multiple of normal speed
+
+    //fast forward and fast backward speed, multiple of normal speed
+    unsigned int   nFRSpeed;
+
     unsigned int   nFRPicShowTime;         //picture show time under fast forward and backward
     unsigned int   nFRPicCnt;              //picture count under ff/rr, for check if need delay
 
@@ -1000,9 +1044,9 @@ struct CdxMkvParser
     
     char           seamlessAudioSwitch;    //seamlessAudioSwitch Flag
 
-    cdx_int64	    pos;
+    cdx_int64        pos;
     
-    cdx_int16	    AudioTrackIndex[MAX_AUDIO_STREAM_NUM];     //audio index to all of streams, a2st
+    cdx_int16        AudioTrackIndex[MAX_AUDIO_STREAM_NUM];//audio index to all of streams, a2st
     AudioStreamInfo aFormat_arry[MAX_AUDIO_STREAM_NUM];    //audio format
 
     VideoStreamInfo      vFormat;    //video format
@@ -1013,14 +1057,11 @@ struct CdxMkvParser
     cdx_int32            nVopDataSize;       //vop header left size
 };
 
-
 int CdxMatroskaOpen(struct CdxMkvParser *p);
 int CdxMatroskaExit(struct CdxMkvParser *p);
 struct CdxMkvParser* CdxMatroskaInit(int *ret);
 cdx_int16 CdxMatroskaClose(struct CdxMkvParser *p);
 cdx_int16 CdxMatroskaRead(struct CdxMkvParser *p);
 int CdxMatroskaSeek(struct CdxMkvParser *p, cdx_int64  timeUs);
-
-
 
 #endif

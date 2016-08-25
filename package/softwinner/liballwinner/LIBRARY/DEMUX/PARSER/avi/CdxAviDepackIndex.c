@@ -1,20 +1,12 @@
-/*******************************************************************************
---                                                                            --
---                    CedarX Multimedia Framework                             --
---                                                                            --
---          the Multimedia Framework for Linux/Android System                 --
---                                                                            --
---       This software is confidential and proprietary and may be used        --
---        only as expressly authorized by a licensing agreement from          --
---                         Softwinner Products.                               --
---                                                                            --
---                   (C) COPYRIGHT 2011 SOFTWINNER PRODUCTS                   --
---                            ALL RIGHTS RESERVED                             --
---                                                                            --
---                 The entire notice above must be reproduced                 --
---                  on all copies and should not be removed.                  --
---                                                                            --
-*******************************************************************************/
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxAviDepackIndex.c
+ * Description : Part of avi parser.
+ * History :
+ *
+ */
 
 //#define LOG_NDEBUG 0
 #define LOG_TAG "CdxAviDepackIndex"
@@ -30,9 +22,11 @@ Description:
 
     2.  从当前播放的帧的序号，在FFRRKeyframe表中找到一个接近的keyframe entry,
         其实主要配置两项:aviIn->frame_index 和 aviIn->index_in_keyfrm_tbl,
-        而avi_in->frame_index其实也不重要，因为在AVI_read()时,会根据avi_in->index_in_keyfrm_tbl确定的entry重新赋值
+        而avi_in->frame_index其实也不重要，因为在AVI_read()时,会根据
+        avi_in->index_in_keyfrm_tbl确定的entry重新赋值
         其实*position不重要,到时候会从ffrrkeyframetable中读出来,
-        *diff记录的是当前找到的keyframeentry后紧跟着的audio chunk 的PTS，其实也不重要,因为也会从ffrrkeyframetable读出来
+        *diff记录的是当前找到的keyframeentry后紧跟着的audio chunk 的PTS，
+        其实也不重要,因为也会从ffrrkeyframetable读出来
     3. 在两项中选一个小的项做为找到的项
 Parameters: 
    1: mode: 0:当前找到的合适的keyframe entry
@@ -136,18 +130,19 @@ void CopyIdxTableItem(IdxTableItemT *pDes, IdxTableItemT *pSrc)
 }
 
 /*
-*********************************************************************************************************
+************************************************************************************************
 *                       GET INDEX BY TIME
 *
 *Description: This function looks up index table to get the key frame's position which
 *             is most closed to the "timeMs".
 *               状态转换FFRR->CDX_MEDIA_STATUS_PLAY
-             寻找规则是:向前找，序号必须比算出的目的帧要大;向后找,序号必须比算出的目的帧小；(等于都不行)
-                        然后再看last_or_next的标记决定是否退到与寻找方向相反的上一个entry对应的帧
+             寻找规则是:向前找，序号必须比算出的目的帧要大;向后找,序号必须比算出的目的帧小；
+             (等于都不行)然后再看last_or_next的标记决定是否退到与寻找方向相反的上一个entry对应的帧
 *Arguments  : aviIn        global AVI file information
 *             timeMs       the time to be searched in unit of ms
-*             keyfrmIdx     current key frame index in index table;在FFRR过程中，是一直查FFRRKeyframeTable的,所以记录了当前找到了哪个entry，在进入
-                        本函数时，就是将要读取的那一个entry的在KeyframeTable中的序号
+*             keyfrmIdx     current key frame index in index table;在FFRR过程中，
+                            是一直查FFRRKeyframeTable的,所以记录了当前找到了哪个entry，在进入
+                            本函数时，就是将要读取的那一个entry的在KeyframeTable中的序号
 *             direction     search direction
 *                           > 0, search forward,
 *                           <=0, search backward
@@ -163,7 +158,7 @@ void CopyIdxTableItem(IdxTableItemT *pDes, IdxTableItemT *pSrc)
 *Return     : result of get index
 *               = 0     get index successed;
 *               < 0     get index failed.
-*********************************************************************************************************
+************************************************************************************************
 */
 cdx_int16 AviGetIndexByMsReadMode1(CdxAviParserImplT *p, cdx_uint32 timeMs,
                 cdx_uint32 *keyfrmIdx, cdx_int32 direction, cdx_int32 lastOrNext,
@@ -239,7 +234,8 @@ cdx_int16 AviGetIndexByMsReadMode1(CdxAviParserImplT *p, cdx_uint32 timeMs,
         }
         else
         {
-            CDX_LOGV("fatal error! impossible aviIn->indexCountInKeyfrmTbl[%d] == 0\n", aviIn->indexCountInKeyfrmTbl);
+            CDX_LOGV("fatal error! impossible aviIn->indexCountInKeyfrmTbl[%d] == 0\n",
+                aviIn->indexCountInKeyfrmTbl);
             return AVI_ERR_PARA_ERR;
         }
     }
@@ -279,7 +275,8 @@ cdx_int16 AviGetIndexByMsReadMode1(CdxAviParserImplT *p, cdx_uint32 timeMs,
         }
         else
         {
-            CDX_LOGV("fatal error! impossible aviIn->indexCountInKeyfrmTbl[%d] == 0\n", aviIn->indexCountInKeyfrmTbl);
+            CDX_LOGV("fatal error! impossible aviIn->indexCountInKeyfrmTbl[%d] == 0\n",
+                aviIn->indexCountInKeyfrmTbl);
             return AVI_ERR_FAIL;
         }
     }
@@ -329,7 +326,8 @@ cdx_int32 FindIndxChunkIdx(ODML_SUPERINDEX_READER *pSuperReader, cdx_int64 entry
             }
             else if(value == minValue)
             {
-                CDX_LOGV("avi_file has wrong, check indx table! [%d],total[%d]\n", i, pSuperReader->indxTblEntryCnt);
+                CDX_LOGV("avi_file has wrong, check indx table! [%d],total[%d]\n", i,
+                    pSuperReader->indxTblEntryCnt);
             }
         }
         else
@@ -410,12 +408,14 @@ cdx_int32 ReconfigAviReadContextReadMode1(CdxAviParserImplT *p,
     }
     else if((p->status == CDX_MEDIA_STATUS_IDLE)
         || (p->status == CDX_MEDIA_STATUS_STOP)
-        || (p->status == CDX_MEDIA_STATUS_PLAY)) //播放过程中的跳播，默认在PLAY状态下__reconfig_avi_read_context_readmode1()，只能是跳播的原因
+        || (p->status == CDX_MEDIA_STATUS_PLAY)) //播放过程中的跳播，默认在PLAY状态下
+                                    //__reconfig_avi_read_context_readmode1()，只能是跳播的原因
 #endif
     //if(p->status == PSR_OK)
     { //jump play.
         //aviIn->index_in_keyfrm_tbl是关键帧表的下标号，
-        //因为avi_in->index_in_keyfrm_tbl是在快进快退->PLAY或FFRR找下一个entry时为减少查找时间而设的，快进快退从index_in_keyfrm_tbl开始向某方向查找
+        //因为avi_in->index_in_keyfrm_tbl是在快进快退->PLAY或FFRR找下一个entry时为减少
+        //查找时间而设的，快进快退从index_in_keyfrm_tbl开始向某方向查找
         //所以在跳播时无用，必须设成最前或最后的一帧。否则查找出错。
         if(searchDirection > 0)
         {
@@ -434,7 +434,6 @@ cdx_int32 ReconfigAviReadContextReadMode1(CdxAviParserImplT *p,
         }
     }
 
-
     //用获取的keyframeEntry的信息重新配置table_reader和avi_in的相关变量,.?
     if(USE_IDX1 == aviIn->idxStyle)   //idx1不马上装载idx1表
     {
@@ -444,7 +443,8 @@ cdx_int32 ReconfigAviReadContextReadMode1(CdxAviParserImplT *p,
         //pvreader->fpPos = file_pst.vid_chunk_idx_offset;
         pVreader->fpPos = idxItem.vidChunkIndexOffset;
         pVreader->bufIdxItem = 0;
-        pVreader->leftIdxItem = aviIn->idx1Total - (pVreader->fpPos - aviIn->idx1Start)/sizeof(AviIndexEntryT);
+        pVreader->leftIdxItem = aviIn->idx1Total -
+            (pVreader->fpPos - aviIn->idx1Start)/sizeof(AviIndexEntryT);
         pVreader->readEndFlg = 0;
         
         pVreader->chunkCounter = 0;
@@ -457,7 +457,8 @@ cdx_int32 ReconfigAviReadContextReadMode1(CdxAviParserImplT *p,
             //pareader->fpPos = file_pst.aud_chunk_idx_offset;
             pAreader->fpPos = idxItem.audChunkIndexOffsetArray[p->curAudStreamNum];
             pAreader->bufIdxItem = 0;
-            pAreader->leftIdxItem = aviIn->idx1Total - (pAreader->fpPos - aviIn->idx1Start)/sizeof(AviIndexEntryT);
+            pAreader->leftIdxItem = aviIn->idx1Total - (pAreader->fpPos -
+                aviIn->idx1Start)/sizeof(AviIndexEntryT);
             pAreader->readEndFlg = 0;
             pAreader->chunkCounter = 0;
             pAreader->chunkSize = 0;
@@ -468,7 +469,8 @@ cdx_int32 ReconfigAviReadContextReadMode1(CdxAviParserImplT *p,
         aviIn->frameIndex = idxItem.frameIdx;
         for(i=0; i<p->hasAudio; i++)
         {
-            aviIn->uBaseAudioPtsArray[i] = idxItem.audPtsArray[i];//tmpIdxBuf[aviIn->index_in_keyfrm_tbl * 3 + 2];
+            aviIn->uBaseAudioPtsArray[i] = idxItem.audPtsArray[i];
+            //tmpIdxBuf[aviIn->index_in_keyfrm_tbl * 3 + 2];
             aviIn->nAudChunkCounterArray[i] = 0;
             aviIn->nAudFrameCounterArray[i] = 0;
             aviIn->nAudChunkTotalSizeArray[i] = 0;
@@ -502,7 +504,8 @@ cdx_int32 ReconfigAviReadContextReadMode1(CdxAviParserImplT *p,
             return AVI_ERR_FILE_DATA_WRONG;
         }
         pIndxReader->bufIdxItem = 0;
-        pIndxReader->leftIdxItem = pIndxReader->nEntriesInUse - tmpValue/(pIndxReader->wLongsPerEntry*4);
+        pIndxReader->leftIdxItem = pIndxReader->nEntriesInUse -
+            tmpValue/(pIndxReader->wLongsPerEntry*4);
         if(pIndxReader->leftIdxItem < 0)
         {
             CDX_LOGE("fatal error! leftIdxItem<0!");
@@ -519,11 +522,11 @@ cdx_int32 ReconfigAviReadContextReadMode1(CdxAviParserImplT *p,
         pOdmlVidReader->chunkSize = -1;
         pOdmlVidReader->totalChunkSize = 0;
 
-
         //2.restore audio super reader context
         if(p->hasAudio)
         {
-            indexChunkIdx = FindIndxChunkIdx(pOdmlAudReader, idxItem.audChunkIndexOffsetArray[p->curAudStreamNum]);
+            indexChunkIdx = FindIndxChunkIdx(pOdmlAudReader,
+                idxItem.audChunkIndexOffsetArray[p->curAudStreamNum]);
             if(indexChunkIdx < 0)
             {
                 CDX_LOGW("audio idx entry's offset wrong! check code!");
@@ -536,14 +539,16 @@ cdx_int32 ReconfigAviReadContextReadMode1(CdxAviParserImplT *p,
                 return ret;
             }
             pIndxReader = &pOdmlAudReader->odmlIdxReader;
-            tmpValue = idxItem.audChunkIndexOffsetArray[p->curAudStreamNum] - pOdmlAudReader->fpPos;
+            tmpValue = idxItem.audChunkIndexOffsetArray[p->curAudStreamNum] -
+                pOdmlAudReader->fpPos;
             if(tmpValue%(pIndxReader->wLongsPerEntry*4) != 0)
             {
                 CDX_LOGV("fatal error! indx offset wrong!");
                 return AVI_ERR_FILE_DATA_WRONG;
             }
             pIndxReader->bufIdxItem = 0;
-            pIndxReader->leftIdxItem = pIndxReader->nEntriesInUse - tmpValue/(pIndxReader->wLongsPerEntry*4);
+            pIndxReader->leftIdxItem = pIndxReader->nEntriesInUse -
+                tmpValue/(pIndxReader->wLongsPerEntry*4);
             if(pIndxReader->leftIdxItem < 0)
             {
                 CDX_LOGV("fatal error! leftIdxItem<0!\n");
@@ -557,7 +562,8 @@ cdx_int32 ReconfigAviReadContextReadMode1(CdxAviParserImplT *p,
             
             //pOdmlAudReader->chunk_idx = idxItem.aud_chunk_idx;
             pOdmlAudReader->chunkCounter = 0;    //新方式下，计数器从配置点开始算
-            pOdmlAudReader->chunkIxTblEntOffset = idxItem.audChunkIndexOffsetArray[p->curAudStreamNum];
+            pOdmlAudReader->chunkIxTblEntOffset =
+                idxItem.audChunkIndexOffsetArray[p->curAudStreamNum];
             pOdmlAudReader->chunkSize = -1;
             //pOdmlAudReader->total_chunk_size = idxItem.aud_total_chunk_size;
             pOdmlAudReader->totalChunkSize = 0; //新方式下，计数器从配置点开始算
@@ -566,7 +572,8 @@ cdx_int32 ReconfigAviReadContextReadMode1(CdxAviParserImplT *p,
         aviIn->frameIndex = idxItem.frameIdx;
         for(i=0; i<p->hasAudio; i++)
         {
-            aviIn->uBaseAudioPtsArray[i] = idxItem.audPtsArray[i];//tmpIdxBuf[aviIn->index_in_keyfrm_tbl * 3 + 2];
+            aviIn->uBaseAudioPtsArray[i] = idxItem.audPtsArray[i];
+            //tmpIdxBuf[aviIn->index_in_keyfrm_tbl * 3 + 2];
             aviIn->nAudChunkCounterArray[i] = 0;
             aviIn->nAudFrameCounterArray[i] = 0;
             aviIn->nAudChunkTotalSizeArray[i] = 0;
@@ -586,7 +593,8 @@ Function name: config_avi_read_context_after_change_audio_stream_index_mode
 Description: 
     1.基于index读取方式下,在换音轨后,要为新音轨重新配置audio index reader.
         包括stream id等，都要重配
-    2.首先要根据当前的帧序号(aviIn->frame_index)找到附近的较小一点的FFRRKeyframeTable中的关键帧的entry,
+    2.首先要根据当前的帧序号(aviIn->frame_index)找到附近的较小一点的
+        FFRRKeyframeTable中的关键帧的entry,
         然后根据entry中的audio部分的信息去重配audio index reader, stream_id一定要改掉!
         还要配置avi_in->中的audio统计的相关变量
     3.GetNextChunkInfo()->config_avi_reader_context_after_change_audio_stream()
@@ -632,7 +640,8 @@ cdx_int32 ConfigNewAudioAviReadContextIndexMode(CdxAviParserImplT *p)
 
             paReader->fpPos = pEntry->audChunkIndexOffsetArray[p->curAudStreamNum];
             paReader->bufIdxItem = 0;
-            paReader->leftIdxItem = aviIn->idx1Total - (paReader->fpPos - aviIn->idx1Start)/sizeof(AviIndexEntryT);
+            paReader->leftIdxItem = aviIn->idx1Total - (paReader->fpPos -
+                aviIn->idx1Start)/sizeof(AviIndexEntryT);
             paReader->readEndFlg = 0;
             paReader->chunkCounter = 0;
             paReader->chunkSize = 0;
@@ -646,7 +655,8 @@ cdx_int32 ConfigNewAudioAviReadContextIndexMode(CdxAviParserImplT *p)
         //avi_in的音频相关统计变量的配置
         for(i = 0; i < p->hasAudio; i++)
         {
-            aviIn->uBaseAudioPtsArray[i] = pEntry->audPtsArray[i];   //tmpIdxBuf[aviIn->index_in_keyfrm_tbl * 3 + 2];
+            aviIn->uBaseAudioPtsArray[i] = pEntry->audPtsArray[i];
+            //tmpIdxBuf[aviIn->index_in_keyfrm_tbl * 3 + 2];
             aviIn->nAudChunkCounterArray[i] = 0;
             aviIn->nAudFrameCounterArray[i] = 0;
             aviIn->nAudChunkTotalSizeArray[i] = 0;
@@ -659,14 +669,16 @@ cdx_int32 ConfigNewAudioAviReadContextIndexMode(CdxAviParserImplT *p)
         if(p->hasAudio)
         {
             DeinitialPsrIndxTableReader(&aviIn->audIndxReader);
-            ret = InitialPsrIndxTableReader(&aviIn->audIndxReader, aviIn, p->audioStreamIndexArray[p->curAudStreamNum]);
+            ret = InitialPsrIndxTableReader(&aviIn->audIndxReader, aviIn,
+                p->audioStreamIndexArray[p->curAudStreamNum]);
             if(ret < AVI_SUCCESS)
             {
                 CDX_LOGV("change audio, initial odml fail.");
                 return ret;
             }
             pOdmlAudReader = &aviIn->audIndxReader;
-            indexChunkIdx = FindIndxChunkIdx(pOdmlAudReader, pEntry->audChunkIndexOffsetArray[p->curAudStreamNum]);
+            indexChunkIdx = FindIndxChunkIdx(pOdmlAudReader,
+                pEntry->audChunkIndexOffsetArray[p->curAudStreamNum]);
             if(indexChunkIdx < 0)
             {
                 CDX_LOGE("audio idx entry's offset wrong! check code!\n");
@@ -679,14 +691,16 @@ cdx_int32 ConfigNewAudioAviReadContextIndexMode(CdxAviParserImplT *p)
                 return ret;
             }
             pIndxReader = &pOdmlAudReader->odmlIdxReader;
-            tmpValue = pEntry->audChunkIndexOffsetArray[p->curAudStreamNum] - pOdmlAudReader->fpPos;
+            tmpValue = pEntry->audChunkIndexOffsetArray[p->curAudStreamNum] -
+                pOdmlAudReader->fpPos;
             if(tmpValue%(pIndxReader->wLongsPerEntry * 4) != 0)
             {
                 CDX_LOGE("fatal error! indx offset wrong!\n");
                 return AVI_ERR_FILE_DATA_WRONG;
             }
             pIndxReader->bufIdxItem = 0;
-            pIndxReader->leftIdxItem = pIndxReader->nEntriesInUse - tmpValue/(pIndxReader->wLongsPerEntry*4);
+            pIndxReader->leftIdxItem = pIndxReader->nEntriesInUse -
+                tmpValue/(pIndxReader->wLongsPerEntry*4);
             if(pIndxReader->leftIdxItem < 0)
             {
                 CDX_LOGE("fatal error! leftIdxItem<0!");
@@ -700,7 +714,8 @@ cdx_int32 ConfigNewAudioAviReadContextIndexMode(CdxAviParserImplT *p)
             
             //pOdmlAudReader->chunk_idx = idxItem.aud_chunk_idx;
             pOdmlAudReader->chunkCounter = 0;    //新方式下，计数器从配置点开始算
-            //pOdmlAudReader->chunk_ixtbl_ent_offset = pEntry->aud_chunk_index_offset_array[p->CurAudStreamNum];
+            //pOdmlAudReader->chunk_ixtbl_ent_offset =
+            //pEntry->aud_chunk_index_offset_array[p->CurAudStreamNum];
             pOdmlAudReader->chunkIxTblEntOffset = 0;
             pOdmlAudReader->chunkSize = -1;
             //pOdmlAudReader->total_chunk_size = idxItem.aud_total_chunk_size;
@@ -713,7 +728,8 @@ cdx_int32 ConfigNewAudioAviReadContextIndexMode(CdxAviParserImplT *p)
         //3.restore aviIn context,
         for(i = 0; i < p->hasAudio; i++)
         {
-            aviIn->uBaseAudioPtsArray[i] = pEntry->audPtsArray[i];   //tmpIdxBuf[aviIn->index_in_keyfrm_tbl * 3 + 2];
+            aviIn->uBaseAudioPtsArray[i] = pEntry->audPtsArray[i];
+            //tmpIdxBuf[aviIn->index_in_keyfrm_tbl * 3 + 2];
             aviIn->nAudChunkCounterArray[i] = 0;
             aviIn->nAudFrameCounterArray[i] = 0;
             aviIn->nAudChunkTotalSizeArray[i] = 0;
@@ -731,7 +747,6 @@ cdx_int32 ConfigNewAudioAviReadContextIndexMode(CdxAviParserImplT *p)
 //==============================================================================
 //3.读数据.PLAY下读和FFRR下读
 
-    
 /*******************************************************************************
 Function name: check_psr_idx1_reader
 Description:
@@ -760,7 +775,6 @@ cdx_int32 CheckPsrIdx1Reader(struct PsrIdx1TableReader *pReader)
         return AVI_SUCCESS;
     }
 }
-    
     
 cdx_int32 CheckOdmlSuperIndexReader(ODML_SUPERINDEX_READER *pReader)
 {
@@ -1138,7 +1152,8 @@ cdx_int16 AviGetChunkHeader(AviFileInT *aviFile, enum AVI_CHUNK_TYPE ckType)
         CDX_LOGV("get chunk wrong!");
         return AVI_ERR_FILE_FMT_ERR;
     }
-    //Do we need to add the chunk length checking? Sometimes the length is very very big becuase of error.
+    //Do we need to add the chunk length checking? Sometimes the length
+    //is very very big becuase of error.
     //TBD
     return AVI_SUCCESS;
 }
@@ -1273,7 +1288,8 @@ cdx_int16 AviReadByIndex(CdxAviParserImplT *p)
             }
             case CHUNK_TYPE_AUDIO:
             {
-                aviIn->dataChunk.fcc = CDX_MAKE_AVI_CKID(CDX_CKTYPE_WAVE_BYTES, p->audioStreamIndex);
+                aviIn->dataChunk.fcc = CDX_MAKE_AVI_CKID(CDX_CKTYPE_WAVE_BYTES,
+                    p->audioStreamIndex);
                 break;
             }
             default:
@@ -1285,4 +1301,3 @@ cdx_int16 AviReadByIndex(CdxAviParserImplT *p)
         return AVI_SUCCESS;
     }
 }
-
