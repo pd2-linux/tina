@@ -1,20 +1,12 @@
-/*******************************************************************************
---                                                                            --
---                    CedarX Multimedia Framework                             --
---                                                                            --
---          the Multimedia Framework for Linux/Android System                 --
---                                                                            --
---       This software is confidential and proprietary and may be used        --
---        only as expressly authorized by a licensing agreement from          --
---                         Softwinner Products.                               --
---                                                                            --
---                   (C) COPYRIGHT 2011 SOFTWINNER PRODUCTS                   --
---                            ALL RIGHTS RESERVED                             --
---                                                                            --
---                 The entire notice above must be reproduced                 --
---                  on all copies and should not be removed.                  --
---                                                                            --
-*******************************************************************************/
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxCheckStreamPara.c
+ * Description : CheckStreamPara
+ * History :
+ *
+ */
 
 //#define LOG_NDEBUG 0
 #define LOG_TAG "TEMP_TAG"
@@ -23,7 +15,8 @@
 /*******************************************************************************
 Function name: detect_audio_stream_info
 Description:
-    CDX_BOOL eLIBs_GetAudioDataInfo(const char *pFormat, __audio_file_info_t *AIF, CDX_S8* buf, CDX_S32 datalen);
+    CDX_BOOL eLIBs_GetAudioDataInfo(const char *pFormat, __audio_file_info_t *AIF,
+        CDX_S8* buf, CDX_S32 datalen);
     D:\al_audio\rel\audiodec\codec\audioinfo\AC320\GetAudio_format.h;
 Parameters:
 
@@ -88,7 +81,8 @@ Return:
 Time: 2010/8/21
 *******************************************************************************/
 #define MP3_DATA_LENGTH (4096)
-CDX_S32 __modify_audio_stream_info_mp3(AUDIO_STREAM_INFO *pAudStrmInfo, AVI_FILE_IN *avi_in, struct FILE_PARSER *p)
+CDX_S32 __modify_audio_stream_info_mp3(AUDIO_STREAM_INFO *pAudStrmInfo,
+AVI_FILE_IN *avi_in, struct FILE_PARSER *p)
 {
 //    CDX_S32   i;
     CDX_S32   stream_id;
@@ -140,14 +134,16 @@ CDX_S32 __modify_audio_stream_info_mp3(AUDIO_STREAM_INFO *pAudStrmInfo, AVI_FILE
             {
                 if(nAudBufLen + avi_in->data_chunk.length> MP3_DATA_LENGTH)
                 {   //读够4096字节
-                    LOGV("memory[4096] not enough,[%d],[%d]\n", nAudBufLen, avi_in->data_chunk.length);
+                    LOGV("memory[4096] not enough,[%d],[%d]\n", nAudBufLen,
+                        avi_in->data_chunk.length);
                     if(nAudBufLen >= MP3_DATA_LENGTH)
                     {
                         LOGV("fatal error!impossible!\n");
                         ret = AVI_ERR_READ_FILE_FAIL;
                         goto __err0;
                     }
-                    if(cdx_read(pAudBuf+nAudBufLen, MP3_DATA_LENGTH - nAudBufLen, 1, avi_in->fp) != 1)
+                    if(cdx_read(pAudBuf+nAudBufLen, MP3_DATA_LENGTH - nAudBufLen,
+                        1, avi_in->fp) != 1)
                     {
                         LOGV("read file fail\n");
                         ret = AVI_ERR_READ_FILE_FAIL;
@@ -158,7 +154,8 @@ CDX_S32 __modify_audio_stream_info_mp3(AUDIO_STREAM_INFO *pAudStrmInfo, AVI_FILE
                 }
                 else
                 {
-                    if(cdx_read(pAudBuf+nAudBufLen, avi_in->data_chunk.length, 1, avi_in->fp) != 1)
+                    if(cdx_read(pAudBuf+nAudBufLen, avi_in->data_chunk.length,
+                        1, avi_in->fp) != 1)
                     {
                         ret = AVI_ERR_READ_FILE_FAIL;
                         goto __err0;
@@ -173,7 +170,8 @@ CDX_S32 __modify_audio_stream_info_mp3(AUDIO_STREAM_INFO *pAudStrmInfo, AVI_FILE
             }
             else
             {
-                cdx_seek(avi_in->fp, avi_in->data_chunk.length, CEDARLIB_SEEK_CUR);//这时正常情况下应该指向下一个chunk的开始处
+                cdx_seek(avi_in->fp, avi_in->data_chunk.length,
+                    CEDARLIB_SEEK_CUR);//这时正常情况下应该指向下一个chunk的开始处
             }
         }
         else
@@ -222,7 +220,8 @@ Return:
     fatal error,例如读文件，seek文件失败等
 Time: 2010/8/21
 *******************************************************************************/
-CDX_S32 adjust_audio_stream_info(AUDIO_STREAM_INFO *pAudStrmInfo, AVI_FILE_IN *avi_in, struct FILE_PARSER *p)
+CDX_S32 adjust_audio_stream_info(AUDIO_STREAM_INFO *pAudStrmInfo,
+AVI_FILE_IN *avi_in, struct FILE_PARSER *p)
 {
     CDX_S32   ret;
     //1. 查错

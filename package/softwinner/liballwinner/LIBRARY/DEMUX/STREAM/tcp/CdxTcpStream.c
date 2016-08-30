@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxTcpStream.c
+ * Description : TcpStream
+ * History :
+ *
+ */
+
 //#define LOG_NDEBUG 0
 #define LOG_TAG "tcpStream"
 #include <sys/time.h>
@@ -18,19 +28,39 @@
 #define SOCKRECVBUF_LEN 512*1024// 262142 (5*1024*1024)
 #define closesocket close
 
+static pthread_once_t once = PTHREAD_ONCE_INIT;
+static pthread_key_t oldSocketKey;
+
+void oldSocketDestr(void *p)
+{
+    int oldFd = (long)p - 1;
+    logd("close old socket %d", oldFd);
+    close(oldFd);
+}
+
+static void createoldSocketKey()
+{
+    int ret = pthread_key_create(&oldSocketKey, oldSocketDestr);
+    if (ret)
+    {
+        loge("pthread_key_create failed: %s", strerror(errno));
+        abort();
+    }
+}
+
 typedef struct CdxTcpStreamImpl
 {
     CdxStreamT base;
     cdx_int32 ioState;
     cdx_int32 sockRecvBufLen;
     cdx_int32 notBlockFlag;
-//    cdx_int32 exitFlag;                               //when close, exit
+//    cdx_int32 exitFlag;              //when close, exit
     cdx_int32 forceStopFlag;
-    cdx_int32 sockFd;                                 //socket fd    
-    //int eof;                                    //all stream data is read from network    
+    cdx_int32 sockFd;                  //socket fd
+    //int eof;                         //all stream data is read from network
     cdx_int32 port;
     cdx_char *hostname;
-    cdx_atomic_t ref;                           //reference count, for free resource while still blocking.     
+    cdx_atomic_t ref;                  //reference count, for free resource while still blocking.
 
     cdx_atomic_t state;
     pthread_mutex_t stateLock;
@@ -39,12 +69,16 @@ typedef struct CdxTcpStreamImpl
     pthread_mutex_t dnsMutex;
     int dnsRet;
     struct addrinfo *dnsAI;
-	//YUNOS
-	cdx_char mTcpIP[100];
+
+#if( CONFIG_ALI_YUNOS == OPTION_ALI_YUNOS_YES)
+    //YUNOS
+    cdx_char mTcpIP[100];
     ParserCallback callback;
     void *pUserData;
-	int mYunOSstatusCode;
-    //add more 
+    int mYunOSstatusCode;
+#endif
+
+    int saveOldSocket;
 }CdxTcpStreamImplT;
 
 static cdx_void CdxTcpStreamDecRef(CdxStreamT *stream);
@@ -90,15 +124,15 @@ static cdx_int32 __CdxTcpStreamRead(CdxStreamT *stream, void *buf, cdx_uint32 le
         return -1;
     }
     
-	pthread_mutex_lock(&impl->stateLock);
-	if(impl->forceStopFlag)
-	{
-		pthread_mutex_unlock(&impl->stateLock);
-		return -2;
-	}
+    pthread_mutex_lock(&impl->stateLock);
+    if(impl->forceStopFlag)
+    {
+        pthread_mutex_unlock(&impl->stateLock);
+        return -2;
+    }
     CdxAtomicInc(&impl->ref);
     CdxAtomicSet(&impl->state, TCP_STREAM_READING);
-	pthread_mutex_unlock(&impl->stateLock);
+    pthread_mutex_unlock(&impl->stateLock);
 	    
     while(impl->notBlockFlag)
     {
@@ -138,10 +172,10 @@ static cdx_int32 __CdxTcpStreamRead(CdxStreamT *stream, void *buf, cdx_uint32 le
         impl->notBlockFlag = 0;
         
 __exit0:
-    	pthread_mutex_lock(&impl->stateLock);
+        pthread_mutex_lock(&impl->stateLock);
         CdxAtomicSet(&impl->state, TCP_STREAM_IDLE);
         CdxTcpStreamDecRef(stream);
-    	pthread_mutex_unlock(&impl->stateLock);
+        pthread_mutex_unlock(&impl->stateLock);
 
         return ret;
     }
@@ -169,13 +203,18 @@ __exit0:
                 goto __exit1;
             }
             impl->ioState = CDX_IO_STATE_ERROR;
-            CDX_LOGE("__CdxTcpStreamRead error(%d): %s. recvSize(%d)", errno, strerror(errno), recvSize);
+            CDX_LOGE("__CdxTcpStreamRead error(%d): %s. recvSize(%d)",
+                errno, strerror(errno), recvSize);
             recvSize = -1;
-			if(impl->callback)
-			{
-				impl->mYunOSstatusCode = 3003; //Ali YUNOS invoke info
-				impl->callback(impl->pUserData, STREAM_EVT_DOWNLOAD_DOWNLOAD_ERROR, &(impl->mYunOSstatusCode));
-			}
+
+#if( CONFIG_ALI_YUNOS == OPTION_ALI_YUNOS_YES)
+            if(impl->callback)
+            {
+                impl->mYunOSstatusCode = 3003; //Ali YUNOS invoke info
+                impl->callback(impl->pUserData, STREAM_EVT_DOWNLOAD_DOWNLOAD_ERROR,
+                    &(impl->mYunOSstatusCode));
+            }
+#endif
 
             goto __exit1;
         }
@@ -224,15 +263,15 @@ static cdx_int32 __CdxTcpStreamWrite(CdxStreamT *stream, void *buf, cdx_uint32 l
     CDX_CHECK(stream);
     impl = CdxContainerOf(stream, CdxTcpStreamImplT, base);
 
-	pthread_mutex_lock(&impl->stateLock);
-	if(impl->forceStopFlag)
-	{
-		pthread_mutex_unlock(&impl->stateLock);
-		return -1;
-	}
+    pthread_mutex_lock(&impl->stateLock);
+    if(impl->forceStopFlag)
+    {
+        pthread_mutex_unlock(&impl->stateLock);
+        return -1;
+    }
     CdxAtomicInc(&impl->ref);
     CdxAtomicSet(&impl->state, TCP_STREAM_WRITING);
-	pthread_mutex_unlock(&impl->stateLock);
+    pthread_mutex_unlock(&impl->stateLock);
 
     while(size < len)
     {
@@ -277,7 +316,7 @@ static cdx_int32 CdxTcpStreamForceStop(CdxStreamT *stream)
     pthread_mutex_unlock(&impl->stateLock);
     
     while(((ref = CdxAtomicRead(&impl->state)) != TCP_STREAM_IDLE)/* && 
-    		((ref = CdxAtomicRead(&impl->state)) != TCP_STREAM_CONNECTING)*/)
+            ((ref = CdxAtomicRead(&impl->state)) != TCP_STREAM_CONNECTING)*/)
     {
         //CDX_LOGV("xxx state(%ld)", ref);
         usleep(10*1000);
@@ -331,12 +370,14 @@ static cdx_int32 __CdxTcpStreamControl(CdxStreamT *stream, cdx_int32 cmd, void *
         {
             return CdxTcpStreamClrForceStop(stream);
         }
-		case STREAM_CMD_GET_IP:
-		{
-			if(impl->mTcpIP[0])
-				strcpy((char *)param,impl->mTcpIP);
-			break;
-		}
+
+#if( CONFIG_ALI_YUNOS == OPTION_ALI_YUNOS_YES)
+        case STREAM_CMD_GET_IP:
+        {
+            if(impl->mTcpIP[0])
+                strcpy((char *)param,impl->mTcpIP);
+            break;
+        }
         case STREAM_CMD_SET_CALLBACK:
         {
             struct CallBack *cb = (struct CallBack *)param;
@@ -344,9 +385,14 @@ static cdx_int32 __CdxTcpStreamControl(CdxStreamT *stream, cdx_int32 cmd, void *
             impl->pUserData = cb->pUserData;
             break;
         }
+#endif
+        case STREAM_CMD_SET_EOF:
+            impl->saveOldSocket = 1;
+            break;
+
         default:
         {
-            CDX_LOGE("should not be here.");
+            CDX_LOGD("control cmd %d is not supported by tcp",cmd);
             break;
         }
     }
@@ -376,15 +422,35 @@ static cdx_void CdxTcpStreamDecRef(CdxStreamT *stream)
     impl = CdxContainerOf(stream, CdxTcpStreamImplT, base);
 
     CdxAtomicDec(&impl->ref);
-    if(CdxAtomicRead(&impl->ref) == 0)
+    if(CdxAtomicRead(&impl->ref) != 0)
+        return;
+
+    if (impl->sockFd >= 0)
     {
-        CdxSockDisableTcpKeepalive(impl->sockFd);
-        shutdown(impl->sockFd, SHUT_RDWR); 
-        closesocket(impl->sockFd);
-        pthread_mutex_destroy(&impl->stateLock);
-        free(impl);
+        if (impl->saveOldSocket)
+        {
+            logd("save old socket");
+            /* sockFd can be zero (at least in theory).
+             * The value initially associated with oldSocketKey is NULL.
+             * If we don't add one to sockFd, it's difficult to figure out
+             * whether pthread_getspecific return a valid file descriptor or
+             * not.
+             */
+            pthread_setspecific(oldSocketKey, (void *)(long)(impl->sockFd + 1));
+        }
+        else
+        {
+            /* 保留此函数，原因是曾经遇到基地抓包分析，发现虽然客户端关闭了fd，
+             * 但是服务器未关，导致抓包里出现探查报文。
+             */
+            CdxSockDisableTcpKeepalive(impl->sockFd);
+
+            shutdown(impl->sockFd, SHUT_RDWR);
+            closesocket(impl->sockFd);
+        }
     }
-    return;
+    pthread_mutex_destroy(&impl->stateLock);
+    free(impl);
 }
 
 static void DnsResponeHook(void *userhdr, int ret, struct addrinfo *ai)
@@ -395,7 +461,8 @@ static void DnsResponeHook(void *userhdr, int ret, struct addrinfo *ai)
     {
         impl->dnsAI = ai;
 
-//		CDX_LOGD("%x%x%x", ai->ai_addr->sa_data[0], ai->ai_addr->sa_data[1], ai->ai_addr->sa_data[2]);
+/*        CDX_LOGD("%x%x%x", ai->ai_addr->sa_data[0], ai->ai_addr->sa_data[1],
+            ai->ai_addr->sa_data[2]);*/
     }
     impl->dnsRet = ret;
 
@@ -463,17 +530,54 @@ static int StartTcpStreamConnect(CdxTcpStreamImplT *pArg)
         goto err_out;
     }
 
-	//* Ali YUNOS invoke info
-	//* get tcp IP in control STREAM_CMD_GET_IP
-	struct addrinfo *curInfo;
-	struct sockaddr_in *addrInfo;
-	curInfo = ai;
-	cdx_char ipbufInfo[100];
-	addrInfo = (struct sockaddr_in *)curInfo->ai_addr;
-	memcpy(impl->mTcpIP,inet_ntop(AF_INET, &addrInfo->sin_addr, ipbufInfo, 100),100);
+#if( CONFIG_ALI_YUNOS == OPTION_ALI_YUNOS_YES)
+    //* Ali YUNOS invoke info
+    //* get tcp IP in control STREAM_CMD_GET_IP
+    struct addrinfo *curInfo;
+    struct sockaddr_in *addrInfo;
+    curInfo = ai;
+    cdx_char ipbufInfo[100];
+    addrInfo = (struct sockaddr_in *)curInfo->ai_addr;
+    memcpy(impl->mTcpIP,inet_ntop(AF_INET, &addrInfo->sin_addr, ipbufInfo, 100),100);
+#endif
+
+    int oldFd = (long)pthread_getspecific(oldSocketKey) - 1;
+    if (oldFd >= 0)
+    {
+        struct sockaddr_storage peerAddr;
+        socklen_t addrlen = sizeof(peerAddr);
+
+        getpeername(oldFd, (struct sockaddr *)&peerAddr, &addrlen);
+        /* not robust. should check ai_next in a loop */
+        if (addrlen == ai->ai_addrlen &&
+                memcmp(&peerAddr, ai->ai_addr, addrlen) == 0)
+        {
+            char c;
+            ret = recv(oldFd, &c, 1, MSG_DONTWAIT);
+            if (ret == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
+            {
+                // Todo: set impl->sockRecvBufLen or remove this field completely
+                impl->sockFd = oldFd;
+                logd("reuse old socket");
+                return 0;
+            }
+            logd("ret %d, error: %s", ret, strerror(errno));
+        }
+
+        logd("close old socket");
+        close(oldFd);
+        pthread_setspecific(oldSocketKey, NULL);
+    }
+
     do
     {
-        ret = CdxSockAsynConnect(impl->sockFd, ai->ai_addr, ai->ai_addrlen, 0, &impl->forceStopFlag);
+        impl->sockRecvBufLen = 0;
+        impl->sockFd = CdxAsynSocket(ai->ai_family, &impl->sockRecvBufLen);
+        if(impl->sockFd < 0)
+            continue;
+
+        ret = CdxSockAsynConnect(impl->sockFd, ai->ai_addr, ai->ai_addrlen, 0,
+            &impl->forceStopFlag);
         if(ret == 0)
         {
             break;
@@ -481,12 +585,17 @@ static int StartTcpStreamConnect(CdxTcpStreamImplT *pArg)
         else if(ret < 0)
         {
             CDX_LOGE("connect failed. error(%d): %s.", errno, strerror(errno));
-			if(impl->callback)
-			{
-				impl->mYunOSstatusCode = 3002; //Ali YUNOS invoke info
-				impl->callback(impl->pUserData, STREAM_EVT_DOWNLOAD_DOWNLOAD_ERROR, &(impl->mYunOSstatusCode));
-			}
-            goto err_out;
+
+#if( CONFIG_ALI_YUNOS == OPTION_ALI_YUNOS_YES)
+            if(impl->callback)
+            {
+                impl->mYunOSstatusCode = 3002; //Ali YUNOS invoke info
+                impl->callback(impl->pUserData, STREAM_EVT_DOWNLOAD_DOWNLOAD_ERROR,
+                    &(impl->mYunOSstatusCode));
+            }
+#endif
+            close(impl->sockFd);
+            impl->sockFd = -1;
         }
         
         if(impl->forceStopFlag == 1)
@@ -510,8 +619,8 @@ err_out:
     end = GetNowUs();
     if(errno == 101)
     {
-    	CDX_LOGD("errno 101, reconnect");
-    	return -2;
+        CDX_LOGD("errno 101, reconnect");
+        return -2;
     }
     //CDX_LOGV("Start tcp time(%lld)", end-start);
     return -1;
@@ -535,7 +644,6 @@ static cdx_int32 __CdxTcpStreamConnect(CdxStreamT *stream)
     CdxAtomicInc(&impl->ref);
     pthread_mutex_unlock(&impl->stateLock);
 
-    
     result = StartTcpStreamConnect(impl);
     if (result < 0)
     {
@@ -546,7 +654,7 @@ static cdx_int32 __CdxTcpStreamConnect(CdxStreamT *stream)
     }
     else
     {
-    	pthread_mutex_lock(&impl->stateLock);
+        pthread_mutex_lock(&impl->stateLock);
         impl->ioState = CDX_IO_STATE_OK;
         pthread_mutex_unlock(&impl->stateLock);
     }
@@ -571,8 +679,6 @@ static struct CdxStreamOpsS CdxTcpStreamOps = {
 static CdxStreamT *__CdxTcpStreamCreate(CdxDataSourceT *source)
 {
     CdxTcpStreamImplT *impl = NULL;
-    cdx_int32 sockRecvLen;
-    cdx_int32 fd = -1;
     
     impl = (CdxTcpStreamImplT *)malloc(sizeof(CdxTcpStreamImplT));
     if(NULL == impl)
@@ -584,15 +690,7 @@ static CdxStreamT *__CdxTcpStreamCreate(CdxDataSourceT *source)
     impl->base.ops = &CdxTcpStreamOps;
     impl->ioState = CDX_IO_STATE_INVALID;
 
-    fd = CdxAsynSocket(0/*SOCKRECVBUF_LEN*/, &sockRecvLen);
-    if(fd < 0)
-    {
-        impl->ioState = CDX_IO_STATE_ERROR;
-        CDX_LOGE("create socket failed.");
-        goto err_out;
-    }
-    impl->sockFd = fd;
-    impl->sockRecvBufLen = sockRecvLen;
+    impl->sockFd = -1;
     impl->port = *(cdx_int32 *)((CdxHttpSendBufferT *)source->extraData)->size;
     impl->hostname = (char *)((CdxHttpSendBufferT *)source->extraData)->buf;
     //CDX_LOGV("port (%d), hostname(%s)", impl->port, impl->hostname);    
@@ -602,7 +700,8 @@ static CdxStreamT *__CdxTcpStreamCreate(CdxDataSourceT *source)
     pthread_mutex_init(&impl->dnsMutex, NULL);
     pthread_cond_init(&impl->dnsCond, NULL);
     impl->dnsRet = SDS_PENDING;
-	CdxAtomicSet(&impl->state, TCP_STREAM_IDLE);
+    CdxAtomicSet(&impl->state, TCP_STREAM_IDLE);
+    pthread_once(&once, createoldSocketKey);
     
     return &impl->base;
     
@@ -618,4 +717,3 @@ err_out:
 CdxStreamCreatorT tcpStreamCtor = {
     .create = __CdxTcpStreamCreate
 };
-

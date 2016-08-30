@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxBuffer.h
+ * Description : Buffer
+ * History :
+ *
+ */
+
 #ifndef CDX_BUFFER_H
 #define CDX_BUFFER_H
 #include <CdxTypes.h>
@@ -120,7 +130,6 @@ static inline cdx_void CdxBufferSeekRange(CdxBufferT *buf,
     buf->ops->seekRange(buf, left, right);
 }
 
-
 #define CdxBufferDump(buf) \
     CDX_BUF_DUMP(CdxBufferGetData(buf), CdxBufferGetSize(buf))
 
@@ -138,7 +147,6 @@ static inline cdx_void CdxBufferSeekRange(CdxBufferT *buf,
 
 #define CdxBufferFindInt64(buf, name, pVal) \
     CdxMetaFindInt64(CdxBufferGetMeta(buf), name, pVal)
-
 
 typedef CdxBufferT CdxStringT;
 

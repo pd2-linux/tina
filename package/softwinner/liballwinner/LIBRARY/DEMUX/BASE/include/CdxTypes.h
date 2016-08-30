@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxTypes.h
+ * Description : Types
+ * History :
+ *
+ */
+
 #ifndef CDX_TYPES_H
 #define CDX_TYPES_H
 

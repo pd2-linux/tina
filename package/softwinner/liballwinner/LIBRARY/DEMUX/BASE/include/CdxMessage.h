@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxMessage.h
+ * Description : Message
+ * History :
+ *
+ */
+
 #ifndef CDX_MESSAGE_H
 #define CDX_MESSAGE_H
 #include <CdxTypes.h>
@@ -118,7 +128,6 @@ static inline cdx_void CdxMessageDeliver(CdxMessageT *msg)
 
 #define CdxMessageFindString(msg, name, pVal) \
     CdxMetaFindString(CdxMessageGetMeta(msg), name, pVal)
-
 
 #define CdxMessageSetObject(msg, name, val) \
     CdxMetaSetObject(CdxMessageGetMeta(msg), name, val)

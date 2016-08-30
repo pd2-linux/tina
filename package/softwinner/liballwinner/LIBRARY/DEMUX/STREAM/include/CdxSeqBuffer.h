@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxSeqBuffer.h
+ * Description : SeqBuffer
+ * History :
+ *
+ */
+
 #ifndef CDX_SEQ_BUFFER_H
 #define CDX_SEQ_BUFFER_H
 #include <CdxList.h>

@@ -29,8 +29,8 @@ long long total_time1 = 0, total_time2 = 0, total_time3 = 0;
 
 typedef struct
 {
-    char 			intput_file[256];
-    char 			output_file[256];
+    char			intput_file[256];
+    char			output_file[256];
     char            stream_file[256];
 
 	unsigned int  encode_frame_num;
@@ -50,6 +50,7 @@ typedef struct
 
 	unsigned char write_unmux;
 	int muxer_type;
+	long play_length;
 }encode_param_t;
 
 typedef enum
@@ -63,6 +64,7 @@ typedef enum
     DST_SIZE,
     MP4,
     TS,
+    PLAY_LENGTH,
     INVALID
 }ARGUMENT_T;
 
@@ -94,6 +96,8 @@ static const argument_t ArgumentMapping[] =
 		"output mp4 file path" },
 	{ "-t",  "--ts",  TS,
 		"output mp4 file path" },
+	{ "-p",  "--pl",  PLAY_LENGTH,
+		"play time length" },
 };
 
 int yu12_nv12(unsigned int width, unsigned int height, unsigned char *addr_uv, unsigned char *addr_tmp_uv)
@@ -145,7 +149,7 @@ static void PrintDemoUsage(void)
     while(i < num)
     {
         printf("%s %-32s %s", ArgumentMapping[i].Short, ArgumentMapping[i].Name,
-        		ArgumentMapping[i].Description);
+			ArgumentMapping[i].Description);
 		printf("\n");
         i++;
     }
@@ -161,33 +165,44 @@ void demoParseArgument(encode_param_t *encode_param, char *argument, char *value
 	if(arg != HELP)
 		len = strlen(value);
     if(len > DEMO_FILE_NAME_LEN)
-    	return;
+	return;
 	
     switch(arg)
     {
         case HELP:
-        	PrintDemoUsage();
+        {
+		    PrintDemoUsage();
             exit(-1);
+        }
         case INPUT:
+        {
 			memset(encode_param->intput_file, 0, sizeof(encode_param->intput_file));
-        	sscanf(value, "%255s", encode_param->intput_file);
-        	logd(" get input file: %s ", encode_param->intput_file);
+		    sscanf(value, "%255s", encode_param->intput_file);
+		    logd(" get input file: %s ", encode_param->intput_file);
             break;
+        }
         case ENCODE_FRAME_NUM:
-        	sscanf(value, "%u", &encode_param->encode_frame_num);
+        {
+		    sscanf(value, "%u", &encode_param->encode_frame_num);
             break;
+        }
         case ENCODE_FORMAT:
-        	sscanf(value, "%u", &encode_param->encode_format);
+        {
+		    sscanf(value, "%u", &encode_param->encode_format);
             break;
+        }
         case OUTPUT:
+        {
 			memset(encode_param->output_file, 0, sizeof(encode_param->output_file));
-        	sscanf(value, "%255s", encode_param->output_file);
-        	logd(" get output file: %s ", encode_param->output_file);
-        	encode_param->write_unmux = 1;
+		    sscanf(value, "%255s", encode_param->output_file);
+		    logd(" get output file: %s ", encode_param->output_file);
+		    encode_param->write_unmux = 1;
             break;
+        }
 		case SRC_SIZE:
-        	sscanf(value, "%u", &encode_param->src_size);
-        	logd(" get src_size: %dp ", encode_param->src_size);
+		{
+		    sscanf(value, "%u", &encode_param->src_size);
+		    logd(" get src_size: %dp ", encode_param->src_size);
 			if(encode_param->src_size == 1080)
 			{
 				encode_param->src_width = 1920;
@@ -215,9 +230,11 @@ void demoParseArgument(encode_param_t *encode_param, char *argument, char *value
 				logw("encoder demo only support the size 1080p,720p,480p, now use the default size 720p\n");
 			}
             break;
+        }
 		case DST_SIZE:
-        	sscanf(value, "%u", &encode_param->dst_size);
-        	logd(" get dst_size: %dp ", encode_param->dst_size);
+		{
+		    sscanf(value, "%u", &encode_param->dst_size);
+		    logd(" get dst_size: %dp ", encode_param->dst_size);
 			if(encode_param->dst_size == 1080)
 			{
 				encode_param->dst_width = 1920;
@@ -245,18 +262,29 @@ void demoParseArgument(encode_param_t *encode_param, char *argument, char *value
 				logw("encoder demo only support the size 1080p,720p,480p, now use the default size 720p\n");
 			}
             break;
+        }
         case MP4:
+        {
             memset(encode_param->stream_file, 0, sizeof(encode_param->stream_file));
-        	sscanf(value, "%255s", encode_param->stream_file);
-        	logd(" get mp4 file: %s ", encode_param->stream_file);
-        	encode_param->muxer_type = CDX_MUXER_MOV;
+		    sscanf(value, "%255s", encode_param->stream_file);
+		    logd(" get mp4 file: %s ", encode_param->stream_file);
+		    encode_param->muxer_type = CDX_MUXER_MOV;
             break;
+        }
         case TS:
+        {
             memset(encode_param->stream_file, 0, sizeof(encode_param->stream_file));
-        	sscanf(value, "%255s", encode_param->stream_file);
-        	logd(" get ts file: %s ", encode_param->stream_file);
-        	encode_param->muxer_type = CDX_MUXER_TS;
+		    sscanf(value, "%255s", encode_param->stream_file);
+		    logd(" get ts file: %s ", encode_param->stream_file);
+		    encode_param->muxer_type = CDX_MUXER_TS;
             break;
+        }
+        case PLAY_LENGTH:
+        {
+            sscanf(value, "%ld", &encode_param->play_length);
+            logd(" get play_length: %ld ", encode_param->play_length);
+            break;
+        }
         case INVALID:
         default:
             logd("unknowed argument :  %s", argument);
@@ -291,6 +319,7 @@ int main(int argc, char** argv)
 	char *output_path = NULL;
 	char *stream_path = NULL;
 	encode_param_t	encode_param;
+	int vbvSize = 2 * 1024 * 1024;
 
 	/********************** Define H264 Paramerter *************************/
     VencHeaderData sps_pps_data;
@@ -311,6 +340,7 @@ int main(int argc, char** argv)
 
 #if FS_WRITER
     CdxFsCacheMemInfo fs_cache_mem;
+    int fs_cache_size = 512 * 1024;
     int fs_mode = FSWRITEMODE_DIRECT;
 #endif
 	/****************************** Define MUXER Paramerter ********************************************/
@@ -341,9 +371,9 @@ int main(int argc, char** argv)
     }
     else
     {
-    	printf(" we need more arguments ");
-    	PrintDemoUsage();
-    	return 0;
+	printf(" we need more arguments ");
+	PrintDemoUsage();
+	return 0;
     }
 
     input_path = encode_param.intput_file;
@@ -406,7 +436,7 @@ int main(int argc, char** argv)
 	exifinfo.ThumbHeight = 144;
 	strcpy((char*)exifinfo.CameraMake,		"allwinner make test");
 	strcpy((char*)exifinfo.CameraModel,		"allwinner model test");
-	strcpy((char*)exifinfo.DateTime, 		"2014:02:21 10:54:05");
+	strcpy((char*)exifinfo.DateTime,		"2014:02:21 10:54:05");
 	strcpy((char*)exifinfo.gpsProcessingMethod,  "allwinner gps");
 	exifinfo.Orientation = 0;
 	exifinfo.ExposureTime.num = 2;
@@ -458,8 +488,8 @@ int main(int argc, char** argv)
        
 #if FS_WRITER
     memset(&fs_cache_mem, 0, sizeof(CdxFsCacheMemInfo));
-
-    fs_cache_mem.m_cache_size = 1024 * 1024; // must be less than 512 * 1024
+    /*
+    fs_cache_mem.m_cache_size = 512 * 1024; // must be less than 512 * 1024
     fs_cache_mem.mp_cache = (cdx_int8*)malloc(fs_cache_mem.m_cache_size);
     if (fs_cache_mem.mp_cache == NULL)
     {
@@ -470,34 +500,32 @@ int main(int argc, char** argv)
     }
     CdxMuxerControl(mux, SET_CACHE_MEM, &fs_cache_mem);
     fs_mode = FSWRITEMODE_CACHETHREAD;
+    */
 
-    /*
     fs_cache_size = 1024 * 1024;
     CdxMuxerControl(mux, SET_FS_SIMPLE_CACHE_SIZE, &fs_cache_size);
     fs_mode = FSWRITEMODE_SIMPLECACHE;
-    */
+
     //fs_mode = FSWRITEMODE_DIRECT;
     CdxMuxerControl(mux, SET_FS_WRITE_MODE, &fs_mode);
 #endif
-
+    //CdxMuxerControl(mux, SET_PLAY_TIME_LENGTH, &encode_param.play_length);
     CdxMuxerWriteHeader(mux);
 	/******************************* Set Muxer Parameters ****************************/
 	
 	pVideoEnc = VideoEncCreate(encode_param.encode_format);
 
-	
 	if(encode_param.encode_format == VENC_CODEC_JPEG)
 	{
-	  	VideoEncSetParameter(pVideoEnc, VENC_IndexParamJpegExifInfo, &exifinfo);
+		VideoEncSetParameter(pVideoEnc, VENC_IndexParamJpegExifInfo, &exifinfo);
 		VideoEncSetParameter(pVideoEnc, VENC_IndexParamJpegQuality, &quality);
 		VideoEncSetParameter(pVideoEnc, VENC_IndexParamJpegEncMode, &jpeg_mode);
 	}
 	else if(encode_param.encode_format == VENC_CODEC_H264)
 	{	
 		VideoEncSetParameter(pVideoEnc, VENC_IndexParamH264Param, &h264Param);
-		int vbvSize = 4*1024*1024;
-	    VideoEncSetParameter(pVideoEnc, VENC_IndexParamSetVbvSize, &vbvSize);
 	}
+	VideoEncSetParameter(pVideoEnc, VENC_IndexParamSetVbvSize, &vbvSize);
 
 	VideoEncInit(pVideoEnc, &baseConfig);
 
@@ -701,4 +729,3 @@ out:
     }
 	return 0;
 }
-

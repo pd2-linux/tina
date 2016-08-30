@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxHttpStream.h
+ * Description : Part of http stream.
+ * History :
+ *
+ */
+
 #ifndef CDX_HTTP_STREAM_H
 #define CDX_HTTP_STREAM_H
 
@@ -51,7 +61,7 @@ typedef struct AW_HTTP_HEADER
      unsigned int isParsed;
      //
      char *cookies;
-	 int posHdrSep;
+     int posHdrSep;
  } CdxHttpHeaderT;
  
 typedef struct BandwidthEntry 
@@ -74,33 +84,39 @@ typedef struct CdxHttpStreamImpl
     cdx_int64 totalSize;                        //content-length    
     cdx_int64 bufPos;                           //stream data is buffered to this file pos.   
     cdx_int64 readPos;                          //stream data is read to this pos.
-    cdx_int32 eosFlag;                          //for internal use... all stream data is read from network    
+    cdx_int32 eosFlag;                          //for internal use.
+                                                //all stream data is read from network
     void *data;                                 //point to response(2K)   
     cdx_char *sourceUri;                        //the source uri
     
     char *httpDataBuffer;                       //databuf, store one group data. 
-                                                //1) 4KB, store response entity+probeData;  2)  1024*n Bytes: normal data.  
+                                                //1) 4KB, store response entity+probeData;
+                                                //2) 1024*n Bytes: normal data.
     int       httpDataSize;                     //total data size of httpDataBuffer    
-    int       httpDataBufferPos;                //read pos of httpDataBuffer, 0~httpDataSize-1
                                                     
     char *httpDataBufferChunked;                // store parsed data from chunked data;
     int  httpDataSizeChunked;                   // valid data size of httpDataBufferChunked
-    int  httpDataBufferPosChunked;              // read pos of httpDataBufferChunked, 0~httpDataSizeChunked-1
+    int  httpDataBufferPosChunked;              // read pos of httpDataBufferChunked,
+                                                // 0~httpDataSizeChunked-1
     int  restChunkSize;                         // when chunked, during CdxStreamOpen, 
                                                 // httpDataBuffer may not store the whole chunk,
                                                 // this variable store rest size of the chunk.
     int dataCRLF;                               // data\r\n, next chunk need to get rid of \r\n.
-    cdx_char tmpChunkedLen[10];                 // store temp chunked len while force stop.     abcd\r\n, ab
-    int tmpChunkedSize;                         // size of temp chunked len while force stop.   eg: ab is 2 bytes
+    cdx_char tmpChunkedLen[10];                 // store temp chunked len while force stop.
+                                                // eg: abcd\r\n, ab
+    int tmpChunkedSize;                         // size of temp chunked len while force stop.
+                                                // eg: ab is 2 bytes
     int lenCRLF;                                // len\r\n, next chunk need to get rid of \r\n.
-    int chunkedLen;                             // while force stop, store current chunked len. len\r\n
+    int chunkedLen;                             // while force stop, store current chunked len.
+                                                // len\r\n
     
     const cdx_char *ua;                         // UA    
     int nHttpHeaderSize;                        //header number to be added    
     struct CdxHttpHeaderField *pHttpHeader;     //http header    
     ExtraDataContainerT hfsContainer;                          
     int chunkedFlag;                            //set when "Transfer-Encoding: chunked"    
-    cdx_atomic_t ref;                           //reference count, for free resource while still blocking.     
+    cdx_atomic_t ref;                           //reference count, for free resource while
+                                                //still blocking.
     pthread_t threadId;
     
     pthread_t getNetworkDataThreadId;
@@ -129,8 +145,9 @@ typedef struct CdxHttpStreamImpl
     BandwidthEntryT bandWidthHistory[100];
     cdx_int32 index;
     
-    //cdx_char *protectAreaPtr;                   //protect area, not cover, for seek back.
-    cdx_int64 protectAreaPos;                   //protectArea begin file pos.  readPos-protectAreaPos: 0~maxProtectAreaSize
+    //cdx_char *protectAreaPtr;                 //protect area, not cover, for seek back.
+    cdx_int64 protectAreaPos;                   //protectArea begin file pos.
+                                                //readPos-protectAreaPos: 0~maxProtectAreaSize
     cdx_int64 protectAreaSize;                  //Size of protectArea 
     cdx_int32 maxProtectAreaSize;
     cdx_int32 bufFullFlag;                      //buffer full flag.
@@ -140,7 +157,8 @@ typedef struct CdxHttpStreamImpl
     AwPoolT *pool;
     cdx_int32 bStreamReadEos;                   //CdxStreamRead eos.
 
-    //cdx_int32 nResponseDataSize;                //when reconnect, store the size of data in response entity.
+    //cdx_int32 nResponseDataSize;              //when reconnect, store the size of data
+                                                //in response entity.
 #if __SAVE_BITSTREAMS
     FILE *fp_http;
     cdx_int32 streamIndx;
@@ -152,10 +170,13 @@ typedef struct CdxHttpStreamImpl
     cdx_int64 downloadStart;
     cdx_int64 downloadEnd;
     cdx_int64 downloadTimeMs;
-	cdx_int64 downloadFirstTime;
-	cdx_int64 downloadLastTime;
-	int mYunOSstatusCode;
-	char tcpIp[128];
+
+#if( CONFIG_ALI_YUNOS == OPTION_ALI_YUNOS_YES)
+    cdx_int64 downloadFirstTime;
+    cdx_int64 downloadLastTime;
+    int mYunOSstatusCode;
+    char tcpIp[128];
+#endif
 
     int isHls;
     cdx_int64 baseOffset; //* for id3 parser
@@ -166,7 +187,7 @@ typedef struct CdxHttpStreamImpl
     cdx_uint8 *inflateBuffer;
 #endif
 
-    //add more 
+    int keepAlive;
 }CdxHttpStreamImplT;
 
 typedef struct CdxHttpSendBuffer

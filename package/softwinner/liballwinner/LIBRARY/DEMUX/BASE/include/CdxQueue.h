@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxQueue.h
+ * Description : Queue
+ * History :
+ *
+ */
+
 #ifndef CDX_QUEUE_H
 #define CDX_QUEUE_H
 #include <CdxTypes.h>
@@ -35,7 +45,6 @@ static inline cdx_err CdxQueuePush(CdxQueueT *queue, CdxQueueDataT data)
     CDX_CHECK(queue->ops->push);
     return queue->ops->push(queue, data);
 }
-
 
 static inline cdx_bool CdxQueueEmpty(CdxQueueT *queue)
 {

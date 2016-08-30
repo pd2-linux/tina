@@ -125,9 +125,9 @@ typedef enum {
     XML_PARSER_ENTITY_VALUE,	/* within an entity value in a decl */
     XML_PARSER_ATTRIBUTE_VALUE,	/* within an attribute value */
     XML_PARSER_SYSTEM_LITERAL,	/* within a SYSTEM value */
-    XML_PARSER_EPILOG, 		/* the Misc* after the last end tag */
+    XML_PARSER_EPILOG,		/* the Misc* after the last end tag */
     XML_PARSER_IGNORE,		/* within an IGNORED section */
-    XML_PARSER_PUBLIC_LITERAL 	/* within a PUBLIC value */
+    XML_PARSER_PUBLIC_LITERAL	/* within a PUBLIC value */
 } xmlParserInputState;
 
 /**
@@ -891,12 +891,12 @@ XMLPUBFUN xmlDocPtr XMLCALL
 XMLPUBFUN xmlDocPtr XMLCALL	
 		xmlSAXParseMemory	(xmlSAXHandlerPtr sax,
 					 const char *buffer,
-                                   	 int size,
+					 int size,
 					 int recovery);
 XMLPUBFUN xmlDocPtr XMLCALL	
 		xmlSAXParseMemoryWithData (xmlSAXHandlerPtr sax,
 					 const char *buffer,
-                                   	 int size,
+					 int size,
 					 int recovery,
 					 void *data);
 XMLPUBFUN xmlDocPtr XMLCALL	

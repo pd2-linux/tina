@@ -58,7 +58,7 @@ DependFiles = $(addprefix $(DependFilePath)/, $(addsuffix .d ,$(notdir $(basenam
 SourceIncludePath = $(foreach dir,$(SourcePath),-I$(dir)) \
                     -I../LIBRARY/ \
                     -I../LIBRARY/DEMUX/BASE/include/ \
-		   			-I../LIBRARY/DEMUX/MUXER/include/ \
+					-I../LIBRARY/DEMUX/MUXER/include/ \
                     -I../LIBRARY/DEMUX/STREAM/include/ \
                     -I../LIBRARY/DEMUX/PARSER/include/ \
                     -I../LIBRARY/libcedarc/include \
@@ -115,5 +115,3 @@ ifneq ($(MAKECMDGOALS),cleanall)
 endif
 endif
 endif
-
-

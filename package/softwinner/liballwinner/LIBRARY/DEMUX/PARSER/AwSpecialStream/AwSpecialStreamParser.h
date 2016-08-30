@@ -1,3 +1,17 @@
+/*
+* Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+* All rights reserved.
+*
+* File : AwRawStreamParser.c
+* Description :parse raw video stream
+* History :
+*   Author  : xyliu <xyliu@allwinnertech.com>
+*   Date    : 2015/05/05
+*   Comment : parse raw video stream
+*
+*
+*/
+
 #ifndef AWTS_PARSER_H
 #define AWTS_PARSER_H
 #include <pthread.h>
@@ -40,48 +54,48 @@ typedef struct SpecialStreamTrace
 }SpecialStreamTrace;
 
 
-typedef struct
+typedef struct SPECIAL_STREAM_PARSER
 {
-	CdxParserT base;
-	enum CdxParserStatus status;
+    CdxParserT base;
+    enum CdxParserStatus status;
     pthread_mutex_t statusLock;
     int mErrno;
-	cdx_uint32 flags;
+    cdx_uint32 flags;
 
-	int forceStop;
+    int forceStop;
     cdx_atomic_t ref;
     pthread_mutex_t refLock;
-	pthread_t openTid;
+    pthread_t openTid;
 
-	CdxStreamT *file;
+    CdxStreamT *file;
     CdxMediaInfoT mediaInfo;
     CdxPacketT pkt;
 
-	cdx_uint8 packetNumInStream;
-	cdx_uint32 curPacketLength;
-	cdx_uint8  curTraceIndex;
-	cdx_uint8  curPacketFlags;
-	//cdx_uint16 sequenceNumInPacket;
-	cdx_int64 timeUs;
+    cdx_uint8 packetNumInStream;
+    cdx_uint32 curPacketLength;
+    cdx_uint8  curTraceIndex;
+    cdx_uint8  curPacketFlags;
+    //cdx_uint16 sequenceNumInPacket;
+    cdx_int64 timeUs;
 
-	cdx_uint8  isPacketHeader;
-	cdx_uint8  isKeyFrame;
-	cdx_uint8  sequenceNumIncr;
+    cdx_uint8  isPacketHeader;
+    cdx_uint8  isKeyFrame;
+    cdx_uint8  sequenceNumIncr;
 
-	int trackCount;
+    int trackCount;
 
-	cdx_uint8 *pSpecialStreamBuf;
-	cdx_uint32  nSpecialStreamBufSize;
-	int bEndofStream;
+    cdx_uint8 *pSpecialStreamBuf;
+    cdx_uint32  nSpecialStreamBufSize;
+    int bEndofStream;
 
-	SpecialStreamTrace *tracks[AWTS_MAX_TRACE_COUNT];
-	VideoStreamInfo tempVideoInfo;
+    SpecialStreamTrace *tracks[AWTS_MAX_TRACE_COUNT];
+    VideoStreamInfo tempVideoInfo;
 }SpecialStreamParser;
 
-typedef enum
+typedef enum SPECIAL_STREAM_TYPE
 {
-	h265_raw_stream = 0,
-	h264_raw_stream
+    h265_raw_stream = 0,
+    h264_raw_stream
 }SpecialStreamTyep;
 
 #endif

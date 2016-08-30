@@ -3,11 +3,11 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <sys/time.h>
-#include "config.h"
+#include "cdx_config.h"
 #include "log.h"
 #include "CdxParser.h"
 #include "vdecoder.h"
-#include "adapter.h"
+#include "memoryAdapter.h"
 
 #define DEBUG_TIME_INFO 0
 #define DEBUG_COST_DRAM_ENABLE 0
@@ -61,6 +61,7 @@ typedef struct DecDemo
 	int  nSavePictureStartNumber;
 	/* the saved picture number */
 	int  nSavePictureNumber;
+    struct ScMemOpsS* memops;
 }DecDemo;
 
 typedef struct display
@@ -117,7 +118,7 @@ static void PrintDemoUsage(void)
     while(i < num)
     {
         logd("%s %-32s  %s", ArgumentMapping[i].Short, ArgumentMapping[i].Name,
-        		ArgumentMapping[i].Description);
+			ArgumentMapping[i].Description);
         i++;
     }
 }
@@ -146,33 +147,33 @@ void ParseArgument(DecDemo *Decoder, char *argument, char *value)
 //    int len = strlen(value);
     int len = 0;
     if(len > DEMO_FILE_NAME_LEN)
-    	return;
+	return;
     arg = GetArgument(argument);
     switch(arg)
     {
         case HELP:
-        	PrintDemoUsage();
+		PrintDemoUsage();
             exit(-1);
         case INPUT:
-        	sprintf(Decoder->pInputFile, "file://");
-        	sscanf(value, "%2048s", Decoder->pInputFile + 7);
-        	logd(" get input file: %s ", Decoder->pInputFile);
+		sprintf(Decoder->pInputFile, "file://");
+		sscanf(value, "%2048s", Decoder->pInputFile + 7);
+		logd(" get input file: %s ", Decoder->pInputFile);
             break;
         case DECODE_FRAME_NUM:
-        	sscanf(value, "%d", &Decoder->nFinishNum);
+		sscanf(value, "%d", &Decoder->nFinishNum);
             break;
         case SAVE_FRAME_START:
-        	sscanf(value, "%d", &Decoder->nSavePictureStartNumber);
+		sscanf(value, "%d", &Decoder->nSavePictureStartNumber);
             break;
         case SAVE_FRAME_NUM:
-        	sscanf(value, "%d", &Decoder->nSavePictureNumber);
+		sscanf(value, "%d", &Decoder->nSavePictureNumber);
             break;
         case COST_DRAM_THREAD_NUM:
-        	sscanf(value, "%d", &Decoder->nDramCostThreadNum);
+		sscanf(value, "%d", &Decoder->nDramCostThreadNum);
             break;
         case SAVE_FRAME_FILE:
-        	sscanf(value, "%2048s", Decoder->pOutputFile);
-        	logd(" get output file: %s ", Decoder->pOutputFile);
+		sscanf(value, "%2048s", Decoder->pOutputFile);
+		logd(" get output file: %s ", Decoder->pOutputFile);
             break;
         case INVALID:
         default:
@@ -202,6 +203,15 @@ static int initDecoder(DecDemo *Decoder)
 	memset(&VideoInfo, 0, sizeof(VideoStreamInfo));
 	memset(&Decoder->mediaInfo, 0, sizeof(CdxMediaInfoT));
     memset(&Decoder->source, 0, sizeof(CdxDataSourceT));
+
+    Decoder->memops = MemAdapterGetOpsS();
+    if(Decoder->memops == NULL)
+    {
+        loge("memops is NULL");
+        return -1;
+    }
+    CdcMemOpen(Decoder->memops);
+
 	logv(" before strcpy(tmpUrl, url) ");
 	Decoder->source.uri = Decoder->pInputFile;
 	logv(" before CdxParserPrepare() %s", Decoder->source.uri);
@@ -248,6 +258,8 @@ static int initDecoder(DecDemo *Decoder)
     VideoConf.nDisplayHoldingFrameBufferNum = NUM_OF_PICTURES_KEEP_IN_LIST;
     VideoConf.nRotateHoldingFrameBufferNum = NUM_OF_PICTURES_KEEPPED_BY_ROTATE;
     VideoConf.nDecodeSmoothFrameBufferNum = NUM_OF_PICTURES_FOR_EXTRA_SMOOTH;
+    VideoConf.memops = Decoder->memops;
+
 	nRet = InitializeVideoDecoder(Decoder->pVideoDec, &VideoInfo, &VideoConf);
 	logv(" after InitializeVideoDecoder() ");
 	if(nRet != 0)
@@ -756,7 +768,7 @@ void *DRAMcostTHread(void *arg)
 
 	DecDemo *pDec;
 	VideoDecoder *pVideoDec;
-	int bExitFlag = 0;
+	//int bExitFlag = 0;
 	int i, j;
 	int times, state;
 	char *pSrc, *pDst, *p;
@@ -785,7 +797,7 @@ void *DRAMcostTHread(void *arg)
 		char *s, *d;
 		usleep(100);
 		pthread_rwlock_wrlock(&pDec->thread.rwrock);
-		bExitFlag = pDec->thread.nEndofStream ;
+		//bExitFlag = pDec->thread.nEndofStream ;
 		state = pDec->thread.state;
 		pthread_rwlock_unlock(&pDec->thread.rwrock);
 		if(state & DEMO_DECODER_EXIT)
@@ -872,9 +884,9 @@ int main(int argc, char** argv)
     }
     else
     {
-    	logd(" we need more arguments ");
-    	PrintDemoUsage();
-    	return 0;
+	logd(" we need more arguments ");
+	PrintDemoUsage();
+	return 0;
     }
 
 	nRet = initDecoder(&Decoder);
@@ -918,7 +930,6 @@ int main(int argc, char** argv)
 	if(pOutputFile != NULL)
 		free(pOutputFile);
 	logd(" demo decoder exit successful");
+    CdcMemClose(Decoder.memops);
 	return 0;
 }
-
-

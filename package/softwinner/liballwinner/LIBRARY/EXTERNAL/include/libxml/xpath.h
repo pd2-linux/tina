@@ -417,7 +417,7 @@ XMLPUBVAR double xmlXPathNINF;
  *         @index is out of range (0 to length-1)
  */
 #define xmlXPathNodeSetItem(ns, index)				\
-		((((ns) != NULL) && 				\
+		((((ns) != NULL) &&				\
 		  ((index) >= 0) && ((index) < (ns)->nodeNr)) ?	\
 		 (ns)->nodeTab[(index)]				\
 		 : NULL)
@@ -520,7 +520,7 @@ XMLPUBFUN xmlXPathCompExprPtr XMLCALL
 		    xmlXPathCompile		(const xmlChar *str);
 XMLPUBFUN xmlXPathCompExprPtr XMLCALL 
 		    xmlXPathCtxtCompile		(xmlXPathContextPtr ctxt,
-		    				 const xmlChar *str);
+						 const xmlChar *str);
 XMLPUBFUN xmlXPathObjectPtr XMLCALL   
 		    xmlXPathCompiledEval	(xmlXPathCompExprPtr comp,
 						 xmlXPathContextPtr ctx);

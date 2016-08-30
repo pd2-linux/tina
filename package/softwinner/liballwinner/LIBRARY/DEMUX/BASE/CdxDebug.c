@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxDebug.c
+ * Description : Debug
+ * History :
+ *
+ */
+
 #include <stdio.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -5,8 +15,10 @@
 #include <fcntl.h>
 #include <pthread.h>
 #include "cdx_config.h"
-#if ((CONFIG_OS == OPTION_OS_ANDROID) && (CONFIG_OS_VERSION < OPTION_OS_VERSION_ANDROID_5_0))
+#ifdef __ANDROID__
+#if (CONFIG_OS_VERSION < OPTION_OS_VERSION_ANDROID_5_0)
 #include <corkscrew/backtrace.h>
+#endif
 #endif
 #include <dirent.h>
 #include <stdlib.h>
@@ -91,4 +103,3 @@ void CdxCallStack(void)
     free(namelist);
     return ;
 }
-

@@ -23,7 +23,8 @@ VIDEO_DECODE_LIB := libcdc_vd_avs.so \
                     libcdc_vd_mpeg4normal.so \
                     libcdc_vd_mpeg4vp6.so \
                     libcdc_vd_vp8.so \
-                    libcdc_vd_wmv3.so
+                    libcdc_vd_wmv3.so \
+                    libcdc_vd_mpeg4dx.so
 SYSTEM_LIB := libasound.so \
               libcrypto.so \
               libssl.so \
@@ -66,15 +67,15 @@ define Package/liballwinner/description
 	CedarX2.6
 endef
 
-define Package/recoderdemo
+define Package/tinarecorderdemo
   SECTION:=utils
   CATEGORY:=softwinner
   TITLE:=CedarX2.6 recoder utils for softwinner
   DEPENDS:=+liballwinner
 endef
 
-define Package/recoderdemo/description
-	CedarX2.6 recoder
+define Package/tinarecorderdemo/description
+	CedarX2.6 recorder
 endef
 
 define Package/tinaplayerdemo
@@ -134,6 +135,14 @@ define Build/Compile
 		CFLAGS="$(TARGET_CFLAGS)" \
 		LDFLAGS="$(TARGET_LDFLAGS)"
 
+	$(MAKE) -C $(PKG_BUILD_DIR)/demo/tinarecorderdemo \
+		ARCH="$(TARGET_ARCH)" \
+		AR="$(TARGET_AR)" \
+		CC="$(TARGET_CC)" \
+		CXX="$(TARGET_CXX)" \
+		CFLAGS="$(TARGET_CFLAGS)" \
+		LDFLAGS="$(TARGET_LDFLAGS)"
+
 # when compile fisished, the targets should be copy to $(PKG_INSTALL_DIR)
 endef
 
@@ -146,13 +155,14 @@ define Build/InstallDev
 	
 	## copy libraries
 	$(CP) $(PKG_BUILD_DIR)/LIBRARY/install/lib/*.so                           $(PKG_INSTALL_DIR)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/LIBRARY/install/external/*.so                      $(PKG_INSTALL_DIR)/usr/lib/
 	$(CP) $(PKG_BUILD_DIR)/tinaplayer/libtinaplayer.so                        $(PKG_INSTALL_DIR)/usr/lib/
-
+	cd $(PKG_INSTALL_DIR)/usr/lib/; rm -rf $(SYSTEM_LIB)
 	#################################################################
 	
 	## copy demos.
 ifneq ($(TINA_PRODUCT_TYPE),loudspeaker)
-	-cp $(PKG_BUILD_DIR)/LIBRARY/install/bin/recoderdemo            		   $(PKG_INSTALL_DIR)/usr/bin/
+	-cp $(PKG_BUILD_DIR)/demo/tinarecorderdemo/tinarecorderdemo			   $(PKG_INSTALL_DIR)/usr/bin/
 endif
 	-cp $(PKG_BUILD_DIR)/demo/tinaplayerdemo/tinaplayerdemo            	   $(PKG_INSTALL_DIR)/usr/bin/
 	
@@ -190,17 +200,18 @@ define Package/liballwinner/install
 	############################################################
 	# copy libraries
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/LIBRARY/install/lib/*.so                           $(1)/usr/lib/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/LIBRARY/install/external/*.so                      $(1)/usr/lib/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/tinaplayer/libtinaplayer.so                        $(1)/usr/lib/
 
-	cd $(1)/usr/lib/; rm -rf $(SYSTEM_LIB) $(VIDEO_DECODE_LIB)
+	cd $(1)/usr/lib/; rm -rf $(SYSTEM_LIB)
 
 endef
 
-define Package/recoderdemo/install
+define Package/tinarecorderdemo/install
 	$(INSTALL_DIR) $(1)/usr/lib/
 	$(INSTALL_DIR) $(1)/usr/bin/
 ifneq ($(TINA_PRODUCT_TYPE),loudspeaker)
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/LIBRARY/DEMO/recoderdemo/recoderdemo            		 $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/demo/tinarecorderdemo/tinarecorderdemo				 $(1)/usr/bin/
 endif
 endef
 
@@ -211,6 +222,5 @@ define Package/tinaplayerdemo/install
 endef
 
 $(eval $(call BuildPackage,liballwinner))
-$(eval $(call BuildPackage,recoderdemo))
+$(eval $(call BuildPackage,tinarecorderdemo))
 #$(eval $(call BuildPackage,tinaplayerdemo))
-

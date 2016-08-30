@@ -14,4 +14,3 @@ libcdc_base_la_CFLAGS += $(LOCAL_INCLUDE)
 libcdc_base_la_LDFLAGS = $(LDFLAGS_CDCG)
 #LOCAL_LIB = -lpthread
 libcdc_base_la_LDFLAGS += $(LOCAL_LIB)
-

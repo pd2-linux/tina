@@ -1,99 +1,119 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : MediaProbe.c
+ * Description : MediaProbe
+ * History :
+ *
+ */
+
 #include <CdxTsParser.h>
 #include <CdxLog.h>
 
-#define	SYNCWORDH			0xff
-#define	SYNCWORDL			0xf0
+#define    SYNCWORDH            0xff
+#define    SYNCWORDL            0xf0
 
 static const cdx_int32 sampRateTab[12] =
 {
     96000, 88200, 64000, 48000, 44100, 32000,
-	24000, 22050, 16000, 12000, 11025,  8000
+    24000, 22050, 16000, 12000, 11025,  8000
 };
 
 
 cdx_int32 GetAACDuration(const cdx_uint8 *data, cdx_int32 datalen)
 {
-	cdx_int32 i                     = 0;
-	cdx_int32 firstframe            = 1;
-	cdx_uint32 Duration     = 0; 	//ms
-	cdx_uint32 BitRate      = 0;
-	cdx_uint32 frameOn      = 0;
-	cdx_uint8 layer       = 0;
-	cdx_uint8 profile     = 0;
-	cdx_uint8 channelConfig = 0;
-	cdx_uint32  sampRateIdx = 0;
-	//cdx_uint32  SampleRate  = 0;
-	cdx_int32          frameLength = 0;
+    cdx_int32 i                     = 0;
+    cdx_int32 firstframe            = 1;
+    cdx_uint32 Duration     = 0;     //ms
+    cdx_uint32 BitRate      = 0;
+    cdx_uint32 frameOn      = 0;
+    cdx_uint8 layer       = 0;
+    cdx_uint8 profile     = 0;
+    cdx_uint8 channelConfig = 0;
+    cdx_uint32  sampRateIdx = 0;
+    //cdx_uint32  SampleRate  = 0;
+    cdx_int32          frameLength = 0;
 
-	cdx_uint8 firlayer       = 0;
-	cdx_uint8 firprofile     = 0;
-	cdx_uint8 firchannelConfig = 0;
-	cdx_uint32  firsampRateIdx = 0;
-	cdx_uint32  firSampleRate  = 0;
+    cdx_uint8 firlayer       = 0;
+    cdx_uint8 firprofile     = 0;
+    cdx_uint8 firchannelConfig = 0;
+    cdx_uint32  firsampRateIdx = 0;
+    cdx_uint32  firSampleRate  = 0;
 
-	if(datalen < 4)
-		return 0;
+    if(datalen < 4)
+        return 0;
 
-	for (i = 0; i < datalen - 5; i++)
-	{
-		if((data[i + 0] & SYNCWORDH) == SYNCWORDH && (data[i + 1] & SYNCWORDL) == SYNCWORDL)
-		{
-			if (firstframe)
-			{
-				firlayer       = (data[i + 1] >> 1) & 0x03;
-				firprofile     = (data[i +2] >> 6) & 0x03;
-				firsampRateIdx = (data[i+2] >> 2) & 0x0f;
-				firSampleRate  = sampRateTab[firsampRateIdx];
-				firchannelConfig = (((data[i+2] << 2) & 0x04) | ((data[i+3] >> 6) & 0x03));
+    for (i = 0; i < datalen - 5; i++)
+    {
+        if((data[i + 0] & SYNCWORDH) == SYNCWORDH && (data[i + 1] & SYNCWORDL) == SYNCWORDL)
+        {
+            if (firstframe)
+            {
+                firlayer       = (data[i + 1] >> 1) & 0x03;
+                firprofile     = (data[i +2] >> 6) & 0x03;
+                firsampRateIdx = (data[i+2] >> 2) & 0x0f;
+                firSampleRate  = sampRateTab[firsampRateIdx];
+                firchannelConfig = (((data[i+2] << 2) & 0x04) | ((data[i+3] >> 6) & 0x03));
 
-				frameLength = ((cdx_int32)(data[i+3] & 0x3) << 11) | ((cdx_int32)(data[i+4] & 0xff) << 3) | ((data[i+5] >> 5) & 0x07);
+                frameLength = ((cdx_int32)(data[i+3] & 0x3) << 11)
+                    | ((cdx_int32)(data[i+4] & 0xff) << 3)
+                    | ((data[i+5] >> 5) & 0x07);
 
-				if (layer != 0  || sampRateIdx >= 12 || channelConfig >= 8 || frameLength > 2*1024*2)
-				{
-					continue;
-				}
+                if (layer != 0
+                    || sampRateIdx >= 12
+                    || channelConfig >= 8
+                    || frameLength > 2*1024*2)
+                {
+                    continue;
+                }
 
-				firstframe  = 0;
-				i += frameLength ;
-				frameOn++;
+                firstframe  = 0;
+                i += frameLength ;
+                frameOn++;
 
-			}
+            }
 
-			if(i < datalen - 5)
-			{
-				layer       = (data[i+1] >> 1) & 0x03;
-				profile     = (data[i+2] >> 6) & 0x03;
-				sampRateIdx = (data[i+2] >> 2) & 0x0f;
-				channelConfig = (((data[i+2] << 2) & 0x04) | ((data[i+3] >> 6) & 0x03));
-				if ( layer != firlayer || profile != firprofile || sampRateIdx != firsampRateIdx || channelConfig != firchannelConfig)
-					continue;
+            if(i < datalen - 5)
+            {
+                layer       = (data[i+1] >> 1) & 0x03;
+                profile     = (data[i+2] >> 6) & 0x03;
+                sampRateIdx = (data[i+2] >> 2) & 0x0f;
+                channelConfig = (((data[i+2] << 2) & 0x04) | ((data[i+3] >> 6) & 0x03));
+                if ( layer != firlayer
+                    || profile != firprofile
+                    || sampRateIdx != firsampRateIdx
+                    || channelConfig != firchannelConfig)
+                    continue;
 
-				frameLength = ((cdx_int32)(data[i+3] & 0x3) << 11) | ((cdx_int32)(data[i+4] & 0xff) << 3)|((data[i+5] >> 5) & 0x07);
+                frameLength = ((cdx_int32)(data[i+3] & 0x3) << 11)
+                    | ((cdx_int32)(data[i+4] & 0xff) << 3)
+                    |((data[i+5] >> 5) & 0x07);
 
-				if (layer != 0  ||
-					sampRateIdx >= 12 || channelConfig >= 8)
-				{
-					continue;
-				}
-				//if frameLength == 0, then i will decreased by 1 here,
-				//and inceased by 1 in for statement, this is a dead loop.
-				if(frameLength >= 1) {
-					i += (frameLength - 1);
-				}
-				frameOn++;
-			}
-		}
+                if (layer != 0  ||
+                    sampRateIdx >= 12 || channelConfig >= 8)
+                {
+                    continue;
+                }
+                //if frameLength == 0, then i will decreased by 1 here,
+                //and inceased by 1 in for statement, this is a dead loop.
+                if(frameLength >= 1) {
+                    i += (frameLength - 1);
+                }
+                frameOn++;
+            }
+        }
 
-	}
+    }
 
-	if(frameOn > 0)
-		BitRate = (cdx_int32)((datalen*8*firSampleRate)/(frameOn*1024));
+    if(frameOn > 0)
+        BitRate = (cdx_int32)((datalen*8*firSampleRate)/(frameOn*1024));
 
-	if(BitRate > 0)
-		Duration = datalen * 8000 / BitRate;
+    if(BitRate > 0)
+        Duration = datalen * 8000 / BitRate;
 
 
-	return Duration;
+    return Duration;
 }
 
 #if (PROBE_STREAM && !DVB_TEST) 
@@ -104,9 +124,9 @@ static cdx_uint8 getbits8(cdx_uint8* buffer, cdx_uint32 start, cdx_uint8 len)
 {
     cdx_uint32 i = 0;
     cdx_uint8  n = 0;
-	cdx_uint8  w = 0; 
-	cdx_uint8  k = 0; 
-	cdx_uint8  ret = 0; 
+    cdx_uint8  w = 0;
+    cdx_uint8  k = 0;
+    cdx_uint8  ret = 0;
 
     n = start % 8;
     i = start / 8;
@@ -115,9 +135,9 @@ static cdx_uint8 getbits8(cdx_uint8* buffer, cdx_uint32 start, cdx_uint8 len)
 
     ret = (buffer[i] << n);
     if(8 > len)
-    	ret  >>= (8-len);
+        ret  >>= (8-len);
     if(k)
-    	ret |= (buffer[i+1] >> (8-k));
+        ret |= (buffer[i+1] >> (8-k));
     	
     return  ret;
 }
@@ -125,7 +145,8 @@ static cdx_uint8 getbits8(cdx_uint8* buffer, cdx_uint32 start, cdx_uint8 len)
 static __inline cdx_uint32 getbits16(cdx_uint8* buffer, cdx_uint32 start, cdx_uint8 length)
 {
     if(length > 8)
-        return (getbits8(buffer, start, length - 8) << 8) | getbits8(buffer, start + length - 8, 8);
+        return (getbits8(buffer, start, length - 8) << 8)
+        | getbits8(buffer, start + length - 8, 8);
     else
         return getbits8(buffer, start, length);
 }
@@ -171,7 +192,8 @@ cdx_int32 prob_mpg(Stream *st)
     cdx_uint32 tmp;
     cdx_uint8* ptr;
 
-    cdx_int32 frame_rate_table[16] = {0, 23976, 24000, 25000, 29970, 30000, 50000, 59940, 60000, 0, 0, 0, 0, 0, 0, 0};
+    cdx_int32 frame_rate_table[16] =
+        {0, 23976, 24000, 25000, 29970, 30000, 50000, 59940, 60000, 0, 0, 0, 0, 0, 0, 0};
 
     code = 0xffffffff;
 
@@ -250,10 +272,16 @@ static cdx_int32 h264_parse_vui(VideoMetaData *videoMetaData, cdx_uint8* buf, cd
     timing=getbits8(buf, n++, 1);
     if(timing)
     {
-        timeinc_unit = (getbits8(buf, n, 8) << 24) | (getbits8(buf, n+8, 8) << 16) | (getbits8(buf, n+16, 8) << 8) | getbits8(buf, n+24, 8);
+        timeinc_unit = (getbits8(buf, n, 8) << 24)
+            | (getbits8(buf, n+8, 8) << 16)
+            | (getbits8(buf, n+16, 8) << 8)
+            | getbits8(buf, n+24, 8);
         n += 32;
 
-        timeinc_resolution = (getbits8(buf, n, 8) << 24) | (getbits8(buf, n+8, 8) << 16) | (getbits8(buf, n+16, 8) << 8) | getbits8(buf, n+24, 8);
+        timeinc_resolution = (getbits8(buf, n, 8) << 24)
+            | (getbits8(buf, n+8, 8) << 16)
+            | (getbits8(buf, n+16, 8) << 8)
+            | getbits8(buf, n+24, 8);
         n += 32;
 
         fixed_fps = getbits8(buf, n, 1);
@@ -268,13 +296,14 @@ static cdx_int32 h264_parse_vui(VideoMetaData *videoMetaData, cdx_uint8* buf, cd
     return n;
 }
 
-static cdx_int32 h264_parse_sps(VideoMetaData *videoMetaData, cdx_uint8* buffer, cdx_int32 len)
+static cdx_int32 h264_parse_sps(VideoMetaData *videoMetaData,
+    cdx_uint8* buffer, cdx_int32 len)
 {
     cdx_uint32 n = 0;
-	cdx_uint32 i = 0; 
-	cdx_uint32 j = 0;
-	cdx_uint32 k = 0; 
-	cdx_uint32 mbh = 0; 
+    cdx_uint32 i = 0;
+    cdx_uint32 j = 0;
+    cdx_uint32 k = 0;
+    cdx_uint32 mbh = 0;
     cdx_int32 bFrame_mbs_only = 0;
 
     (void)len;
@@ -377,7 +406,11 @@ cdx_int32 prob_h264(Stream *st)
     for (ptr = st->probeBuf; ptr <= st->probeBuf + st->probeDataSize - 16;)
     {
         code = code<<8 | *ptr++;
-        if (code == 0x0167 || code == 0x0147 || code == 0x0127 || code == 0x0107) //* sequence header
+        if (code == 0x0167
+            || code == 0x0147
+            || code == 0x0127
+            || code == 0x0107)
+            //* sequence header
         {
             if(!st->metadata)
             {
@@ -396,7 +429,8 @@ cdx_int32 prob_h264(Stream *st)
     return 0;
 }
 
-cdx_int32 vc1_decode_sequence_header(VideoMetaData *videoMetaData, cdx_uint8* buf, cdx_int32 len)
+cdx_int32 vc1_decode_sequence_header(VideoMetaData *videoMetaData,
+    cdx_uint8* buf, cdx_int32 len)
 {
     cdx_int32 m, y;
     (void)len;
@@ -484,7 +518,8 @@ cdx_int32 prob_vc1(Stream *st)
                 CDX_LOGW("may be created yet.");
             }
             VideoMetaData *videoMetaData = (VideoMetaData *)st->metadata;
-            vc1_decode_sequence_header(videoMetaData, ptr, st->probeBuf + st->probeDataSize - ptr);
+            vc1_decode_sequence_header(videoMetaData,
+                ptr, st->probeBuf + st->probeDataSize - ptr);
             break;
         }
     }
@@ -507,7 +542,7 @@ static cdx_uint32 h265_read_golomb(cdx_uint8* buffer, cdx_uint32* init)
         if(y - j > 8)
             w <<= 8;
         else if((y - j) > 0)
-        	w <<= (y - j);
+            w <<= (y - j);
     }
 
     w2 = 1;
@@ -520,57 +555,58 @@ static cdx_uint32 h265_read_golomb(cdx_uint8* buffer, cdx_uint32* init)
 }
 
 static cdx_int32 h265_parse_sps_profile_tier_level(cdx_uint8* buf,
-								cdx_uint32 *len, cdx_uint32 sps_max_sub_layers_minus1)
+                                cdx_uint32 *len, cdx_uint32 sps_max_sub_layers_minus1)
 {
-	cdx_uint32 n = *len;
-	cdx_uint8 sub_layer_profile_present_flag[64] = { 0 };
-	cdx_uint8 sub_layer_level_present_flag[64] = { 0 };
-	cdx_uint32 i, j;
+    cdx_uint32 n = *len;
+    cdx_uint8 sub_layer_profile_present_flag[64] = { 0 };
+    cdx_uint8 sub_layer_level_present_flag[64] = { 0 };
+    cdx_uint32 i, j;
 
-	n += 2; /* general_profile_space: u(2) */
-	n += 1; /* general_tier_flag: u(1) */
-	n += 5; /* general_profile_idc: u(5) */
-	for(j = 0; j < 32; j++)
-		n += 1; /* general_profile_compatibility_flag: u(1) */
-	n += 1; /* general_progressive_source_flag: u(1) */
-	n += 1; /* general_interlaced_source_flag: u(1) */
-	n += 1; /* general_non_packed_constraint_flag: u(1) */
-	n += 1; /* general_frame_only_constraint_flag: u(1) */
-	n += 44; /* general_reserved_zero_44bits: u(44) */
-	n += 8; /* general_level_idc: u(8) */
+    n += 2; /* general_profile_space: u(2) */
+    n += 1; /* general_tier_flag: u(1) */
+    n += 5; /* general_profile_idc: u(5) */
+    for(j = 0; j < 32; j++)
+        n += 1; /* general_profile_compatibility_flag: u(1) */
+    n += 1; /* general_progressive_source_flag: u(1) */
+    n += 1; /* general_interlaced_source_flag: u(1) */
+    n += 1; /* general_non_packed_constraint_flag: u(1) */
+    n += 1; /* general_frame_only_constraint_flag: u(1) */
+    n += 44; /* general_reserved_zero_44bits: u(44) */
+    n += 8; /* general_level_idc: u(8) */
 
-	for(i = 0; i < sps_max_sub_layers_minus1; i++)
-	{
-		sub_layer_profile_present_flag[i] = getbits8(buf, n++, 1); /* u(1) */
-		sub_layer_level_present_flag[i] = getbits8(buf, n++, 1); /* u(1) */
-	}
-	if(sps_max_sub_layers_minus1 > 0)
-		for(i = sps_max_sub_layers_minus1; i < 8; i++)
-			n += 2; /* reserved_zero_2bits: u(2) */
-	for(i = 0; i < sps_max_sub_layers_minus1; i++)
-	{
-		if(sub_layer_profile_present_flag[i])
-		{
-			n += 2; /* sub_layer_profile_space[i]: u(2) */
-			n += 1; /* sub_layer_tier_flag[i]: u(1) */
-			n += 5; /* sub_layer_profile_idc[i]: u(5) */
-			for(j = 0; j < 32; j++)
-				n += 1; /* sub_layer_profile_compatibility_flag[i][j]: u(1) */
-			n += 1; /* sub_layer_progressive_source_flag[i]: u(1) */
-			n += 1; /* sub_layer_interlaced_source_flag[i]: u(1) */
-			n += 1; /* sub_layer_non_packed_constraint_flag[i]: u(1) */
-			n += 1; /* sub_layer_frame_only_constraint_flag[i]: u(1) */
-			n += 44; /* sub_layer_reserved_zero_44bits[i]: u(44) */
-		}
-		if(sub_layer_level_present_flag[i])
-			n += 8; /* sub_layer_level_idc[i]: u(8)*/
-	}
+    for(i = 0; i < sps_max_sub_layers_minus1; i++)
+    {
+        sub_layer_profile_present_flag[i] = getbits8(buf, n++, 1); /* u(1) */
+        sub_layer_level_present_flag[i] = getbits8(buf, n++, 1); /* u(1) */
+    }
+    if(sps_max_sub_layers_minus1 > 0)
+        for(i = sps_max_sub_layers_minus1; i < 8; i++)
+            n += 2; /* reserved_zero_2bits: u(2) */
+    for(i = 0; i < sps_max_sub_layers_minus1; i++)
+    {
+        if(sub_layer_profile_present_flag[i])
+        {
+            n += 2; /* sub_layer_profile_space[i]: u(2) */
+            n += 1; /* sub_layer_tier_flag[i]: u(1) */
+            n += 5; /* sub_layer_profile_idc[i]: u(5) */
+            for(j = 0; j < 32; j++)
+                n += 1; /* sub_layer_profile_compatibility_flag[i][j]: u(1) */
+            n += 1; /* sub_layer_progressive_source_flag[i]: u(1) */
+            n += 1; /* sub_layer_interlaced_source_flag[i]: u(1) */
+            n += 1; /* sub_layer_non_packed_constraint_flag[i]: u(1) */
+            n += 1; /* sub_layer_frame_only_constraint_flag[i]: u(1) */
+            n += 44; /* sub_layer_reserved_zero_44bits[i]: u(44) */
+        }
+        if(sub_layer_level_present_flag[i])
+            n += 8; /* sub_layer_level_idc[i]: u(8)*/
+    }
 
-	(*len) = n;
-	return 0;
+    (*len) = n;
+    return 0;
 }
 
-static cdx_int32 h265_parse_sps(VideoMetaData *videoMetaData, cdx_uint8* buf, cdx_int32 len)
+static cdx_int32 h265_parse_sps(VideoMetaData *videoMetaData,
+    cdx_uint8* buf, cdx_int32 len)
 {
     cdx_uint32 n = 0;
     cdx_uint32 sps_max_sub_layers_minus1 = 0;
@@ -593,35 +629,37 @@ static cdx_int32 h265_parse_sps(VideoMetaData *videoMetaData, cdx_uint8* buf, cd
     h265_read_golomb(buf, &n); /* sps_seq_parameter_set_id: ue(v) */
     chroma_format_idc = h265_read_golomb(buf, &n); /* chroma_format_idc: ue(v) */
     if(chroma_format_idc == 3)
-    	n += 1; /* separate_colour_plane_flag: u(1) */
+        n += 1; /* separate_colour_plane_flag: u(1) */
 
     videoMetaData->width = h265_read_golomb(buf, &n); /* pic_width_in_luma_samples: ue(v) */
     videoMetaData->height = h265_read_golomb(buf, &n); /* pic_height_in_luma_samples: ue(v) */
-    CDX_LOGD("zwh h265 parser prob pic width: %d, pic height: %d", videoMetaData->width, videoMetaData->height);
-	return 0;
+    CDX_LOGD("zwh h265 parser prob pic width: %d, pic height: %d",
+        videoMetaData->width, videoMetaData->height);
+    return 0;
 }
-static cdx_int32 prob_h265_delete_emulation_code(cdx_uint8 *buf_out, cdx_uint8 *buf, cdx_int32 len)
+static cdx_int32 prob_h265_delete_emulation_code(cdx_uint8 *buf_out,
+    cdx_uint8 *buf, cdx_int32 len)
 {
-	cdx_int32 i, size, skipped;
-	cdx_int32 temp_value = -1;
-	const cdx_uint32 mask = 0xFFFFFF;
+    cdx_int32 i, size, skipped;
+    cdx_int32 temp_value = -1;
+    const cdx_uint32 mask = 0xFFFFFF;
 
-	size = len;
-	skipped = 0;
-	for(i = 0; i < size; i++)
-	{
-		temp_value =(temp_value << 8)| buf[i];
-		switch(temp_value & mask)
-		{
-		case 0x000003:
-			skipped += 1;
-			break;
-		default:
-			buf_out[i - skipped] = buf[i];
-		}
-	}
+    size = len;
+    skipped = 0;
+    for(i = 0; i < size; i++)
+    {
+        temp_value =(temp_value << 8)| buf[i];
+        switch(temp_value & mask)
+        {
+        case 0x000003:
+            skipped += 1;
+            break;
+        default:
+            buf_out[i - skipped] = buf[i];
+        }
+    }
 
-	return (size - skipped);
+    return (size - skipped);
 }
 
 static cdx_int32 prob_h265(Stream *st)
@@ -633,26 +671,26 @@ static cdx_int32 prob_h265(Stream *st)
 
     for (ptr = st->probeBuf; ptr <= st->probeBuf + st->probeDataSize - 16;)
     {
-    	if(ptr[0] == 0 && ptr[1] == 0 && ptr[2] == 1 && /*h265 nalu start code*/
-    			ptr[3] == 0x42 && ptr[4] == 0x01 /*h265 sps nalu type*/)
-    	{
-    		ptr += 3;
-    		ptr_nalu = ptr;
-    		found = 1;
-    		break; /* find sps, next we will get the size of sps_nalu by searching next start_code*/
-    	}
-    	++kk;
-    	++ptr;
+        if(ptr[0] == 0 && ptr[1] == 0 && ptr[2] == 1 && /*h265 nalu start code*/
+                ptr[3] == 0x42 && ptr[4] == 0x01 /*h265 sps nalu type*/)
+        {
+            ptr += 3;
+            ptr_nalu = ptr;
+            found = 1;
+            break; /* find sps, next we will get the size of sps_nalu by searching next start_code*/
+        }
+        ++kk;
+        ++ptr;
     }
     kk = 0;
     if(found == 1)
     {
-    	for (; ptr <= st->probeBuf + st->probeDataSize - 16;)
-    	{
-    		if(ptr[0] == 0 && ptr[1] == 0 && ptr[2] == 1)
-    		{
-   				nalu = calloc(kk+16, 1);
-    			sps_nalu_len = prob_h265_delete_emulation_code(nalu, ptr_nalu, kk);
+        for (; ptr <= st->probeBuf + st->probeDataSize - 16;)
+        {
+            if(ptr[0] == 0 && ptr[1] == 0 && ptr[2] == 1)
+            {
+                   nalu = calloc(kk+16, 1);
+                sps_nalu_len = prob_h265_delete_emulation_code(nalu, ptr_nalu, kk);
                 if(!st->metadata)
                 {
                     st->metadata = (VideoMetaData *)malloc(sizeof(VideoMetaData));
@@ -664,20 +702,21 @@ static cdx_int32 prob_h265(Stream *st)
                 }
                 VideoMetaData *videoMetaData = (VideoMetaData *)st->metadata;
                 
-    			h265_parse_sps(videoMetaData, nalu, sps_nalu_len);
-    			free(nalu);
-    			return 0;
-    		}
-        	++kk;
-        	++ptr;
-    	}
+                h265_parse_sps(videoMetaData, nalu, sps_nalu_len);
+                free(nalu);
+                return 0;
+            }
+            ++kk;
+            ++ptr;
+        }
     }
-	return 0;
+    return 0;
 }
 
 cdx_int32 ProbeVideo(Stream *stream)
 {
-    if (stream->codec_id == VIDEO_CODEC_FORMAT_MPEG1 || stream->codec_id == VIDEO_CODEC_FORMAT_MPEG2)
+    if (stream->codec_id == VIDEO_CODEC_FORMAT_MPEG1
+        || stream->codec_id == VIDEO_CODEC_FORMAT_MPEG2)
     {
         return prob_mpg(stream);
     }
@@ -699,7 +738,7 @@ cdx_int32 ProbeVideo(Stream *stream)
     }
     else if (stream->codec_id == VIDEO_CODEC_FORMAT_AVS)
     {
-    	return 0;
+        return 0;
     }
     else
     {
@@ -731,4 +770,3 @@ cdx_int32 ProbeStream(Stream *stream)
     }
 }
 #endif    
-

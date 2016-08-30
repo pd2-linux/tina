@@ -53,4 +53,3 @@ int AudioRenderCompGetVolume(AudioRenderComp* a, float *volume);
 int AudioRenderSetSoundCtlOps(AudioRenderComp* a, SoundControlOpsT* ops);
 
 #endif
-

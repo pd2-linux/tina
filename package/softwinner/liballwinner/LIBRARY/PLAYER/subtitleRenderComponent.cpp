@@ -652,7 +652,7 @@ process_message:
 
             //* clear expired subtitle items and return buffer to decoder.
             if(p->bExternalFlag == 1)
-            	FlushExpiredItems(p, pItemInfo, p->nTimeShiftUs + p->nVideoOrAudioFirstPts);
+		FlushExpiredItems(p, pItemInfo, p->nTimeShiftUs + p->nVideoOrAudioFirstPts);
 			else
 				FlushExpiredItems(p, pItemInfo, p->nTimeShiftUs);
 
@@ -691,7 +691,7 @@ process_message:
             //* check whether it is time to show the item.
             int64_t callbackParam64[3];
 			if(p->bExternalFlag == 1)
-            	callbackParam64[0] = pCurItem->nPts + p->nTimeShiftUs + p->nVideoOrAudioFirstPts;
+		callbackParam64[0] = pCurItem->nPts + p->nTimeShiftUs + p->nVideoOrAudioFirstPts;
 			else
 				callbackParam64[0] = pCurItem->nPts + p->nTimeShiftUs;
             callbackParam64[1] = pCurItem->nDuration;

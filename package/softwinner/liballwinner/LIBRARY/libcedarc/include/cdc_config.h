@@ -1,7 +1,20 @@
 
+/*
+* Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+* All rights reserved.
+*
+* File : CdcSysinfo.h
+* Description :
+* History :
+*   Author  : xyliu <xyliu@allwinnertech.com>
+*   Date    : 2016/04/13
+*   Comment :
+*
+*
+*/
+
 #ifndef CDC_CONFIG_H
 #define CDC_CONFIG_H
-
 
 // option for debug level.
 #define OPTION_LOG_LEVEL_CLOSE      0
@@ -18,8 +31,11 @@
 #define CONFIG_LOG_LEVEL    OPTION_LOG_LEVEL_WARNING
 #endif
 
-// <CONFIG_HLS_SEEK=1>: seek to the right request point, it may be slower a little.
-// <CONFIG_HLS_SEEK=0>: seek to the beginning of this segment, it is faster a little, but not much accurat.
+// <CONFIG_HLS_SEEK=1>: seek to the right request point,
+//it may be slower a little.
+// <CONFIG_HLS_SEEK=0>: seek to the beginning of this segment,
+//it is faster a little, but not much accurat.
+
 #define CONFIG_HLS_SEEK    OPTION_HLS_NOT_SEEK_IN_SEGMENT
 
 #define CONFIG_ENABLE_DEMUX_ASF         1

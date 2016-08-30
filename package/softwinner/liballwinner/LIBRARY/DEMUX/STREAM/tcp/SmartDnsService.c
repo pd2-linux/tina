@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : SmartDnsService.c
+ * Description : SmartDnsService
+ * History :
+ *
+ */
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -43,7 +53,8 @@ struct SDSInstanceS
 
 };
 
-static struct addrinfo *SDSCacheSearch(struct SDSInstanceS *instance, const char *hostname, int port)
+static struct addrinfo *SDSCacheSearch(struct SDSInstanceS *instance,
+    const char *hostname, int port)
 {
     struct DomainItemS *pos = NULL;
     struct addrinfo *ai = NULL;
@@ -72,7 +83,8 @@ static struct addrinfo *SDSNetSearch(const char *hostname, int port)
     ret = getaddrinfo(hostname, strPort, NULL, &retAddr);
     if (ret != 0)
     {
-        CDX_LOGE("get host failed, host:%s, port:%s, err:%s", hostname, strPort, gai_strerror(errno));
+        CDX_LOGE("get host failed, host:%s, port:%s, err:%s", hostname,
+            strPort, gai_strerror(errno));
         return NULL;
     }
 
@@ -216,7 +228,8 @@ static struct SDSInstanceS *SDSGetInstance(void)
     return singletonInstance;
 }
 
-int SDSRequest(const char *hostname, int port, struct addrinfo **pAddr, void *userHdr, ResponeHook hook)
+int SDSRequest(const char *hostname, int port, struct addrinfo **pAddr, void *userHdr,
+    ResponeHook hook)
 {
     CdxMessageT *msg = NULL;
     struct SDSInstanceS *instance = NULL;
@@ -249,4 +262,3 @@ int SDSRequest(const char *hostname, int port, struct addrinfo **pAddr, void *us
 
     return SDS_PENDING;
 }
-

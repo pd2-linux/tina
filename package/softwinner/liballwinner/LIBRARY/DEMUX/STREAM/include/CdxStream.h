@@ -1,4 +1,14 @@
 /*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxStream.h
+ * Description : Stream
+ * History :
+ *
+ */
+
+/*
 **********************************************************************
 * File Name  : CdxStream.h
 * Author       : bzchen@allwinnertech.com
@@ -13,7 +23,6 @@
 #include <CdxLog.h>
 #include <CdxBinary.h>
 #include <CdxAtomic.h>
-
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,29 +46,31 @@ typedef CdxStreamT CustomerStream;
 
 enum DSExtraDataTypeE
 {
-	EXTRA_DATA_UNKNOWN,
+    EXTRA_DATA_UNKNOWN,
     EXTRA_DATA_HTTP_HEADER,
     EXTRA_DATA_APPOINTED_TS,
     EXTRA_DATA_RTP,
     EXTRA_DATA_AES,
     EXTRA_DATA_BDMV,
     EXTRA_DATA_RTSP,
-	EXTRA_DATA_HTTP, //download spend time etc.
+    EXTRA_DATA_HTTP, //download spend time etc.
     EXTRA_DATA_HLS,
 };
 
 struct CdxDataSourceS
 {
 #if (CONFIG_OS == OPTION_OS_ANDROID && CONFIG_OS_VERSION >= OPTION_OS_VERSION_ANDROID_5_0)
-	void* pHTTPServer;
+    void* pHTTPServer;
 #endif
     cdx_char *uri;  /* format : "scheme://..." */
     cdx_void *extraData; /* extra data for some stream, ex: http header for http stream */
     enum DSExtraDataTypeE extraDataType;
     cdx_int64 offset; /* for id3 parser */
+    int probeSize;
 };
 
-
+#if 1
+/* These two struct is deprecated, you should use CdxKeyedVectorT interface */
 typedef struct CdxHttpHeaderField
 {
     const char *key;
@@ -71,6 +82,26 @@ typedef struct CdxHttpHeaderFields
     int num;
     CdxHttpHeaderFieldT *pHttpHeader;
 }CdxHttpHeaderFieldsT;
+#endif
+
+typedef struct CdxKeyedVectorS CdxKeyedVectorT;
+
+/* return NULL on error */
+CdxKeyedVectorT *CdxKeyedVectorCreate(int num);
+
+void CdxKeyedVectorDestroy(CdxKeyedVectorT *keyedVector);
+
+/* For the following four functions, keyedVector must not be NULL. */
+
+/* return 0 on success, -1 on error */
+int CdxKeyedVectorAdd(CdxKeyedVectorT *keyedVector,
+        const char *key, const char *val);
+
+int CdxKeyedVectorGetSize(CdxKeyedVectorT *keyedVector);
+
+char *CdxKeyedVectorGetKey(CdxKeyedVectorT *keyedVector, int index);
+
+char *CdxKeyedVectorGetValue(CdxKeyedVectorT *keyedVector, int index);
 
 typedef struct ExtraDataContainerS
 {
@@ -185,11 +216,11 @@ enum CdxStreamCommandE
     STREAM_CMD_SET_ISHLS= 0x110,
         /*for setting hls parser flag*/
 
-	STREAM_CMD_GET_IP = 0x110,
-		/* For get tcp ip*/
-	STREAM_CMD_REQUEST_WRITE_INFO = 0x120,
-	STREAM_CMD_UPDATE_WRITE_INFO  = 0x121,
-	STREAM_CMD_SET_EOF            = 0x122,
+    STREAM_CMD_GET_IP = 0x110,
+        /* For get tcp ip*/
+    STREAM_CMD_REQUEST_WRITE_INFO = 0x120,
+    STREAM_CMD_UPDATE_WRITE_INFO  = 0x121,
+    STREAM_CMD_SET_EOF            = 0x122,
 };
 
 /*stream event*/
@@ -198,14 +229,14 @@ enum CdxStreamEventE
     STREAM_EVT_DOWNLOAD_START = 0x1000,
     STREAM_EVT_DOWNLOAD_END,
     STREAM_EVT_DOWNLOAD_ERROR,
-	STREAM_EVT_NET_DISCONNECT,
+    STREAM_EVT_NET_DISCONNECT,
     STREAM_EVT_DOWNLOAD_RESPONSE_HEADER,
     STREAM_EVT_DOWNLOAD_START_TIME,
-	STREAM_EVT_DOWNLOAD_FIRST_TIME,
+    STREAM_EVT_DOWNLOAD_FIRST_TIME,
     STREAM_EVT_DOWNLOAD_END_TIME,
     STREAM_EVT_DOWNLOAD_GET_TCP_IP,
     STREAM_EVT_DOWNLOAD_DOWNLOAD_ERROR,
-	STREAM_EVT_CMCC_LOG_RECORD,
+    STREAM_EVT_CMCC_LOG_RECORD,
 };
 
 /* STREAM_CMD_EXT_IO_OPERATION param */
@@ -251,6 +282,9 @@ struct CdxStreamProbeDataS
 {
     cdx_char *buf;
     cdx_uint32 len;
+
+    /* maybe we should define it as char private[0]? */
+    cdx_char *uri[0];
 };
 
 typedef int (*ParserCallback)(void* pUserData, int eMessageId, void* param);
@@ -265,7 +299,7 @@ struct ContorlTaskS
 {
     cdx_int32 cmd;
     void *param;
-	ContorlTask *next;
+    ContorlTask *next;
 };
 struct CdxStreamCreatorS
 {
@@ -318,7 +352,9 @@ int AwStreamRegister(CdxStreamCreatorT *creator, cdx_char *type);
 
 CdxStreamT *CdxStreamCreate(CdxDataSourceT *source);
 
-int CdxStreamOpen(CdxDataSourceT *source, pthread_mutex_t *mutex, cdx_bool *exit, CdxStreamT **stream, ContorlTask *streamTasks);
+int CdxStreamOpen(CdxDataSourceT *source, pthread_mutex_t *mutex, cdx_bool *exit,
+        CdxStreamT **stream, ContorlTask *streamTasks);
+
 static inline cdx_int32 CdxStreamConnect(CdxStreamT *stream)
 {
     CDX_CHECK(stream);
@@ -326,7 +362,6 @@ static inline cdx_int32 CdxStreamConnect(CdxStreamT *stream)
     CDX_CHECK(stream->ops->connect);
     return stream->ops->connect(stream);
 }
-
 
 static inline CdxStreamProbeDataT *CdxStreamGetProbeData(CdxStreamT *stream)
 {
@@ -464,7 +499,6 @@ static inline cdx_int64 CdxStreamSize(CdxStreamT *stream)
 #define CdxStreamIsDtmbStream(stream) \
     (!!(CdxStreamAttribute(stream) & CDX_STREAM_FLAG_DTMB))
 
-    
 static inline cdx_int32 CdxStreamSkip(CdxStreamT *stream, cdx_uint32 len) 
 {
     if (len == 0)
@@ -526,18 +560,14 @@ static inline cdx_int32 CdxStreamSkip(CdxStreamT *stream, cdx_uint32 len)
 #define CdxStreamGetBE64(stream) \
         ({cdx_uint8 data[8]; CdxStreamRead(stream, data, 8); GetBE64(data);})
 
-
-
 typedef struct REQUEST_BUFFER_INFO
 {
-	unsigned char* bufPtr;
-	unsigned int   bufLen;
+    unsigned char* bufPtr;
+    unsigned int   bufLen;
 }StreamBufferInfo;
-
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-

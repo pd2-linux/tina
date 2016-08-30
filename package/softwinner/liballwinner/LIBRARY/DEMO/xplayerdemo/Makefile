@@ -69,13 +69,13 @@ SourceIncludePath = $(foreach dir,$(SourcePath),-I$(dir)) \
 					-I../../../xplayer
 
 ## set compile flags
-CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -Wall -O2 -ldl
+CompileFlags = $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -Wall -O2 -ldl -g
 
 ## set link flags
 LoadFlags = $(CONFIG_FOR_LINK)
 
 LoadFlags +=   -lxplayer -lcdc_vdecoder -lcdc_adecoder -lcdc_sdecoder -lcdc_base -lcdc_ve -lcdc_memory \
-               -lcdx_parser  -lplayer -lcdx_stream -lcdx_base  -lpostprocess \
+               -lcdx_parser  -lplayer -lcdx_stream -lcdx_base \
                -law_plugin  -lpthread -ldl -lstdc++ -lrt -lm -lc
 
 ifeq ($(CONFIG_HAVE_ZLIB), $(OPTION_HAVE_ZLIB))
@@ -118,9 +118,15 @@ LoadFlags += -L../../libcedarc/library/lib32/linuxgnueabi
 endif
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI))
-LoadFlags +=-L../../EXTERNAL/lib32/muslgnueabi
-LoadFlags += -L../../libcedarc/library/lib32/muslgnueabi
+    ifeq ($(LINUX_VERSION),$(LINUX_VERSION_3_10))
+    LoadFlags +=-L../../libcedarc/library/lib32/muslgnueabi_linux310
+    else
+    LoadFlags +=-L../../libcedarc/library/lib32/muslgnueabi
+    endif
+
+    LoadFlags +=-L../../EXTERNAL/lib32/muslgnueabi
 endif
+
 ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI64))
 LoadFlags +=-L../../EXTERNAL/lib64/muslgnueabi
 endif
@@ -172,5 +178,3 @@ ifneq ($(MAKECMDGOALS),cleanall)
 endif
 endif
 endif
-
-

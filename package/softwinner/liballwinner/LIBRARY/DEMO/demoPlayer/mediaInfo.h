@@ -44,4 +44,3 @@ typedef struct MEDIAINFO
 }MediaInfo;
 
 #endif
-

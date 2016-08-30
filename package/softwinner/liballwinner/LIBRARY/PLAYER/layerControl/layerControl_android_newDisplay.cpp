@@ -166,13 +166,13 @@ static int makeSureBlackFrameToShow(LayerCtrlContext* lc)
             break;
         }
         
-    	logv("dequeue i = %d, handle: 0x%x", i, pWindowBuf[i]->handle);
+	logv("dequeue i = %d, handle: 0x%x", i, pWindowBuf[i]->handle);
 
     }
 
     for(i--; i >= 0; i--)
     {        
-    	logv("cancel i = %d, handle: 0x%x", i, pWindowBuf[i]->handle);
+	logv("cancel i = %d, handle: 0x%x", i, pWindowBuf[i]->handle);
         lc->pNativeWindow->cancelBuffer(lc->pNativeWindow, pWindowBuf[i], -1);
     }
 	
@@ -191,24 +191,24 @@ int initPartialGpuBuffer(char* pDataBuf, ANativeWindowBuffer* pWindowBuf, LayerC
 
     if(lc->eDisplayPixelFormat == PIXEL_FORMAT_NV21)
     {
-    	//* Y1
-    	int nRealHeight = pWindowBuf->height/2;
-    	int nInitHeight = 32;
-    	int nSkipLen = pWindowBuf->stride*(nRealHeight - nInitHeight);
-    	int nCpyLenY = pWindowBuf->stride*nInitHeight;
-    	memset(pDataBuf+nSkipLen, 0x10, nCpyLenY);
-    	//* Y2
-    	nSkipLen += pWindowBuf->stride*nRealHeight;
-    	memset(pDataBuf+nSkipLen, 0x10, nCpyLenY);
+	//* Y1
+	int nRealHeight = pWindowBuf->height/2;
+	int nInitHeight = 32;
+	int nSkipLen = pWindowBuf->stride*(nRealHeight - nInitHeight);
+	int nCpyLenY = pWindowBuf->stride*nInitHeight;
+	memset(pDataBuf+nSkipLen, 0x10, nCpyLenY);
+	//* Y2
+	nSkipLen += pWindowBuf->stride*nRealHeight;
+	memset(pDataBuf+nSkipLen, 0x10, nCpyLenY);
 
-    	//*UV1
-    	nSkipLen += nCpyLenY;
-    	nSkipLen += (pWindowBuf->stride/2)*(nRealHeight/2 - nInitHeight/2);
-    	int nCpyLenUV = (pWindowBuf->stride/2)*(nInitHeight/2);
-    	memset(pDataBuf+nSkipLen, 0x80, nCpyLenUV);
-    	//*UV2
-    	nSkipLen += (pWindowBuf->stride/2)*(nRealHeight/2);
-    	memset(pDataBuf+nSkipLen, 0x80, nCpyLenUV);
+	//*UV1
+	nSkipLen += nCpyLenY;
+	nSkipLen += (pWindowBuf->stride/2)*(nRealHeight/2 - nInitHeight/2);
+	int nCpyLenUV = (pWindowBuf->stride/2)*(nInitHeight/2);
+	memset(pDataBuf+nSkipLen, 0x80, nCpyLenUV);
+	//*UV2
+	nSkipLen += (pWindowBuf->stride/2)*(nRealHeight/2);
+	memset(pDataBuf+nSkipLen, 0x80, nCpyLenUV);
     }
     else
     {
@@ -652,8 +652,8 @@ int matchWindowBufferAndPicture(LayerCtrlContext* lc,
     //* dequeue buffer for the first time, we should not dequeue from picNode
     if(bInitFlag == 1)
     {
-    	pPicture = *ppVideoPicture;
-    	//* set the buffer address
+	pPicture = *ppVideoPicture;
+	//* set the buffer address
         pPicture->pData0       = lc->mGpuBufferInfo[i].pBufVirAddr;
         pPicture->pData1       = pPicture->pData0 + (pWindowBuf->height * pWindowBuf->stride);
         pPicture->pData2       = pPicture->pData1 + (pWindowBuf->height * pWindowBuf->stride)/4;
@@ -667,34 +667,34 @@ int matchWindowBufferAndPicture(LayerCtrlContext* lc,
         pPicture->nLineStride  = pWindowBuf->stride;
 
         if(lc->b4KAlignFlag == 1)
-    	{
-    	    uintptr_t tmpAddr = (uintptr_t)pPicture->pData1;
-    	    tmpAddr     = (tmpAddr + 4095) & ~4095;		    
-    	    pPicture->pData1      = (char *)tmpAddr;
-    	    pPicture->phyCBufAddr = (pPicture->phyCBufAddr + 4095) & ~4095;
-    	}
+	{
+	    uintptr_t tmpAddr = (uintptr_t)pPicture->pData1;
+	    tmpAddr     = (tmpAddr + 4095) & ~4095;
+	    pPicture->pData1      = (char *)tmpAddr;
+	    pPicture->phyCBufAddr = (pPicture->phyCBufAddr + 4095) & ~4095;
+	}
     }
     else
     {
-    	for(i = 0; i<NUM_OF_PICTURES_KEEP_IN_NODE; i++)
-    	{
-    		logv("** dequeue , i(%d), used(%d), pPicture(%p), pNodeWindowBuf(%p),pWindowBuf(%p)",
-    				i,lc->picNodes[i].bUsed,lc->picNodes[i].pPicture,
-    				lc->picNodes[i].pNodeWindowBuf, pWindowBuf);
-    		if(lc->picNodes[i].bUsed == 1 
-    		   && lc->picNodes[i].pPicture != NULL
-    		   && lc->picNodes[i].pNodeWindowBuf == pWindowBuf)
-    		{				
-    			pPicture = lc->picNodes[i].pPicture ;
-    			lc->picNodes[i].bUsed = 0;
-    			break;
-    		}				
-    	}
-    	if(i == NUM_OF_PICTURES_KEEP_IN_NODE)
-    	{
-    		loge("hava no unused picture in the picNode, pDataBuf = %p",pGpuVirBuf);
-    		return -1;
-    	}
+	for(i = 0; i<NUM_OF_PICTURES_KEEP_IN_NODE; i++)
+	{
+		logv("** dequeue , i(%d), used(%d), pPicture(%p), pNodeWindowBuf(%p),pWindowBuf(%p)",
+				i,lc->picNodes[i].bUsed,lc->picNodes[i].pPicture,
+				lc->picNodes[i].pNodeWindowBuf, pWindowBuf);
+		if(lc->picNodes[i].bUsed == 1
+		   && lc->picNodes[i].pPicture != NULL
+		   && lc->picNodes[i].pNodeWindowBuf == pWindowBuf)
+		{
+			pPicture = lc->picNodes[i].pPicture ;
+			lc->picNodes[i].bUsed = 0;
+			break;
+		}
+	}
+	if(i == NUM_OF_PICTURES_KEEP_IN_NODE)
+	{
+		loge("hava no unused picture in the picNode, pDataBuf = %p",pGpuVirBuf);
+		return -1;
+	}
     }
     
     *ppVideoPicture = pPicture;
@@ -956,7 +956,7 @@ void __NewLayerResetNativeWindow(LayerCtrl* l,void* pNativeWindow)
     {
         if(lc->mGpuBufferInfo[i].nDequeueFlag == 1)
         {
-        	//* unlock the buffer.
+		//* unlock the buffer.
 			ANativeWindowBuffer* pWindowBuf = lc->mGpuBufferInfo[i].pWindowBuf;
 	        GraphicBufferMapper& graphicMapper = GraphicBufferMapper::get();
 	        graphicMapper.unlock(pWindowBuf->handle);
@@ -1037,7 +1037,7 @@ int __NewLayerCtrlShowVideo(LayerCtrl* l)
     {
         if(lc->pNativeWindow != NULL)
         {
-        	lc->bLayerShowed = 1;
+		lc->bLayerShowed = 1;
             lc->pNativeWindow->perform(lc->pNativeWindow,
                                        NATIVE_WINDOW_SETPARAMETER,
                                        HWC_LAYER_SHOW,
@@ -1066,7 +1066,7 @@ int __NewLayerCtrlHideVideo(LayerCtrl* l)
     {
         if(lc->pNativeWindow != NULL)
         {
-    	lc->bLayerShowed = 0;
+	lc->bLayerShowed = 0;
         lc->pNativeWindow->perform(lc->pNativeWindow,
                                        NATIVE_WINDOW_SETPARAMETER,
                                        HWC_LAYER_SHOW,
@@ -1276,5 +1276,3 @@ NewLayerControlOpsT* __GetNewLayerControlOps()
 {
     return &mNewLayerControlOps;
 }
-
-

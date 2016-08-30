@@ -229,4 +229,3 @@ int MessageQueueGetCount(MessageQueue* mq)
     
     return mqCtx->nCount;
 }
-

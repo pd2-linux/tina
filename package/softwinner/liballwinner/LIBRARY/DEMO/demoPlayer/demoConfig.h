@@ -8,4 +8,3 @@
 #define DEMO_CONFIG_DISALBE_MULTI_AUDIO	0
 
 #endif
-

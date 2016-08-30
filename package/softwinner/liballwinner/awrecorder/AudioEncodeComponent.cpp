@@ -25,13 +25,13 @@ static const int AUDIO_ENC_COMMAND_QUIT          = 0x106;
 
 typedef struct AudioEncodeCompContex
 {
-	AudioEncoder*         	pAudioEncode;
-	AwMessageQueue*       	mMessageQueue;
-	pthread_t            	mThreadId;
-	int                   	mStatus;
+	AudioEncoder*		pAudioEncode;
+	AwMessageQueue*		mMessageQueue;
+	pthread_t		mThreadId;
+	int			mStatus;
 	AudioEncodeCallback     mCallback;
 	void*                   mUserData;
-	int 					mThreadCreated;
+	int					mThreadCreated;
 
 	sem_t                   mSemStart;
 	sem_t                   mSemStop;
@@ -39,11 +39,11 @@ typedef struct AudioEncodeCompContex
 	sem_t                   mSemPause;
 	sem_t                   mSemQuit;
 
-	int 				    mStartReply;
-	int 				    mStopReply;
-	int 				    mResetReply;
-	int 				    mPauseReply;
-	int 				    mQuitReply;
+	int				    mStartReply;
+	int				    mStopReply;
+	int				    mResetReply;
+	int				    mPauseReply;
+	int				    mQuitReply;
 }AudioEncodeCompContex;
 
 static void PostEncodeMessage(AwMessageQueue* mq)
@@ -68,9 +68,9 @@ static void* AudioEncodeThread(void *arg)
 {
 	AudioEncodeCompContex *p = (AudioEncodeCompContex*)arg;
 	AwMessage			 msg;
-	int 				 ret;
+	int				 ret;
 	sem_t*				 pReplySem;
-	int*				 	pReplyValue;
+	int*					pReplyValue;
 
 	while(1)
 	{
@@ -270,18 +270,18 @@ int AudioEncodeCompInit(AudioEncodeComp* v, AudioEncodeConfig* config)
 	switch (config->nType)
 	{
 		case AUDIO_ENCODE_PCM_TYPE:
-		 	audioConfig.nType = AUDIO_ENCODER_PCM_TYPE;
-		 	break;
+			audioConfig.nType = AUDIO_ENCODER_PCM_TYPE;
+			break;
 		case AUDIO_ENCODE_AAC_TYPE:
-		 	audioConfig.nType = AUDIO_ENCODER_AAC_TYPE;
-		 	audioConfig.nFrameStyle = 1;
-		 	break;
+			audioConfig.nType = AUDIO_ENCODER_AAC_TYPE;
+			audioConfig.nFrameStyle = 1;
+			break;
 		case AUDIO_ENCODE_MP3_TYPE:
-		 	audioConfig.nType = AUDIO_ENCODER_MP3_TYPE;
-		 	break;
+			audioConfig.nType = AUDIO_ENCODER_MP3_TYPE;
+			break;
 		case AUDIO_ENCODE_LPCM_TYPE:
-		 	audioConfig.nType = AUDIO_ENCODER_LPCM_TYPE;
-		 	break;
+			audioConfig.nType = AUDIO_ENCODER_LPCM_TYPE;
+			break;
 		default:
 			loge("unlown audio type(%d)", config->nType);
 			break;
@@ -445,4 +445,3 @@ int AudioEncodeCompSetCallback(AudioEncodeComp *v, AudioEncodeCallback notifier,
 	p->mUserData = pUserData;
 	return 0;
 }
-

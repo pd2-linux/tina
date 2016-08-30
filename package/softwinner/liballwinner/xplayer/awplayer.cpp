@@ -18,8 +18,6 @@
 #include "demuxComponent.h"
 #include "awMessageQueue.h"
 #include "memoryAdapter.h"
-#include <sys/time.h>
-
 
 //* player status.
 static const int AWPLAYER_STATUS_IDLE        = 0;
@@ -276,7 +274,7 @@ int AwPlayer::start()
 {
     AwMessage msg;
     
-    logd("start");
+    logv("start");
     
     //* send a start message.
     setMessage(&msg, 
@@ -287,6 +285,20 @@ int AwPlayer::start()
     SemTimedWait(&mSemStart, -1);
     return mStartReply;
 }
+
+MediaInfo* AwPlayer::getMediaInfo()
+{
+    if(mStatus == AWPLAYER_STATUS_PREPARING ||
+       mStatus == AWPLAYER_STATUS_INITIALIZED||
+       mStatus == AWPLAYER_STATUS_IDLE )
+    {
+        loge("cannot get mediainfo in this status");
+        return NULL;
+    }
+
+    return mMediaInfo;
+}
+
 
 int AwPlayer::stop()
 {
@@ -348,10 +360,10 @@ int AwPlayer::setSpeed(int nSpeed)
 
     if(nSpeed == 1)
     {
-    	mbFast = 0;
-    	mSpeed = 1;
-    	mFastTime = 0;
-    	start();
+	mbFast = 0;
+	mSpeed = 1;
+	mFastTime = 0;
+	start();
         PlayerSetDiscardAudio(mPlayer, 0);
         return 0;
     }
@@ -371,7 +383,7 @@ int AwPlayer::reset()
 {
     AwMessage msg;
     
-    logd("reset");
+    logv("reset");
     
     //* send a start message.
     setMessage(&msg, 
@@ -495,6 +507,10 @@ int AwPlayer::setVolume(int volume)
     AwMessageQueuePostMessage(mMessageQueue, &msg);
     SemTimedWait(&mSemSetVolume, -1);
     return mSetVolumeReply;
+}
+int AwPlayer::setVideoOutputScaleRatio(int horizonScaleDownRatio,int verticalScaleDownRatio)
+{
+	PlayerConfigVideoScaleDownRatio(mPlayer,horizonScaleDownRatio,verticalScaleDownRatio);
 }
 
 int AwPlayer::initializePlayer()
@@ -702,7 +718,7 @@ int AwPlayer::mainThread()
         
         if(msg.messageId == AWPLAYER_COMMAND_SET_SOURCE)
         {
-            logd("process message AWPLAYER_COMMAND_SET_SOURCE.");
+            logv("process message AWPLAYER_COMMAND_SET_SOURCE.");
             //* check status.
             if(mStatus != AWPLAYER_STATUS_IDLE && mStatus != AWPLAYER_STATUS_INITIALIZED)
             {
@@ -760,7 +776,7 @@ int AwPlayer::mainThread()
         } //* end AWPLAYER_COMMAND_SET_SOURCE.
         else if(msg.messageId == AWPLAYER_COMMAND_PREPARE)
         {
-            logd("process message AWPLAYER_COMMAND_PREPARE.");
+            logv("process message AWPLAYER_COMMAND_PREPARE.");
             
             if(mStatus != AWPLAYER_STATUS_INITIALIZED && mStatus != AWPLAYER_STATUS_STOPPED)
             {
@@ -794,7 +810,7 @@ int AwPlayer::mainThread()
         } //* end AWPLAYER_COMMAND_PREPARE.
         else if(msg.messageId == AWPLAYER_COMMAND_START)
         {
-            logd("process message AWPLAYER_COMMAND_START.");
+            logv("process message AWPLAYER_COMMAND_START.");
             if(mStatus != AWPLAYER_STATUS_PREPARED && 
                mStatus != AWPLAYER_STATUS_STARTED  &&
                mStatus != AWPLAYER_STATUS_PAUSED   &&
@@ -904,7 +920,7 @@ int AwPlayer::mainThread()
         } //* end AWPLAYER_COMMAND_START.
         else if(msg.messageId == AWPLAYER_COMMAND_STOP)
         {
-            logd("process message AWPLAYER_COMMAND_STOP.");
+            logv("process message AWPLAYER_COMMAND_STOP.");
             if(mStatus != AWPLAYER_STATUS_PREPARED && 
                mStatus != AWPLAYER_STATUS_STARTED  &&
                mStatus != AWPLAYER_STATUS_PAUSED   &&
@@ -1031,7 +1047,7 @@ int AwPlayer::mainThread()
         }
         else if(msg.messageId == AWPLAYER_COMMAND_PAUSE)
         {
-            logd("process message AWPLAYER_COMMAND_PAUSE.");
+            logv("process message AWPLAYER_COMMAND_PAUSE.");
             if(mStatus != AWPLAYER_STATUS_STARTED  &&
                mStatus != AWPLAYER_STATUS_PAUSED   &&
                mStatus != AWPLAYER_STATUS_COMPLETE)
@@ -1081,20 +1097,12 @@ int AwPlayer::mainThread()
         } //* end AWPLAYER_COMMAND_PAUSE.
         else if(msg.messageId == AWPLAYER_COMMAND_RESET)
         {
-            logd("process message AWPLAYER_COMMAND_RESET.");
+            logv("process message AWPLAYER_COMMAND_RESET.");
             if(mStatus == AWPLAYER_STATUS_PREPARING)
             {    //* so the mStatus may be changed to PREPARED asynchronizely.
                 logw("reset() called at preparing status, \
                             cancel demux prepare.");
-                struct timeval time1, time2, time3;
-				memset(&time3, 0, sizeof(struct timeval));
-				gettimeofday(&time1, NULL);
-				logw("in mainThread() , before call DemuxCompCancelPrepare(),time1 = %ld seconds  %ld useconds",time1.tv_sec, time1.tv_usec);
                 DemuxCompCancelPrepare(mDemux);
-				gettimeofday(&time2, NULL);
-				time3.tv_sec += (time2.tv_sec-time1.tv_sec);
-				time3.tv_usec += (time2.tv_usec-time1.tv_usec);
-				logd("in awplayer:DemuxCompCancelPrepare >>> time elapsed: %ld seconds  %ld useconds", time3.tv_sec, time3.tv_usec);
             }
             
             if(mSeeking)
@@ -1135,7 +1143,7 @@ int AwPlayer::mainThread()
         }
         else if(msg.messageId == AWPLAYER_COMMAND_SEEK)
         {
-            logd("process message AWPLAYER_COMMAND_SEEK.");
+            logv("process message AWPLAYER_COMMAND_SEEK.");
             if(mStatus != AWPLAYER_STATUS_PREPARED &&
                mStatus != AWPLAYER_STATUS_STARTED  &&
                mStatus != AWPLAYER_STATUS_PAUSED   &&
@@ -1207,7 +1215,7 @@ int AwPlayer::mainThread()
         }
         else if(msg.messageId == AWPLAYER_COMMAND_SET_VOLUME)
         {
-            logd("process message AWPLAYER_COMMAND_SET_VOLUME.");
+            logv("process message AWPLAYER_COMMAND_SET_VOLUME.");
             if(mStatus != AWPLAYER_STATUS_PREPARED &&
                mStatus != AWPLAYER_STATUS_STARTED  &&
                mStatus != AWPLAYER_STATUS_PAUSED   &&
@@ -1400,7 +1408,7 @@ int AwPlayer::callbackProcess(int messageId, void* param)
             }
             
             pthread_mutex_unlock(&mMutex);
-            mNotifier(mUserData, NOTIFY_SEEK_COMPLETE, 0, param);
+            mNotifier(mUserData, NOTIFY_SEEK_COMPLETE, 0, NULL);
             break;
         }
 
@@ -1473,17 +1481,17 @@ int AwPlayer::callbackProcess(int messageId, void* param)
             break;
         }
 
-    	case AWPLAYER_MESSAGE_PLAYER_VIDEO_RENDER_FRAME:
-    		if(mbFast)
-    		{
-    			logd("==== video key frame in fast mode, mFastTime: %d, mSpeed: %d", mFastTime, mSpeed);
-    			if(mSpeed == 0)
-    			{
-    				break;
-    			}
+	case AWPLAYER_MESSAGE_PLAYER_VIDEO_RENDER_FRAME:
+		if(mbFast)
+		{
+			logd("==== video key frame in fast mode, mFastTime: %d, mSpeed: %d", mFastTime, mSpeed);
+			if(mSpeed == 0)
+			{
+				break;
+			}
 
-	    		int sleepTime = (mSpeed > 0) ? 2000000/mSpeed : (-2000000/mSpeed);
-	    		//usleep(sleepTime);
+			int sleepTime = (mSpeed > 0) ? 2000000/mSpeed : (-2000000/mSpeed);
+			//usleep(sleepTime);
 
 				mFastTime += mSpeed*1000;
 				if(mFastTime > 0 && mbFast)
@@ -1505,7 +1513,7 @@ int AwPlayer::callbackProcess(int messageId, void* param)
 					mbFast = 0;
 				}
 			}
-    		break;
+		break;
 
 
         default:
@@ -1725,4 +1733,3 @@ static int transformPictureMb32ToRGB(VideoPicture* pPicture,
 
     return 0;
 }
-

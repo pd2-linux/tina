@@ -1,3 +1,14 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : AsfParserItf.c
+ * Description : AsfParser
+ * Author  : xuqi <xuqi@allwinnertech.com>
+ * Comment : 创建初始版本
+ *
+ */
+
 #include <AsfParser.h>
 #include <CdxMemory.h>
 /*0/false for not same, 1/true for the same*/
@@ -122,8 +133,8 @@ static int asfOnPrefetch(struct AsfParserImplS *impl, CdxPacketT *pkt)
         store->buf = malloc(BUF_STORE_SIZE);
     }
     CDX_LOG_CHECK(store->len + impl->ctx->packet_frag_size <= BUF_STORE_SIZE, 
-		"store->len(%d), impl->ctx->packet_frag_size(%d), impl->ctx->packet_timestamp(%d)", 
-		store->len, impl->ctx->packet_frag_size, impl->ctx->packet_timestamp);
+      "store->len(%d), impl->ctx->packet_frag_size(%d), impl->ctx->packet_timestamp(%d)",
+      store->len, impl->ctx->packet_frag_size, impl->ctx->packet_timestamp);
 
     if (pkt->type == CDX_MEDIA_VIDEO)
     {
@@ -222,7 +233,7 @@ doPrefetch:
 //            (double)pkt->pts/1000000.0, pkt->type, pkt->streamIndex, pkt->length);
 
     pthread_mutex_unlock(&impl->mutex);
-	return ret;
+   return ret;
 }
 
 static cdx_int32 __AsfPsrRead(CdxParserT *psr, CdxPacketT *pkt)
@@ -242,15 +253,15 @@ static cdx_int32 __AsfPsrRead(CdxParserT *psr, CdxPacketT *pkt)
 
     CDX_CHECK(store->intact == CDX_TRUE);
     
-	if (pkt->length <= pkt->buflen) 
-	{
-	    memcpy(pkt->buf, store->buf, pkt->length);
-	}
-	else
-	{
-	    memcpy(pkt->buf, store->buf, pkt->buflen);
-	    memcpy(pkt->ringBuf, store->buf + pkt->buflen, pkt->length - pkt->buflen);
-	}
+   if (pkt->length <= pkt->buflen)
+   {
+       memcpy(pkt->buf, store->buf, pkt->length);
+   }
+   else
+   {
+       memcpy(pkt->buf, store->buf, pkt->buflen);
+       memcpy(pkt->ringBuf, store->buf + pkt->buflen, pkt->length - pkt->buflen);
+   }
     store->intact = CDX_FALSE;
     store->len = 0;
 
@@ -285,11 +296,11 @@ static cdx_int32 __AsfPsrGetMediaInfo(CdxParserT *parser, CdxMediaInfoT *mediaIn
     mediaInfo->programIndex = 0;
     mediaInfo->bSeekable = CdxStreamSeekAble(impl->stream);
     /*
-    if((!impl->ctx->index_ptr) && (impl->ctx->nb_packets == 0 || impl->ctx->nb_packets == 0xffffffff) && 
-         (impl->ctx->totalBitRate == 0))
+    if((!impl->ctx->index_ptr) && (impl->ctx->nb_packets == 0
+    || impl->ctx->nb_packets == 0xffffffff) && (impl->ctx->totalBitRate == 0))
     {
-    	CDX_LOGD("cannot seek");
-    	mediaInfo->bSeekable = 0;
+       CDX_LOGD("cannot seek");
+       mediaInfo->bSeekable = 0;
     }*/
     
     mediaInfo->program[0].audioNum = impl->ctx->audioNum;
@@ -371,16 +382,16 @@ static cdx_int32 __AsfPsrGetMediaInfo(CdxParserT *parser, CdxMediaInfoT *mediaIn
         if (impl->ctx->streams[streamIndex]->codec.codec_type == CDX_MEDIA_VIDEO)
         {
             impl->ctx->streams[streamIndex]->active = 1;
-			CDX_CHECK(impl->ctx->streams[streamIndex]->typeIndex == 0);
+         CDX_CHECK(impl->ctx->streams[streamIndex]->typeIndex == 0);
             mediaInfo->program[0].videoIndex = 0;
             break;
         }
     }
 
-	if(impl->ctx->durationMs <= 0 && impl->ctx->fileSize != 0 && impl->ctx->totalBitRate)
-	{
-		impl->ctx->durationMs = impl->ctx->fileSize*8 / impl->ctx->totalBitRate * 1000;
-	}
+   if(impl->ctx->durationMs <= 0 && impl->ctx->fileSize != 0 && impl->ctx->totalBitRate)
+   {
+      impl->ctx->durationMs = impl->ctx->fileSize*8 / impl->ctx->totalBitRate * 1000;
+   }
 
     //set total time
     mediaInfo->program[0].duration = impl->ctx->durationMs;
@@ -430,10 +441,10 @@ static int __AsfPsrControl(CdxParserT *psr, cdx_int32 cmd, void *param)
             return onClrForceStop(impl);
         default:
             CDX_LOGW("not support cmd(%d)", cmd);
-        	break;
+           break;
     }
 
-	return 0;
+   return 0;
 }
 
 static cdx_int32 __AsfPsrSeekTo(CdxParserT *psr, cdx_int64 timeUs)
@@ -455,7 +466,7 @@ static cdx_int32 __AsfPsrSeekTo(CdxParserT *psr, cdx_int64 timeUs)
         impl->audioStore[i].len = 0;
         impl->audioStore[i].intact = CDX_FALSE;
     }
-	impl->status = CDX_PSR_IDLE;
+   impl->status = CDX_PSR_IDLE;
     //1.force stop
     //2.wait idle
     //3.seek
@@ -510,11 +521,11 @@ static int __AsfPsrInit(CdxParserT *psr)
     
     result = AsfPsrCoreOpen(impl->ctx, impl->stream);
 
-	if(result < 0) 
-	{
-		CDX_LOGW("open asf/wmv reader failed");
-		goto failure;
-	}
+   if(result < 0)
+   {
+      CDX_LOGW("open asf/wmv reader failed");
+      goto failure;
+   }
 
     impl->ctx->status = CDX_MEDIA_STATUS_IDLE;
 
@@ -535,7 +546,7 @@ failure:
 
 struct CdxParserOpsS asfPsrOps =
 {
-	.init = __AsfPsrInit,
+   .init = __AsfPsrInit,
     .control = __AsfPsrControl,
     .prefetch = __AsfPsrPrefetch,
     .read = __AsfPsrRead,
@@ -577,4 +588,3 @@ struct CdxParserCreatorS asfParserCtor =
     .probe = __AsfPsrProbe,
     .create = __AsfPsrCreate
 };
-

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxLock.h
+ * Description : Lock
+ * History :
+ *
+ */
+
 #ifndef CDX_LOCK_H
 #define CDX_LOCK_H
 #include <pthread.h>

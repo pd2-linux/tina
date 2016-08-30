@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxParseUrl.c
+ * Description : ParseUrl
+ * History :
+ *
+ */
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -436,7 +446,8 @@ void CdxUrlEscapeStringPart(char *pOutbuf, const char *pInbuf)
         {
             // check if part of an escape sequence already
             *pOutbuf++ = c;                   
-            // dont escape again error as this should not happen against RFC 2396 to escape a string twice
+            // dont escape again error as this should not happen
+            // against RFC 2396 to escape a string twice
         } 
         else 
         {
@@ -542,7 +553,8 @@ CdxUrlT* CdxCheck4Proxies(CdxUrlT *url)
                 return urlOut;
             }
 #endif
-            len = strlen(proxyUrl->hostname) + strlen(url->url) + 20;    // 20 = http_proxy:// + port
+            // 20 = http_proxy:// + port
+            len = strlen(proxyUrl->hostname) + strlen(url->url) + 20;
             newUrl = malloc(len+1);
             if (newUrl == NULL) 
             {
@@ -652,4 +664,3 @@ CdxUrlT *CdxUrlRedirect(CdxUrlT **url, char *pRedir)
    *url = res;
    return res;
 }
-

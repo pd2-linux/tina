@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxHttpUtils.c
+ * Description : Part of http stream.
+ * History :
+ *
+ */
+
 #include <string.h>
 #include <stdlib.h>
 #include <CdxHttpStream.h>
@@ -6,9 +16,10 @@
 const char *GetUA(int n, CdxHttpHeaderFieldT *pHttpHeader)
 {
     int i;
-    //const char *defaultUA = "AppleCoreMedia/1.0.0.9A405 (iPad; U; CPU OS 5_0_1 like Mac OS X; zh_cn)";
+    /*const char *defaultUA = "AppleCoreMedia/1.0.0.9A405
+     (iPad; U; CPU OS 5_0_1 like Mac OS X; zh_cn)";*/
     //const char *defaultUA = "stagefright/1.2 (Linux;Android 4.2.2)"; 
-    const char *defaultUA = "Allwinner/Cedarx 2.4";
+    const char *defaultUA = "Allwinner/CedarX 2.6";
 
     if(pHttpHeader)
     {
@@ -51,7 +62,8 @@ cdx_int32 ReadChunkedSize(CdxStreamT *stream, cdx_char tmpLen[], cdx_int32 *size
         }
         
         CDX_CHECK(ret == 1);
-        if((byte >= '0' && byte <='9') || (byte >= 'a' && byte <= 'f') || (byte >= 'A' && byte <= 'F'))
+        if((byte >= '0' && byte <='9') || (byte >= 'a' && byte <= 'f') ||
+            (byte >= 'A' && byte <= 'F'))
         {
             len[pos++] = byte;
             if(pos > 10)
@@ -166,4 +178,3 @@ char *RmSpace(char *str)
     
     return it;
 } 
-

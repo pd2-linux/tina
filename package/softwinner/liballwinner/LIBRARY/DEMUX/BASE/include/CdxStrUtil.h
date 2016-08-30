@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxStrUtil.h
+ * Description : StrUtil
+ * History :
+ *
+ */
+
 #ifndef CDX_STR_UTIL_H
 #define CDX_STR_UTIL_H
 

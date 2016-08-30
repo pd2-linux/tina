@@ -28,6 +28,7 @@
 
 #define USE_DETNTERLACE 1
 #define SEND_PTS_TO_SF	0
+#define NOT_DROP_VIDEO_FRAME 0  //add for special customer
 
 extern LayerControlOpsT mLayerControlOps;
 
@@ -77,7 +78,7 @@ typedef struct VideoRenderCompContext
     VideoPicture*       pDeinterlacePrePicture;
     int                 nGpuYAlign;
     int                 nGpuCAlign;
-	int 				bSyncFirstPictureFlag;
+	int				bSyncFirstPictureFlag;
 	FramerateEstimater* pFrameRateEstimater;
 	VideoStreamInfo     videoStreamInfo;
 }VideoRenderCompContext;
@@ -151,7 +152,7 @@ VideoRenderComp* VideoRenderCompCreate(void)
         if (p->di)
         {
             delete p->di;
-    		p->di = NULL;
+		p->di = NULL;
 		}
         free(p);
         return NULL;
@@ -205,7 +206,7 @@ int VideoRenderCompDestroy(VideoRenderComp* v)
     pthread_join(p->sRenderThread, &status);
     
     if(p->videoStreamInfo.pCodecSpecificData)
-    	free(p->videoStreamInfo.pCodecSpecificData);
+	free(p->videoStreamInfo.pCodecSpecificData);
 
     sem_destroy(&p->startMsgReplySem);
     sem_destroy(&p->stopMsgReplySem);
@@ -1093,9 +1094,9 @@ process_message:
                         pPicture = VideoDecCompRequestPicture(p->pDecComp, 0, &bResolutionChange);
                         if(pPicture != NULL || p->bEosFlag)
                         {
-                        	if(pPicture)
-                        	{
-	                        	bBotFiledError = pPicture->bBottomFieldError;
+				if(pPicture)
+				{
+					bBotFiledError = pPicture->bBottomFieldError;
 								bTopFiledError = pPicture->bTopFieldError;
 								bTopFiledFirst = pPicture->bTopFieldFirst ;
 							}
@@ -1108,17 +1109,17 @@ process_message:
                             bNeedResetAngleFlag = 1;
 
                             if(pPreLayerBuffer != NULL)
-                			{
-                				if(p->pLayerCtrl != NULL)
-                				{
-                					if(pSecondLayerBufferOf3DMode == NULL)
-                						p->mLayerOps->queueBuffer(p->pLayerCtrl, pPreLayerBuffer, 0);
-                					else
-                						p->mLayerOps->queue3DBuffer(p->pLayerCtrl, pPreLayerBuffer, pSecondLayerBufferOf3DMode, 0);
-                				}
-                				pPreLayerBuffer = NULL;
-                				pSecondLayerBufferOf3DMode = NULL;
-                			}
+					{
+						if(p->pLayerCtrl != NULL)
+						{
+							if(pSecondLayerBufferOf3DMode == NULL)
+								p->mLayerOps->queueBuffer(p->pLayerCtrl, pPreLayerBuffer, 0);
+							else
+								p->mLayerOps->queue3DBuffer(p->pLayerCtrl, pPreLayerBuffer, pSecondLayerBufferOf3DMode, 0);
+						}
+						pPreLayerBuffer = NULL;
+						pSecondLayerBufferOf3DMode = NULL;
+					}
                             
                             //* reopen the layer.
                             if(p->pLayerCtrl != NULL)
@@ -1156,7 +1157,7 @@ process_message:
                     while(pPicture == NULL)
                     {
                         if(VideoDecCompNextPictureInfo(p->pDecComp, 0, 0) != NULL &&
-                        		VideoDecCompNextPictureInfo(p->pDecComp, 1, 0) != NULL)
+					VideoDecCompNextPictureInfo(p->pDecComp, 1, 0) != NULL)
                         {
                             pPicture = VideoDecCompRequestPicture(p->pDecComp, 0);
                             pSecondPictureOf3DMode = VideoDecCompRequestPicture(p->pDecComp, 1);
@@ -1203,7 +1204,7 @@ process_message:
                     logv("xxxxxxxxxxxxxxxxxxxxxx width=%d, height=%d", p->videoStreamInfo.nWidth, p->videoStreamInfo.nHeight);
                     #if(NOT_DROP_FRAME == 1)
                     if(p->videoStreamInfo.nWidth >= 3800 && p->videoStreamInfo.nHeight >= 2100 
-                        && p->videoStreamInfo.eCodecFormat == VIDEO_CODEC_FORMAT_H264)
+                        && p->videoStreamInfo.eCodecFormat == VIDEO_CODEC_FORMAT_H264 || (NOT_DROP_VIDEO_FRAME == 1))
                     {
                         bNotDropFlag = 1;
                     }
@@ -1230,13 +1231,13 @@ process_message:
 
                     if((pPicture->nRightOffset - pPicture->nLeftOffset) > 0 && 
                        (pPicture->nBottomOffset - pPicture->nTopOffset) > 0)
-		        	{
-	        		    size[0] = pPicture->nLeftOffset;
+				{
+				    size[0] = pPicture->nLeftOffset;
 					    size[1] = pPicture->nTopOffset;
-		        		size[2] = pPicture->nRightOffset - pPicture->nLeftOffset;
+					size[2] = pPicture->nRightOffset - pPicture->nLeftOffset;
 						size[3] = pPicture->nBottomOffset - pPicture->nTopOffset;
                         p->callback(p->pUserData, PLAYER_VIDEO_RENDER_NOTIFY_VIDEO_CROP, (void*)size);
-		        	}
+				}
 		        	
                     if(p->pLayerCtrl)
                     {
@@ -1286,10 +1287,10 @@ process_message:
                         
                         p->mLayerOps->setDisplayBufferSize(p->pLayerCtrl, pPicture->nWidth, pPicture->nHeight);
                         p->mLayerOps->setDisplayRegion(p->pLayerCtrl,
-                        		              pPicture->nLeftOffset,
-                        		              pPicture->nTopOffset,
-                        		              pPicture->nRightOffset - pPicture->nLeftOffset,
-                        		              pPicture->nBottomOffset - pPicture->nTopOffset);
+					              pPicture->nLeftOffset,
+					              pPicture->nTopOffset,
+					              pPicture->nRightOffset - pPicture->nLeftOffset,
+					              pPicture->nBottomOffset - pPicture->nTopOffset);
                         p->mLayerOps->setDisplayPixelFormat(p->pLayerCtrl, (enum EPIXELFORMAT)display_pixel_format);
                         p->mLayerOps->setDeinterlaceFlag(p->pLayerCtrl, deinterlace_flag);
                         bNeedResetLayerParams = 0;
@@ -1481,13 +1482,13 @@ step_5:
                             {
                                 while(pLayerBuffer == NULL)
                                 {
-                                	if(pPreLayerBuffer != NULL)
+					if(pPreLayerBuffer != NULL)
                                     {
                                         pLayerBuffer    = pPreLayerBuffer;
                                         pPreLayerBuffer = NULL;
                                     }
                                     else
-                                    	nLayerBufferMode = p->mLayerOps->dequeue3DBuffer(p->pLayerCtrl, &pLayerBuffer, &pSecondLayerBufferOf3DMode);
+					nLayerBufferMode = p->mLayerOps->dequeue3DBuffer(p->pLayerCtrl, &pLayerBuffer, &pSecondLayerBufferOf3DMode);
 
 									if(nLayerBufferMode == LAYER_RESULT_USE_OUTSIDE_BUFFER)
                                     {
@@ -1506,7 +1507,7 @@ step_5:
                                                                   p->nRotationAngle,
                                                                   p->nGpuYAlign,
                                                                   p->nGpuCAlign);
-                                		VideoDecCompRotatePicture(p->pDecComp, 
+						VideoDecCompRotatePicture(p->pDecComp,
                                                                   pSecondPictureOf3DMode, 
                                                                   pSecondLayerBufferOf3DMode, 
                                                                   p->nRotationAngle,
@@ -1664,7 +1665,7 @@ step_5:
                         }
 						else if(nWaitTime < dropTime && bDeinterlaceFlag == 0)
 						{					
-							loge("*** the picture is too late(%d ms), drop it",nWaitTime);
+							//loge("*** the picture is too late(%d ms), drop it",nWaitTime);
 
 							if(bNotDropFlag == 1)
                             {
@@ -1672,33 +1673,33 @@ step_5:
                             }
                             else
                             {
-    							if(bVideoWithTwoStream == 0)
-    	                        {
-    	                        	if(nLayerBufferMode == LAYER_RESULT_USE_OUTSIDE_BUFFER)
-    	                        	{
-    									VideoDecCompReturnPicture(p->pDecComp, pLayerBuffer);
-    									pLayerBuffer = NULL;
-    								}
-    								pPreLayerBuffer = pLayerBuffer;
-    	                            pPicture 		= NULL;
-    	                            pLayerBuffer 	= NULL;
-    	                        }
-    	                        else
-    	                        {
-    	                        	if(nLayerBufferMode == LAYER_RESULT_USE_OUTSIDE_BUFFER)
-    	                        	{
-    	                            	VideoDecCompReturnPicture(p->pDecComp, pLayerBuffer);
-    	                            	VideoDecCompReturnPicture(p->pDecComp, pSecondLayerBufferOf3DMode);
-    									pLayerBuffer = NULL;
-    									pSecondLayerBufferOf3DMode = NULL;
-    	                        	}
-    								pPreLayerBuffer = pLayerBuffer;
-    	                            pPicture 		= NULL;
-    	                            pSecondPictureOf3DMode = NULL;
-    	                            pLayerBuffer    = NULL;
-    	                            pSecondLayerBufferOf3DMode = NULL;
-    	                        }
-    	                        break;	
+							if(bVideoWithTwoStream == 0)
+	                        {
+					if(nLayerBufferMode == LAYER_RESULT_USE_OUTSIDE_BUFFER)
+					{
+									VideoDecCompReturnPicture(p->pDecComp, pLayerBuffer);
+									pLayerBuffer = NULL;
+								}
+								pPreLayerBuffer = pLayerBuffer;
+	                            pPicture		= NULL;
+	                            pLayerBuffer	= NULL;
+	                        }
+	                        else
+	                        {
+					if(nLayerBufferMode == LAYER_RESULT_USE_OUTSIDE_BUFFER)
+					{
+					VideoDecCompReturnPicture(p->pDecComp, pLayerBuffer);
+					VideoDecCompReturnPicture(p->pDecComp, pSecondLayerBufferOf3DMode);
+									pLayerBuffer = NULL;
+									pSecondLayerBufferOf3DMode = NULL;
+					}
+								pPreLayerBuffer = pLayerBuffer;
+	                            pPicture		= NULL;
+	                            pSecondPictureOf3DMode = NULL;
+	                            pLayerBuffer    = NULL;
+	                            pSecondLayerBufferOf3DMode = NULL;
+	                        }
+	                        break;
                             }
 						}
                     }
@@ -1709,18 +1710,18 @@ step_5:
                     if(p->pLayerCtrl != NULL)
                     {
 #if(CONFIG_CMCC==OPTION_CMCC_NO)
-                    	if ((p->pAvTimer != NULL)
+			if ((p->pAvTimer != NULL)
 							&& (SEND_PTS_TO_SF == 1))
-                    	{
+			{
 	                        int64_t ptsAbs = p->pAvTimer->PtsToSystemTime(p->pAvTimer, pLayerBuffer->nPts);
 	                        p->mLayerOps->setBufferTimeStamp(p->pLayerCtrl, ptsAbs);
-                    	}
+			}
 #endif
                         int ptsSecs = (int)(pLayerBuffer->nPts/1000000);
                         if (p->ptsSecs != ptsSecs)
                         {
                             p->ptsSecs = ptsSecs;
-                            logd("video pts(%.3f) ", pLayerBuffer->nPts/1000000.0);
+                            //logd("video pts(%.3f) ", pLayerBuffer->nPts/1000000.0);
                         }
                     	
                         if(bVideoWithTwoStream == 0)
@@ -1764,7 +1765,7 @@ step_5:
 					{
 						p->callback(p->pUserData, PLAYER_VIDEO_RENDER_NOTIFY_VIDEO_FRAME, NULL);
 					}
-            	}
+		}
 
                 if(bFirstPictureShowed == 0)
                     bFirstPictureShowed = 1;
@@ -1856,8 +1857,8 @@ static int LayerCallback(void* pUserData, int eMessageId, void* param)
     }
     else if(eMessageId == MESSAGE_ID_LAYER_NOTIFY_BUFFER)
     {
-    	if(p->callback)
-    		p->callback(p->pUserData, PLAYER_VIDEO_RENDER_NOTIFY_VIDEO_BUFFER, param);
+	if(p->callback)
+		p->callback(p->pUserData, PLAYER_VIDEO_RENDER_NOTIFY_VIDEO_BUFFER, param);
     }
     
     return 0;

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxHttpField.c
+ * Description : Part of http stream.
+ * History :
+ *
+ */
+
 //#define LOG_NDEBUG 0
 #define LOG_TAG "CdxHttpField"       //* prefix of the printed messages.
 #include <ctype.h>
@@ -44,7 +54,8 @@ char* CdxHttpGetNextField(CdxHttpHeaderT* httpHdr)
     }
     return NULL;
 }
-char *CdxHttpGetFieldFromSearchPos(CdxHttpHeaderT *httpHdr, const char *fieldName, CdxHttpFieldT *searchPos)
+char *CdxHttpGetFieldFromSearchPos(CdxHttpHeaderT *httpHdr, const char *fieldName,
+    CdxHttpFieldT *searchPos)
 {
     if(httpHdr==NULL || fieldName==NULL) 
     {
@@ -158,7 +169,8 @@ int CdxHttpResponseAppend(CdxHttpHeaderT *httpHdr, char *response, int length)
         CDX_LOGE("********************Bad size in memory (re)allocation\n");
         return -1;
     }
-    httpHdr->buffer = realloc(httpHdr->buffer, httpHdr->bufferSize+length+1);// buffer: response(2K). why realloc:in while, may append one more times..
+    httpHdr->buffer = realloc(httpHdr->buffer, httpHdr->bufferSize+length+1);
+    // buffer: response(2K). why realloc:in while, may append one more times..
     if(httpHdr->buffer==NULL) 
     {
         CDX_LOGE("********************Memory (re)allocation failed\n");
@@ -225,22 +237,22 @@ void CdxHttpSetField(CdxHttpHeaderT *httpHdr, const char *fieldName)
 }
 char * TrimChar(char *str)
 {
-	CDX_CHECK(str);
-	cdx_uint32 len = strlen(str);
-	CDX_CHECK(len);
+    CDX_CHECK(str);
+    cdx_uint32 len = strlen(str);
+    CDX_CHECK(len);
 	
     cdx_uint32 i = 0;
     while (i < len && isspace(str[i])) 
-	{
-		++i;
+    {
+        ++i;
     }
     cdx_uint32 j = len;
     while (j > i && isspace(str[j - 1]))
-	{
+    {
         --j;
     }
     str[j] = '\0';
-	return str + i;
+    return str + i;
 }
 int ParseCookie(char *cookie, char **name_value) 
 {
@@ -281,14 +293,14 @@ int ParseCookie(char *cookie, char **name_value)
     }
     //
     while (offset < len) 
-	{
-	    char *end = strchr(copy + offset, ';');
+    {
+        char *end = strchr(copy + offset, ';');
         if(end)
         {
             *end = '\0';
         }
 		
-		char *attr = TrimChar(copy + offset);
+        char *attr = TrimChar(copy + offset);
         if(end)
         {
             offset = end - copy + 1;
@@ -300,23 +312,23 @@ int ParseCookie(char *cookie, char **name_value)
 		
         char *equalPos = strstr(attr, "=");
         if (equalPos == NULL) 
-		{
+        {
             continue;
         }
-		*equalPos = '\0';
+        *equalPos = '\0';
 
-		char *key = TrimChar(attr);
-		char *val = TrimChar(equalPos + 1);
+        char *key = TrimChar(attr);
+        char *val = TrimChar(equalPos + 1);
         CDX_LOGD("key=%s value=%s", key, val);
-		//tolower_str(key);
-		if(!strcasecmp("path", key))
-		{
-		    ret = strlen(val);
+        //tolower_str(key);
+        if(!strcasecmp("path", key))
+        {
+            ret = strlen(val);
             break;
-		}
+        }
     }
 _exit:
-	free(copy);
+    free(copy);
     return ret;
 		
 }
@@ -417,7 +429,8 @@ int CdxHttpResponseParse(CdxHttpHeaderT *httpHdr)
     strncpy(httpHdr->protocol, httpHdr->buffer, len );
     httpHdr->protocol[len]='\0';
     if( !strncasecmp( httpHdr->protocol, "HTTP", 4) ) {
-        if(sscanf(httpHdr->protocol+5,"1.%d", &(httpHdr->httpMinorVersion))!=1) //--write to httpHdr->httpMinorVersion
+        if(sscanf(httpHdr->protocol+5,"1.%d", &(httpHdr->httpMinorVersion))!=1)
+            //--write to httpHdr->httpMinorVersion
         {
             CDX_LOGE("No HTTP minor version.");
             return -1;
@@ -499,7 +512,6 @@ int CdxHttpResponseParse(CdxHttpHeaderT *httpHdr)
         hdrPtr = ptr+((*ptr=='\r')?2:1);
     } while( hdrPtr<(httpHdr->buffer+posHdrSep));
     
-
     if(field!=NULL) 
     {
         free(field);
@@ -513,7 +525,7 @@ int CdxHttpResponseParse(CdxHttpHeaderT *httpHdr)
 //        LOGD("*************** httpHdr->body =%s", httpHdr->body);
 //        CDX_LOGD("*************** httpHdr->bodySize = %zu",httpHdr->bodySize);
     }
-	httpHdr->posHdrSep = posHdrSep;
+    httpHdr->posHdrSep = posHdrSep;
 
     //* print response header
     if(httpHdr->bufferSize > 0)
@@ -531,7 +543,6 @@ int CdxHttpResponseParse(CdxHttpHeaderT *httpHdr)
     httpHdr->isParsed = 1;
     return 0;
 }
-
 
 void CdxHttpSetUri(CdxHttpHeaderT *httpHdr, const char *uri)
 {
@@ -606,7 +617,8 @@ static int CdxPase64Encode(const void *pEnc, int encLen, char *out, int nOutMax)
     }
 }
 
-int CdxHttpAddBasicAuthentication(CdxHttpHeaderT *httpHdr, const char *username, const char *password) 
+int CdxHttpAddBasicAuthentication(CdxHttpHeaderT *httpHdr, const char *username,
+    const char *password)
 {
     char *auth = NULL;
     char *usrPass = NULL;
@@ -766,7 +778,8 @@ char* CdxHttpBuildRequest(CdxHttpHeaderT *httpHdr)
     //-- Building the request
     ptr = httpHdr->buffer;
     // Add the method line
-    ptr += sprintf( ptr, "%s %s HTTP/1.%u\r\n", httpHdr->method, uri, httpHdr->httpMinorVersion);//---minorVersion
+    ptr += sprintf( ptr, "%s %s HTTP/1.%u\r\n", httpHdr->method, uri,
+                httpHdr->httpMinorVersion);//---minorVersion
     
     field = httpHdr->firstField;
     // Add the field
@@ -826,5 +839,3 @@ int CdxHttpAuthenticate(CdxHttpHeaderT *httpHdr, CdxUrlT *url, int *authRetry)
     (*authRetry)++;
     return 0;
 }
-
-

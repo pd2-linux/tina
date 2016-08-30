@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxParser.c
+ * Description : Parser base
+ * History :
+ *
+ */
+
 #include <CdxParser.h>
 
 #include <CdxLog.h>
@@ -6,8 +16,6 @@
 
 #include <CdxStream.h>
 #include <dlfcn.h>
-#include <sys/time.h>
-
 
 struct CdxParserNodeS
 {
@@ -34,7 +42,6 @@ static struct ParserUriKeyInfoS asfKeyInfo =
     {NULL} /*attribute*/
 };
 
-#if (CONFIG_PRODUCT != OPTION_PRODUCT_LOUDSPEAKER)
 extern CdxParserCreatorT remuxParserCtor;
 static struct ParserUriKeyInfoS remuxKeyInfo =
 {
@@ -71,6 +78,7 @@ static struct ParserUriKeyInfoS tsKeyInfo =
     {NULL}   /*attribute*/
 };
 
+#ifdef __ANDROID__
 extern CdxParserCreatorT dashParserCtor;
 static struct ParserUriKeyInfoS dashKeyInfo =
 {
@@ -89,7 +97,8 @@ static struct ParserUriKeyInfoS movKeyInfo =
     {".mp4", ".mov", ".3gp"}, /*suffix*/
     {NULL}   /*attribute*/
 };
-#if (CONFIG_PRODUCT != OPTION_PRODUCT_LOUDSPEAKER)
+
+#if(CONFIG_MMS == OPTION_MMS_ENABLE)
 extern CdxParserCreatorT mmsParserCtor;
 static struct ParserUriKeyInfoS mmsKeyInfo =
 {
@@ -98,6 +107,7 @@ static struct ParserUriKeyInfoS mmsKeyInfo =
     {NULL}, /*suffix*/
     {NULL}   /*attribute*/
 };
+#endif
 
 extern CdxParserCreatorT hlsParserCtor;
 static struct ParserUriKeyInfoS hlsKeyInfo =
@@ -117,15 +127,16 @@ static struct ParserUriKeyInfoS mkvKeyInfo =
     {NULL}   /*attribute*/
 };
 
-//extern CdxParserCreatorT mpgParserCtor;
-//static struct ParserUriKeyInfoS mpgKeyInfo =
-//{
-//    "mpg",
-//    {NULL},  /*scheme*/ 
-//    {".vob", ".mpg", ".mpeg"}, /*suffix*/
-//    {NULL}   /*attribute*/
-//};
+extern CdxParserCreatorT mpgParserCtor;
+static struct ParserUriKeyInfoS mpgKeyInfo =
+{
+    "mpg",
+    {NULL},  /*scheme*/
+    {".vob", ".mpg", ".mpeg",".dat", ".m1v", ".m2v"}, /*suffix*/
+    {NULL}   /*attribute*/
+};
 
+#ifdef __ANDROID__
 extern CdxParserCreatorT bdParserCtor;
 static struct ParserUriKeyInfoS bdKeyInfo =
 {
@@ -154,7 +165,7 @@ static struct ParserUriKeyInfoS oggKeyInfo =
     {NULL}   /*attribute*/
 };
 
-#if (CONFIG_PRODUCT != OPTION_PRODUCT_LOUDSPEAKER)
+#ifdef __ANDROID__
 extern CdxParserCreatorT m3u9ParserCtor;
 static struct ParserUriKeyInfoS m3u9KeyInfo =
 {
@@ -219,8 +230,6 @@ static struct ParserUriKeyInfoS mp3KeyInfo =
     {NULL}   /*attribute*/
 };
 
-
-
 extern CdxParserCreatorT aacParserCtor;
 static struct ParserUriKeyInfoS aacKeyInfo =
 {
@@ -238,7 +247,8 @@ static struct ParserUriKeyInfoS wavKeyInfo =
     {".wav"}, /*suffix*/
     {NULL}   /*attribute*/
 };
-#if (CONFIG_PRODUCT != OPTION_PRODUCT_LOUDSPEAKER)
+
+#ifdef __ANDROID__
 extern CdxParserCreatorT mmshttpParserCtor;
 static struct ParserUriKeyInfoS mmshttpKeyInfo =
 {
@@ -266,6 +276,7 @@ static struct ParserUriKeyInfoS sstrKeyInfo =
     {NULL}   /*attribute*/
 };
 #endif
+
 extern CdxParserCreatorT cafParserCtor;
 static struct ParserUriKeyInfoS cafKeyInfo =
 {
@@ -301,7 +312,7 @@ static struct ParserUriKeyInfoS dsdKeyInfo =
     {NULL}   /*attribute*/
 };
 
-#if (CONFIG_PRODUCT != OPTION_PRODUCT_LOUDSPEAKER)
+#ifdef __ANDROID__
 extern CdxParserCreatorT wvmParserCtor;
 static struct ParserUriKeyInfoS wvmKeyInfo =
 {
@@ -320,7 +331,6 @@ static struct ParserUriKeyInfoS envKeyInfo =
     {NULL}   /*attribute*/
 };
 
-
 extern CdxParserCreatorT rawStreamParserCtor;
 static struct ParserUriKeyInfoS rawStreamKeyInfo =
 {
@@ -338,7 +348,6 @@ static struct ParserUriKeyInfoS specialStreamKeyInfo =
     {".awsp"}, /*suffix*/
     {NULL}   /*attribute*/
 };
-
 #endif
 
 int AwParserRegister(CdxParserCreatorT *creator, CdxParserTypeT type, 
@@ -368,77 +377,79 @@ cdx_void AwParserInit(cdx_void)
 #if (CONFIG_HAVE_LIVE555 == OPTION_HAVE_LIVE555)
     AwParserRegister(&remuxParserCtor, CDX_PARSER_REMUX, &remuxKeyInfo);
 #endif
-#if (CONFIG_PRODUCT != OPTION_PRODUCT_LOUDSPEAKER)
+
     AwParserRegister(&flvParserCtor, CDX_PARSER_FLV, &flvKeyInfo);
     AwParserRegister(&aviParserCtor, CDX_PARSER_AVI, &aviKeyInfo);
 
     AwParserRegister(&tsParserCtor, CDX_PARSER_TS, &tsKeyInfo);
-#if (CONFIG_OS != OPTION_OS_LINUX)
-//    AwParserRegister(&dashParserCtor, CDX_PARSER_DASH, &dashKeyInfo);
+
+#ifdef __ANDROID__
+    AwParserRegister(&dashParserCtor, CDX_PARSER_DASH, &dashKeyInfo);
 #endif
-//    AwParserRegister(&mmsParserCtor, CDX_PARSER_MMS, &mmsKeyInfo);
-//    AwParserRegister(&mmshttpParserCtor, CDX_PARSER_MMSHTTP, &mmshttpKeyInfo);
+
+#if(CONFIG_MMS == OPTION_MMS_ENABLE)
+    AwParserRegister(&mmsParserCtor, CDX_PARSER_MMS, &mmsKeyInfo);
+    AwParserRegister(&mmshttpParserCtor, CDX_PARSER_MMSHTTP, &mmshttpKeyInfo);
+#endif
+
 #if (CONFIG_HAVE_SSL == OPTION_HAVE_SSL)
     AwParserRegister(&hlsParserCtor, CDX_PARSER_HLS, &hlsKeyInfo);
 #endif
 
     AwParserRegister(&mkvParserCtor, CDX_PARSER_MKV, &mkvKeyInfo);
 
-//    AwParserRegister(&bdParserCtor, CDX_PARSER_BD, &bdKeyInfo);
-//    AwParserRegister(&pmpParserCtor, CDX_PARSER_PMP, &pmpKeyInfo);
+#ifdef __ANDROID__
+    AwParserRegister(&bdParserCtor, CDX_PARSER_BD, &bdKeyInfo);
+    AwParserRegister(&pmpParserCtor, CDX_PARSER_PMP, &pmpKeyInfo);
 #endif
 
     AwParserRegister(&oggParserCtor, CDX_PARSER_OGG, &oggKeyInfo);
 
-#if (CONFIG_PRODUCT != OPTION_PRODUCT_LOUDSPEAKER)
-//    AwParserRegister(&m3u9ParserCtor, CDX_PARSER_M3U9, &m3u9KeyInfo);
-//    AwParserRegister(&playlistParserCtor, CDX_PARSER_PLAYLIST, &playlistKeyInfo);
-#if (CONFIG_OS != OPTION_OS_LINUX)
-//    AwParserRegister(&wvmParserCtor, CDX_PARSER_WVM, &wvmKeyInfo);
-//	AwParserRegister(&envParserCtor, CDX_PARSER_ENV, &envKeyInfo);
+#ifdef __ANDROID__
+    AwParserRegister(&m3u9ParserCtor, CDX_PARSER_M3U9, &m3u9KeyInfo);
+    AwParserRegister(&playlistParserCtor, CDX_PARSER_PLAYLIST, &playlistKeyInfo);
+    AwParserRegister(&wvmParserCtor, CDX_PARSER_WVM, &wvmKeyInfo);
+    AwParserRegister(&envParserCtor, CDX_PARSER_ENV, &envKeyInfo);
 #endif
 
-//    AwParserRegister(&mpgParserCtor, CDX_PARSER_MPG, &mpgKeyInfo);
-
-#endif
-
+    AwParserRegister(&mpgParserCtor, CDX_PARSER_MPG, &mpgKeyInfo);
     AwParserRegister(&apeParserCtor, CDX_PARSER_APE, &apeKeyInfo);
     AwParserRegister(&flacParserCtor, CDX_PARSER_FLAC, &flacKeyInfo);
     AwParserRegister(&amrParserCtor, CDX_PARSER_AMR, &amrKeyInfo);
-
-//    AwParserRegister(&atracParserCtor, CDX_PARSER_ATRAC, &atracKeyInfo);
+#ifdef __ANDROID__
+    AwParserRegister(&atracParserCtor, CDX_PARSER_ATRAC, &atracKeyInfo);
+#endif
     AwParserRegister(&mp3ParserCtor, CDX_PARSER_MP3, &mp3KeyInfo);
     AwParserRegister(&aacParserCtor, CDX_PARSER_AAC, &aacKeyInfo);
     AwParserRegister(&wavParserCtor, CDX_PARSER_WAV, &wavKeyInfo);
-#if (CONFIG_PRODUCT != OPTION_PRODUCT_LOUDSPEAKER)
-//    AwParserRegister(&awtsParserCtor, CDX_PARSER_AWTS, &awtsKeyInfo);
-#if (CONFIG_OS != OPTION_OS_LINUX)
-//    AwParserRegister(&sstrParserCtor, CDX_PARSER_SSTR, &sstrKeyInfo);
+
+#ifdef __ANDROID__
+    AwParserRegister(&awtsParserCtor, CDX_PARSER_AWTS, &awtsKeyInfo);
+    AwParserRegister(&sstrParserCtor, CDX_PARSER_SSTR, &sstrKeyInfo);
+    AwParserRegister(&cafParserCtor, CDX_PARSER_CAF, &cafKeyInfo);
+    AwParserRegister(&g729ParserCtor, CDX_PARSER_G729, &g729KeyInfo);
+    AwParserRegister(&dsdParserCtor, CDX_PARSER_DSD, &dsdKeyInfo);
 #endif
+
+    AwParserRegister(&id3ParserCtor, CDX_PARSER_ID3, &id3KeyInfo);
+#ifdef __ANDROID__
+#if ENABLE_RAW_STREAM_PARSER
+    AwParserRegister(&rawStreamParserCtor, CDX_PARSER_AWRAWSTREAM, &rawStreamKeyInfo);
 #endif
-
-	AwParserRegister(&cafParserCtor, CDX_PARSER_CAF, &cafKeyInfo);
-
-
-//	AwParserRegister(&g729ParserCtor, CDX_PARSER_G729, &g729KeyInfo);
-//	AwParserRegister(&dsdParserCtor, CDX_PARSER_DSD, &dsdKeyInfo);
-	AwParserRegister(&id3ParserCtor, CDX_PARSER_ID3, &id3KeyInfo);
-//	AwParserRegister(&rawStreamParserCtor, CDX_PARSER_AWRAWSTREAM, &rawStreamKeyInfo);
-#if (CONFIG_PRODUCT != OPTION_PRODUCT_LOUDSPEAKER)
 #if ENABLE_SPECIAL_PARSER
-	AwParserRegister(&specialStreamParserCtor, CDX_PARSER_AWSPECIALSTREAM, &specialStreamKeyInfo);
+    AwParserRegister(&specialStreamParserCtor, CDX_PARSER_AWSPECIALSTREAM, &specialStreamKeyInfo);
 #endif //ENABLE_SPECIAL_PARSER
 #endif
-	CDX_LOGD("aw parser size:%d",parserList.size);
+    CDX_LOGD("aw parser size:%d",parserList.size);
     return ;
 }
 
 static struct CdxParserNodeS *ParserTypeGuess(cdx_char *uri)
 {
-	if(!uri)
-	{
-		return NULL;
-	}
+    if(!uri)
+    {
+        return NULL;
+    }
     char *myUri, *pos;
     char *scheme = NULL, *suffix = NULL, *attr = NULL;
     char *colon = NULL, *dot = NULL, *question = NULL;
@@ -549,117 +560,125 @@ out:
     }
     return retPsrNode;
 }
+
 CdxParserT *CdxParserCreate(CdxStreamT *stream, cdx_uint32 flags)
 {
-	cdx_char *sampleUri = NULL;
-	CdxStreamProbeDataT *probeData = NULL;
-	struct CdxParserNodeS *psrNode;
-	struct CdxParserNodeS *maxScoreNode = NULL;
-	cdx_uint32 score = 0, maxScore = 0;
+    cdx_char *sampleUri = NULL;
+    struct CdxParserNodeS *psrNode;
+    struct CdxParserNodeS *maxScoreNode = NULL;
+    cdx_uint32 score = 0, maxScore = 0;
     CdxParserT *parser = NULL;
+    CdxStreamProbeDataT *probeDataOld = NULL;
+    union {
+        CdxStreamProbeDataT probeData;
+        char buf[sizeof(*probeDataOld) + sizeof(probeDataOld->uri[0])];
+    } probeDataUnion;
+    CdxStreamProbeDataT *probeData = &probeDataUnion.probeData;
+
+    /*fast guess*/
+    CdxStreamGetMetaData(stream, STREAM_METADATA_REDIRECT_URI, (void **)&sampleUri);
+
+    if (!sampleUri)
+    {
+        CdxStreamGetMetaData(stream, STREAM_METADATA_ACCESSIBLE_URI, (void **)&sampleUri);
+    }
+    if (!sampleUri)
+    {
+        CdxStreamGetMetaData(stream, "uri", (void **)&sampleUri);
+    }
+
+    probeDataOld = CdxStreamGetProbeData(stream);
+    probeData->buf = probeDataOld->buf;
+    probeData->len = probeDataOld->len;
+    probeData->uri[0] = sampleUri;
+    psrNode = ParserTypeGuess(sampleUri);
+
+    if (psrNode)
+    {
+        if (psrNode->creator->probe(probeData) == 100)
+        {
+            maxScoreNode = psrNode;
+            goto found;
+        }
+    }
+
+    /*fast guess not work, should ask all parser*/
+    CdxListForEachEntry(psrNode, &parserList.list, node)
+    {
+        CDX_CHECK(psrNode->creator);
+        CDX_CHECK(psrNode->creator->probe);
+        score = psrNode->creator->probe(probeData);
         
-	/*fast guess*/
-	CdxStreamGetMetaData(stream, STREAM_METADATA_REDIRECT_URI, (void **)&sampleUri);
-	if (!sampleUri)
-	{
-		CdxStreamGetMetaData(stream, STREAM_METADATA_ACCESSIBLE_URI, (void **)&sampleUri);
-	}
-	if (!sampleUri)
-	{
-		CdxStreamGetMetaData(stream, "uri", (void **)&sampleUri);
-	}
-	//CDX_CHECK(sampleUri);
-	probeData = CdxStreamGetProbeData(stream);
-	psrNode = ParserTypeGuess(sampleUri);
-	if (psrNode)
-	{
-		if (psrNode->creator->probe(probeData) == 100)
-		{
-			maxScoreNode = psrNode;
-			goto found;
-		}
-	}
-	
-	/*fast guess not work, should ask all parser*/
-	CdxListForEachEntry(psrNode, &parserList.list, node)
-	{
-		CDX_CHECK(psrNode->creator);
-		CDX_CHECK(psrNode->creator->probe);
-		score = psrNode->creator->probe(probeData);
-		if (score == 100)
-		{
-			maxScoreNode = psrNode;
-			goto found;
-		}
-		else if(score > maxScore)
-		{
-			maxScore = score;
-			maxScoreNode = psrNode;
-		}
-		
-	}
-	if(!maxScoreNode)
-	{
-		CDX_LOGW("Sorry, I don't know what it is!");
-		return NULL;
-	}
+        if (score == 100)
+        {
+            maxScoreNode = psrNode;
+            goto found;
+        }
+        else if(score > maxScore)
+        {
+            maxScore = score;
+            maxScoreNode = psrNode;
+        }
+
+    }
+    if(!maxScoreNode)
+    {
+        CDX_LOGW("Sorry, I don't know what it is!");
+        return NULL;
+    }
 found:
-	CDX_LOGD("Good, it's '%s'", maxScoreNode->keyInfo->comment ? maxScoreNode->keyInfo->comment : "unknow");
+    CDX_LOGD("Good, it's '%s'",
+            maxScoreNode->keyInfo->comment ? maxScoreNode->keyInfo->comment : "unknow");
     parser = maxScoreNode->creator->create(stream, flags);
     parser->type = maxScoreNode->type;
     CDX_LOGD("parser type(%d)", parser->type);
-	return parser;
+    return parser;
 }
 int CdxParserOpen(CdxStreamT *stream, cdx_uint32 flags, pthread_mutex_t *mutex, cdx_bool *exit,
     CdxParserT **parser, ContorlTask *parserTasks)
 {
-	pthread_mutex_lock(mutex);
+    pthread_mutex_lock(mutex);
     if(exit && *exit)
     {
-    	CDX_LOGW("open parser user cancel.");
+        CDX_LOGW("open parser user cancel.");
         pthread_mutex_unlock(mutex);
-    	return -1;
+        return -1;
     }
     *parser = CdxParserCreate(stream, flags);
-	pthread_mutex_unlock(mutex);
+    pthread_mutex_unlock(mutex);
     if(!*parser)
     {
-    	CDX_LOGW("should not be here.");
-    	return -1;
+        CDX_LOGW("should not be here.");
+        return -1;
     }
-	int ret;
-	while(parserTasks)
-	{
-		ret = CdxParserControl(*parser, parserTasks->cmd, parserTasks->param);
-		if(ret < 0)
-		{
-			CDX_LOGE("CdxParserControl fail, cmd=%d", parserTasks->cmd);
-			return ret;
-		}
-		parserTasks = parserTasks->next;
-	}
+    int ret;
+    while(parserTasks)
+    {
+        ret = CdxParserControl(*parser, parserTasks->cmd, parserTasks->param);
+        if(ret < 0)
+        {
+            CDX_LOGE("CdxParserControl fail, cmd=%d", parserTasks->cmd);
+            return ret;
+        }
+        parserTasks = parserTasks->next;
+    }
     return CdxParserInit(*parser);
     
 }
-int CdxParserPrepare(CdxDataSourceT *source, cdx_uint32 flags, pthread_mutex_t *mutex, cdx_bool *exit,
-    CdxParserT **parser, CdxStreamT **stream, ContorlTask *parserTasks, ContorlTask *streamTasks)
+int CdxParserPrepare(CdxDataSourceT *source, cdx_uint32 flags, pthread_mutex_t *mutex,
+        cdx_bool *exit, CdxParserT **parser, CdxStreamT **stream, ContorlTask *parserTasks,
+        ContorlTask *streamTasks)
 {
     
     CDX_LOGD("source uri '%s'", source->uri);
-	struct timeval time1,time2,time3;
-	gettimeofday(&time1, NULL);
-	logd("in CdxParserPrepare() >>>  time1 = %ld seconds  %ld useconds",time1.tv_sec, time1.tv_usec);
     int ret = CdxStreamOpen(source, mutex, exit, stream, streamTasks);
     if (ret < 0)
     {
         CDX_LOGE("open stream fail, uri(%s)", source->uri);
         goto out;
     }
-	gettimeofday(&time2, NULL);
-	logd("in CdxParserPrepare() >>>  time2 = %ld seconds  %ld useconds",time2.tv_sec, time2.tv_usec);
+
     ret = CdxParserOpen(*stream, flags, mutex, exit, parser, parserTasks);
-	gettimeofday(&time3, NULL);
-	logd("in CdxParserPrepare() >>>  time3 = %ld seconds  %ld useconds",time3.tv_sec, time3.tv_usec);
     if (ret < 0)
     {
         CDX_LOGE("open parser fail, uri(%s)", source->uri);
@@ -669,4 +688,3 @@ int CdxParserPrepare(CdxDataSourceT *source, cdx_uint32 flags, pthread_mutex_t *
 out:
     return ret;
 }
-

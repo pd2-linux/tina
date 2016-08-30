@@ -82,4 +82,3 @@ int DemuxCompSetCacheStatReportInterval(DemuxComp* d, int ms);
 int DemuxCompSetCacheSize(DemuxComp* d, int nStartPlaySize, int nMaxBufferSize);
 
 #endif
-

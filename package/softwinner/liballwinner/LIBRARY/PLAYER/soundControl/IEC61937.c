@@ -75,5 +75,3 @@ int add61937Head(void *outint,void * tempshort, int samples)
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-

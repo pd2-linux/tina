@@ -1,14 +1,23 @@
+/*
+* Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+* All rights reserved.
+*
+* File : CdxAacParser.h
+* Description : Amr Parser
+* History :
+*
+*/
 #ifndef CDX_AAC_PARSER_H
 #define CDX_AAC_PARSER_H
 
 /* AAC file format */
 enum {
-	AAC_FF_Unknown = 0,		/* should be 0 on init */
+    AAC_FF_Unknown = 0,        /* should be 0 on init */
 
-	AAC_FF_ADTS = 1,
-	AAC_FF_ADIF = 2,
-	AAC_FF_RAW  = 3,
-	AAC_FF_LATM = 4
+    AAC_FF_ADTS = 1,
+    AAC_FF_ADIF = 2,
+    AAC_FF_RAW  = 3,
+    AAC_FF_LATM = 4
 
 };
 
@@ -16,9 +25,9 @@ enum {
 #define ERROR   0
 #define ERRORFAMENUM 10
 #define READLEN 4096 
-#define	AuInfTime  60
+#define    AuInfTime  60
 #define AAC_MAX_NCHANS 6
-#define AAC_MAINBUF_SIZE	(768 * AAC_MAX_NCHANS * 2)
+#define AAC_MAINBUF_SIZE    (768 * AAC_MAX_NCHANS * 2)
 
 typedef struct AacParserImplS
 {
@@ -26,7 +35,7 @@ typedef struct AacParserImplS
     CdxParserT  base;
     CdxStreamT  *stream;
 
-	pthread_cond_t cond;
+    pthread_cond_t cond;
     cdx_int64   ulDuration;//ms    
     cdx_int64   dFileSize;//total file length
     cdx_int64   dFileOffset; //now read location 
@@ -48,14 +57,13 @@ typedef struct AacParserImplS
     
 }AacParserImplS;
 
-
-
 static const int sampRateTab[12] = {
     96000, 88200, 64000, 48000, 44100, 32000, 
     24000, 22050, 16000, 12000, 11025,  8000
 };
   
-/* channel mapping (table 1.6.3.4) (-1 = unknown, so need to determine mapping based on rules in 8.5.1) */
+/* channel mapping (table 1.6.3.4) (-1 = unknown,
+ * so need to determine mapping based on rules in 8.5.1) */
 static const int channelMapTab[8] = {
     -1, 1, 2, 3, 4, 5, 6, 8
 };
@@ -82,25 +90,32 @@ typedef struct ADTSHeaderS {
     unsigned char ucHome;                           /* ignore */
     
     /* variable */
-    unsigned char ucCopyBit;                        /* 1 bit of the 72-bit copyright ID (transmitted as 1 bit per frame) */
-    unsigned char ucCopyStart;                      /* 1 = this bit starts the 72-bit ID, 0 = it does not */
+    /* 1 bit of the 72-bit copyright ID (transmitted as 1 bit per frame) */
+    unsigned char ucCopyBit;
+    /* 1 = this bit starts the 72-bit ID, 0 = it does not */
+    unsigned char ucCopyStart;
     int           nFrameLength;                    /* length of frame */
-    int           nBufferFull;                     /* number of 32-bit words left in enc buffer, 0x7FF = VBR */
+    /* number of 32-bit words left in enc buffer, 0x7FF = VBR */
+    int           nBufferFull;
     unsigned char ucRawDataBlocks;               /* number of raw data blocks in frame */
     
     /* CRC */
-    int           nCrcCheckWord;                   /* 16-bit CRC check word (present if ucProtectBit == 0) */
+    /* 16-bit CRC check word (present if ucProtectBit == 0) */
+    int           nCrcCheckWord;
 } ADTSHeaderT;
 
 typedef struct ADIFHeaderS {
-    unsigned char ucCopyBit;                        /* 0 = no copyright ID, 1 = 72-bit copyright ID follows immediately */
+    /* 0 = no copyright ID, 1 = 72-bit copyright ID follows immediately */
+    unsigned char ucCopyBit;
     unsigned char ucOrigCopy;                       /* 0 = copy, 1 = original */
     unsigned char ucHome;                           /* ignore */
     unsigned char ucBsType;                         /* bitstream type: 0 = CBR, 1 = VBR */
-    int           nBitRate;                        /* nBitRate: CBR = bits/sec, VBR = peak bits/frame, 0 = unknown */
-    unsigned char ucNumPCE;                         /* number of program config elements (max = 16) */
+    /* nBitRate: CBR = bits/sec, VBR = peak bits/frame, 0 = unknown */
+    int           nBitRate;
+
+    unsigned char ucNumPCE;                  /* number of program config elements (max = 16) */
     int           nBufferFull;                     /* bits left in bit reservoir */
-    unsigned char ucCopyID[AAC_ADIF_COPYID_SIZE];       /* optional 72-bit copyright ID */
+    unsigned char ucCopyID[AAC_ADIF_COPYID_SIZE];  /* optional 72-bit copyright ID */
 } ADIFHeaderT;
 
 #define IS_ADIF(p)    (((p)[0] == 'A') && ((p)[1] == 'D') && ((p)[2] == 'I') && ((p)[3] == 'F'))
@@ -130,25 +145,33 @@ typedef struct _BitStreamInfo {
 #define AAC_MAX_NUM_CCE     15
 /* sizeof(ProgConfigElementT) = 82 bytes (if KEEP_PCE_COMMENTS not defined) */
 typedef struct ProgConfigElementS {
-    unsigned char ucElemInstTag;                    /* element instance tag */
-    unsigned char ucProfile;                        /* 0 = main, 1 = LC, 2 = SSR, 3 = reserved */
-    unsigned char ucSampRateIdx;                    /* sample rate index range = [0, 11] */
-    unsigned char ucNumFCE;                         /* number of front channel elements (max = 15) */
-    unsigned char ucNumSCE;                         /* number of side channel elements (max = 15) */
-    unsigned char ucNumBCE;                         /* number of back channel elements (max = 15) */
-    unsigned char ucNumLCE;                         /* number of LFE channel elements (max = 3) */
-    unsigned char ucNumADE;                         /* number of associated data elements (max = 7) */
-    unsigned char ucNumCCE;                         /* number of valid channel coupling elements (max = 15) */
-    unsigned char ucMonoMixdown;                    /* mono mixdown: bit 4 = present flag, bits 3-0 = element number */
-    unsigned char ucStereoMixdown;                  /* stereo mixdown: bit 4 = present flag, bits 3-0 = element number */
-    unsigned char ucMatrixMixdown;                  /* matrix mixdown: bit 4 = present flag, bit 3 = unused, 
-                                                                     bits 2-1 = index, bit 0 = pseudo-surround enable */
-    unsigned char ucFce[AAC_MAX_NUM_FCE];               /* front element channel pair: bit 4 = ucSce/CPE flag, bits 3-0 = inst tag */
-    unsigned char ucSce[AAC_MAX_NUM_SCE];               /* side element channel pair: bit 4 = ucSce/CPE flag, bits 3-0 = inst tag */
-    unsigned char ucBce[AAC_MAX_NUM_BCE];               /* back element channel pair: bit 4 = ucSce/CPE flag, bits 3-0 = inst tag */
-    unsigned char ucLce[AAC_MAX_NUM_LCE];               /* instance tag for LFE elements */
-    unsigned char ucAde[AAC_MAX_NUM_ADE];               /* instance tag for ucAde elements */
-    unsigned char ucCce[AAC_MAX_NUM_BCE];               /* channel coupling elements: bit 4 = switching flag, bits 3-0 = inst tag */
+    unsigned char ucElemInstTag;                /* element instance tag */
+    unsigned char ucProfile;                    /* 0 = main, 1 = LC, 2 = SSR, 3 = reserved */
+    unsigned char ucSampRateIdx;                /* sample rate index range = [0, 11] */
+    unsigned char ucNumFCE;                     /* number of front channel elements (max = 15) */
+    unsigned char ucNumSCE;                     /* number of side channel elements (max = 15) */
+    unsigned char ucNumBCE;                     /* number of back channel elements (max = 15) */
+    unsigned char ucNumLCE;                     /* number of LFE channel elements (max = 3) */
+    unsigned char ucNumADE;                     /* number of associated data elements (max = 7) */
+    unsigned char ucNumCCE;                     /* number of valid channel coupling elements
+                                                   (max = 15) */
+    unsigned char ucMonoMixdown;                /* mono mixdown: bit 4 = present flag,
+                                                   bits 3-0 = element number */
+    unsigned char ucStereoMixdown;              /* stereo mixdown: bit 4 = present flag,
+                                                   bits 3-0 = element number */
+    unsigned char ucMatrixMixdown;              /* matrix mixdown: bit 4 = present flag,
+                                                   bit 3 = unused, bits 2-1 = index,
+                                                   bit 0 = pseudo-surround enable */
+    unsigned char ucFce[AAC_MAX_NUM_FCE];       /* front element channel pair:
+                                                   bit 4 = ucSce/CPE flag, bits 3-0 = inst tag */
+    unsigned char ucSce[AAC_MAX_NUM_SCE];       /* side element channel pair:
+                                                   bit 4 = ucSce/CPE flag, bits 3-0 = inst tag */
+    unsigned char ucBce[AAC_MAX_NUM_BCE];       /* back element channel pair:
+                                                   bit 4 = ucSce/CPE flag, bits 3-0 = inst tag */
+    unsigned char ucLce[AAC_MAX_NUM_LCE];       /* instance tag for LFE elements */
+    unsigned char ucAde[AAC_MAX_NUM_ADE];       /* instance tag for ucAde elements */
+    unsigned char ucCce[AAC_MAX_NUM_BCE];       /* channel coupling elements:
+                                                   bit 4 = switching flag, bits 3-0 = inst tag */
 
 #ifdef KEEP_PCE_COMMENTS
     /* make this optional - if not enabled, decoder will just skip comments */
@@ -157,7 +180,5 @@ typedef struct ProgConfigElementS {
 #endif
 
 } ProgConfigElementT;
-
-	
 
 #endif

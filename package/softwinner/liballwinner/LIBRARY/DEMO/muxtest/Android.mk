@@ -36,4 +36,3 @@ LOCAL_SHARED_LIBRARIES := \
 LOCAL_MODULE:= muxerdemo
 
 include $(BUILD_EXECUTABLE)
-

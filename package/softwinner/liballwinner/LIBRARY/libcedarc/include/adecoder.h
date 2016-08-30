@@ -312,13 +312,13 @@ typedef	struct __BsInFor
     int		Samplerate;
     int		bitrate;
     int		chan;
-    int 	CBRflag;//1 cbr 0 vbr
+    int		CBRflag;//1 cbr 0 vbr
     int		framesize;
     int		framecount;
-    int 	oldfs;
+    int		oldfs;
     int		oldbs;
-    int 	firstflag;	
-    int 	framepcms;
+    int		firstflag;
+    int		framepcms;
     int		modeflag;//flag 0bits: 1:raw data 0:pcm
     int		ulMode;//decode flag 0:pcm ,>raw data out ,1:hdmi,2:spdif
     int		bitpersample;//bits per sample

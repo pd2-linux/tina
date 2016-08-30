@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxBinary.h
+ * Description : Binary
+ * History :
+ *
+ */
+
 #ifndef CDX_BINARY_H
 #define CDX_BINARY_H
 #include <CdxTypes.h>

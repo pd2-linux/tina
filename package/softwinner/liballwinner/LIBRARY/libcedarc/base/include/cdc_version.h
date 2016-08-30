@@ -1,3 +1,17 @@
+/*
+* Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+* All rights reserved.
+*
+* File : cdc_version.h
+* Description :
+* History :
+*   Author  : xyliu <xyliu@allwinnertech.com>
+*   Date    : 2016/04/13
+*   Comment :
+*
+*
+*/
+
 #ifndef CDC_VERSION_H
 #define CDC_VERSION_H
 
@@ -5,10 +19,10 @@
 extern "C" {
 #endif
 
-#define REPO_TAG "CedarC-2.6-v0.2"
+#define REPO_TAG ""
 #define REPO_BRANCH "master"
-#define REPO_COMMIT "0ac3eef64fa4dc07195ed3dd4db8e2fa6d6b0b29"
-#define REPO_DATE "Fri Mar 25 14:27:51 2016 +0800"
+#define REPO_COMMIT "37750eaf3d05a6a4b4ac1cfc2d757c034e722851"
+#define REPO_DATE ""
 #define RELEASE_AUTHOR "jenkins"
 
 static inline void LogVersionInfo(void)
@@ -39,4 +53,3 @@ static inline void LogVersionInfo(void)
 #endif
 
 #endif
-

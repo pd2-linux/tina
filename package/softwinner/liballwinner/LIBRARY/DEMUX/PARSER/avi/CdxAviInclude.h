@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxAviInclude.h
+ * Description : Part of avi parser.
+ * History :
+ *
+ */
+
 #ifndef _CDX_AVI_INCLUDE_H
 #define _CDX_AVI_INCLUDE_H
 

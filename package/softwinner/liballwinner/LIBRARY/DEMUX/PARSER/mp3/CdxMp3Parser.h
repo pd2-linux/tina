@@ -1,3 +1,14 @@
+/*
+* Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+* All rights reserved.
+*
+* File : CdxMp3Parser.h
+* Description :
+* History :
+*   Author  : Khan <chengkan@allwinnertech.com>
+*   Date    : 2014/08/08
+*/
+
 #ifndef _CDX_MP3_PARSER_H_
 #define _CDX_MP3_PARSER_H_
 
@@ -15,10 +26,9 @@
 #define MPA_DUAL                2
 #define MPA_MONO                3
 
-#define	INFLEN	1024*8
+#define    INFLEN    1024*8
 #define ID3TAGNUM 8
 #define SKIPLEN 1024
-
 
 #define MKTAG(a,b,c,d) ((a) | ((b) << 8) | ((c) << 16) | ((unsigned)(d) << 24))
 
@@ -47,7 +57,7 @@ const uint16_t CdxMpaBitrateTab[2][3][15] = {
     int lsf;
 
 typedef struct MPADecodeHeader {
-  MPADECODEHEADER
+    MPADECODEHEADER
 } MPADecodeHeader;
 #if 0
 static int CdxId3v2Match(const cdx_uint8 *buf)
@@ -73,20 +83,17 @@ static int CdxId3v2TagLen(const uint8_t * buf)
     
     if (buf[5] & 0x10)
         len += ID3v2_HEADER_SIZE;
-    
     return len;
 }
 #endif
 
 typedef struct __language_coding
 {
-	cdx_int8 language[4];
-	cdx_int32  coding;
+    cdx_int8 language[4];
+    cdx_int32  coding;
 }anguage_coding_s;
 
-
-typedef enum
-{
+typedef enum {
     IMG_FORMAT_BMP =0,
     IMG_FORMAT_JPG,
     IMG_FORMAT_GIF,
@@ -106,7 +113,6 @@ typedef struct CDX_ID3_IMAGE_INFO
 
 }cdx_id3_image_info_t;
 
-
 typedef struct XINGSeeker {
     int64_t mFirstFramePos;
     int64_t mDurationUs;
@@ -122,7 +128,7 @@ typedef struct XINGSeeker {
 typedef struct VBRISeeker {
     int64_t     mBasePos;
     int64_t     mDurationUs;
-	cdx_uint32  mSegmentsize;
+    cdx_uint32  mSegmentsize;
     cdx_uint32  mSegments[1024];
 }VBRISeeker;
 
@@ -135,7 +141,7 @@ typedef struct MP3ParserImpl{
     int             mErrno;    // errno
     int             exitFlag;
 
-	pthread_cond_t  cond;
+    pthread_cond_t  cond;
 
     XINGSeeker      *mXINGSeeker;
     VBRISeeker      *mVBRISeeker;
@@ -155,7 +161,6 @@ typedef struct MP3ParserImpl{
     cdx_uint32      mSeeking;
     cdx_int64       mSeekingTime;
     int             teeFd;
-    
 } MP3ParserImpl;
 
 #endif

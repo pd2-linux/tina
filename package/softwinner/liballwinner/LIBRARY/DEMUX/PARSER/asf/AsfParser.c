@@ -1,3 +1,14 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : AsfParser.c
+ * Description : AsfParser
+ * Author  : xuqi <xuqi@allwinnertech.com>
+ * Comment : 创建初始版本
+ *
+ */
+
 #include <CdxLog.h>
 #include <CdxBinary.h>
 #include <CdxDebug.h>
@@ -103,7 +114,8 @@ static cdx_int32 PsrDataAudioStream(cdx_uint8 *data, int dataSize, AsfMediaStrea
     if (codec->extradata_size) 
     {
         codec->extradata = malloc(codec->extradata_size + ASF_INPUT_BUFFER_PADDING_SIZE);
-        memcpy(codec->extradata, data + dataPos, codec->extradata_size); dataPos += codec->extradata_size;
+        memcpy(codec->extradata, data + dataPos, codec->extradata_size);
+             dataPos += codec->extradata_size;
     }
 
     switch (id)
@@ -214,7 +226,8 @@ static cdx_int32 PsrDataVideoStream(cdx_uint8 *data, cdx_int32 dataLen, AsfMedia
     
     /* not available for asf */
     dataPos += 2; /* Reserved */
-    avStream->codec.bits_per_sample = GetLE16(data + dataPos); dataPos += 2; /* Bits Per Pixel Count */
+    avStream->codec.bits_per_sample = GetLE16(data + dataPos); dataPos += 2;
+   /* Bits Per Pixel Count */
     avStream->codec.codec_tag = GetLE32(data + dataPos); dataPos += 4;
 
     dataPos += 20;  /*Image Size */
@@ -226,7 +239,8 @@ static cdx_int32 PsrDataVideoStream(cdx_uint8 *data, cdx_int32 dataLen, AsfMedia
     {
         avStream->codec.extradata_size = formatDataSize - 40;
         avStream->codec.extradata = malloc(avStream->codec.extradata_size);
-        memcpy(avStream->codec.extradata, data + dataPos, avStream->codec.extradata_size); dataPos += avStream->codec.extradata_size;
+        memcpy(avStream->codec.extradata, data + dataPos, avStream->codec.extradata_size);
+             dataPos += avStream->codec.extradata_size;
     }
     CDX_BUF_DUMP(avStream->codec.extradata, avStream->codec.extradata_size);
     switch (avStream->codec.codec_tag)
@@ -347,6 +361,10 @@ static cdx_int32 PsrDataVideoStream(cdx_uint8 *data, cdx_int32 dataLen, AsfMedia
         avStream->codec.codec_id = VIDEO_CODEC_FORMAT_WMV1;
         break;
 
+    case MKTAG('M', 'P', 'G', '4'):
+        avStream->codec.codec_id = VIDEO_CODEC_FORMAT_MSMPEG4V1;
+        break;
+
     default:
         avStream->codec.codec_id = VIDEO_CODEC_FORMAT_UNKNOWN;
         break;
@@ -391,7 +409,8 @@ static cdx_int32 PsrObjStream(AsfContextT *ctx, cdx_int64 objSize)
     }
 
     avStream = malloc(sizeof(*avStream));
-    CDX_LOG_CHECK(avStream, "malloc failure, errno(%d), size(%d)", errno, (unsigned int)(sizeof(*avStream)));
+    CDX_LOG_CHECK(avStream, "malloc failure, errno(%d), size(%d)",
+                errno, (unsigned int)(sizeof(*avStream)));
     memset(avStream, 0x00, sizeof(*avStream));
 
     if(!(ctx->hdr.flags & 0x01)) 
@@ -424,7 +443,8 @@ static cdx_int32 PsrObjStream(AsfContextT *ctx, cdx_int64 objSize)
             ctx->audioNum++;
             ctx->nb_streams++;
 
-            ctx->asfid2avid[avStream->id] = ctx->nb_streams - 1; /* mapping of asf ID to AV stream ID; */
+            ctx->asfid2avid[avStream->id] = ctx->nb_streams - 1;
+         /* mapping of asf ID to AV stream ID; */
             ctx->streams[ctx->nb_streams - 1] = avStream;
             avStream->typeIndex = ctx->audioNum - 1;
         }
@@ -438,7 +458,8 @@ static cdx_int32 PsrObjStream(AsfContextT *ctx, cdx_int64 objSize)
             ctx->videoNum++;
             ctx->nb_streams++;
 
-            ctx->asfid2avid[avStream->id] = ctx->nb_streams - 1; /* mapping of asf ID to AV stream ID; */
+            ctx->asfid2avid[avStream->id] = ctx->nb_streams - 1;
+         /* mapping of asf ID to AV stream ID; */
             ctx->streams[ctx->nb_streams - 1] = avStream;
             avStream->typeIndex = ctx->videoNum - 1;
         }
@@ -498,7 +519,8 @@ cdx_int32 AsfReadHeader(AsfContextT *ctx)
         if (!memcmp(&guid, &data_header, sizeof(AsfGuid))) 
         {
             ctx->data_object_offset = CdxStreamTell(ioStream);
-            // if not streaming, asfGsize is not unlimited (how?), and there is enough space in the file..
+            // if not streaming, asfGsize is not unlimited (how?),
+            //and there is enough space in the file..
             if (!(ctx->hdr.flags & 0x01) && asfGsize >= 100)
             {
                 ctx->dataObjectSize = asfGsize - 24;
@@ -512,7 +534,8 @@ cdx_int32 AsfReadHeader(AsfContextT *ctx)
         
         if (asfGsize < 24)
         {
-            CDX_LOGE("invalid file (%lld, %lld), asfGsize(%lld)", CdxStreamTell(ioStream), ctx->fileSize, asfGsize);            
+            CDX_LOGE("invalid file (%lld, %lld), asfGsize(%lld)",
+                 CdxStreamTell(ioStream), ctx->fileSize, asfGsize);
             //goto fail; //*rtsp
         }
          
@@ -533,9 +556,9 @@ cdx_int32 AsfReadHeader(AsfContextT *ctx)
             
             ctx->packet_size = ctx->hdr.max_pktsize;
             if(ctx->hdr.play_time)
-            	ctx->durationMs = ctx->hdr.play_time/10000 - ctx->hdr.preroll; /* 100-nanoseconds  */
+               ctx->durationMs = ctx->hdr.play_time/10000 - ctx->hdr.preroll; /* 100-nanoseconds  */
             else
-            	ctx->durationMs = 0;
+               ctx->durationMs = 0;
             logd("++++ durationMs: %lld", ctx->durationMs);
         } 
         else if (!memcmp(&guid, &stream_header, sizeof(AsfGuid)))
@@ -562,7 +585,7 @@ cdx_int32 AsfReadHeader(AsfContextT *ctx)
             cdx_int32 stream_count = CdxStreamGetLE16(ioStream);
             cdx_int32 j;
 
-			ctx->totalBitRate = 0;
+         ctx->totalBitRate = 0;
             for (j = 0; j < stream_count; j++) 
             {
                 cdx_int32 flags, bitrate, stream_id;
@@ -615,7 +638,8 @@ cdx_int32 AsfReadHeader(AsfContextT *ctx)
                 value_len=  CdxStreamGetLE32(ioStream);
 
                 CdxStreamSkip(ioStream, name_len);
-                CdxStreamGetLE16(ioStream);//we should use get_value() here but it does not work 2 is le16 here but le32 elsewhere
+                CdxStreamGetLE16(ioStream);
+            //we should use get_value() here but it does not work 2 is le16 here but le32 elsewhere
                 CdxStreamSkip(ioStream, value_len - 2);
             }
         } 
@@ -633,7 +657,8 @@ cdx_int32 AsfReadHeader(AsfContextT *ctx)
             CdxStreamGetLE32(ioStream); // alt-bucket-datasize
             CdxStreamGetLE32(ioStream); // alt-init-bucket-fullness
             CdxStreamGetLE32(ioStream); // max-object-size
-            CdxStreamGetLE32(ioStream); // flags (reliable,seekable,no_cleanpoints?,resend-live-cleanpoints, rest of bits reserved)
+            CdxStreamGetLE32(ioStream);
+         // flags (reliable,seekable,no_cleanpoints?,resend-live-cleanpoints, rest of bits reserved)
             streamNum = CdxStreamGetLE16(ioStream); // stream-num
             CdxStreamGetLE16(ioStream); // stream-language-id-index
             CdxStreamGetLE64(ioStream); // avg frametime in 100ns units
@@ -723,12 +748,12 @@ fail:
         AsfMediaStreamT *avStream = ctx->streams[i];
         if (avStream) 
         {
-        	if (avStream->codec.extradata)
+           if (avStream->codec.extradata)
             {
-        		free(avStream->codec.extradata);
-        		avStream->codec.extradata = NULL;
-        	}
-        	free(avStream);
+              free(avStream->codec.extradata);
+              avStream->codec.extradata = NULL;
+           }
+           free(avStream);
         }
         ctx->streams[i] = NULL;
     }
@@ -854,7 +879,8 @@ static cdx_int32 AsfReadFrameHeader(AsfContextT *ctx)
         if (ctx->packet_obj_size >= (1 << 24) || ctx->packet_obj_size <= 0)
         {
             PrintCurPkt(ctx);
-            CDX_LOGE("packet_obj_size(%d) invalid, pos(%lld)", ctx->packet_obj_size, CdxStreamTell(ioStream));
+            CDX_LOGE("packet_obj_size(%d) invalid, pos(%lld)",
+                 ctx->packet_obj_size, CdxStreamTell(ioStream));
             CDX_LOGE("stream_index(%d) num(%d)", ctx->stream_index, num & 0x7f);
             return -1;
         }
@@ -899,7 +925,8 @@ static cdx_int32 AsfReadFrameHeader(AsfContextT *ctx)
         ctx->packet_multi_size = ctx->packet_frag_size;
         if (ctx->packet_multi_size > ctx->packet_size_left)
         {
-            CDX_LOGE("invilad packet multi size, (%d, %d)", ctx->packet_multi_size, ctx->packet_size_left);
+            CDX_LOGE("invilad packet multi size, (%d, %d)",
+                 ctx->packet_multi_size, ctx->packet_size_left);
             return -1;
         }
     }
@@ -976,7 +1003,7 @@ cdx_int32 AsfReadPacket(AsfContextT *ctx)
             if (ctx->stream_index == (cdx_int8)0xff)
             {
                 CDX_LOGE("invalid stream index(%d)-----------", ctx->stream_index);
-            	CdxStreamSkip(ioStream, ctx->packet_frag_size);
+               CdxStreamSkip(ioStream, ctx->packet_frag_size);
                 ctx->packet_size_left -= ctx->packet_frag_size;
                 continue;
             }
@@ -993,7 +1020,8 @@ cdx_int32 AsfReadPacket(AsfContextT *ctx)
             
             if (ctx->asf_st->discard_data)
             {
-                if (!ctx->packet_key_frame || (ctx->packet_key_frame && ctx->packet_frag_offset != 0))
+                if (!ctx->packet_key_frame
+               || (ctx->packet_key_frame && ctx->packet_frag_offset != 0))
                 {
                     ctx->packet_time_start = 0;
                     CdxStreamSkip(ioStream, ctx->packet_frag_size);
@@ -1156,7 +1184,8 @@ static void AsfBuildSimpleIndex(AsfContextT *ctx)
         {
             asfGsize = CdxStreamGetLE64(ctx->ioStream);
             CdxStreamSkip(ctx->ioStream, 16); /* file id */
-            ctx->itimeMs = (int) (CdxStreamGetLE64(ctx->ioStream) / 10000); /* Index Entry Time Interval */
+            ctx->itimeMs = (int) (CdxStreamGetLE64(ctx->ioStream) / 10000);
+            /* Index Entry Time Interval */
             CdxStreamSkip(ctx->ioStream, 4); /* Maximum Packet Count */
             
             ctx->ict = CdxStreamGetLE32(ctx->ioStream);
@@ -1209,46 +1238,48 @@ static cdx_int32 AsfSeekToTime(AsfContextT *ctx, cdx_int32 seconds)
     {
         cdx_int32 *PktIdxPtr = (cdx_int32*)((uintptr_t)ctx->index_ptr);
         cdx_int32 packetnum;
-		cdx_int32 seek_temp_time;
-		cdx_int32 tmp_index_number = 0;
+      cdx_int32 seek_temp_time;
+      cdx_int32 tmp_index_number = 0;
 
-		seconds += (ctx->hdr.preroll)/1000;
-		times = (seconds * 1000) / ctx->itimeMs;
+      seconds += (ctx->hdr.preroll)/1000;
+      times = (seconds * 1000) / ctx->itimeMs;
 		
-		if (times >= ctx->ict)
-		{
-		    times = ctx->ict - 1;
-		}
+      if (times >= ctx->ict)
+      {
+          times = ctx->ict - 1;
+      }
 		
         ctx->curr_key_tbl_idx = times;
         packetnum = *(PktIdxPtr + ctx->curr_key_tbl_idx);
         pos = ctx->data_offset + ctx->packet_size*(cdx_int64)packetnum;
         CdxStreamSeek(ctx->ioStream, pos, SEEK_SET);
 
-		AsfResetHeader(ctx);
-		AsfGetPacket(ctx);
-	    AsfReadFrameHeader(ctx);
-		seek_temp_time = (cdx_int32)(ctx->packet_frag_timestamp/1000);
-		CdxStreamSeek(ctx->ioStream, pos, SEEK_SET);
+      AsfResetHeader(ctx);
+      AsfGetPacket(ctx);
+       AsfReadFrameHeader(ctx);
+      seek_temp_time = (cdx_int32)(ctx->packet_frag_timestamp/1000);
+      CdxStreamSeek(ctx->ioStream, pos, SEEK_SET);
 
-		if(seek_temp_time != seconds)
-		{
-			if(seek_temp_time < seconds)  
-			{
-				tmp_index_number = (times + seconds - seek_temp_time) < ctx->ict ? (times + seconds - seek_temp_time) : (ctx->ict - 1);
-			}
+      if(seek_temp_time != seconds)
+      {
+         if(seek_temp_time < seconds)
+         {
+            tmp_index_number = (times + seconds - seek_temp_time) < ctx->ict ?
+                              (times + seconds - seek_temp_time) : (ctx->ict - 1);
+         }
 
-			if(seek_temp_time > seconds)
-			{
-				tmp_index_number = (times - (seek_temp_time - seconds)) >= 0 ? (times - (seek_temp_time - seconds)) : 0;
+         if(seek_temp_time > seconds)
+         {
+            tmp_index_number = (times - (seek_temp_time - seconds)) >= 0 ?
+                              (times - (seek_temp_time - seconds)) : 0;
 
-			}
+         }
 			
-			ctx->curr_key_tbl_idx = tmp_index_number;
+         ctx->curr_key_tbl_idx = tmp_index_number;
             packetnum = *(PktIdxPtr + ctx->curr_key_tbl_idx);
             pos = ctx->data_offset + ctx->packet_size*(cdx_int64)packetnum;
             CdxStreamSeek(ctx->ioStream, pos, SEEK_SET);			
-		}
+      }
 
         AsfResetHeader(ctx);
     }
@@ -1258,13 +1289,13 @@ static cdx_int32 AsfSeekToTime(AsfContextT *ctx, cdx_int32 seconds)
         cdx_int32 curr_seconds;
         cdx_int32 cmpflag = 0;
 
-		if(ctx->nb_packets != 0xffffffff)
-		{
-        	startpkt = (cdx_int32)(ctx->nb_packets * seconds / ctx->durationMs);//from packet
+      if(ctx->nb_packets != 0xffffffff)
+      {
+           startpkt = (cdx_int32)(ctx->nb_packets * seconds / ctx->durationMs);//from packet
         }
         else if(ctx->totalBitRate)
         {
-        	startpkt = ctx->totalBitRate * seconds / 8 / ctx->packet_size;
+           startpkt = ctx->totalBitRate * seconds / 8 / ctx->packet_size;
         }
 
         while (1)
@@ -1272,7 +1303,8 @@ static cdx_int32 AsfSeekToTime(AsfContextT *ctx, cdx_int32 seconds)
             pos = ctx->data_offset + ctx->packet_size * (cdx_int64)startpkt;
             if (CdxStreamSeek(ctx->ioStream, pos, SEEK_SET) < 0)
             {
-                CDX_LOGW("CdxStreamSeek error! pos[%x,%x]", (cdx_uint32)(pos>>32), (cdx_uint32)pos);
+                CDX_LOGW("CdxStreamSeek error! pos[%x,%x]",
+                    (cdx_uint32)(pos>>32), (cdx_uint32)pos);
                 return -1;
             }
             AsfResetHeader(ctx);
@@ -1309,7 +1341,8 @@ static cdx_int32 AsfSeekToTime(AsfContextT *ctx, cdx_int32 seconds)
         pos = ctx->data_offset + ctx->packet_size * (cdx_int64)startpkt;
         if (CdxStreamSeek(ctx->ioStream, pos, SEEK_SET) < 0)
         {
-            CDX_LOGW("CdxStreamSeek error! pos[%x,%x]\n", (cdx_uint32)(pos>>32), (cdx_uint32)pos);
+            CDX_LOGW("CdxStreamSeek error! pos[%x,%x]\n",
+                 (cdx_uint32)(pos>>32), (cdx_uint32)pos);
             return -1;
         }
 
@@ -1329,7 +1362,8 @@ static cdx_int32 AsfSeekToTime(AsfContextT *ctx, cdx_int32 seconds)
                 pos = ctx->data_offset + ctx->packet_size * (cdx_int64)startpkt;                
                 if(CdxStreamSeek(ctx->ioStream, pos, SEEK_SET) < 0)
                 {
-                    CDX_LOGW("CdxStreamSeek error! pos[%x,%x]\n", (cdx_uint32)(pos>>32), (cdx_uint32)pos);
+                    CDX_LOGW("CdxStreamSeek error! pos[%x,%x]\n",
+                      (cdx_uint32)(pos>>32), (cdx_uint32)pos);
                     return -1;
                 }
             }
@@ -1361,7 +1395,7 @@ int AsfPsrCoreOpen(AsfContextT *ctx, CdxStreamT *stream)
 {
     ctx->ioStream = stream;
 
-	ctx->seekAble = CdxStreamSeekAble(stream);
+   ctx->seekAble = CdxStreamSeekAble(stream);
     ctx->fileSize = CdxStreamSize(stream);
     if (ctx->fileSize == -1)
     {
@@ -1402,7 +1436,8 @@ AsfContextT *AsfPsrCoreInit(void)
     AsfContextT *ctx;
 
     ctx = malloc(sizeof(*ctx));
-    CDX_LOG_CHECK(ctx, "malloc failure, size(%d), errno(%d)", (unsigned int)(sizeof(*ctx)), errno);
+    CDX_LOG_CHECK(ctx, "malloc failure, size(%d), errno(%d)",
+               (unsigned int)(sizeof(*ctx)), errno);
     memset(ctx, 0, sizeof(*ctx));
     
     return ctx;
@@ -1431,7 +1466,7 @@ int AsfPsrCoreIoctrl(AsfContextT *ctx, cdx_uint32 uCmd, cdx_uint32 uParam)
         seekPosUs = *(cdx_int64 *)(uintptr_t)uParam;
 
         int seconds;
-		int ret;
+      int ret;
 
         seconds = seekPosUs / 1000000;
 
@@ -1460,4 +1495,3 @@ int AsfPsrCoreIoctrl(AsfContextT *ctx, cdx_uint32 uCmd, cdx_uint32 uParam)
 
     return 0;
 }
-

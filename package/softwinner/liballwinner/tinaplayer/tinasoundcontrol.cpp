@@ -2,6 +2,7 @@
 #include "tinasoundcontrol.h"
 #include <pthread.h>
 #include <sys/time.h>
+#include <assert.h>
 #include "log.h"
 
 namespace aw{
@@ -10,11 +11,11 @@ namespace aw{
 	static int openSoundDevice(SoundCtrlContext* sc, bool isOpenForPlay ,int mode);
 	static int closeSoundDevice(SoundCtrlContext* sc);
 	static int setSoundDeviceParams(SoundCtrlContext* sc);
-
 	static int openSoundDevice(SoundCtrlContext* sc , bool isOpenForPlay,int mode)
 	{
 		int ret = 0;
 		logd("openSoundDevice() in dmix style");
+		assert(sc);
 		if(!sc->alsa_handler){
 			if(isOpenForPlay){
 				//if((ret = snd_pcm_open(&sc->alsa_handler, "default",SND_PCM_STREAM_PLAYBACK ,mode))<0){
@@ -45,6 +46,7 @@ namespace aw{
 	{
 		int ret = 0;
 		logd("closeSoundDevice()");
+		assert(sc);
 		if (sc->alsa_handler){
 			if ((ret = snd_pcm_close(sc->alsa_handler)) < 0) 
 	        {
@@ -63,6 +65,11 @@ namespace aw{
 	{
 		int ret = 0;
 		logd("setSoundDeviceParams()");
+		assert(sc);
+		sc->bytes_per_sample = snd_pcm_format_physical_width(sc->alsa_format) / 8;
+	    sc->bytes_per_sample *= sc->nChannelNum;
+		sc->alsa_fragcount = 8;
+        sc->chunk_size = 1024;
 		if ((ret = snd_pcm_hw_params_malloc(&sc->alsa_hwparams)) < 0)
 		{
 			loge("snd_pcm_hw_params_malloc failed:%s",strerror(errno));
@@ -72,14 +79,14 @@ namespace aw{
 		if ((ret = snd_pcm_hw_params_any(sc->alsa_handler, sc->alsa_hwparams)) < 0) 
         {
 			loge("snd_pcm_hw_params_any failed:%s",strerror(errno));
-			return ret;
+			goto SET_PAR_ERR;
         }
 		
 		if ((ret = snd_pcm_hw_params_set_access(sc->alsa_handler, sc->alsa_hwparams,
                     SND_PCM_ACCESS_RW_INTERLEAVED)) < 0) 
         {
 			loge("snd_pcm_hw_params_set_access failed:%s",strerror(errno));
-			return ret;
+			goto SET_PAR_ERR;
         }
 
 		if ((ret = snd_pcm_hw_params_test_format(sc->alsa_handler, sc->alsa_hwparams,
@@ -93,30 +100,25 @@ namespace aw{
                     sc->alsa_format)) < 0) 
         {
             loge("snd_pcm_hw_params_set_format failed:%s",strerror(errno));
-            return ret;
+            goto SET_PAR_ERR;
         }
 
         if ((ret = snd_pcm_hw_params_set_channels_near(sc->alsa_handler,
                 sc->alsa_hwparams, &sc->nChannelNum)) < 0) {
             loge("snd_pcm_hw_params_set_channels_near failed:%s",strerror(errno));
-            return ret;
+            goto SET_PAR_ERR;
         }
 
 		if ((ret = snd_pcm_hw_params_set_rate_near(sc->alsa_handler, sc->alsa_hwparams,
                 &sc->nSampleRate, NULL)) < 0) {    
             loge("snd_pcm_hw_params_set_rate_near failed:%s",strerror(errno));
-            return ret;
+            goto SET_PAR_ERR;
         }
 
-		sc->bytes_per_sample = snd_pcm_format_physical_width(sc->alsa_format) / 8;
-	    sc->bytes_per_sample *= sc->nChannelNum;
-		sc->alsa_fragcount = 8;
-        sc->chunk_size = 1024;
-		
 		if ((ret = snd_pcm_hw_params_set_period_size_near(sc->alsa_handler,
 				sc->alsa_hwparams, &sc->chunk_size, NULL)) < 0) {
 			loge("snd_pcm_hw_params_set_period_size_near fail , MSGTR_AO_ALSA_UnableToSetPeriodSize");
-			return ret;
+			goto SET_PAR_ERR;
 		} else {
 			logd("alsa-init: chunksize set to %ld", sc->chunk_size);
 		}
@@ -124,21 +126,21 @@ namespace aw{
                 sc->alsa_hwparams, (unsigned int*)&sc->alsa_fragcount, NULL)) < 0)
         {
             loge("snd_pcm_hw_params_set_periods_near fail , MSGTR_AO_ALSA_UnableToSetPeriods");
-            return ret;
+            goto SET_PAR_ERR;
         } else {
             logd("alsa-init: fragcount=%d", sc->alsa_fragcount);
         }
 
 		if ((ret = snd_pcm_hw_params(sc->alsa_handler, sc->alsa_hwparams)) < 0) {
             loge("snd_pcm_hw_params failed:%s",strerror(errno));
-            return ret;
+            goto SET_PAR_ERR;
         }
-
-		snd_pcm_hw_params_free(sc->alsa_hwparams);
 
 		sc->alsa_can_pause = snd_pcm_hw_params_can_pause(sc->alsa_hwparams);
 
 		logd("setSoundDeviceParams():sc->alsa_can_pause = %d",sc->alsa_can_pause);
+SET_PAR_ERR:
+		snd_pcm_hw_params_free(sc->alsa_hwparams);
 
 		return ret;
 
@@ -150,7 +152,7 @@ namespace aw{
 		logd("TinaSoundDeviceInit()");
 	    if(s == NULL)
 	    {
-	        loge("malloc memory fail.");
+	        loge("malloc SoundCtrlContext fail.");
 	        return NULL;
 	    }
 	    memset(s, 0, sizeof(SoundCtrlContext));
@@ -167,42 +169,41 @@ namespace aw{
 	void TinaSoundDeviceRelease(SoundCtrl* s){
 		SoundCtrlContext* sc;
 	sc = (SoundCtrlContext*)s;
+		assert(sc);
 		pthread_mutex_lock(&sc->mutex);
 		logd("TinaSoundDeviceRelease()");
 		if(sc->sound_status != STATUS_STOP){
 			closeSoundDevice(sc);
 		}
 		pthread_mutex_unlock(&sc->mutex);
-	pthread_mutex_destroy(&sc->mutex);
+		pthread_mutex_destroy(&sc->mutex);
 		free(sc);
-	sc = NULL;
+		sc = NULL;
 	}
 
 	void TinaSoundDeviceSetFormat(SoundCtrl* s, unsigned int nSampleRate, unsigned int nChannelNum){
 		SoundCtrlContext* sc;
 	sc = (SoundCtrlContext*)s;
-		if (sc == NULL) {
-			loge("error:sc is null !!!");
-		}else{
-			pthread_mutex_lock(&sc->mutex);
-			logd("TinaSoundDeviceSetFormat(),sc->sound_status == %d",sc->sound_status);
-			if(sc->sound_status == STATUS_STOP){
-				logd("TinaSoundDeviceSetFormat()");
-				sc->nSampleRate = nSampleRate;
-				sc->nChannelNum = nChannelNum;
-				sc->alsa_format = SND_PCM_FORMAT_S16_LE;
-				sc->bytes_per_sample = snd_pcm_format_physical_width(sc->alsa_format) / 8;
-			sc->bytes_per_sample *= nChannelNum;
-				logd("TinaSoundDeviceSetFormat()>>>sample_rate:%d,channel_num:%d,sc->bytes_per_sample:%d",
-					nSampleRate,nChannelNum,sc->bytes_per_sample);
-			}
-			pthread_mutex_unlock(&sc->mutex);
+		assert(sc);
+		pthread_mutex_lock(&sc->mutex);
+		logd("TinaSoundDeviceSetFormat(),sc->sound_status == %d",sc->sound_status);
+		if(sc->sound_status == STATUS_STOP){
+			logd("TinaSoundDeviceSetFormat()");
+			sc->nSampleRate = nSampleRate;
+			sc->nChannelNum = nChannelNum;
+			sc->alsa_format = SND_PCM_FORMAT_S16_LE;
+			sc->bytes_per_sample = snd_pcm_format_physical_width(sc->alsa_format) / 8;
+		sc->bytes_per_sample *= nChannelNum;
+			logd("TinaSoundDeviceSetFormat()>>>sample_rate:%d,channel_num:%d,sc->bytes_per_sample:%d",
+				nSampleRate,nChannelNum,sc->bytes_per_sample);
 		}
+		pthread_mutex_unlock(&sc->mutex);
 	}
 
 	int TinaSoundDeviceStart(SoundCtrl* s){
 		SoundCtrlContext* sc;
 	sc = (SoundCtrlContext*)s;
+		assert(sc);
 		pthread_mutex_lock(&sc->mutex);
 		int ret = 0;
 		logd("TinaSoundDeviceStart(): sc->sound_status = %d",sc->sound_status);
@@ -221,7 +222,7 @@ namespace aw{
 				if((ret = snd_pcm_pause(sc->alsa_handler, 0))<0){
 					loge("snd_pcm_pause failed:%s",strerror(errno));
 					pthread_mutex_unlock(&sc->mutex);
-			return ret;
+					return ret;
 				}
 			}else{
 				if ((ret = snd_pcm_prepare(sc->alsa_handler)) < 0) 
@@ -240,6 +241,11 @@ namespace aw{
 			logd("after openSoundDevice() ret = %d",ret);
 			if(ret >= 0){
 				ret = setSoundDeviceParams(sc);
+				if(ret < 0){
+					loge("setSoundDeviceParams fail , ret = %d",ret);
+					pthread_mutex_unlock(&sc->mutex);
+					return ret;
+				}
 				sc->sound_status = STATUS_START;
 			}
 		}
@@ -251,6 +257,7 @@ namespace aw{
 		int ret = 0;
 		SoundCtrlContext* sc;
 	sc = (SoundCtrlContext*)s;
+		assert(sc);
 		pthread_mutex_lock(&sc->mutex);
 		logd("TinaSoundDeviceStop():sc->sound_status = %d",sc->sound_status);
 		if(sc->sound_status == STATUS_STOP)
@@ -279,9 +286,9 @@ namespace aw{
 	}
 
 	int TinaSoundDevicePause(SoundCtrl* s){
-		
 		SoundCtrlContext* sc;
 	sc = (SoundCtrlContext*)s;
+		assert(sc);
 		pthread_mutex_lock(&sc->mutex);
 		int ret = 0;
 		logd("TinaSoundDevicePause(): sc->sound_status = %d",sc->sound_status);
@@ -309,15 +316,13 @@ namespace aw{
 		}
 		pthread_mutex_unlock(&sc->mutex);
 		return ret;
-		//int ret = 0;
-		//ret = TinaSoundDeviceStop(s);
-		//return ret;
 	}
 
 	int TinaSoundDeviceWrite(SoundCtrl* s, void* pData, int nDataSize){
 		int ret = 0;
 	SoundCtrlContext* sc;
 	sc = (SoundCtrlContext*)s;
+		assert(sc);
 		//TLOGD("TinaSoundDeviceWrite:sc->bytes_per_sample = %d\n",sc->bytes_per_sample);
 		if(sc->bytes_per_sample == 0){
 			sc->bytes_per_sample = 4;
@@ -342,7 +347,9 @@ namespace aw{
 		}
 		
 		do {
+			//logd("snd_pcm_writei begin");
 			res = snd_pcm_writei(sc->alsa_handler, pData, num_frames);
+			//logd("snd_pcm_writei finish,res = %ld",res);
 			if (res == -EINTR) 
 	        {
 				/* nothing to do */
@@ -375,6 +382,7 @@ namespace aw{
 		int ret = 0;
 		SoundCtrlContext* sc;
 		sc = (SoundCtrlContext*)s;	 
+		assert(sc);
 		//logd("TinaSoundDeviceGetCachedTime()");
 		if (sc->alsa_handler) 
 		{

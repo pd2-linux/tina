@@ -376,4 +376,3 @@ int PlayerConfigExtraScaleInfo(Player* pl, int nWidthTh, int nHeightTh, int nHor
 //********************************  END  ***********************************//
 
 #endif
-

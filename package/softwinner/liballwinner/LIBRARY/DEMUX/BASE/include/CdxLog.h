@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxLog.h
+ * Description : Log
+ * History :
+ *
+ */
+
 #ifndef CDX_LOG_H
 #define CDX_LOG_H
 
@@ -13,7 +23,7 @@
 #define CDX_LOGW(fmt, arg...) logw(fmt, ##arg)
 #define CDX_LOGE(fmt, arg...) loge(fmt, ##arg)
 
-#if CONFIG_OS == OPTION_OS_ANDROID
+#ifdef __ANDROID__
 
 #define CDX_TRACE() \
     CDX_LOGI("<%s:%u> tid(%d)", __FUNCTION__, __LINE__, gettid())
@@ -82,7 +92,6 @@
 #else
     #error "invalid configuration of os."
 #endif
-
 
 #define CDX_BUF_DUMP(buf, len) \
     do { \

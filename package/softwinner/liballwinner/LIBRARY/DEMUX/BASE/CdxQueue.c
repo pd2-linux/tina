@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxQueue.c
+ * Description : Queue
+ * History :
+ *
+ */
+
 #include <CdxTypes.h>
 #include <CdxAtomic.h>
 #include <CdxMemory.h>
@@ -40,7 +50,6 @@ static inline cdx_void QueueNodeEntityDecRef(AwPoolT *pool, struct CdxQueueNodeE
         Pfree(pool, entity);
     }
 }
-
 
 static CdxQueueDataT __CdxQueuePop(CdxQueueT *queue)
 {
@@ -170,4 +179,3 @@ cdx_void CdxQueueDestroy(CdxQueueT *queue)
 
     return ;
 }
-

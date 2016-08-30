@@ -1,4 +1,18 @@
 
+/*
+* Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+* All rights reserved.
+*
+* File : vdecoder.h
+* Description :
+* History :
+*   Author  : xyliu <xyliu@allwinnertech.com>
+*   Date    : 2016/04/13
+*   Comment :
+*
+*
+*/
+
 #ifndef VDECODER_H
 #define VDECODER_H
 
@@ -59,20 +73,20 @@ enum EPIXELFORMAT
     PIXEL_FORMAT_YUV_MB32_422       = 8,
     PIXEL_FORMAT_YUV_MB32_444       = 9,
     
-    PIXEL_FORMAT_RGBA				= 10,
-    PIXEL_FORMAT_ARGB				= 11,
-    PIXEL_FORMAT_ABGR				= 12,
-    PIXEL_FORMAT_BGRA				= 13,
+    PIXEL_FORMAT_RGBA                = 10,
+    PIXEL_FORMAT_ARGB                = 11,
+    PIXEL_FORMAT_ABGR                = 12,
+    PIXEL_FORMAT_BGRA                = 13,
 
-    PIXEL_FORMAT_YUYV				= 14,
-    PIXEL_FORMAT_YVYU				= 15,
-    PIXEL_FORMAT_UYVY				= 16,
-    PIXEL_FORMAT_VYUY				= 17,
+    PIXEL_FORMAT_YUYV                = 14,
+    PIXEL_FORMAT_YVYU                = 15,
+    PIXEL_FORMAT_UYVY                = 16,
+    PIXEL_FORMAT_VYUY                = 17,
 
-    PIXEL_FORMAT_PLANARUV_422		= 18,
-    PIXEL_FORMAT_PLANARVU_422		= 19,
-    PIXEL_FORMAT_PLANARUV_444		= 20,
-    PIXEL_FORMAT_PLANARVU_444		= 21,
+    PIXEL_FORMAT_PLANARUV_422        = 18,
+    PIXEL_FORMAT_PLANARVU_422        = 19,
+    PIXEL_FORMAT_PLANARUV_444        = 20,
+    PIXEL_FORMAT_PLANARVU_444        = 21,
 
     PIXEL_FORMAT_MIN = PIXEL_FORMAT_DEFAULT,
     PIXEL_FORMAT_MAX = PIXEL_FORMAT_PLANARVU_444,
@@ -96,11 +110,11 @@ enum EVDECODERESULT
 //*for new display
 typedef struct FBMBUFINFO
 {
-	int nBufNum;
-	int nBufWidth;
-	int nBufHeight;
-	int ePixelFormat;
-	int nAlignValue;
+    int nBufNum;
+    int nBufWidth;
+    int nBufHeight;
+    int ePixelFormat;
+    int nAlignValue;
     int bProgressiveFlag;
     int bIsSoftDecoderFlag;
 }FbmBufInfo;
@@ -118,10 +132,10 @@ typedef struct VIDEOSTREAMINFO
     char* pCodecSpecificData;
     int   bSecureStreamFlag;
     int   bSecureStreamFlagLevel1;
-	int   bIsFramePackage; /* 1: frame package;  0: stream package */
-	int   h265ReferencePictureNum;
-	int   bReOpenEngine;
-	int   bIsFrameCtsTestFlag;
+    int   bIsFramePackage; /* 1: frame package;  0: stream package */
+    int   h265ReferencePictureNum;
+    int   bReOpenEngine;
+    int   bIsFrameCtsTestFlag;
 }VideoStreamInfo;
 
 typedef struct VCONFIG
@@ -148,13 +162,14 @@ typedef struct VCONFIG
     int  nAlignStride;
     int  bIsSoftDecoderFlag;
     int  bVirMallocSbm;
-    int  bSupportPallocBufBeforeDecode;  //only used for xuqi, set this flag to 1 meaning palloc the fbm buffer before
-                                         // decode the sequence, to short the first frame decoing time
+    int  bSupportPallocBufBeforeDecode;
+    //only used for xuqi, set this flag to 1 meaning palloc the fbm buffer before
+    // decode the sequence, to short the first frame decoing time
     int nDeInterlaceHoldingFrameBufferNum;
     int nDisplayHoldingFrameBufferNum;
     int nRotateHoldingFrameBufferNum;
     int nDecodeSmoothFrameBufferNum;
-	int bIsTvStream;
+    int bIsTvStream;
     struct ScMemOpsS *memops;
 }VConfig;
 
@@ -206,8 +221,8 @@ typedef struct VIDEOPICTURE
     size_addr phyCBufAddr;
     void*   pPrivate;
     int     nBufStatus;
-    int 	bTopFieldError;
-    int		bBottomFieldError;
+    int     bTopFieldError;
+    int        bBottomFieldError;
     int     nColorPrimary;  // default value is 0xffffffff, valid value id 0x0000xxyy
                             // xx: is video full range code
                             // yy: is matrix coefficient
@@ -215,16 +230,16 @@ typedef struct VIDEOPICTURE
 
 typedef struct VIDEOFBMINFO
 {
-	unsigned int         nValidBufNum;
-	void*                pFbmFirst;
-	void*                pFbmSecond;
-	FbmBufInfo           pFbmBufInfo;
-	unsigned int         bIs3DStream;
-	VideoPicture*        pMajorDispFrame;
-	VideoPicture*        pMajorDecoderFrame;
-	unsigned int         nMinorYBufOffset;
+    unsigned int         nValidBufNum;
+    void*                pFbmFirst;
+    void*                pFbmSecond;
+    FbmBufInfo           pFbmBufInfo;
+    unsigned int         bIs3DStream;
+    VideoPicture*        pMajorDispFrame;
+    VideoPicture*        pMajorDecoderFrame;
+    unsigned int         nMinorYBufOffset;
     unsigned int         nMinorCBufOffset;
-	int   				 bIsFrameCtsTestFlag;
+    int                    bIsFrameCtsTestFlag;
     int                  nExtraFbmBufferNum;
     int                  nDecoderNeededMiniFbmNum;
     int                  nDecoderNeededMiniFbmNumSD;
@@ -232,19 +247,19 @@ typedef struct VIDEOFBMINFO
 
 typedef struct JPEGSKIACONFIG
 {
-	int mode_selection;
-	int filed_alpha;
-	int imcu_int_minus1;
-	int region_top;
-	int region_bot;
-	int region_left;
-	int region_right;
-	int nScaleDownRatio;
-	void* pFrameBuffer;
-	void* pInputIndexBuffer;
-	int   nInputIndexSize;
-	void* pTileVbvBuffer;
-	int nTileVbvVBufferSize;
+    int mode_selection;
+    int filed_alpha;
+    int imcu_int_minus1;
+    int region_top;
+    int region_bot;
+    int region_left;
+    int region_right;
+    int nScaleDownRatio;
+    void* pFrameBuffer;
+    void* pInputIndexBuffer;
+    int   nInputIndexSize;
+    void* pTileVbvBuffer;
+    int nTileVbvVBufferSize;
 }JpegSkiaConfig;
 
 
@@ -262,10 +277,11 @@ enum EVDECODERGETPERFORMCMD
     VDECODE_GETCMD_DROPFRAME_INFO           = 1,
 };
 
-typedef struct
+typedef struct VID_PERFORMANCE
 {
-	unsigned int nDropFrameNum;       // this variable is valid for VDECODE_GETCMD_DROPFRAME_INFO command
-	int nFrameDuration;
+    unsigned int nDropFrameNum;
+    // this variable is valid for VDECODE_GETCMD_DROPFRAME_INFO command
+    int nFrameDuration;
 }VDecodePerformaceInfo;
 
 typedef void* VideoDecoder;
@@ -274,7 +290,9 @@ VideoDecoder* CreateVideoDecoder(void);
 
 void DestroyVideoDecoder(VideoDecoder* pDecoder);
 
-int InitializeVideoDecoder(VideoDecoder* pDecoder, VideoStreamInfo* pVideoInfo, VConfig* pVconfig);
+int InitializeVideoDecoder(VideoDecoder* pDecoder,
+                     VideoStreamInfo* pVideoInfo,
+                     VConfig* pVconfig);
 
 
 void ResetVideoDecoder(VideoDecoder* pDecoder);
@@ -287,7 +305,8 @@ int DecodeVideoStream(VideoDecoder* pDecoder,
 
 int DecoderSetSpecialData(VideoDecoder* pDecoder, void *pArg);
 
-int GetVideoStreamInfo(VideoDecoder* pDecoder, VideoStreamInfo* pVideoInfo);
+int GetVideoStreamInfo(VideoDecoder* pDecoder,
+                    VideoStreamInfo* pVideoInfo);
 
 int RequestVideoStreamBuffer(VideoDecoder* pDecoder,
                              int           nRequireSize,
@@ -339,7 +358,9 @@ int ConfigDisable3D(VideoDecoder* pDecoder, int bDisable3D);
 
 int ConfigVeMemoryThresh(VideoDecoder* pDecoder, int nMemoryThresh);
 
-int ReopenVideoEngine(VideoDecoder* pDecoder, VConfig* pVConfig, VideoStreamInfo* pStreamInfo);
+int ReopenVideoEngine(VideoDecoder* pDecoder,
+                    VConfig* pVConfig,
+                    VideoStreamInfo* pStreamInfo);
 
 int RotatePicture(struct ScMemOpsS* memOps,
                   VideoPicture* pPictureIn, 
@@ -353,26 +374,45 @@ int RotatePictureHw(VideoDecoder* pDecoder,
                     VideoPicture* pPictureOut, 
                     int           nRotateDegree);
 
-VideoPicture* AllocatePictureBuffer(struct ScMemOpsS* memOps, int nWidth, int nHeight, int nLineStride, int ePixelFormat);
+VideoPicture* AllocatePictureBuffer(struct ScMemOpsS* memOps,
+                              int nWidth,
+                              int nHeight,
+                              int nLineStride,
+                              int ePixelFormat);
 
-int FreePictureBuffer(struct ScMemOpsS* memOps, VideoPicture* pPicture);
-char* VideoRequestSecureBuffer(VideoDecoder* pDecoder,int nBufferSize);
+int FreePictureBuffer(struct ScMemOpsS* memOps,
+                  VideoPicture* pPicture);
+char* VideoRequestSecureBuffer(VideoDecoder* pDecoder,
+                           int nBufferSize);
 
-void VideoReleaseSecureBuffer(VideoDecoder* pDecoder,char* pBuf);
+void VideoReleaseSecureBuffer(VideoDecoder* pDecoder,
+                          char* pBuf);
 
-VideoPicture*  ReturnRelasePicture(VideoDecoder* pDecoder, VideoPicture* pVpicture, int bForbidUseFlag);
+VideoPicture*  ReturnRelasePicture(VideoDecoder* pDecoder,
+                              VideoPicture* pVpicture,
+                              int bForbidUseFlag);
 VideoPicture* RequestReleasePicture(VideoDecoder* pDecoder);
 int SetVideoFbmBufRelease(VideoDecoder* pDecoder);
-VideoPicture* SetVideoFbmBufAddress(VideoDecoder* pDecoder, VideoPicture* pVideoPicture,int bForbidUseFlag);
+VideoPicture* SetVideoFbmBufAddress(VideoDecoder* pDecoder,
+                                 VideoPicture* pVideoPicture,
+                                 int bForbidUseFlag);
+
 FbmBufInfo* GetVideoFbmBufInfo(VideoDecoder* pDecoder);
-int DecoderSendToDisplayPictureNum(VideoDecoder* pDecoder, int nStreamIndex);
-int ConfigExtraScaleInfo(VideoDecoder* pDecoder, int nWidthTh, int nHeightTh,
-		                 int nHorizonScaleRatio, int nVerticalScaleRatio);
-int SetDecodePerformCmd(VideoDecoder* pDecoder, enum EVDECODERSETPERFORMCMD performCmd);
-int GetDecodePerformInfo(VideoDecoder* pDecoder, enum EVDECODERGETPERFORMCMD performCmd, VDecodePerformaceInfo** performInfo);
+int DecoderSendToDisplayPictureNum(VideoDecoder* pDecoder,
+                               int nStreamIndex);
+int ConfigExtraScaleInfo(VideoDecoder* pDecoder,
+                     int nWidthTh,
+                     int nHeightTh,
+                     int nHorizonScaleRatio,
+                     int nVerticalScaleRatio);
+int SetDecodePerformCmd(VideoDecoder* pDecoder,
+                      enum EVDECODERSETPERFORMCMD performCmd);
+int GetDecodePerformInfo(VideoDecoder* pDecoder,
+                      enum EVDECODERGETPERFORMCMD performCmd,
+                      VDecodePerformaceInfo** performInfo);
+
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-

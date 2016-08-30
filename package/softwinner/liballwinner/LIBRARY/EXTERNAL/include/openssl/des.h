@@ -101,7 +101,7 @@ typedef struct DES_ks
 # include <openssl/des_old.h>
 #endif
 
-#define DES_KEY_SZ 	(sizeof(DES_cblock))
+#define DES_KEY_SZ	(sizeof(DES_cblock))
 #define DES_SCHEDULE_SZ (sizeof(DES_key_schedule))
 
 #define DES_ENCRYPT	1
@@ -150,7 +150,7 @@ void DES_cfb_encrypt(const unsigned char *in,unsigned char *out,int numbits,
 void DES_ecb_encrypt(const_DES_cblock *input,DES_cblock *output,
 		     DES_key_schedule *ks,int enc);
 
-/* 	This is the DES encryption function that gets called by just about
+/*	This is the DES encryption function that gets called by just about
 	every other DES routine in the library.  You should not use this
 	function except to implement 'modes' of DES.  I say this because the
 	functions that call this routine do the conversion from 'char *' to
@@ -161,7 +161,7 @@ void DES_ecb_encrypt(const_DES_cblock *input,DES_cblock *output,
 	zero if decryption. */
 void DES_encrypt1(DES_LONG *data,DES_key_schedule *ks, int enc);
 
-/* 	This functions is the same as DES_encrypt1() except that the DES
+/*	This functions is the same as DES_encrypt1() except that the DES
 	initial permutation (IP) and final permutation (FP) have been left
 	out.  As for DES_encrypt1(), you should not use this function.
 	It is used by the routines in the library that implement triple DES.

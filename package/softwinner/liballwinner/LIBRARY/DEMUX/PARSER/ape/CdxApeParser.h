@@ -1,3 +1,14 @@
+/*
+* Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+* All rights reserved.
+*
+* File : CdxApeParser.h
+* Description :
+* History :
+*   Author  : Wenju Lin <linwenju@allwinnertech.com>
+*   Date    : 2014/08/08
+*/
+
 #ifndef _CDX_APE_PARSER_H_
 #define _CDX_APE_PARSER_H_
 
@@ -9,12 +20,18 @@
 #define AW_APE_MIN_VERSION 3950
 #define AW_APE_MAX_VERSION 3990
 
-#define APE_MAC_FORMAT_FLAG_8_BIT                 1 // is 8-bit [OBSOLETE]
-#define APE_MAC_FORMAT_FLAG_CRC                   2 // uses the new CRC32 error detection [OBSOLETE]
-#define APE_MAC_FORMAT_FLAG_HAS_PEAK_LEVEL        4 // uint32 nPeakLevel after the header [OBSOLETE]
-#define APE_MAC_FORMAT_FLAG_24_BIT                8 // is 24-bit [OBSOLETE]
-#define APE_MAC_FORMAT_FLAG_HAS_SEEK_ELEMENTS    16 // has the number of seek elements after the peak level
-#define APE_MAC_FORMAT_FLAG_CREATE_WAV_HEADER    32 // create the wave header on decompression (not stored)
+// is 8-bit [OBSOLETE]
+#define APE_MAC_FORMAT_FLAG_8_BIT                 1
+// uses the new CRC32 error detection [OBSOLETE]
+#define APE_MAC_FORMAT_FLAG_CRC                   2
+// uint32 nPeakLevel after the header [OBSOLETE]
+#define APE_MAC_FORMAT_FLAG_HAS_PEAK_LEVEL        4
+// is 24-bit [OBSOLETE]
+#define APE_MAC_FORMAT_FLAG_24_BIT                8
+// has the number of seek elements after the peak level
+#define APE_MAC_FORMAT_FLAG_HAS_SEEK_ELEMENTS    16
+// create the wave header on decompression (not stored)
+#define APE_MAC_FORMAT_FLAG_CREATE_WAV_HEADER    32
 
 #define APE_MAC_SUBFRAME_SIZE 4608
 
@@ -36,7 +53,8 @@ typedef struct {
     cdx_int64   pts;
 } APEFrame;
 
-typedef struct APEParserImpl{
+typedef struct APEParserImpl
+{
     // Cdx Struct
     CdxParserT      base;
     CdxStreamT      *stream;
@@ -45,13 +63,13 @@ typedef struct APEParserImpl{
     int             mErrno;    // errno
     int             exitFlag;
 
-	pthread_cond_t  cond;
+    pthread_cond_t  cond;
     /* Derived fields */
     cdx_uint32    junklength;
     cdx_uint32    firstframe;
     cdx_uint32    totalsamples;
     cdx_uint32    currentframe;
-	cdx_uint32    seek_flag;
+    cdx_uint32    seek_flag;
     APEFrame    *frames;
 
     /* Info from Descriptor Block */
@@ -89,6 +107,9 @@ typedef struct APEParserImpl{
     cdx_int32   nseeksession;
     cdx_int32   nheadframe;
     int         teeFd;
+
+    int         extrasize;
+    cdx_int8*   extradata;
 } APEParserImpl;
 
 #endif

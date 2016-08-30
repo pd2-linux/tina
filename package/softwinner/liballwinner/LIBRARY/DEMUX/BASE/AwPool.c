@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : AwPool.c
+ * Description : Pool
+ * History :
+ *
+ */
+
 #include <AwPool.h>
 #include <CdxLog.h>
 #include <CdxList.h>
@@ -150,10 +160,10 @@ AwPoolT *PoolNodeCreate(char *file, int line)
     if ((!pool) || (!poolData)) 
     {
         CDX_LOGE("memalign alloc %d failure errno(%d)", POOL_BLOCK_SIZE, errno);
-		if(pool)
-			free(pool);
-		if(poolData)
-			free(poolData);
+        if(pool)
+            free(pool);
+        if(poolData)
+            free(poolData);
         return NULL;
     }
 
@@ -174,7 +184,7 @@ AwPoolT *PoolNodeCreate(char *file, int line)
         return NULL;
     }
     
-#if (CONFIG_CC != OPTION_CC_LINUX_MUSLGNUEABI)
+#if ((CONFIG_CC != OPTION_CC_LINUX_MUSLGNUEABI) && (CONFIG_CC != OPTION_CC_LINUX_MUSLGNUEABI310))
     if (pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK_NP) != 0)
     {
         CDX_LOGE("pthread_mutexattr_settype failure...");
@@ -289,9 +299,9 @@ void *AwPalloc(AwPoolT *pool, int size, char *file, int line)
     {
         CdxListNodeT *pbNode = NULL;
         struct PoolMemoryS *pm = NULL;
-    	for (pbNode = &pool->current->node;
+        for (pbNode = &pool->current->node;
              pbNode != (CdxListNodeT *)&pool->pdList; 
-    	     pbNode = pbNode->next)
+             pbNode = pbNode->next)
         {
             pd = CdxListEntry(pbNode, struct PoolDataS, node);
             if ((int)(pd->end - pd->last) >= pmSize)
@@ -385,7 +395,8 @@ void *AwRealloc(AwPoolT *pool, void *p, int size, char *file, int line)
         newP = p;
         if (pm->node.next == (CdxListNodeT *)&pm->owner->pmList)
         {
-            pm->owner->last = ((char *)pm) + AwAlign(sizeof(struct PoolMemoryS) + size, POOL_ALIGNMENT);
+            pm->owner->last = ((char *)pm) + AwAlign(sizeof(struct PoolMemoryS) + size,
+                                                     POOL_ALIGNMENT);
         }
         goto out;
     }
@@ -439,4 +450,3 @@ void AwPoolReset(void)
     }
     return ;
 }
-

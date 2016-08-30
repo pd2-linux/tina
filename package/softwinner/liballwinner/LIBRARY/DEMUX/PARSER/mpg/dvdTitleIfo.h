@@ -269,5 +269,3 @@ cdx_int16  DvdParseTitleInfo(CdxMpgParserT *MpgParser, cdx_char *pUrl);
 cdx_int16  DvdOpenTitleFile(CdxMpgParserT *MpgParser, cdx_char *pUrl);
 
 #endif /* _DVD_IFO_H_ */
-
-

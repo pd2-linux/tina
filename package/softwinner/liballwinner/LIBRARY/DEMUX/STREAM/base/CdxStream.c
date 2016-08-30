@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxStream.c
+ * Description : Stream base
+ * History :
+ *
+ */
+
 #include <CdxTypes.h>
 #include <CdxLog.h>
 #include <CdxMemory.h>
@@ -30,17 +40,31 @@ extern CdxStreamCreatorT rtspStreamCtor;
 
 extern CdxStreamCreatorT httpStreamCtor;
 extern CdxStreamCreatorT tcpStreamCtor;
-//extern CdxStreamCreatorT rtmpStreamCtor;
-//extern CdxStreamCreatorT mmsStreamCtor;
-extern CdxStreamCreatorT udpStreamCtor;
-//extern CdxStreamCreatorT rtpStreamCreator;
-//extern CdxStreamCreatorT customerStreamCtor;
-//extern CdxStreamCreatorT sslStreamCtor;
-//extern CdxStreamCreatorT aesStreamCtor;
-//extern CdxStreamCreatorT bdmvStreamCtor;
-//extern CdxStreamCreatorT widevineStreamCtor;
-//extern CdxStreamCreatorT videoResizeStreamCtor;
+#ifdef __ANDROID__
+extern CdxStreamCreatorT rtmpStreamCtor;
+#endif
 
+#if(CONFIG_MMS == OPTION_MMS_ENABLE)
+extern CdxStreamCreatorT mmsStreamCtor;
+#endif
+
+extern CdxStreamCreatorT udpStreamCtor;
+#ifdef __ANDROID__
+extern CdxStreamCreatorT rtpStreamCreator;
+extern CdxStreamCreatorT customerStreamCtor;
+#endif
+
+#if(CONFIG_HAVE_SSL == OPTION_HAVE_SSL)
+extern CdxStreamCreatorT sslStreamCtor;
+#endif
+
+#ifdef __ANDROID__
+extern CdxStreamCreatorT aesStreamCtor;
+extern CdxStreamCreatorT bdmvStreamCtor;
+extern CdxStreamCreatorT widevineStreamCtor;
+extern CdxStreamCreatorT videoResizeStreamCtor;
+extern CdxStreamCreatorT DTMBStreamCtor;
+#endif
 
 struct CdxStreamNodeS
 {
@@ -75,24 +99,40 @@ cdx_void AwStreamInit(cdx_void)
     AwStreamRegister(&rtspStreamCtor,"rtsp");
 #endif
     AwStreamRegister(&httpStreamCtor,"http");
-//    AwStreamRegister(&httpStreamCtor,"https");
-    AwStreamRegister(&tcpStreamCtor,"tcp");
-//    AwStreamRegister(&rtmpStreamCtor,"rtmp");
-//    AwStreamRegister(&mmsStreamCtor,"mms");
-//    AwStreamRegister(&mmsStreamCtor,"mmsh");
-//    AwStreamRegister(&mmsStreamCtor,"mmst");
-//    AwStreamRegister(&mmsStreamCtor,"mmshttp");
-    AwStreamRegister(&udpStreamCtor,"udp");
-//    AwStreamRegister(&customerStreamCtor,"customer");
-//    AwStreamRegister(&sslStreamCtor,"ssl");
-//    AwStreamRegister(&aesStreamCtor,"aes");
-//    AwStreamRegister(&bdmvStreamCtor,"bdmv");
-#if CONFIG_OS == OPTION_OS_ANDROID
-//    AwStreamRegister(&widevineStreamCtor,"widevine");
+#if(CONFIG_HAVE_SSL == OPTION_HAVE_SSL)
+    AwStreamRegister(&httpStreamCtor,"https");
 #endif
-//    AwStreamRegister(&videoResizeStreamCtor,"videoResize");
+    AwStreamRegister(&tcpStreamCtor,"tcp");
+#ifdef __ANDROID__
+    AwStreamRegister(&rtmpStreamCtor,"rtmp");
+#endif
 
-	CDX_LOGD("stream list size:%d",streamList.size);
+#if(CONFIG_MMS == OPTION_MMS_ENABLE)
+    AwStreamRegister(&mmsStreamCtor,"mms");
+    AwStreamRegister(&mmsStreamCtor,"mmsh");
+    AwStreamRegister(&mmsStreamCtor,"mmst");
+    AwStreamRegister(&mmsStreamCtor,"mmshttp");
+#endif
+
+    AwStreamRegister(&udpStreamCtor,"udp");
+#ifdef __ANDROID__
+    AwStreamRegister(&customerStreamCtor,"customer");
+#endif
+
+#if(CONFIG_HAVE_SSL == OPTION_HAVE_SSL)
+    AwStreamRegister(&sslStreamCtor,"ssl");
+#endif
+
+#ifdef __ANDROID__
+    AwStreamRegister(&aesStreamCtor,"aes");
+    AwStreamRegister(&bdmvStreamCtor,"bdmv");
+    AwStreamRegister(&DTMBStreamCtor,"dtmb");
+#endif
+#ifdef __ANDROID__
+    AwStreamRegister(&widevineStreamCtor,"widevine");
+    AwStreamRegister(&videoResizeStreamCtor,"videoResize");
+#endif
+    CDX_LOGD("stream list size:%d",streamList.size);
     return ;
 }
 
@@ -107,15 +147,15 @@ CdxStreamT *CdxStreamCreate(CdxDataSourceT *source)
     CDX_CHECK(colon && (colon - source->uri < 16));
     memcpy(scheme, source->uri, colon - source->uri);
     
-	CdxListForEachEntry(streamNode, &streamList.list, node)
-	{
-		CDX_CHECK(streamNode->creator);
+    CdxListForEachEntry(streamNode, &streamList.list, node)
+    {
+        CDX_CHECK(streamNode->creator);
         if (strcasecmp(streamNode->scheme, scheme) == 0)
         {
             ctor = streamNode->creator;
             break;
         }
-	}
+    }
 
     if (NULL == ctor)
     {
@@ -134,35 +174,133 @@ CdxStreamT *CdxStreamCreate(CdxDataSourceT *source)
     return stream;
 }
 
-int CdxStreamOpen(CdxDataSourceT *source, pthread_mutex_t *mutex, cdx_bool *exit, CdxStreamT **stream, ContorlTask *streamTasks)
+int CdxStreamOpen(CdxDataSourceT *source, pthread_mutex_t *mutex, cdx_bool *exit,
+        CdxStreamT **stream, ContorlTask *streamTasks)
 {
-	if(mutex)
-		pthread_mutex_lock(mutex);
-	
+    if(mutex)
+        pthread_mutex_lock(mutex);
     if(exit && *exit)
     {
-    	CDX_LOGW("open stream user cancel.");
+        CDX_LOGW("open stream user cancel.");
         if(mutex) pthread_mutex_unlock(mutex);
-    	return -1;
+        return -1;
     }
     *stream = CdxStreamCreate(source);
-	if(mutex) pthread_mutex_unlock(mutex);
+    if(mutex)
+        pthread_mutex_unlock(mutex);
     if (!*stream)
     {
-    	CDX_LOGW("open stream failure.");
-    	return -1;
+        CDX_LOGW("open stream failure.");
+        return -1;
     }
-	int ret;
-	while(streamTasks)
-	{
-		ret = CdxStreamControl(*stream, streamTasks->cmd, streamTasks->param);
-		if(ret < 0)
-		{
-			CDX_LOGE("CdxStreamControl fail, cmd=%d", streamTasks->cmd);
-			return ret;
-		}
-		streamTasks = streamTasks->next;
-	}
+    int ret;
+    while(streamTasks)
+    {
+        ret = CdxStreamControl(*stream, streamTasks->cmd, streamTasks->param);
+        if(ret < 0)
+        {
+            CDX_LOGE("CdxStreamControl fail, cmd=%d", streamTasks->cmd);
+        }
+        streamTasks = streamTasks->next;
+    }
     return CdxStreamConnect(*stream);
 }
 
+typedef struct KeyValuePairS {
+    char *key;
+    char *val;
+} KeyValuePairT;
+
+struct CdxKeyedVectorS {
+    int size;
+    int index;
+    KeyValuePairT item[0];
+};
+
+CdxKeyedVectorT *CdxKeyedVectorCreate(int num)
+{
+    CdxKeyedVectorT *p;
+
+    if (num <= 0)
+        return NULL;
+
+    p = calloc(1, sizeof(*p) + num * sizeof(KeyValuePairT));
+    if (p == NULL)
+        return NULL;
+
+    p->size = num;
+    p->index = -1;
+    return p;
+}
+
+void CdxKeyedVectorDestroy(CdxKeyedVectorT *keyedVector)
+{
+    int i;
+
+    if (keyedVector == NULL)
+        return;
+
+    for (i = 0; i <= keyedVector->index; i++)
+    {
+        free(keyedVector->item[i].key);
+        free(keyedVector->item[i].val);
+    }
+    free(keyedVector);
+}
+
+int CdxKeyedVectorAdd(CdxKeyedVectorT *keyedVector,
+        const char *key, const char *val)
+{
+    if (key == NULL && val == NULL)
+        return 0;
+
+    if (keyedVector->index >= keyedVector->size - 1)
+    {
+        CDX_LOGW("keyedVector is full");
+        return -1;
+    }
+
+    int index = keyedVector->index + 1;
+    if (key != NULL)
+    {
+        keyedVector->item[index].key = strdup(key);
+        if (keyedVector->item[index].key == NULL)
+            goto err;
+    }
+    if (val != NULL)
+    {
+        keyedVector->item[index].val = strdup(val);
+        if (keyedVector->item[index].val == NULL)
+            goto err;
+    }
+
+    keyedVector->index++;
+    return 0;
+
+err:
+    free(keyedVector->item[index].key);
+    free(keyedVector->item[index].val);
+    logw("strdup error");
+    return -1;
+}
+
+int CdxKeyedVectorGetSize(CdxKeyedVectorT *keyedVector)
+{
+    return keyedVector->size;
+}
+
+char *CdxKeyedVectorGetKey(CdxKeyedVectorT *keyedVector, int index)
+{
+    if (index >= 0 && index <= keyedVector->index)
+        return keyedVector->item[index].key;
+
+    return NULL;
+}
+
+char *CdxKeyedVectorGetValue(CdxKeyedVectorT *keyedVector, int index)
+{
+    if (index >= 0 && index <= keyedVector->index)
+        return keyedVector->item[index].val;
+
+    return NULL;
+}

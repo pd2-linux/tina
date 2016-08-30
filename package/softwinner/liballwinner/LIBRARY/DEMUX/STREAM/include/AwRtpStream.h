@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : AwRtpStream.h
+ * Description : Rtp Stream header
+ * History :
+ *
+ */
+
 #ifndef AW_RTP_STREAM_H
 #define AW_RTP_STREAM_H
 #include <CdxList.h>

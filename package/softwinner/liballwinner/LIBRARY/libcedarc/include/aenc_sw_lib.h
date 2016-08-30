@@ -69,7 +69,7 @@ typedef struct __PCM_BUF_MANAGER
     unsigned char       *pBufWritPtr;       //正在写的指针
     int                 uFreeBufSize;       //空余长度
 	int                 uDataFlowflag;      //数据是否超过预定解码，1：超过补0帧，0：没有超过，正常编码
-	void				*parent;   			// encode use,not lib use;
+	void				*parent;			// encode use,not lib use;
 	
 } __pcm_buf_manager_t;
 
@@ -116,4 +116,3 @@ extern int ReadPcmDataForEnc(void *pBuf, int uGetLen, __pcm_buf_manager_t *pPcmM
 #ifdef __cplusplus
 }
 #endif
-

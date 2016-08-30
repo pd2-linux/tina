@@ -1,21 +1,12 @@
 
 include ../../config.mk
+include ../../../Makefile.inc
+################################################################################
+## set flags for golobal compile and link setting.
+################################################################################
 
-ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABIHF))
-# set compile tool chains to be arm-linux-gnueabihf- set.
-CC    = arm-linux-gnueabihf-gcc
-CPP   = arm-linux-gnueabihf-g++
-STRIP = arm-linux-gnueabihf-strip
-AR    = arm-linux-gnueabihf-ar
-endif
-
-ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABI))
-# set compile tool chains to be arm-none-linux-gnueabi- set.
-CC    = arm-none-linux-gnueabi-gcc
-CPP   = arm-none-linux-gnueabi-g++
-STRIP = arm-none-linux-gnueabi-strip
-AR    = arm-none-linux-gnueabi-ar
-endif
+CONFIG_FOR_COMPILE = $(LOCAL_CFLAGS)
+CONFIG_FOR_LINK =
 
 ###############################################################################
 ###############################################################################
@@ -46,37 +37,58 @@ ifneq ($(DependFilePath),wildcard($(DependFilePath)))
 a := $(shell mkdir -p $(DependFilePath))
 endif
 			
-SourceIncludePath := 	-I../../CODEC/VIDEO/DECODER/include/ \
-	                    -I../../MEMORY/include/    \
-	                    -I../../VE/include/        \
-	                    -I../../DEMUX/BASE/include/ \
+SourceIncludePath :=	-I../../DEMUX/BASE/include/ \
 	                    -I../../DEMUX/STREAM/include/ \
 	                    -I../../DEMUX/PARSER/include/ \
-	                    -I../../CODEC/SUBTITLE/DECODER/  \
-	                    -I../../CODEC/AUDIO/DECODER/include/ \
-	                    -I../../CODEC/SUBTITLE/DECODER/include/ \
+						-I../../libcedarc/include \
 	                    -I../../
 
 		 
-CompileFlags := $(SourceIncludePath) -O2  -Wall -fPIC -ldl -march=armv7-a	
-	 
-LoadFlags := -L../../MEMORY/   \
-			 -L../../VE/		\
-			 -L../../CODEC/VIDEO/DECODER/	\
-			 -L../../DEMUX/STREAM/			\
-			 -L../../DEMUX/PARSER/			\
-			 -L../../DEMUX/BASE/			
+CompileFlags := $(CONFIG_FOR_COMPILE) $(SourceIncludePath) -O2  -Wall -fPIC -ldl
 			 
+LoadFlags := -L../../DEMUX/BASE/ \
+             -L../../DEMUX/STREAM/ \
+             -L../../DEMUX/PARSER/ \
+             -L../.././PLUGIN/manager/ \
+             -L../../PLAYER/
 
-LoadFlags += -lvdecoder -lrv -lVE -lMemAdapter -lcdx_base -lcdx_parser -lcdx_stream -lpthread 
+LoadFlags += -lcdc_vdecoder -lcdc_ve -lcdc_memory -lcdx_base -lcdx_parser -lcdx_stream -lpthread
 
 ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABIHF))
-LoadFlags += -L../../EXTERNAL/lib32/lgnueabihf
-endif
-ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABI))
-LoadFlags +=-L../../EXTERNAL/lib32/lgnueabi
+LoadFlags += -L../../EXTERNAL/lib32/lgnueabihf/
+LoadFlags += -L../../libcedarc/library/lib32/lgnueabihf
 endif
 
+ifeq ($(CONFIG_CC),$(OPTION_CC_GNUEABI))
+LoadFlags += -L../../EXTERNAL/lib32/lgnueabi/
+LoadFlags += -L../../libcedarc/library/lib32/lgnueabi
+endif
+
+ifeq ($(CONFIG_CC),$(OPTION_CC_UCGNUEABI))
+LoadFlags += -L../../EXTERNAL/lib32/uclgnueabi/
+LoadFlags += -L../../libcedarc/library/lib32/uclgnueabi
+endif
+
+ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_UCGNUEABI))
+LoadFlags +=-L../../EXTERNAL/lib32/linuxgnueabi
+LoadFlags += -L../../libcedarc/library/lib32/linuxgnueabi
+endif
+
+ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI))
+    ifeq ($(LINUX_VERSION),$(LINUX_VERSION_3_10))
+    LoadFlags +=-L../../libcedarc/library/lib32/muslgnueabi_linux310
+    else
+    LoadFlags +=-L../../libcedarc/library/lib32/muslgnueabi
+    endif
+
+    LoadFlags +=-L../../EXTERNAL/lib32/muslgnueabi
+endif
+
+ifeq ($(CONFIG_CC),$(OPTION_CC_LINUX_MUSLGNUEABI64))
+LoadFlags +=-L../../EXTERNAL/lib64/muslgnueabi
+endif
+
+LoadFlags += -lcrypto -lssl -lz
 LoadFlags += -Wl,--no-undefined
 
 ###############################################################################

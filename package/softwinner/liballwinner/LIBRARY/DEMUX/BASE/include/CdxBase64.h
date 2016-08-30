@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxBase64.h
+ * Description : Base64
+ * History :
+ *
+ */
+
 #ifndef CDX_BASE_64_H
 #define CDX_BASE_64_H
 #include <CdxTypes.h>

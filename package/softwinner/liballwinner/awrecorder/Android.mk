@@ -54,4 +54,3 @@ LOCAL_SHARED_LIBRARIES +=   \
         
 
 include $(BUILD_SHARED_LIBRARY)
-

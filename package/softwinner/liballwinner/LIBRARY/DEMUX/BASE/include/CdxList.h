@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2008-2016 Allwinner Technology Co. Ltd.
+ * All rights reserved.
+ *
+ * File : CdxList.h
+ * Description : List
+ * History :
+ *
+ */
+
 #ifndef CDX_LIST_H
 #define CDX_LIST_H
 #include <CdxTypes.h>
@@ -46,7 +56,7 @@ extern "C"
  * This is only for internal list manipulation where we know
  * the prev/next entries already!
  */
-void __CdxListAdd(struct CdxListNodeS *new, struct CdxListNodeS *prev, struct CdxListNodeS *next);
+void __CdxListAdd(struct CdxListNodeS *new , struct CdxListNodeS *prev, struct CdxListNodeS *next);
 
 /**
  * list_add - add a new entry
@@ -56,13 +66,13 @@ void __CdxListAdd(struct CdxListNodeS *new, struct CdxListNodeS *prev, struct Cd
  * Insert a new entry after the specified head.
  * This is good for implementing stacks.
  */
-void CdxListAdd(struct CdxListNodeS *new, struct CdxListS *list);
+void CdxListAdd(struct CdxListNodeS *new , struct CdxListS *list);
 
-void CdxListAddBefore(struct CdxListNodeS *new, struct CdxListNodeS *pos);
+void CdxListAddBefore(struct CdxListNodeS *new , struct CdxListNodeS *pos);
 
-void CdxListAddAfter(struct CdxListNodeS *new, struct CdxListNodeS *pos);
+void CdxListAddAfter(struct CdxListNodeS *new , struct CdxListNodeS *pos);
 
-void CdxListAddTail(struct CdxListNodeS *new, struct CdxListS *list);
+void CdxListAddTail(struct CdxListNodeS *new , struct CdxListS *list);
 
 /*
  * Delete a list entry by making the prev/next entries
@@ -90,10 +100,9 @@ void CdxListDel(struct CdxListNodeS *node);
  *
  * If @old was empty, it will be overwritten.
  */
- void CdxListReplace(struct CdxListNodeS *old, struct CdxListNodeS *new);
+ void CdxListReplace(struct CdxListNodeS *old, struct CdxListNodeS *new );
 
-
-void CdxListReplaceInit(struct CdxListNodeS *old, struct CdxListNodeS *new);
+void CdxListReplaceInit(struct CdxListNodeS *old, struct CdxListNodeS *new );
 
 /**
  * list_del_init - deletes entry from list and reinitialize it.
@@ -150,115 +159,115 @@ int CdxListIsSingular(const struct CdxListS *list);
 
 /**
  * list_entry - get the struct for this entry
- * @ptr:	the &struct list_head pointer.
- * @type:	the type of the struct this is embedded in.
- * @member:	the name of the list_struct within the struct.
+ * @ptr:    the &struct list_head pointer.
+ * @type:    the type of the struct this is embedded in.
+ * @member:    the name of the list_struct within the struct.
  */
 #define CdxListEntry(ptr, type, member) \
-	CdxContainerOf(ptr, type, member)
+    CdxContainerOf(ptr, type, member)
 
 /**
  * list_first_entry - get the first element from a list
- * @ptr:	the list head to take the element from.
- * @type:	the type of the struct this is embedded in.
- * @member:	the name of the list_struct within the struct.
+ * @ptr:    the list head to take the element from.
+ * @type:    the type of the struct this is embedded in.
+ * @member:    the name of the list_struct within the struct.
  *
  * Note, that list is expected to be not empty.
  */
 #define CdxListFirstEntry(ptr, type, member) \
-	CdxListEntry((ptr)->head, type, member)
+    CdxListEntry((ptr)->head, type, member)
 
 /**
- * list_for_each	-	iterate over a list
- * @pos:	the &struct list_head to use as a loop cursor.
- * @head:	the head for your list.
+ * list_for_each    -    iterate over a list
+ * @pos:    the &struct list_head to use as a loop cursor.
+ * @head:    the head for your list.
  */
 #define CdxListForEach(pos, list) \
-	for (pos = (list)->head; \
-	        pos != (struct CdxListNodeS *)(list);\
-	        pos = pos->next)
+    for (pos = (list)->head; \
+            pos != (struct CdxListNodeS *)(list);\
+            pos = pos->next)
 
 /**
- * list_for_each_prev	-	iterate over a list backwards
- * @pos:	the &struct list_head to use as a loop cursor.
- * @head:	the head for your list.
+ * list_for_each_prev    -    iterate over a list backwards
+ * @pos:    the &struct list_head to use as a loop cursor.
+ * @head:    the head for your list.
  */
 #define CdxListForEachPrev(pos, list) \
-	for (pos = (list)->tail; \
-	    pos != (struct CdxListNodeS *)(list); \
-	    pos = pos->prev)
+    for (pos = (list)->tail; \
+        pos != (struct CdxListNodeS *)(list); \
+        pos = pos->prev)
 
 /**
  * list_for_each_safe - iterate over a list safe against removal of list entry
- * @pos:	the &struct list_head to use as a loop cursor.
- * @n:		another &struct list_head to use as temporary storage
- * @head:	the head for your list.
+ * @pos:    the &struct list_head to use as a loop cursor.
+ * @n:        another &struct list_head to use as temporary storage
+ * @head:    the head for your list.
  */
 #define CdxListForEachSafe(pos, n, list) \
-	for (pos = (list)->head, n = pos->next; \
-	    pos != (struct CdxListNodeS *)(list); \
-		pos = n, n = pos->next)
+    for (pos = (list)->head, n = pos->next; \
+        pos != (struct CdxListNodeS *)(list); \
+        pos = n, n = pos->next)
 
 /**
  * list_for_each_prev_safe - iterate over a list backwards safe against removal of list entry
- * @pos:	the &struct list_head to use as a loop cursor.
- * @n:		another &struct list_head to use as temporary storage
- * @head:	the head for your list.
+ * @pos:    the &struct list_head to use as a loop cursor.
+ * @n:        another &struct list_head to use as temporary storage
+ * @head:    the head for your list.
  */
 #define CdxListForEachPrevSafe(pos, n, list) \
-	for (pos = (list)->tail, n = pos->prev; \
-	     pos != (struct CdxListNodeS *)(list); \
-	     pos = n, n = pos->prev)
+    for (pos = (list)->tail, n = pos->prev; \
+         pos != (struct CdxListNodeS *)(list); \
+         pos = n, n = pos->prev)
 
 /**
- * list_for_each_entry	-	iterate over list of given type
- * @pos:	the type * to use as a loop cursor.
- * @head:	the head for your list.
- * @member:	the name of the list_struct within the struct.
+ * list_for_each_entry    -    iterate over list of given type
+ * @pos:    the type * to use as a loop cursor.
+ * @head:    the head for your list.
+ * @member:    the name of the list_struct within the struct.
  */
-#define CdxListForEachEntry(pos, list, member)				\
-	for (pos = CdxListEntry((list)->head, typeof(*pos), member);	\
-	     &pos->member != (struct CdxListNodeS *)(list); 	\
-	     pos = CdxListEntry(pos->member.next, typeof(*pos), member))
+#define CdxListForEachEntry(pos, list, member)                \
+    for (pos = CdxListEntry((list)->head, typeof(*pos), member);    \
+         &pos->member != (struct CdxListNodeS *)(list);     \
+         pos = CdxListEntry(pos->member.next, typeof(*pos), member))
 
 /**
  * list_for_each_entry_reverse - iterate backwards over list of given type.
- * @pos:	the type * to use as a loop cursor.
- * @head:	the head for your list.
- * @member:	the name of the list_struct within the struct.
+ * @pos:    the type * to use as a loop cursor.
+ * @head:    the head for your list.
+ * @member:    the name of the list_struct within the struct.
  */
-#define CdxListForEachEntryReverse(pos, list, member)			\
-	for (pos = CdxListEntry((list)->tail, typeof(*pos), member);	\
-	     &pos->member != (struct CdxListNodeS *)(list); 	\
-	     pos = CdxListEntry(pos->member.prev, typeof(*pos), member))
+#define CdxListForEachEntryReverse(pos, list, member)            \
+    for (pos = CdxListEntry((list)->tail, typeof(*pos), member);    \
+         &pos->member != (struct CdxListNodeS *)(list);     \
+         pos = CdxListEntry(pos->member.prev, typeof(*pos), member))
 
 /**
  * list_for_each_entry_safe - iterate over list of given type safe against removal of list entry
- * @pos:	the type * to use as a loop cursor.
- * @n:		another type * to use as temporary storage
- * @head:	the head for your list.
- * @member:	the name of the list_struct within the struct.
+ * @pos:    the type * to use as a loop cursor.
+ * @n:        another type * to use as temporary storage
+ * @head:    the head for your list.
+ * @member:    the name of the list_struct within the struct.
  */
-#define CdxListForEachEntrySafe(pos, n, list, member)			\
-	for (pos = CdxListEntry((list)->head, typeof(*pos), member),	\
-		n = CdxListEntry(pos->member.next, typeof(*pos), member);	\
-	     &pos->member != (struct CdxListNodeS *)(list); 					\
-	     pos = n, n = CdxListEntry(n->member.next, typeof(*n), member))
+#define CdxListForEachEntrySafe(pos, n, list, member)            \
+    for (pos = CdxListEntry((list)->head, typeof(*pos), member),    \
+        n = CdxListEntry(pos->member.next, typeof(*pos), member);    \
+         &pos->member != (struct CdxListNodeS *)(list);                     \
+         pos = n, n = CdxListEntry(n->member.next, typeof(*n), member))
 
 /**
  * list_for_each_entry_safe_reverse - iterate backwards over list safe against removal
- * @pos:	the type * to use as a loop cursor.
- * @n:		another type * to use as temporary storage
- * @head:	the head for your list.
- * @member:	the name of the list_struct within the struct.
+ * @pos:    the type * to use as a loop cursor.
+ * @n:        another type * to use as temporary storage
+ * @head:    the head for your list.
+ * @member:    the name of the list_struct within the struct.
  *
  * Iterate backwards over list of given type, safe against removal
  * of list entry.
  */
-#define CdxListForEachEntrySafeReverse(pos, n, list, member)		\
-	for (pos = CdxListEntry((list)->prev, typeof(*pos), member),	\
-		n = CdxListEntry(pos->member.prev, typeof(*pos), member);	\
-	     &pos->member != (struct CdxListNodeS *)(list); 					\
-	     pos = n, n = CdxListEntry(n->member.prev, typeof(*n), member))
+#define CdxListForEachEntrySafeReverse(pos, n, list, member)        \
+    for (pos = CdxListEntry((list)->prev, typeof(*pos), member),    \
+        n = CdxListEntry(pos->member.prev, typeof(*pos), member);    \
+         &pos->member != (struct CdxListNodeS *)(list);                     \
+         pos = n, n = CdxListEntry(n->member.prev, typeof(*n), member))
 
 #endif

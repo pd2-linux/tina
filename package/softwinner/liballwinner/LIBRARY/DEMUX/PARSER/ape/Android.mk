@@ -1,24 +1,28 @@
 LOCAL_PATH:= $(call my-dir)
+
 include $(CLEAR_VARS)
 
-LIB_ROOT=$(LOCAL_PATH)/../..
-include $(LIB_ROOT)/../config.mk
-include $(LIB_ROOT)/PARSER/config.mk
+CEDARX_ROOT=$(LOCAL_PATH)/../../../
+include $(CEDARX_ROOT)/config.mk
 
 LOCAL_SRC_FILES = \
     CdxApeParser.c
 
 LOCAL_C_INCLUDES:= \
-	$(LIB_ROOT)/BASE/include \
-    $(LIB_ROOT)/STREAM/include \
-    $(LIB_ROOT)/PARSER/include \
-    $(LIB_ROOT)/../CODEC/VIDEO/DECODER/include    \
-    $(LIB_ROOT)/../CODEC/AUDIO/DECODER/include    \
-    $(LIB_ROOT)/../CODEC/SUBTITLE/DECODER/include \
-    $(LIB_ROOT)/../PLAYER/                 \
-    $(LIB_ROOT)/../                 \
-		
-LOCAL_CFLAGS += $(CDX_CFLAGS) -Wno-unused-parameter
+    $(CEDARX_ROOT)/ \
+    $(CEDARX_ROOT)/libcore \
+    $(CEDARX_ROOT)/libcore/include \
+    $(CEDARX_ROOT)/libcore/base/include \
+    $(CEDARX_ROOT)/libcore/parser/include \
+    $(CEDARX_ROOT)/libcore/stream/include \
+    $(CEDARX_ROOT)/external/include/adecoder \
+    $(TOP)/frameworks/av/media/libcedarc/include \
+    $(TOP)/frameworks/av/media/libcedarc/vdecoder/include \
+    $(TOP)/frameworks/av/media/libcedarc/sdecoder/include
+
+
+
+LOCAL_CFLAGS += $(CDX_CFLAGS)
 
 LOCAL_MODULE_TAGS := optional
 LOCAL_PRELINK_MODULE := false

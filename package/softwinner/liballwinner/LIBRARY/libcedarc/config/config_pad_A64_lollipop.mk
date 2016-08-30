@@ -20,3 +20,11 @@ NEW_DISPLAY = yes
 ## 5. audio decoder soundtouch
 #LOCAL_CFLAGS += -CONFIG_ADECODER_SUPPORT_SOUNDTOUCH
 
+## 6. ve ipc
+#LOCAL_CFLAGS += -DCONFIG_VE_IPC_ENABLE
+
+## 7. secure os
+SECURE_OS = no
+ifeq ($(SECURE_OS), yes)
+LOCAL_CFLAGS += -DCONFIG_SECURE_OS
+endif
