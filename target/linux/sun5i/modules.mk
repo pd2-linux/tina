@@ -69,6 +69,7 @@ define KernelPackage/net-esp8089
   TITLE:=esp8089 support
   DEPENDS:=@TARGET_sun5i +esp8089-firmware
   FILES:=$(LINUX_DIR)/drivers/net/wireless/esp8089/esp8089.ko
+  AUTOLOAD:=$(call AutoProbe,esp8089)
 endef
 
 define KernelPackage/net-esp8089/description
