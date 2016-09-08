@@ -1245,10 +1245,6 @@ __read_new_data:
         {
             return FILE_PARSER_FILE_FMT_ERR;
         }
-        else if(calPackNum[avcVidPack]!=0)
-        {
-            return FILE_PARSER_FILE_FMT_ERR;
-        }
         else
         {
             memcpy(mMpgParserCxt->mDataChunkT.pStartAddr,

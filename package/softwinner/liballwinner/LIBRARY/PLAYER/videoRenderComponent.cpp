@@ -1399,41 +1399,43 @@ step_5:
 											}
 											logv("++++ p->pDeinterlacePrePicture: %p, pPicture: %p", p->pDeinterlacePrePicture, pPicture);
                                             // ii) deinterlace process
-                                            int diret = p->di->process(p->pDeinterlacePrePicture,
+											if(p->di){
+												int diret = p->di->process(p->pDeinterlacePrePicture,
                                                                pPicture,
                                                                pLayerBuffer,
                                                                nDeinterlaceTime);
-                                            if (diret != 0)
-                                            {
-                                                p->di->reset();
+	                                            if (diret != 0)
+	                                            {
+	                                                p->di->reset();
 
-                                                // iii) deinterlace error handling.
-                                                //      two ways for handling pLayerBuffer,
-                                                //          a) cancel to layer
-                                                //          b) set to pPreLayerBuffer for next deinterlace process.
-                                                //      we use b).
-                                                if (nDeinterlaceTime == (nDeinterlaceDispNum - 1)) {
-                                                    // last field, quit render msg.
-                                                    logd("last field...");
-                                                    if(pPicture != p->pDeinterlacePrePicture)
-                                                        VideoDecCompReturnPicture(p->pDecComp, p->pDeinterlacePrePicture);
-                                                    p->pDeinterlacePrePicture = pPicture;
-                                                    pPreLayerBuffer = pLayerBuffer;
-                                                    pLayerBuffer = NULL;
-                                                    goto process_message;
-                                                } else {
-                                                    // first field, try deinterlace last field.
-                                                    logd("first field...");
-													// prepicture == curpicture
-                                                    if(pPicture != p->pDeinterlacePrePicture)
-                                                        VideoDecCompReturnPicture(p->pDecComp, p->pDeinterlacePrePicture);
-                                                    p->pDeinterlacePrePicture = pPicture;
-                                                    pPreLayerBuffer = pLayerBuffer;
-                                                    pLayerBuffer = NULL;
-                                                    nDeinterlaceTime ++;
-                                                    continue;
-                                                }
-                                            }
+	                                                // iii) deinterlace error handling.
+	                                                //      two ways for handling pLayerBuffer,
+	                                                //          a) cancel to layer
+	                                                //          b) set to pPreLayerBuffer for next deinterlace process.
+	                                                //      we use b).
+	                                                if (nDeinterlaceTime == (nDeinterlaceDispNum - 1)) {
+	                                                    // last field, quit render msg.
+	                                                    logd("last field...");
+	                                                    if(pPicture != p->pDeinterlacePrePicture)
+	                                                        VideoDecCompReturnPicture(p->pDecComp, p->pDeinterlacePrePicture);
+	                                                    p->pDeinterlacePrePicture = pPicture;
+	                                                    pPreLayerBuffer = pLayerBuffer;
+	                                                    pLayerBuffer = NULL;
+	                                                    goto process_message;
+	                                                } else {
+	                                                    // first field, try deinterlace last field.
+	                                                    logd("first field...");
+														// prepicture == curpicture
+	                                                    if(pPicture != p->pDeinterlacePrePicture)
+	                                                        VideoDecCompReturnPicture(p->pDecComp, p->pDeinterlacePrePicture);
+	                                                    p->pDeinterlacePrePicture = pPicture;
+	                                                    pPreLayerBuffer = pLayerBuffer;
+	                                                    pLayerBuffer = NULL;
+	                                                    nDeinterlaceTime ++;
+	                                                    continue;
+	                                                }
+	                                            }
+											}
 
                                             // iv) end of deinterlacing this frame, set prepicture for next frame.
                                             if(nDeinterlaceTime == (nDeinterlaceDispNum - 1))
@@ -1541,7 +1543,9 @@ step_5:
 					{
 						p->mLayerOps->queueBuffer(p->pLayerCtrl, pLayerBuffer, 0);
                         pLayerBuffer = NULL;
-                        p->di->reset();
+						if(p->di){
+							p->di->reset();
+						}
                         continue;
 					}
 					
@@ -1550,7 +1554,9 @@ step_5:
 						logd("+++++ bot filed error");
 						p->mLayerOps->queueBuffer(p->pLayerCtrl, pLayerBuffer, 0);
                         pLayerBuffer = NULL;
-                        p->di->reset();
+                        if(p->di){
+							p->di->reset();
+						}
                         break;
 					}
                    
