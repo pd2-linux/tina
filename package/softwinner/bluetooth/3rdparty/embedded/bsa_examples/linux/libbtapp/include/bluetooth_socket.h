@@ -43,6 +43,7 @@ private:
 
 public:
     int bt_on(char *bt_addr);
+    int bt_on_no_avrcp(char *bt_addr);
     int bt_off();
     int set_bt_name(const char *bt_name); // strlen(bt_name) <= MAX_DATA_T_LEN-1
     int set_dev_discoverable(int enable);

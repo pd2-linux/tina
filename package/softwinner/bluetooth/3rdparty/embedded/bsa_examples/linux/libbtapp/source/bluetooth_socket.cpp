@@ -44,6 +44,31 @@ int c_bt::bt_on(char *bt_addr){
     return 0;
 }
 
+int c_bt::bt_on_no_avrcp(char *bt_addr){
+
+    char cmd[512] = {0};
+
+    printf("do bt cmd bt on bt_addr path %s\n", bt_addr);
+    if(this->bt_on_status == 1){
+        printf("bt already on\n");
+        return 0;
+    }
+
+    /* start bt server */
+    snprintf(cmd, 512, "/etc/bluetooth/btenable.sh on");
+    system(cmd);
+    usleep(1000000);
+
+    /*start bluetooth app*/
+    bluetooth_start(this,bt_addr);
+
+    /*start app avk*/
+    start_app_avk_no_avrcp();
+
+    this->bt_on_status = 1;
+    return 0;
+}
+
 int c_bt::bt_off(){
     printf("do bt cmd bt off\n");
 

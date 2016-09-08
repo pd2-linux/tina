@@ -111,6 +111,19 @@ int app_avk_init(tAvkCallback pcb /* = NULL */);
 
 /*******************************************************************************
 **
+** Function         app_avk_init_no_avrcp
+**
+** Description      Init AVK application without avrcp
+**
+** Parameters       Application callback (if null, default will be used)
+**
+** Returns          0 if successful, error code otherwise
+**
+*******************************************************************************/
+int app_avk_init_no_avrcp(tAvkCallback pcb /* = NULL */);
+
+/*******************************************************************************
+**
 ** Function         app_avk_end
 **
 ** Description      This function is used to close application

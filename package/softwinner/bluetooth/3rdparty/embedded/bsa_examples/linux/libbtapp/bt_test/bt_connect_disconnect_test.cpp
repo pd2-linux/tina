@@ -16,8 +16,6 @@ void bt_event_f(BT_EVENT event, void *reply, int *len)
 	  case BT_AVK_CONNECTED_EVT:
 	  {
 		  printf("Media audio connected!\n");
-		  c.set_dev_discoverable(0);
-		  c.set_dev_connectable(0);
 		  status = 1;
 		  break;
 	  }
@@ -26,8 +24,6 @@ void bt_event_f(BT_EVENT event, void *reply, int *len)
 	  {
 		  printf("Media audio disconnected!\n");
                   printf("link down reason %d\n", *(int *)reply);
-                  c.set_dev_connectable(1);
-		  c.set_dev_discoverable(1);
 		  status = 0;
 		  break;
 	  }
@@ -78,6 +74,9 @@ int main(int argc, char *args[]){
         }
         printf("wait connected event %d\n", i);
 
+	c.set_dev_discoverable(0);
+	c.set_dev_connectable(0);
+
         printf("Call disconnect\n");
         c.disconnect();
 
@@ -87,6 +86,9 @@ int main(int argc, char *args[]){
             i++;
         }
         printf("wait disconnect event %d ms\n", i);
+
+	c.set_dev_discoverable(1);
+	c.set_dev_connectable(1);
 
         printf("Call connect\n");
         c.connect_auto();

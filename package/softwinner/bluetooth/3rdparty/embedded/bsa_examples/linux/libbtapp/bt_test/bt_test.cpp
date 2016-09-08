@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
+static int last_status = 0;
 static int status = 0;
 static int playing = 0;
 c_bt c;
@@ -16,8 +17,6 @@ void bt_event_f(BT_EVENT event, void *reply, int *len)
 	  case BT_AVK_CONNECTED_EVT:
 	  {
 		  printf("Media audio connected!\n");
-		  c.set_dev_discoverable(0);
-		  c.set_dev_connectable(0);
 		  status = 1;
 		  break;
 	  }
@@ -26,8 +25,6 @@ void bt_event_f(BT_EVENT event, void *reply, int *len)
 	  {
 		  printf("Media audio disconnected!\n");
                   printf("link down reason %d\n", *(int *)reply);
-		  c.set_dev_connectable(1);
-		  c.set_dev_discoverable(1);
 		  status = 0;
 		  break;
 	  }
@@ -62,6 +59,8 @@ int main(int argc, char *args[]){
     printf("bt off before on\n");
     c.bt_off();
 
+    last_status = 0;
+    status = 0;
     if(argc >= 2){
        c.bt_on(args[1]);
     } else {
@@ -70,5 +69,21 @@ int main(int argc, char *args[]){
 
     c.set_bt_name("aw bt test001");
 
-    while(1);
+    while(1){
+	usleep(2000*1000);
+
+	/* connected */
+	if ((last_status == 0) && (status == 1)){
+	    c.set_dev_discoverable(0);
+	    c.set_dev_connectable(0);
+	    last_status = 1;
+	}
+
+	/* disconnected */
+	if ((last_status == 1) && (status == 0)){
+	    c.set_dev_discoverable(1);
+	    c.set_dev_connectable(1);
+	    last_status = 0;
+	}
+    }
 }

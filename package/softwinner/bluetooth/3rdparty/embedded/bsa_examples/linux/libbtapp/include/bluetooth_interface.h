@@ -25,6 +25,7 @@ int bluetooth_init();
 int bluetooth_start(void *p, char *p_conf);
 void bluetooth_stop();
 void start_app_avk();
+void start_app_avk_no_avrcp();
 void stop_app_avk();
 void s_set_bt_name(const char *name);
 void s_set_discoverable(int enable);

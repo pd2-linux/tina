@@ -402,6 +402,16 @@ void start_app_avk()
     avk_start_status = 1;
 }
 
+void start_app_avk_no_avrcp()
+{
+    /* Init avk Application */
+    app_avk_init_no_avrcp(app_avk_callback);
+    //auto register
+    app_avk_register();
+
+    avk_start_status = 1;
+}
+
 #if 0
 void start_app_hs()
 {
