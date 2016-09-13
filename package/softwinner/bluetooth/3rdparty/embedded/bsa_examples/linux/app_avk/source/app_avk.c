@@ -402,7 +402,9 @@ static void app_avk_handle_start(tBSA_AVK_MSG *p_data, tAPP_AVK_CONNECTION *conn
             if (status < 0)
             {
                 APP_ERROR1("snd_pcm_set_params failed: %s", snd_strerror(status));
-                pthread_mutex_unlock(&alsa_opt_mutex);
+				snd_pcm_close(app_avk_cb.alsa_handle);
+				app_avk_cb.alsa_handle = NULL;
+				pthread_mutex_unlock(&alsa_opt_mutex);
                 return;
             }
 
@@ -855,7 +857,9 @@ int app_avk_resume_pcm_alsa()
             if (status < 0)
             {
                 APP_ERROR1("snd_pcm_set_params failed: %s", snd_strerror(status));
-                pthread_mutex_unlock(&alsa_opt_mutex);
+				snd_pcm_close(app_avk_cb.alsa_handle);
+				app_avk_cb.alsa_handle = NULL;
+				pthread_mutex_unlock(&alsa_opt_mutex);
                 return -1;
             }
 
