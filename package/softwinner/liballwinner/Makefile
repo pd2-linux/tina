@@ -104,7 +104,7 @@ endef
 
 define Build/Configure
 	$(info **********TINA_CHIP_TYPE = $(TINA_CHIP_TYPE)********in Build/Configure)
-	cd $(PKG_BUILD_DIR); ./LIBRARY/configure --tool-chain=ucgnueabi --cedarx-path=$(PKG_BUILD_DIR) --chip=$(TINA_CHIP_TYPE) --product=$(TINA_PRODUCT_TYPE)
+	cd $(PKG_BUILD_DIR); ./LIBRARY/configure --tool-chain=ucgnueabi --cedarx-path=$(PKG_BUILD_DIR) --chip=$(TINA_CHIP_TYPE) --product=$(TINA_PRODUCT_TYPE) --ssl-enable=yes
 	
 endef
 
