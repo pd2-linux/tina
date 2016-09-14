@@ -91,6 +91,8 @@ define Package/qtlib/install
 	$(INSTALL_BIN) ./bin/BranQt4 $(1)/bin/qtapp/BranQt4
 	$(INSTALL_BIN) ./bin/baklight $(1)/bin/qtapp/baklight
 	$(INSTALL_BIN) ./bin/startqt.sh $(1)/bin/qtapp/startqt.sh
+	$(INSTALL_BIN) ./bin/esp_fcc.conf $(1)/bin/esp_fcc.conf
+	$(INSTALL_BIN) ./bin/esp_fcc_tool $(1)/bin/esp_fcc_tool
 
 endef
 

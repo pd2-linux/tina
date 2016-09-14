@@ -1,5 +1,7 @@
 #!/bin/sh
 
+mkdir -p /tmp/class/esp_boot
+
 export PATH=/usr/bin:/usr/sbin:/bin:/sbin
 export LD_LIBRARY_PATH=/lib/qtlib
 export QT_QWS_FONTDIR=/lib/qtlib/fonts
