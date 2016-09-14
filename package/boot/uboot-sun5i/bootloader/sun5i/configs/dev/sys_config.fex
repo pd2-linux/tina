@@ -186,6 +186,9 @@ uart_rx                  = port:PG4<4><1><default><default>
 [boosten_para]
 boosten_reset            = port:PE11<1><default><default><0>
 
+[button_para]
+button_port              = port:PB10<0><1><default><default>
+
 [uart_para2]
 uart_used                = 0
 uart_port                = 1
