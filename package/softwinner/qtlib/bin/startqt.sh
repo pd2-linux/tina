@@ -15,4 +15,6 @@ export TSLIB_CONSOLEDEVICE=none
 export TSLIB_FBDEVICE=/dev/fb0
 export QWS_MOUSE_PROTO=tslib:/dev/input/event5
 
-/bin/qtapp/BranQt4 -qws -font &
+cd /bin/qtapp
+./baklight 128
+./BranQt4 -qws -font &
