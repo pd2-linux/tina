@@ -5,6 +5,8 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
+#define DEBUG_MUSIC_INFO 0
+
 static int last_status = 0;
 static int status = 0;
 static int playing = 0;
@@ -53,6 +55,7 @@ int main(int argc, char *args[]){
     int times = 0;
     int save_fd = -1, fd = -1;
     int i = 0;
+    tBT_AVK_MUSIC_INFO music_info;
 
     c.set_callback(bt_event_f);
 
@@ -85,5 +88,16 @@ int main(int argc, char *args[]){
 	    c.set_dev_connectable(1);
 	    last_status = 0;
 	}
+
+#if(DEBUG_MUSIC_INFO == 1)
+	if(playing == 1){
+	    c.avk_get_music_info(&music_info);
+	    printf("Title: %s\n", music_info.title);
+	    printf("Artist: %s\n", music_info.artist);
+	    printf("Album: %s\n", music_info.album);
+	    //printf("Time: %s\n", music_info.playing_time);
+	}
+#endif
+
     }
 }

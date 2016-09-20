@@ -80,6 +80,10 @@ static int  disc_flag = 0;
 static int  dev_nums = 0;
 static char dev_info[4096] = {0};
 
+//avk element attr
+static int get_element_flag = 0;
+static s_avk_element_attr_t s_avk_element_attr;
+
 //tAvkCallback
 static void app_disc_callback(tBSA_DISC_EVT event, tBSA_DISC_MSG *p_data);
 static void app_avk_callback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data);
@@ -166,59 +170,110 @@ static void app_disc_callback(tBSA_DISC_EVT event, tBSA_DISC_MSG *p_data)
 
 static void app_avk_callback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
 {
+	switch(event)
+	{
+		case BSA_AVK_OPEN_EVT:
+		{
+			/* open status must be success */
+			if (p_data->open.status == BSA_SUCCESS){
+				APP_DEBUG0("avk connected!\n");
+				bdcpy(cur_connected_dev, p_data->open.bd_addr);
+				store_connected_dev(cur_connected_dev);
+				avk_connected_inner = 1;
+				bt_event_transact(p_cbt, APP_AVK_CONNECTED_EVT, NULL, NULL);
+			}
 
-	  switch(event)
-	  {
-		  case BSA_AVK_OPEN_EVT:
-		  {
-			  /* open status must be success */
-			  if (p_data->open.status == BSA_SUCCESS){
-			      APP_DEBUG0("avk connected!\n");
-			      bdcpy(cur_connected_dev, p_data->open.bd_addr);
-			      store_connected_dev(cur_connected_dev);
-                  avk_connected_inner = 1;
-                  bt_event_transact(p_cbt, APP_AVK_CONNECTED_EVT, NULL, NULL);
-			  }
+			break;
+		}
 
-		      break;
-		  }
-		  case BSA_AVK_CLOSE_EVT:
-		  {
-		      APP_DEBUG0("avk disconnected!\n");
-              memset(cur_connected_dev, 0, sizeof(cur_connected_dev));
-              avk_connected_inner = 0;
-		      break;
-		  }
-	      case BSA_AVK_START_EVT:
-	      {
-              /* already received BSA_AVK_OPEN_EVT */
-              if(avk_connected_inner == 1){
-                  avk_connected_inner = 2;
-                  gettimeofday(&avk_connected_time1, NULL);
-                  bt_event_transact(p_cbt, APP_AVK_CONNECT_COMPLETED_EVT, NULL, NULL);
-              }
+		case BSA_AVK_CLOSE_EVT:
+		{
+			APP_DEBUG0("avk disconnected!\n");
+			memset(cur_connected_dev, 0, sizeof(cur_connected_dev));
+			avk_connected_inner = 0;
+			break;
+		}
 
-              /* start music playing */
-		  if(p_data->start.streaming == TRUE)
-		  {
-                  APP_DEBUG0("BT is playing music!\n");
-                  avk_music_playing = 1;
-                  bt_event_transact(p_cbt, APP_AVK_START_EVT, NULL, NULL);
-		  }
+		case BSA_AVK_START_EVT:
+		{
+			/* already received BSA_AVK_OPEN_EVT */
+			if(avk_connected_inner == 1){
+				avk_connected_inner = 2;
+				gettimeofday(&avk_connected_time1, NULL);
+				bt_event_transact(p_cbt, APP_AVK_CONNECT_COMPLETED_EVT, NULL, NULL);
+			}
 
-		  break;
-	      }
-	      case BSA_AVK_STOP_EVT:
-	      {
-		  APP_DEBUG0("BT is stop music!\n");
-              avk_music_playing = 0;
-		  bt_event_transact(p_cbt, APP_AVK_STOP_EVT, NULL, NULL);
-		  break;
-	      }
+			/* start music playing */
+			if(p_data->start.streaming == TRUE)
+			{
+				APP_DEBUG0("BT is playing music!\n");
+				avk_music_playing = 1;
+				bt_event_transact(p_cbt, APP_AVK_START_EVT, NULL, NULL);
+			}
 
-	      default:
-	          ;
-	  }
+			break;
+		}
+
+		case BSA_AVK_STOP_EVT:
+		{
+			APP_DEBUG0("BT is stop music!\n");
+			avk_music_playing = 0;
+			bt_event_transact(p_cbt, APP_AVK_STOP_EVT, NULL, NULL);
+			break;
+		}
+
+		case BSA_AVK_GET_ELEM_ATTR_EVT:
+		{
+			int i = 0;
+			tBSA_AVK_STRING *p_name = NULL;
+
+			APP_DEBUG0("AVK_GET_ELEM_ATTR_EVT cback");
+
+			memset(&s_avk_element_attr, 0, sizeof(s_avk_element_attr));
+			for (i = 0; i < p_data->elem_attr.num_attr; i++){
+				p_name = &(p_data->elem_attr.attr_entry[i].name);
+				switch(p_data->elem_attr.attr_entry[i].attr_id)
+				{
+					case BSA_AVRC_MEDIA_ATTR_ID_TITLE:
+						{
+							memcpy(s_avk_element_attr.title, p_name->data, p_name->str_len);
+							s_avk_element_attr.title[p_name->str_len] = '\0';
+							break;
+						}
+
+					case BSA_AVRC_MEDIA_ATTR_ID_ARTIST:
+						{
+							memcpy(s_avk_element_attr.artist, p_name->data, p_name->str_len);
+							s_avk_element_attr.artist[p_name->str_len] = '\0';
+							break;
+						}
+
+					case BSA_AVRC_MEDIA_ATTR_ID_ALBUM:
+						{
+							memcpy(s_avk_element_attr.album, p_name->data, p_name->str_len);
+							s_avk_element_attr.album[p_name->str_len] = '\0';
+							break;
+						}
+
+					case BSA_AVRC_MEDIA_ATTR_ID_PLAYING_TIME:
+						{
+							memcpy(s_avk_element_attr.playing_time, p_name->data, p_name->str_len);
+							s_avk_element_attr.playing_time[p_name->str_len] = '\0';
+							break;
+						}
+
+					default:
+						;
+				}
+			}
+			get_element_flag = 1;
+
+			break;
+		}
+
+		default:
+			;
+	}
 }
 
 #if 0
@@ -721,6 +776,43 @@ void s_avk_play_next()
     {
 	  printf("Connection is NULL when playing next\n");
     }
+}
+
+int s_avk_get_element_attr(s_avk_element_attr_t *p_s_avk_element_attr)
+{
+	int times = 0;
+	tAPP_AVK_CONNECTION *connection = NULL;
+
+	if (!p_s_avk_element_attr){
+		printf("Error: s_avk_get element attr param error!\n");
+		return -1;
+	}
+
+	get_element_flag = 0;
+	memset(p_s_avk_element_attr, 0, sizeof(p_s_avk_element_attr));
+	connection = app_avk_find_connection_by_bd_addr(cur_connected_dev);
+	if(connection)
+	{
+		app_avk_rc_get_element_attr_command(connection->rc_handle);
+    }
+    else
+    {
+	  printf("Connection is NULL when get element attr\n");
+	  return -1;
+    }
+
+    while((get_element_flag == 0) && (times < 300)){
+        usleep(100*1000);
+        times++;
+    }
+
+    if(get_element_flag == 0){
+		printf("Warning: get element attr timeout\n");
+        return -1;
+    }
+
+	*p_s_avk_element_attr = s_avk_element_attr;
+	return 0;
 }
 
 void s_hs_pick_up()

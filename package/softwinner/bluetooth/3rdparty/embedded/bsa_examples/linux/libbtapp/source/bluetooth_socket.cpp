@@ -228,6 +228,25 @@ int c_bt::avk_next()
     return 0;
 }
 
+int c_bt::avk_get_music_info(tBT_AVK_MUSIC_INFO *p_avk_music_info)
+{
+    s_avk_element_attr_t s_avk_element_attr;
+
+    printf("do bt cmd avk get music info\n");
+
+    if(!p_avk_music_info){
+	printf("Error: avk music info is NULL!\n");
+	return -1;
+    }
+    s_avk_get_element_attr(&s_avk_element_attr);
+
+    memcpy(p_avk_music_info->title, s_avk_element_attr.title, AVK_MUSIC_INFO_LEN_MAX);
+    memcpy(p_avk_music_info->artist, s_avk_element_attr.artist, AVK_MUSIC_INFO_LEN_MAX);
+    memcpy(p_avk_music_info->album, s_avk_element_attr.album, AVK_MUSIC_INFO_LEN_MAX);
+    //memcpy(p_avk_music_info->playing_time, s_avk_element_attr.playing_time, AVK_MUSIC_INFO_LEN_MAX);
+    return 0;
+}
+
 int c_bt::hs_pick_up()
 {
     s_hs_pick_up();

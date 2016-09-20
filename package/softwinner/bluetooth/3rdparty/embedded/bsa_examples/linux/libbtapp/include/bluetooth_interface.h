@@ -6,6 +6,17 @@
 typedef unsigned char S_BT_ADDR[BT_ADDR_LENTH];
 #endif
 
+#ifndef AVK_ELEMENT_ATTR_LENTH
+#define AVK_ELEMENT_ATTR_LENTH 102
+#endif
+
+typedef struct{
+    unsigned char title[AVK_ELEMENT_ATTR_LENTH];
+    unsigned char artist[AVK_ELEMENT_ATTR_LENTH];
+    unsigned char album[AVK_ELEMENT_ATTR_LENTH];
+    unsigned char playing_time[AVK_ELEMENT_ATTR_LENTH];
+}s_avk_element_attr_t;
+
 /* define bt app event */
 typedef enum{
     APP_AVK_CONNECTED_EVT = 0,
@@ -45,6 +56,7 @@ void s_avk_close_pcm_alsa();
 void s_avk_resume_pcm_alsa();
 void s_avk_play_previous();
 void s_avk_play_next();
+int  s_avk_get_element_attr(s_avk_element_attr_t *p_s_avk_element);
 void s_hs_pick_up();
 void s_hs_hung_up();
 
