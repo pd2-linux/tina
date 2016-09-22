@@ -74,7 +74,7 @@ int wpa_conf_is_ap_exist(const char *ssid, tKEY_MGMT key_mgmt, char *net_id, int
             }   
         }
 
-        flag = 0;   
+        flag = 0;
 
         p_e = strchr(pssid_start, '\n');
         if(p_e){
@@ -82,20 +82,19 @@ int wpa_conf_is_ap_exist(const char *ssid, tKEY_MGMT key_mgmt, char *net_id, int
         }
         p_s = strrchr(ptr, '\n');
         p_s++;
-        
+
         if(strstr(p_s, "CURRENT")){
             flag = 2;
         }
-        
+
         p = strtok(p_s, "\t");
         if(p){
             if(net_id != NULL && *len > 0){
                 strncpy(net_id, p, *len-1);
                 net_id[*len-1] = '\0';
-                *len = strlen(net_id);    
             }
         }
-        
+
         /* get key_mgmt */
         sprintf(cmd, "GET_NETWORK %s key_mgmt", net_id);
         cmd[255] = '\0';
@@ -110,7 +109,8 @@ int wpa_conf_is_ap_exist(const char *ssid, tKEY_MGMT key_mgmt, char *net_id, int
  
         if(strcmp(key_reply, key_type) == 0){
             flag += 1;
-            break;
+			*len = strlen(net_id);
+			break;
         }
 
         if(p_e == NULL){
@@ -120,7 +120,7 @@ int wpa_conf_is_ap_exist(const char *ssid, tKEY_MGMT key_mgmt, char *net_id, int
             ptr = p_e;
         }
     }
-    
+
     return flag;
 }
 
@@ -141,7 +141,7 @@ int wpa_conf_ssid2netid(char *ssid, tKEY_MGMT key_mgmt, char *net_id, int *len)
     } else {
         strncpy(key_type, "NONE", 128);
     }
-    
+
     /* list ap in wpa_supplicant.conf */
     strncpy(cmd, "LIST_NETWORKS", 15);
     cmd[15] = '\0';
@@ -150,11 +150,11 @@ int wpa_conf_ssid2netid(char *ssid, tKEY_MGMT key_mgmt, char *net_id, int *len)
         printf("do list networks error!\n");
         return -1;
     }
-    
+
     ptr = reply;
     while((pssid_start=strstr(ptr, ssid)) != NULL){
         char *p_s=NULL, *p_e=NULL, *p_t=NULL;
-        
+
         pssid_end = pssid_start + strlen(ssid);
         /* ssid is presuffix of searched network */
         if(*pssid_end != '\t'){
@@ -164,33 +164,31 @@ int wpa_conf_ssid2netid(char *ssid, tKEY_MGMT key_mgmt, char *net_id, int *len)
                 continue;
             }else{
                 break;
-            }   
+            }
         }
 
         flag = 0;
-   
         p_e = strchr(pssid_start, '\n');
         if(p_e){
             *p_e = '\0';
         }
         p_s = strrchr(ptr, '\n');
         p_s++;
-        
+
         if(strstr(p_s, "CURRENT")){
             flag = 2;
         }
-        
+
         p_t = strchr(p_s, '\t');
         if(p_t){
-        	  int tmp = 0;
+			int tmp = 0;
             tmp = p_t - p_s;
             if(tmp <= NET_ID_LEN){
-               strncpy(net_id, p_s, tmp);
-               net_id[tmp] = '\0';
+				strncpy(net_id, p_s, tmp);
+				net_id[tmp] = '\0';
             }
-            *len = tmp;
         }
-        
+
         /* get key_mgmt */
         sprintf(cmd, "GET_NETWORK %s key_mgmt", net_id);
         cmd[CMD_LEN] = '\0';
@@ -199,10 +197,11 @@ int wpa_conf_ssid2netid(char *ssid, tKEY_MGMT key_mgmt, char *net_id, int *len)
             printf("do get network %s key_mgmt error!\n", net_id);
             return -1;
         }
- 
+
         if(strcmp(key_reply, key_type) == 0){
             flag += 1;
-            break;
+			*len =  strlen(net_id);
+			break;
         }
 
         if(p_e == NULL){
@@ -212,8 +211,8 @@ int wpa_conf_ssid2netid(char *ssid, tKEY_MGMT key_mgmt, char *net_id, int *len)
             ptr = p_e;
         }
     }
-    
-    return flag;    	
+
+    return flag;
 }
 
 /*
