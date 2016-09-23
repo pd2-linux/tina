@@ -981,10 +981,10 @@ pmu_usbcur_pc            = 0
 pmu_pwroff_vol           = 3300
 pmu_pwron_vol            = 2900
 
-pmu_pekoff_time          = 6000
+pmu_pekoff_time          = 8000
 pmu_pekoff_en            = 1
 pmu_peklong_time         = 1500
-pmu_pekon_time           = 1000
+pmu_pekon_time           = 2000
 pmu_pwrok_time           = 64
 pmu_pwrnoe_time          = 2000
 pmu_intotp_en            = 1

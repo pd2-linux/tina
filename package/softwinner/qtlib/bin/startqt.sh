@@ -17,4 +17,6 @@ export QWS_MOUSE_PROTO=tslib:/dev/input/event5
 
 cd /bin/qtapp
 ./baklight 128
-./BranQt4 -qws -font &
+
+export QWS_DISPLAY=Transformed:Rot0
+./BranTest -qws -font &
