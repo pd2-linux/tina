@@ -3344,6 +3344,7 @@ CONFIG_WPA_MSG_MIN_PRIORITY=3
 #
 # CONFIG_PACKAGE_AudioManager is not set
 CONFIG_PACKAGE_adb=y
+CONFIG_PACKAGE_qtlib=y
 # CONFIG_PACKAGE_bluetooth is not set
 # CONFIG_PACKAGE_demoplayer is not set
 # CONFIG_PACKAGE_dlnatest is not set

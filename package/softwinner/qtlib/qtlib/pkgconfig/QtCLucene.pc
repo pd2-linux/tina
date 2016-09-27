@@ -1,0 +1,19 @@
+prefix=/home/leo/MyQt/Qt4.8.6_R8
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include/QtCLucene
+qt_config=lex yacc uic resources qt release incremental link_prl gdb_dwarf_index cross_compile shared def_files_disabled no_mocdepend release stl qt_no_framework cross_compile release embedded stl precompile_header neon dylib create_prl link_prl depend_includepath QTDIR_build qt_install_headers qt depend_includepath qmake_cache target_qt hide_symbols create_pc create_libtool explicitlib qt warn_off hide_symbols exceptions moc thread dll shared
+moc_location=${prefix}/bin/moc
+uic_location=${prefix}/bin/uic
+rcc_location=${prefix}/bin/rcc
+lupdate_location=${prefix}/bin/lupdate
+lrelease_location=${prefix}/bin/lrelease
+
+Name: Qtclucene
+Description: Qtclucene Library
+Version: 4.8.6
+Libs: -L${libdir} -lQtCLucene 
+Libs.private: -L/home/leo/MyQt/Qt4.8.6_R8/lib  -lQtCore -L/home/leo/MyQt/Qt4.8.6_R8/lib -lpthread   
+Cflags: -DQT_SHARED -I/home/leo/MyQt/Qt4.8.6_R8/include -I${includedir}
+Requires: QtCore
+
