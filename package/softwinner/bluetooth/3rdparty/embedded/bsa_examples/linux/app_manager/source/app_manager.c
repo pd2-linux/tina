@@ -39,8 +39,8 @@
 /* Default local Name */
 #define APP_DEFAULT_BT_NAME             "My BSA Bluetooth Device"
 
-/* Default COD SetTopBox (Major Service = none) (MajorDevclass = Audio/Video) (Minor=STB) */
-#define APP_DEFAULT_CLASS_OF_DEVICE     {0x00, 0x04, 0x24}
+/* Default COD Audio Headphones */
+#define APP_DEFAULT_CLASS_OF_DEVICE     {0x24, 0x04, 0x18}
 
 #define APP_DEFAULT_ROOT_PATH           "./pictures"
 
