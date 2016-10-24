@@ -54,6 +54,7 @@ extern void read_connected_dev(BD_ADDR bt_mac_addr);
  */
 tAPP_DISCOVERY_CB app_discovery_cb;
 char bta_conf_path[MAX_PATH_LEN] = {0};
+int connect_link_status = 0;
 
 /*static variables */
 static tBSA_SEC_IO_CAP g_sp_caps = 0;
@@ -373,7 +374,8 @@ static void bsa_sec_callback(tBSA_SEC_EVT event, tBSA_SEC_MSG *p_data)
             if(avk_disconnect_cmd == 1 || avk_connected_inner == 0){
                 avk_disconnect_cmd = 0;
                 link_status = 0;
-                link_reason = p_data->link_down.status;
+				connect_link_status = 0;
+				link_reason = p_data->link_down.status;
                 reply_len = 4; 
                 bt_event_transact(p_cbt, APP_AVK_DISCONNECTED_EVT, (void *)&link_reason, &reply_len);
                 APP_DEBUG0("BSA_SEC_LINK_DOWN_EVT return from app!\n");
@@ -630,6 +632,8 @@ int s_connect_auto()
     }
     printf("link status %d\n", link_status);
 
+	connect_link_status = 1;
+
     memset(last_connected_dev, 0, sizeof(last_connected_dev));
     read_connected_dev(last_connected_dev);
     return app_avk_auto_connect(last_connected_dev);
@@ -643,6 +647,8 @@ int s_connect_dev_by_addr(S_BT_ADDR s_bt_addr)
     for(i = 0; i < BD_ADDR_LEN; i++){
         bd_addr[i] = s_bt_addr[i];
     }
+
+	connect_link_status = 1;
 
     app_avk_connect_by_addr(bd_addr);
     return 0;

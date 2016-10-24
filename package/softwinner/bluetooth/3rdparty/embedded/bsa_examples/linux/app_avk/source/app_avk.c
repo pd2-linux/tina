@@ -85,6 +85,7 @@ tBSA_AVK_REG_NOTIFICATIONS reg_notifications =
  */
 
 tAPP_AVK_CB app_avk_cb;
+extern int connect_link_status;
 
 #ifdef PCM_ALSA
 static char *alsa_device = "default"; /* ALSA playback device */
@@ -948,7 +949,12 @@ int app_avk_auto_connect(BD_ADDR bt_auto_addr)
             /* this is an active wait for demo purpose */
             printf("waiting for AV connection to open\n");
 
-            while (app_avk_cb.open_pending == TRUE);
+            while (app_avk_cb.open_pending == TRUE){
+				if (connect_link_status == 0){
+					printf("Link down when connect auto\n");
+					return -1;
+				}
+			}
 
             connection = app_avk_find_connection_by_bd_addr(open_param.bd_addr);
             if(connection == NULL || connection->is_open == FALSE)
@@ -1021,7 +1027,12 @@ int app_avk_connect_by_addr(BD_ADDR bd_addr)
         /* this is an active wait for demo purpose */
         printf("waiting for AV connection to open\n");
 
-        while (app_avk_cb.open_pending == TRUE);
+		while (app_avk_cb.open_pending == TRUE){
+			if (connect_link_status == 0){
+				printf("Link down when connect by addr\n");
+				return -1;
+			}
+		}
 
         connection = app_avk_find_connection_by_bd_addr(open_param.bd_addr);
         if(connection == NULL || connection->is_open == FALSE)
