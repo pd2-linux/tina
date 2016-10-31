@@ -374,12 +374,9 @@ static void app_avk_handle_start(tBSA_AVK_MSG *p_data, tAPP_AVK_CONNECTION *conn
         /* If ALSA PCM driver was already open => close it */
         if (app_avk_cb.alsa_handle != NULL)
         {
-            pthread_mutex_unlock(&alsa_opt_mutex);
-            return ;
-            //printf("app_avk_handle_start snd_pcm_close\n");
-            //snd_pcm_close(app_avk_cb.alsa_handle);
-            //app_avk_cb.alsa_handle = NULL;
-        }
+            snd_pcm_close(app_avk_cb.alsa_handle);
+            app_avk_cb.alsa_handle = NULL;
+		}
 
         /* Open ALSA driver */
         status = snd_pcm_open(&(app_avk_cb.alsa_handle), alsa_device,
