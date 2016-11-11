@@ -9,6 +9,7 @@ extern "C" {
 #define KEY_NONE_INDEX    0
 #define KEY_WPA_PSK_INDEX 1
 #define KEY_WEP_INDEX     2
+#define SSID_LEN	  32
 
 void start_wifi_scan_thread(void *args);
 void stop_wifi_scan_thread();
