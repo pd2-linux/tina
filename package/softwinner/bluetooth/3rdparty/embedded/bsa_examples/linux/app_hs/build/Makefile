@@ -21,6 +21,13 @@ include $(BLUETOOTH_3RD_DIR)/embedded/$(customer)/$(project)/app_common/build/ma
 srcdirs :=
 appsources :=
 
+# add ENABLE_ALSA=TRUE at the command line to enable
+ENABLE_ALSA ?= FALSE
+ifeq ($(strip $(ENABLE_ALSA)), TRUE)
+	GLOBAL_DEFINE += -DPCM_ALSA
+	LINKLIBS += -lasound
+endif
+
 # include variable definitions for each component
 include $(BLUETOOTH_APPLICATION_DIR)/build/def/*.def
 

@@ -26,7 +26,8 @@ void bt_event_f(BT_EVENT event, void *reply, int *len)
 	  case BT_AVK_DISCONNECTED_EVT:
 	  {
 		  printf("Media audio disconnected!\n");
-                  printf("link down reason %d\n", *(int *)reply);
+		  printf("Media audio disconnected2!\n");
+		  printf("link down reason %d\n", *(int *)reply);
 		  status = 0;
 		  break;
 	  }
@@ -45,6 +46,29 @@ void bt_event_f(BT_EVENT event, void *reply, int *len)
 	      break;
 	  }
 
+	  case BT_HS_CONNECTED_EVT:
+	  {
+	      printf("HS and HF connected!\n");
+	      break;
+	  }
+
+	  case BT_HS_DISCONNECTED_EVT:
+	  {
+	      printf("HS and HF disconnected!\n");
+	      break;
+	  }
+
+	  case BT_HS_RING_EVT:
+	  {
+	      printf("HS ring call!\n");
+	      break;
+	  }
+
+	  case BT_HS_OK_EVT:
+	  {
+	      printf("HS OK evt!\n");
+	      break;
+	  }
 	  default:
 	      break;
     }

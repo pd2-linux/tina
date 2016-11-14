@@ -30,6 +30,7 @@ typedef enum{
     APP_HS_AUDIO_OPEN_EVT = 8,
     APP_HS_AUDIO_CLOSE_EVT = 9,
     APP_MGR_DISC_RESULTS = 10,
+    APP_HS_RING_EVT = 11
 }APP_BT_EVENT;
 
 int bluetooth_init();
@@ -57,6 +58,8 @@ void s_avk_resume_pcm_alsa();
 void s_avk_play_previous();
 void s_avk_play_next();
 int  s_avk_get_element_attr(s_avk_element_attr_t *p_s_avk_element);
+void start_app_hs();
+void stop_app_hs();
 void s_hs_pick_up();
 void s_hs_hung_up();
 

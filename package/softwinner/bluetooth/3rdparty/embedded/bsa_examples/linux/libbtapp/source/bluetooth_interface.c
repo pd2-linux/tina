@@ -277,7 +277,7 @@ static void app_avk_callback(tBSA_AVK_EVT event, tBSA_AVK_MSG *p_data)
 	}
 }
 
-#if 0
+#if 1
 static void app_hs_callback(tBSA_HS_EVT event, tBSA_HS_MSG *p_data)
 {
     UINT16 handle = 0;
@@ -287,7 +287,7 @@ static void app_hs_callback(tBSA_HS_EVT event, tBSA_HS_MSG *p_data)
     handle = p_data->hdr.handle;
 
     /* retrieve the connection for this handle */
-    p_conn = app_hs_get_conn_by_handle(handle);
+    p_conn = app_hs_get_conn_by_handle_external(handle);
 
     switch(event)
     {
@@ -308,7 +308,7 @@ static void app_hs_callback(tBSA_HS_EVT event, tBSA_HS_MSG *p_data)
         case BSA_HS_CLOSE_EVT:
         {
 		  APP_DEBUG0("hs disconnected!\n");
-		  bt_event_transact(p_cbt, APP_AVK_DISCONNECTED_EVT, NULL, NULL);
+		  bt_event_transact(p_cbt, APP_HS_DISCONNECTED_EVT, NULL, NULL);
 		  break;
         }
         case BSA_HS_AUDIO_OPEN_EVT:
@@ -317,9 +317,17 @@ static void app_hs_callback(tBSA_HS_EVT event, tBSA_HS_MSG *p_data)
             break;
         }
 
+		case BSA_HS_RING_EVT:
+		{
+			APP_DEBUG0("hs ring event!\n");
+			bt_event_transact(p_cbt, APP_HS_RING_EVT, NULL, NULL);
+			break;
+		}
+
         default:
             ;
     }
+	
 }
 #endif
 
@@ -375,7 +383,7 @@ static void bsa_sec_callback(tBSA_SEC_EVT event, tBSA_SEC_MSG *p_data)
                 avk_disconnect_cmd = 0;
                 link_status = 0;
 				connect_link_status = 0;
-				link_reason = p_data->link_down.status;
+                link_reason = p_data->link_down.status;
                 reply_len = 4; 
                 bt_event_transact(p_cbt, APP_AVK_DISCONNECTED_EVT, (void *)&link_reason, &reply_len);
                 APP_DEBUG0("BSA_SEC_LINK_DOWN_EVT return from app!\n");
@@ -469,15 +477,13 @@ void start_app_avk_no_avrcp()
     avk_start_status = 1;
 }
 
-#if 0
 void start_app_hs()
 {
     /* Init Headset Application */
-    //app_hs_init();
+	app_hs_init();
     /* Start Headset service*/
-    //app_hs_start(app_hs_callback);
+	app_hs_start(app_hs_callback);
 }
-#endif
 
 void s_set_bt_name(const char *name)
 {
@@ -633,7 +639,6 @@ int s_connect_auto()
     printf("link status %d\n", link_status);
 
 	connect_link_status = 1;
-
     memset(last_connected_dev, 0, sizeof(last_connected_dev));
     read_connected_dev(last_connected_dev);
     return app_avk_auto_connect(last_connected_dev);
@@ -647,7 +652,6 @@ int s_connect_dev_by_addr(S_BT_ADDR s_bt_addr)
     for(i = 0; i < BD_ADDR_LEN; i++){
         bd_addr[i] = s_bt_addr[i];
     }
-
 	connect_link_status = 1;
 
     app_avk_connect_by_addr(bd_addr);
@@ -846,7 +850,7 @@ void stop_app_avk()
 void stop_app_hs()
 {
     /* Stop Headset service*/
-    //app_hs_stop();
+    app_hs_stop();
 }
 
 void bluetooth_stop()

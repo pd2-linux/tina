@@ -40,6 +40,9 @@ int c_bt::bt_on(char *bt_addr){
     /*start app avk*/
     start_app_avk();
 
+    /* start hs */
+    start_app_hs();
+
     this->bt_on_status = 1;
     return 0;
 }
@@ -76,6 +79,9 @@ int c_bt::bt_off(){
         printf("bt is not on\n");
         return 0;
     }
+
+    /* stop app hs */
+    stop_app_hs();
 
     /*stop app avk*/
     stop_app_avk();
@@ -312,7 +318,35 @@ extern "C" void bt_event_transact(void *p, APP_BT_EVENT event, void *reply, int 
             break;
         }
 
-        default:
+	case APP_HS_CONNECTED_EVT:
+	{
+	    p_c_bt->event_callback(BT_HS_CONNECTED_EVT, NULL, NULL);
+	    break;
+	}
+
+	case APP_HS_DISCONNECTED_EVT:
+	{
+	    p_c_bt->event_callback(BT_HS_DISCONNECTED_EVT, NULL, NULL);
+	    break;
+	}
+
+	case APP_HS_AUDIO_OPEN_EVT:
+	{
+	    p_c_bt->event_callback(BT_HS_RING_EVT, NULL, NULL);
+	    break;
+	}
+
+	case APP_HS_AUDIO_CLOSE_EVT:
+	{
+	    p_c_bt->event_callback(BT_HS_OK_EVT, NULL, NULL);
+	    break;
+	}
+	
+	case APP_HS_RING_EVT:
+	{
+	    p_c_bt->event_callback(BT_HS_RING_EVT, NULL, NULL);
+	}
+	default:
                 ;
     }
 }
