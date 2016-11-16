@@ -192,7 +192,7 @@ void *wifi_scan_thread(void *args)
     while(scan_running){
         pthread_mutex_lock(&scan_mutex);
 
-        if(scan_pause == 1){
+        while(scan_pause == 1){
              pthread_cond_wait(&scan_cond, &scan_mutex);
         }
 
@@ -249,12 +249,12 @@ void *wifi_scan_thread(void *args)
 
 void start_wifi_scan_thread(void *args)
 {
-    scan_running = 1;
-    pthread_create(&scan_thread_id, NULL, &wifi_scan_thread, args);
-    pthread_mutex_init(&scan_mutex, NULL);
+	pthread_mutex_init(&scan_mutex, NULL);
     pthread_cond_init(&scan_cond, NULL);
     pthread_mutex_init(&thread_run_mutex, NULL);
     pthread_cond_init(&thread_run_cond,NULL);
+    scan_running = 1;
+    pthread_create(&scan_thread_id, NULL, &wifi_scan_thread, args);
 }
 
 void pause_wifi_scan_thread()
@@ -267,9 +267,9 @@ void pause_wifi_scan_thread()
 void resume_wifi_scan_thread()
 {
     pthread_mutex_lock(&scan_mutex);
-    pthread_cond_signal(&scan_cond);
     scan_pause=0;
     pthread_mutex_unlock(&scan_mutex);
+	pthread_cond_signal(&scan_cond);
 }
 
 void stop_wifi_scan_thread()
