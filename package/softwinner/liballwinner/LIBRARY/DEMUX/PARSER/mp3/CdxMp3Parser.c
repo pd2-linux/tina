@@ -888,6 +888,8 @@ static cdx_bool Mp3HeadResync(CdxParserT *parser, cdx_uint32 matchHeader, cdx_in
 
     if (*inoutPos == 0) {  
         for (;;) {
+			if(mp3->exitFlag == 1)
+				return CDX_FALSE;
             uint8_t id3header[10];
             if (CdxStreamRead(mp3->stream, id3header, sizeof(id3header))
                         < (cdx_int32)sizeof(id3header)) {
@@ -926,6 +928,8 @@ static cdx_bool Mp3HeadResync(CdxParserT *parser, cdx_uint32 matchHeader, cdx_in
     cdx_uint8 *tmp = buf;
 
     do {
+		if(mp3->exitFlag == 1)
+			return CDX_FALSE;
         if (pos >= *inoutPos + kMaxBytesChecked) {
             // Don't scan forever.
             CDX_LOGV("giving up at offset %lld", pos);
@@ -981,6 +985,8 @@ static cdx_bool Mp3HeadResync(CdxParserT *parser, cdx_uint32 matchHeader, cdx_in
         for (j = 0; j < 3; ++j) {
             uint8_t tmp[4];
             uint64_t orioffset = CdxStreamTell(mp3->stream);
+			if(mp3->exitFlag == 1)
+				return CDX_FALSE;
             if (CdxStreamSeek(mp3->stream, test_pos, SEEK_SET)) {
                 valid = CDX_FALSE;
                 break;
@@ -1192,10 +1198,12 @@ static int CdxMp3ParserControl(CdxParserT *parser, cdx_int32 cmd, void *param)
         case CDX_PSR_CMD_SET_FORCESTOP:
         {
             mp3->mErrno = PSR_USER_CANCEL;
+			mp3->exitFlag = 1;
             CdxStreamForceStop(mp3->stream);
             break;
         }
         case CDX_PSR_CMD_CLR_FORCESTOP:
+			mp3->exitFlag = 0;
             CdxStreamClrForceStop(mp3->stream);
             break;
         case CDX_PSR_CMD_GET_CACHESTATE:

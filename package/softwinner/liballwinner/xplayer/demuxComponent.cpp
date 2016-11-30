@@ -50,7 +50,7 @@ static const int DEMUX_COMMAND_READ           = 0x10e;
 //* cache start play size and max buffer size.
 static const int CACHE_START_PLAY_SIZE               = 128*1024;
 static const int CACHE_START_PLAY_SIZE_WITHOUT_VIDEO = 1*1024;
-static const int CACHE_MAX_BUFFER_SIZE = 20*1024*1024;
+static const int CACHE_MAX_BUFFER_SIZE = 1024*1024;
 
 static void* DemuxThread(void* arg);
 static void* CacheThread(void* arg);
@@ -578,7 +578,8 @@ int DemuxCompStop(DemuxComp* d)    //* close the data source, must call prepare 
     demux->bStopping = 1;
     if(demux->pParser != NULL)
         CdxParserForceStop(demux->pParser); //* quit from reading or seeking.
-    
+	else if(demux->pStream != NULL)
+		CdxStreamForceStop(demux->pStream);
     //* send a start message.
     setMessage(&msg, 
                DEMUX_COMMAND_STOP,                  //* message id.
@@ -783,8 +784,12 @@ process_message:
                 logw("demux->pParser != NULL when DEMUX_COMMAND_PREPARE message received.");
                 CdxParserClose(demux->pParser);
                 demux->pParser = NULL;
-            }
-            
+				demux->pStream = NULL;
+            }else if(demux->pStream != NULL){
+				CdxStreamClose(demux->pStream);
+				demux->pStream = NULL;
+			}
+
             flags  = 0;
 #if DEMO_CONFIG_DISABLE_SUBTITLE
             flags |= DISABLE_SUBTITLE;
@@ -911,8 +916,12 @@ process_message:
             {
                 CdxParserClose(demux->pParser);
                 demux->pParser = NULL;
-            }
-            
+				demux->pStream = NULL;
+            }else if(demux->pStream != NULL){
+				CdxStreamClose(demux->pStream);
+				demux->pStream = NULL;
+			}
+
             demux->eStatus = DEMUX_STATUS_STOPPED;
             demux->bStopping = 0;
             if(pReplyValue != NULL)
@@ -940,8 +949,12 @@ process_message:
             {
                 CdxParserClose(demux->pParser);
                 demux->pParser = NULL;
-            }
-            
+				demux->pStream = NULL;
+            }else if(demux->pStream != NULL){
+				CdxStreamClose(demux->pStream);
+				demux->pStream = NULL;
+			}
+
             clearDataSourceFields(&demux->source);
             demux->eStatus = DEMUX_STATUS_IDLE;
             demux->bStopping = 0;
