@@ -37,11 +37,15 @@ int c_bt::bt_on(char *bt_addr){
     /*start bluetooth app*/
     bluetooth_start(this,bt_addr);
 
+#if (BT_AVK_ENABLE == 1)
     /*start app avk*/
     start_app_avk();
+#endif
 
+#if (BT_HS_ENABLE == 1)
     /* start hs */
     start_app_hs();
+#endif
 
     this->bt_on_status = 1;
     return 0;
@@ -65,8 +69,10 @@ int c_bt::bt_on_no_avrcp(char *bt_addr){
     /*start bluetooth app*/
     bluetooth_start(this,bt_addr);
 
+#if (BT_AVK_ENABLE == 1)
     /*start app avk*/
     start_app_avk_no_avrcp();
+#endif
 
     this->bt_on_status = 1;
     return 0;
@@ -80,11 +86,15 @@ int c_bt::bt_off(){
         return 0;
     }
 
+#if (BT_HS_ENABLE == 1)
     /* stop app hs */
     stop_app_hs();
+#endif
 
+#if (BT_AVK_ENABLE == 1)
     /*stop app avk*/
     stop_app_avk();
+#endif
 
     /* stop bluetooth app */
     bluetooth_stop();

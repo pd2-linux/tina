@@ -490,6 +490,24 @@ static void mixer_set(char* name, int value)
     system(cmd);
 }
 
+static void hs_pcm_set()
+{
+	system("amixer cset numid=35 1");	
+	system("amixer cset numid=33 1");
+	system("amixer cset numid=34 1");
+	system("amixer cset numid=28 1");
+	system("amixer cset numid=27 1");
+	system("amixer cset numid=19 1");
+		
+	system("echo 1,1,0x28c,0x1100 > /sys/bus/platform/devices/sunxi-pcm-codec/audio_reg_debug/audio_reg");	
+	system("echo 1,1,0x330,0x2200 > /sys/bus/platform/devices/sunxi-pcm-codec/audio_reg_debug/audio_reg");
+	system("echo 1,2,0x0d,0x40 > /sys/bus/platform/devices/sunxi-pcm-codec/audio_reg_debug/audio_reg");
+	system("echo 1,2,0x0f,0xc3 > /sys/bus/platform/devices/sunxi-pcm-codec/audio_reg_debug/audio_reg");
+	system("echo 1,1,0x280,0x165e > /sys/bus/platform/devices/sunxi-pcm-codec/audio_reg_debug/audio_reg");
+	system("echo 1,1,0x2c0,0x6011 > /sys/bus/platform/devices/sunxi-pcm-codec/audio_reg_debug/audio_reg");
+	
+	return ;
+}
 /*******************************************************************************
  **
  ** Function         app_hs_sco_uipc_cback
@@ -1385,7 +1403,7 @@ int app_hs_register(void)
 
     APP_DEBUG0("start Register");
 
-    app_hs_cb.sco_route = BSA_SCO_ROUTE_HCI;
+    app_hs_cb.sco_route = BSA_SCO_ROUTE_PCM;
 
     /* prepare parameters */
     BSA_HsRegisterInit(&param);
@@ -2044,6 +2062,12 @@ int app_hs_open_alsa_duplex(void)
 {
     int status;
 
+	if (app_hs_cb.sco_route == BSA_SCO_ROUTE_PCM){
+		APP_DEBUG0("sco route is PCM, set pcm params");
+		hs_pcm_set();
+		return 0;
+	}
+
     /* If ALSA PCM driver was already open => close it */
     if (alsa_handle_playback != NULL)
     {
@@ -2062,7 +2086,6 @@ int app_hs_open_alsa_duplex(void)
     }
     else
     {
-#if 1
         /* Configure ALSA driver with PCM parameters */
         status = snd_pcm_set_params(alsa_handle_playback,
             SND_PCM_FORMAT_S16_LE,
@@ -2079,7 +2102,7 @@ int app_hs_open_alsa_duplex(void)
 		
 		/* set output */
 		mixer_set("Speaker Function",2);
-#endif
+
     }
     alsa_playback_opened = TRUE;
 	
@@ -2091,7 +2114,6 @@ int app_hs_open_alsa_duplex(void)
     }
     APP_DEBUG0("Opening Alsa/Asound audio driver Capture");
 
-#if 1
     status = snd_pcm_open(&alsa_handle_capture, alsa_device,
         SND_PCM_STREAM_CAPTURE, SND_PCM_NONBLOCK);
     if (status < 0)
@@ -2102,19 +2124,6 @@ int app_hs_open_alsa_duplex(void)
     else
     {
         /* Configure ALSA driver with PCM parameters */
-        status = snd_pcm_set_params(alsa_handle_capture,
-            SND_PCM_FORMAT_S16_LE,
-            SND_PCM_ACCESS_RW_INTERLEAVED,
-            APP_HS_CHANNEL_NB,
-            APP_HS_SAMPLE_RATE,
-            1, /* SW resample */
-            100000);/* 100msec */
-		if (status < 0)
-        {
-            APP_ERROR1("snd_pcm_set_params failed: %s", snd_strerror(status));
-            return status;
-        }
-
         status = alsa_set_pcm_params(alsa_handle_capture,
 			SND_PCM_FORMAT_S16_LE,
 			APP_HS_CHANNEL_NB,
@@ -2126,7 +2135,7 @@ int app_hs_open_alsa_duplex(void)
         }
     }
     alsa_capture_opened = TRUE;
-#endif
+
 
     return 0;
 }

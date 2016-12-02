@@ -15,6 +15,9 @@
 typedef unsigned char BT_ADDR[BT_ADDR_LEN];
 #endif
 
+#define BT_AVK_ENABLE 	1
+#define BT_HS_ENABLE	1
+
 enum BT_EVENT{
     BT_AVK_CONNECTED_EVT = 0,
     BT_AVK_DISCONNECTED_EVT,
