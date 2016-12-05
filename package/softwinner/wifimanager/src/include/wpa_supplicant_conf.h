@@ -9,7 +9,7 @@ extern "C" {
 
 #define CMD_LEN        255
 #define REPLY_BUF_SIZE 4096 // wpa_supplicant's maximum size.
-#define NET_ID_LEN     4
+#define NET_ID_LEN     10
 
 int wpa_conf_network_info_exist();
 int wpa_conf_is_ap_exist(const char *ssid, tKEY_MGMT key_mgmt, char *net_id, int *len);

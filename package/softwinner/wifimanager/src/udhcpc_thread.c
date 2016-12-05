@@ -85,7 +85,8 @@ void *udhcpc_thread(void *args)
     printf("vflag= %d\n",vflag);
     if(vflag != 0){
         set_wifi_machine_state(CONNECTED_STATE);
-        send_wifi_event(AP_CONNECTED, connecting_ap_event_label);
+		set_cur_wifi_event(AP_CONNECTED);
+        call_event_callback_function(WIFIMG_NETWORK_CONNECTED, NULL, connecting_ap_event_label);
     }else{
         printf("udhcpc wlan0 timeout, pid %d!\n",pthread_self());
         /* stop dhcpc thread */
@@ -96,7 +97,8 @@ void *udhcpc_thread(void *args)
         wifi_command(cmd, reply, sizeof(reply));
         
         set_wifi_machine_state(DISCONNECTED_STATE);
-        send_wifi_event(OBTAINING_IP_TIMEOUT, connecting_ap_event_label);
+		set_cur_wifi_event(OBTAINING_IP_TIMEOUT);
+        call_event_callback_function(WIFIMG_CONNECT_TIMEOUT, NULL, connecting_ap_event_label);
     }
 	  
     pthread_exit(NULL);

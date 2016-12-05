@@ -26,8 +26,13 @@ $(target): $(LIB_OBJS)
 	$(CXX) -o $@ $^ $(LDFLAGS) -L$(CONFIG_PREFIX)/usr/lib -lwifimg -lpthread
 	@cp -f $(target) $(CONFIG_PREFIX)/usr/bin
 
+#wifi_add_nework_test
+wifi_add_network_test: wifi_add_network.cpp
+	$(CXX) -o $@ $^ $(CFLAGS) $(INCLUDES) $(LDFLAGS) -L$(CONFIG_PREFIX)/usr/lib -lwifimg -lpthread
+	@cp -f wifi_add_network_test $(CONFIG_PREFIX)/usr/bin
+
 ####################################################################
-all: install $(target) wifi_on_off_test wifi_connect_chinese_ap_test
+all: install $(target) wifi_on_off_test wifi_connect_chinese_ap_test wifi_add_network_test
 clean:
-	rm -rf $(target) wifi_on_off_test wifi_connect_chinese_ap_test $(LIB_OBJS)
+	rm -rf $(target) wifi_on_off_test wifi_connect_chinese_ap_test wifi_add_network_test $(LIB_OBJS)
 
