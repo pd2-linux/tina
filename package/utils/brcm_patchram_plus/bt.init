@@ -12,8 +12,8 @@ fi
 
 echo 0 > /sys/class/rfkill/rfkill0/state
 echo 1 > /sys/class/rfkill/rfkill0/state
-#brcm_patchram_plus -d --tosleep=50000 --no2bytes --enable_hci --scopcm=0,2,0,0,0,0,0,0,0,0 --baudrate 1500000 --patchram /lib/firmware/ap6212/bcm43438a0.hcd  /dev/ttyS1 &
-brcm_patchram_plus --tosleep=50000 --no2bytes --enable_hci --scopcm=0,2,0,0,0,0,0,0,0,0 --baudrate 1500000 --patchram /lib/firmware/ap6212/bcm43438a0.hcd  /dev/ttyS1 & 
+#brcm_patchram_plus -d --tosleep=50000 --no2bytes --enable_hci --scopcm=0,2,0,0,0,0,0,0,0,0 --baudrate 1500000 --patchram /lib/firmware/bcm43438a0.hcd  /dev/ttyS1 &
+brcm_patchram_plus --tosleep=50000 --no2bytes --enable_hci --scopcm=0,2,0,0,0,0,0,0,0,0 --baudrate 1500000 --patchram /lib/firmware/bcm43438a0.hcd  /dev/ttyS1 & 
 sleep  10
  
 #change all bluetooth type rfkillx/state to 1

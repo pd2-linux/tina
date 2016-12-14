@@ -63,7 +63,6 @@ endef
 $(eval $(call BuildPackage,r8188eu-firmware))
 
 
-
 include $(INCLUDE_DIR)/package.mk
 define Package/ap6212-firmware
   SECTION:=firmware    
@@ -76,13 +75,32 @@ define Build/Compile
 endef
 
 define Package/ap6212-firmware/install
-	mkdir -p $(1)/lib/firmware/ap6212
+	mkdir -p $(1)/lib/firmware
 	$(CP) \
 		$(TOPDIR)/package/firmware/ap6212/*  \
-		$(1)/lib/firmware/ap6212/
+		$(1)/lib/firmware/
 endef
 
 $(eval $(call BuildPackage,ap6212-firmware))
+
+define Package/ap6212a-firmware
+  SECTION:=firmware    
+  CATEGORY:=Firmware
+  TITLE:=Broadcom AP6212A firmware
+endef
+
+define Build/Compile
+
+endef
+
+define Package/ap6212a-firmware/install
+	mkdir -p $(1)/lib/firmware
+	$(CP) \
+		$(TOPDIR)/package/firmware/ap6212a/*  \
+		$(1)/lib/firmware/
+endef
+
+$(eval $(call BuildPackage,ap6212a-firmware))
 
 define Package/esp8089-firmware
   SECTION:=firmware

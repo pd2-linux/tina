@@ -10,7 +10,7 @@ bt_on()
   echo 1 > /sys/class/rfkill/rfkill0/state
   sleep 1
 
-  $BSA_SERVER -all=0 -d /dev/ttyS1 -p /lib/firmware/ap6212/bcm43438a0.hcd -r 12 &
+  $BSA_SERVER -all=0 -d /dev/ttyS1 -pp /lib/firmware/ -r 12 &
   sleep 2
 }
 

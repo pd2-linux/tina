@@ -1,0 +1,2 @@
+nv_by_chip=1 \
+43430 0 nvram_ap6212.txt
